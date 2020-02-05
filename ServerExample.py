@@ -4,8 +4,9 @@ import time
 import os
 
 # TAK connection defaults
-HostAddress = "172.21.1.166"
+HostAddress = "10.0.0.115"
 HostPort = 8087
+
 
 # Define function to validate IP
 def validateIP(s):
@@ -28,17 +29,11 @@ def validateIP(s):
 def clearScreen():
     os.system('cls' if os.name=='nt' else 'clear')
 
-# Prompt for server start
-while True:
-    print('Type "start" to start the server')
-    Inp = input("@TAKServer# ").upper()
-    if Inp == "START":
-        TAKSock = TAK(HostAddress, HostPort)
-        print("Server starting...")
-        time.sleep(2)
-        break
+# Create isRunning variable
+isRunning = False
 
 # Main loop
+print('To start server type "start"')
 while True:
     # Grab user input and convert it to uppercase
     Inp = input("@TAKServer# ").upper()
@@ -47,10 +42,22 @@ while True:
     # display help information
     if Inp[0] == "HELP":
         print('Available commands:')
-        print('show        -    shows specified information')
-        print('send        -    Send data to clients')
-        print('set         -    Sets specified variable')
-        print('shutdown    -    Stops server')
+        print('Start       -    starts the server')
+        print('Show        -    shows specified information')
+        print('Send        -    Send data to clients')
+        print('Set         -    Sets specified variable')
+        print('Shutdown    -    initiate shutdown')
+        print('Stop        -    Cleanly stop server')
+        print('Exit        -    Exit this Command Line Interface')
+
+    elif Inp[0] == "START":
+        if not isRunning:
+            isRunning = True
+            TAKSock = TAK(HostAddress, HostPort)
+            print("Server starting...")
+            time.sleep(2)
+        else:
+            print("Server already running")
 
     # Handle show command
     elif Inp[0] == "SHOW":
@@ -63,6 +70,14 @@ while True:
             # Show connected clients
             elif Inp[1] == "CLIENTS":
                 print(str(TAKSock.getClients()))
+
+            # Return errorlog
+            elif Inp[1] == "ERRORLOG":
+                print(TAKSock.getErrorLog())
+
+            # Return log
+            elif Inp[1] == "LOG":
+                    print(TAKSock.getLog())
 
             # Return fileno of socket
             elif Inp[1] == "FILENO":
@@ -78,7 +93,7 @@ while True:
             else:
                 print("invalid parameter:", Inp[1])
         else:
-            print("Show requires more parameters:\nthreads    -    Shows currently running threads\nclients    -    Shows currently connected clients\nFileno     -    Shows fileno of specified socket")
+            print("Show requires more parameters:\nthreads    -    Shows currently running threads\nclients    -    Shows currently connected clients\nFileno     -    Shows fileno of specified socket\nErrorlog   -    Shows the errorlog\nLog        -    Shows the log")
 
     # Clear screen
     elif Inp[0] == "CLEAR":
@@ -91,7 +106,7 @@ while True:
             # Send data to all clients
             if Inp[1] == "ALL":
                 xmlData = input("XML String: ")
-                Success, e = TAKSock.sendToAll(xmlData, Inp[1])
+                Success, e = TAKSock.sendToAll(xmlData)
                 if Success:
                     print("Sent Data")
                 else:
@@ -126,14 +141,35 @@ while True:
         else:
             print("set requires more parameters:\ndebuglevel    -    Sets current debug level")
 
-
     # Cleanly stop server
+    elif Inp[0] == "STOP":
+        if isRunning:
+            YN = input("Are you sure(y/n)? ")
+            if YN.upper() == "Y":
+                TAKSock.close()
+                isRunning = False
+                print("Server shutting Down...")
+                time.sleep(2)
+        else:
+            print("Server is already stopped")
+
+    # Cleanly shutdown server
     elif Inp[0] == "SHUTDOWN":
-        YN = input("Are you sure(y/n)? ")
-        if YN.upper() == "Y":
-            TAKSock.close()
-            print("Server shutting Down...")
-            time.sleep(2)
+        if isRunning:
+            YN = input("Are you sure(y/n)? ")
+            if YN.upper() == "Y":
+                TAKSock.close()
+                isRunning = False
+                print("Server shutting Down...")
+                time.sleep(2)
+                break
+        else:
             break
+
+    elif Inp[0] == "EXIT":
+        if not isRunning:
+            break
+        else:
+            print("Can't exit while the server is running")
     else:
         print('invalid input:', Inp[0])
