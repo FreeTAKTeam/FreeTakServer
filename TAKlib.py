@@ -5,11 +5,13 @@ Example:
 >>>from TAKlib import TAK
 >>>TAKSock = TAK("172.21.1.166", 8087)
 
-To do:
+Todo:
  - Propper exception handling
  - Connection Logging
+ - write Documentation
+ - Propperly test all functions
+ - Root out and fix bugs
  - Produce propper replies to http GET requests for server config and version
- - Clean up spaghetti code
 """
 
 # Imported modules
