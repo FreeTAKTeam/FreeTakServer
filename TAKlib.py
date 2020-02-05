@@ -12,6 +12,7 @@ Todo:
  - Propperly test all functions
  - Root out and fix bugs
  - Produce propper replies to http GET requests for server config and version
+ - Clean up code
 """
 
 # Imported modules
