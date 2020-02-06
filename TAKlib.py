@@ -5,6 +5,15 @@ Example:
 >>>from TAKlib import TAK
 >>>TAKSock = TAK("172.21.1.166", 8087)
 
+Todo:
+ - Propper exception handling
+ - write Documentation
+ - Propperly test all functions
+ - Root out and fix bugs
+ - Produce propper replies to http GET requests for server config and version
+ - Make it more secure (validate data before broadcasting, add support for ssl and tls)
+ - Clean up code
+
 OBS! Class is non-blocking
 """
 
@@ -13,6 +22,7 @@ import socket
 import sys
 import time
 import _thread
+import xml.etree.ElementTree as ET
 
 __all__ = ["TAK"]
 
@@ -22,11 +32,6 @@ DEBUGLEVEL = 0
 # TAK Protocol defaults
 TAK_PORT = 8087
 TAK_HTTP_PORT = 8080
-LOGPATH = "./logs/"
-
-# TAK resource parameters (don't touch)
-Clients = []
-Threads = []
 
 class TAK:
 
@@ -45,9 +50,9 @@ class TAK:
         is optional.
         """
         self.debuglevel = DEBUGLEVEL
-        self.logPath = LOGPATH
-        self.Clients = Clients
-        self.Threads = Threads
+        self.Clients = []
+        self.Connections = []
+        self.Threads = []
         self.host = host
         self.port = port
         self.shutdown = False
@@ -71,7 +76,7 @@ class TAK:
             self.TAKSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.TAKSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.TAKSock.bind((host, port))
-            self.TAKSock.listen(5)
+            self.TAKSock.listen(1)
             _thread.start_new_thread(self.listenForConnection,(self.TAKSock,))
             self.startHTTP(self.host, 8080)
             self.log = self.log + time.ctime(time.time()) + ' TAK Server started up on ' + str(host) + ' port ' + str(port) + '\n'
@@ -90,7 +95,7 @@ class TAK:
             self.httpSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.httpSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.httpSock.bind((host, port))
-            self.httpSock.listen(5)
+            self.httpSock.listen(1)
             _thread.start_new_thread(self.listenForConnection,(self.httpSock,))
             self.log = self.log + time.ctime(time.time()) + ' HTTP Server started up on ' + str(host) + ' port ' + str(port) + '\n'
         except Exception as e:
@@ -194,7 +199,7 @@ class TAK:
                         break
                     if conn.getsockname()[1] == 8087:
                         _thread.start_new_thread(self.newClient,(conn, clientAddress))
-                        self.log = self.log + time.ctime(time.time()) + ' Connection from: ' + str(clientAddress) + 'on port' + str(conn.getsockname()[1]) + '\n'
+                        self.log = self.log + time.ctime(time.time()) + ' Connection from: ' + str(clientAddress) + 'on port ' + str(conn.getsockname()[1]) + '\n'
                     elif conn.getsockname()[1] == 8080:
                         _thread.start_new_thread(self.newHTTP,(conn, clientAddress))
                 except Exception as e:
@@ -205,36 +210,82 @@ class TAK:
             self.errorLog = self.errorLog + time.ctime(time.time()) + " listenForConnection() Error: " + str(e) + '\n'
             e = None
 
+    def verifyData(self, data, isInitial, uid=None):
+        try:
+            parsedData = ET.fromstring(data)
+            if isInitial:
+                platform = parsedData.find("./detail/takv").attrib["platform"]
+                uid = parsedData.find(".").attrib["uid"]
+                if platform.upper() == "ATAK":
+                    return True, uid
+                else:
+                    return False, "not ATAK"
+            else:
+                newuid = parsedData.attrib["uid"]
+                if uid in newuid:
+                    return True, ""
+                else:
+                    try:
+                        linkUID = parsedData.find("./detail/link").attrib["uid"]
+                        if uid in linkUID:
+                            return True, ""
+                        else:
+                            return False, "wrong link uid: " + newuid + " / " + linkUID
+                    except:
+                        return False, "wrong uid: " + newuid + " / " + uid
+        except Exception as e:
+            return False, str(e)
+
+    def socketStayAlive(self, conn):
+        while True:
+            try:
+                conn.send("Keep-Alive")
+                time.sleep(5)
+            except:
+                break
+
     def newClient(self, conn, clientAddress):
         """Receive client data and broadcast to all connected clients"""
         try:
             self.Threads.append(_thread.get_ident())
             self.Clients.append(clientAddress)
-            conn.settimeout(20)
+            self.Connections.append(conn)
+            self.socketStayAlive(conn)
+            #conn.settimeout(30)
             self.log = self.log + time.ctime(time.time()) + ' Started new thread: ' + str(_thread.get_ident()) + '\n'
             try:
-                initialData = conn.recv(610)
+                initialData = conn.recv(700)
                 self.log = self.log + time.ctime(time.time()) + ' Received initial ' + str(len(initialData)) + ' bytes from: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
-                while True:
-                    data = conn.recv(303)
-                    self.log = self.log + time.ctime(time.time()) + ' Received ' + str(len(data)) + ' bytes from: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
-                    if len(data) < 1:
-                        break
-                    if self.shutdown:
-                        break
-                    for client in self.Clients:
-                        conn.sendto(data, client)
-                    self.log = self.log + time.ctime(time.time()) + ' Broadcast data from: ' + str(clientAddress) + ' to ' + str(len(self.Clients)) + ' clients on thread: ' + str(_thread.get_ident()) + '\n'
+                goodData, uid = self.verifyData(initialData, True)
+                if not goodData:
+                    self.errorLog = self.errorLog + time.ctime(time.time()) + " newClient() Error: Bad initial data, thread terminated: " + str(uid) + '\n'
+                else:
+                    while True:
+                        data = conn.recv(303)
+                        self.log = self.log + time.ctime(time.time()) + ' Received ' + str(len(data)) + ' bytes from: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
+                        if len(data) < 1:
+                            break
+                        if self.shutdown:
+                            break
+                        goodData, e = self.verifyData(data, False, uid)
+                        if goodData:
+                            if data != "":
+                                for client in self.Connections:
+                                    client.send(bytes(str(data), "utf-8"))
+                                self.log = self.log + time.ctime(time.time()) + ' Broadcast data from: ' + str(clientAddress) + ' to ' + str(len(self.Clients)) + ' clients on thread: ' + str(_thread.get_ident()) + '\n'
+                            else:
+                                self.errorLog = self.errorLog + time.ctime(time.time()) + " newClient() Error: Bad data, not broadcasted: " + str(e) + '\n'
             finally:
                 conn.close()
                 self.Threads.remove(_thread.get_ident())
                 self.log = self.log + time.ctime(time.time()) + ' Terminated thread: ' + str(_thread.get_ident()) + '\n'
                 self.Clients.remove(clientAddress)
+                self.Connections.remove(conn)
                 self.log = self.log + time.ctime(time.time()) + ' Closed connection: ' + str(clientAddress) + '\n'
         except Exception as e:
             self.errorLog = self.errorLog + time.ctime(time.time()) + " newClient() Error: " + str(e) + '\n'
 
-    def newHTTP(self, conn, clientAdress):
+    def newHTTP(self, conn, clientAddress):
         """Receive client http/1.1 GET requests and respond with 200 OK"""
         try:
             self.Threads.append(_thread.get_ident())
@@ -249,10 +300,11 @@ class TAK:
                         break
                     conn.send(bytes("HTTP/1.1 200 OK\r\n" +"Content-Type: text/xml\r\n"  +"\r\n" +"<html></html>\r\n", encoding='utf8'))
                     self.log = self.log + time.ctime(time.time()) + ' Responded with HTTP/1.1 200 OK to: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
-            except:
+            except Exception as e:
                 conn.close()
+                self.errorLog = self.errorLog + time.ctime(time.time()) + " newHTTP() Error: " + str(e) + '\n'
             finally:
                 conn.close()
                 self.Threads.remove(_thread.get_ident())
         except Exception as e:
-            self.errorLog = self.errorLog + time.ctime(time.time()) + " newHTTP() Error: " + e + '\n'
+            self.errorLog = self.errorLog + time.ctime(time.time()) + " newHTTP() Error: " + str(e) + '\n'
