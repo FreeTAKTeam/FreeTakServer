@@ -11,6 +11,7 @@ Todo:
  - Propperly test all functions
  - Root out and fix bugs
  - Produce propper replies to http GET requests for server config and version
+ - Make it more secure (validate data before broadcasting, add support for ssl and tls)
  - Clean up code
 
 OBS! Class is non-blocking
