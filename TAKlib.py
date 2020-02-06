@@ -80,7 +80,7 @@ class TAK:
             self.TAKSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.TAKSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.TAKSock.bind((host, port))
-            self.TAKSock.listen(1)
+            self.TAKSock.listen(5)
             _thread.start_new_thread(self.listenForConnection,(self.TAKSock,))
             self.startHTTP(self.host, 8080)
             self.log = self.log + time.ctime(time.time()) + ' TAK Server started up on ' + str(host) + ' port ' + str(port) + '\n'
@@ -99,7 +99,7 @@ class TAK:
             self.httpSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.httpSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.httpSock.bind((host, port))
-            self.httpSock.listen(1)
+            self.httpSock.listen(5)
             _thread.start_new_thread(self.listenForConnection,(self.httpSock,))
             self.log = self.log + time.ctime(time.time()) + ' HTTP Server started up on ' + str(host) + ' port ' + str(port) + '\n'
         except Exception as e:
