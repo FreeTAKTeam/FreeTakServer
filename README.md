@@ -1,5 +1,5 @@
 # TAKlib
-A Python3 library to emulate a TAK Server for use with wintak, atak, civtak or itak
+A Python3 library to emulate a TAK Server for use with wintak, atak, civtak, itak or any other TAK devices
 
 ## Requirements
 - Python 3
