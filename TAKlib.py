@@ -5,15 +5,6 @@ Example:
 >>>from TAKlib import TAK
 >>>TAKSock = TAK("172.21.1.166", 8087)
 
-Todo:
- - Propper exception handling
- - write Documentation
- - Propperly test all functions
- - Root out and fix bugs
- - Produce propper replies to http GET requests for server config and version
- - Make it more secure (validate data before broadcasting, add support for ssl and tls)
- - Clean up code
-
 OBS! Class is non-blocking
 """
 
