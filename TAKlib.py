@@ -5,6 +5,15 @@ Example:
 >>>from TAKlib import TAK
 >>>TAKSock = TAK("172.21.1.166", 8087)
 
+Todo:
+ - Propper exception handling
+ - write Documentation
+ - Propperly test all functions
+ - Root out and fix bugs
+ - Produce propper replies to http GET requests for server config and version
+ - Make it more secure (validate data before broadcasting, add support for ssl and tls)
+ - Clean up code
+
 OBS! Class is non-blocking
 """
 
@@ -13,7 +22,7 @@ import socket
 import sys
 import time
 import _thread
-
+from CoT import CursorOnTarget as COT
 __all__ = ["TAK"]
 
 # Tuneable parameters
@@ -53,6 +62,7 @@ class TAK:
         self.shutdown = False
         self.errorLog = ""
         self.log = ""
+        self.xml = "/home/natha/TAK/xmlfile.xml"
         if host is not None:
             self.start(host, port)
 
@@ -71,7 +81,7 @@ class TAK:
             self.TAKSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.TAKSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.TAKSock.bind((host, port))
-            self.TAKSock.listen(5)
+            self.TAKSock.listen(1)
             _thread.start_new_thread(self.listenForConnection,(self.TAKSock,))
             self.startHTTP(self.host, 8080)
             self.log = self.log + time.ctime(time.time()) + ' TAK Server started up on ' + str(host) + ' port ' + str(port) + '\n'
@@ -90,7 +100,7 @@ class TAK:
             self.httpSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.httpSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.httpSock.bind((host, port))
-            self.httpSock.listen(5)
+            self.httpSock.listen(1)
             _thread.start_new_thread(self.listenForConnection,(self.httpSock,))
             self.log = self.log + time.ctime(time.time()) + ' HTTP Server started up on ' + str(host) + ' port ' + str(port) + '\n'
         except Exception as e:
@@ -207,6 +217,9 @@ class TAK:
 
     def newClient(self, conn, clientAddress):
         """Receive client data and broadcast to all connected clients"""
+        
+        data = open(self.xml, "rb")
+        data = data.read(65536)
         try:
             self.Threads.append(_thread.get_ident())
             self.Clients.append(clientAddress)
@@ -216,7 +229,6 @@ class TAK:
                 initialData = conn.recv(610)
                 self.log = self.log + time.ctime(time.time()) + ' Received initial ' + str(len(initialData)) + ' bytes from: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
                 while True:
-                    data = conn.recv(303)
                     self.log = self.log + time.ctime(time.time()) + ' Received ' + str(len(data)) + ' bytes from: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
                     if len(data) < 1:
                         break
