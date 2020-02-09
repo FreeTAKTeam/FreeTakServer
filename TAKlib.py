@@ -1,10 +1,7 @@
 r"""TAK server class.
-
 Example:
-
 >>>from TAKlib import TAK
 >>>TAKSock = TAK("172.21.1.166", 8087)
-
 Todo:
  - Propper exception handling
  - write Documentation
@@ -13,7 +10,6 @@ Todo:
  - Produce propper replies to http GET requests for server config and version
  - Make it more secure (validate data before broadcasting, add support for ssl and tls)
  - Clean up code
-
 OBS! Class is non-blocking
 """
 
@@ -226,6 +222,7 @@ class TAK:
             conn.settimeout(20)
             self.log = self.log + time.ctime(time.time()) + ' Started new thread: ' + str(_thread.get_ident()) + '\n'
             try:
+                #changed con recv value from 610 and added print
                 initialData = conn.recv(610)
                 self.log = self.log + time.ctime(time.time()) + ' Received initial ' + str(len(initialData)) + ' bytes from: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
                 while True:
@@ -234,6 +231,7 @@ class TAK:
                         break
                     if self.shutdown:
                         break
+                       #change sent data from data to initialData
                     for client in self.Clients:
                         conn.sendto(data, client)
                     self.log = self.log + time.ctime(time.time()) + ' Broadcast data from: ' + str(clientAddress) + ' to ' + str(len(self.Clients)) + ' clients on thread: ' + str(_thread.get_ident()) + '\n'
@@ -253,7 +251,8 @@ class TAK:
             conn.settimeout(20)
             try:
                 while True:
-                    data = conn.recv(303)
+                    #changed con.recv value
+                    data = conn.recv(1024)
                     self.log = self.log + time.ctime(time.time()) + ' Received HTTP/1.1 GET request from: ' + str(clientAddress) + ' on thread: ' + str(_thread.get_ident()) + '\n'
                     if len(data) < 1:
                         break
