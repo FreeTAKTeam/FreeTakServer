@@ -5,7 +5,7 @@ import os
 from CoT import CursorOnTarget
 
 # TAK connection defaults
-HostAddress = "142.93.239.220"
+HostAddress = "192.168.0.104"
 HostPort = 8087
 
 
