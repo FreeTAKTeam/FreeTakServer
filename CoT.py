@@ -59,64 +59,64 @@ class CoT:
     """
     Identity = "unknow" 
      # Identity getter 
-     def getIdentity(self): 
-      return self.Identity 
+    def getIdentity(self): 
+        return self.Identity 
  
      # Identity setter 
-     def setIdentity(Identity=0):  
-     self.Identity=Identity 
+    def setIdentity(Identity=0):  
+        self.Identity=Identity 
      
     dimension = "land-unit" 
      # dimension getter 
-     def getdimension(self): 
-      return self.dimension 
+    def getdimension(self): 
+        return self.dimension 
  
      # dimension setter 
-     def setdimension(dimension=0):  
-     self.dimension=dimension 
+    def setdimension(dimension=0):  
+        self.dimension=dimension 
      
     entity = "military" 
      # entity getter 
-     def getentity(self): 
-      return self.entity 
+    def getentity(self): 
+        return self.entity 
  
      # entity setter 
-     def setentity(entity=0):  
-     self.entity=entity 
+    def setentity(entity=0):  
+        self.entity=entity 
      
     type = "E-V-A-T" 
      # type getter 
-     def gettype(self): 
-      return self.type 
+    def gettype(self): 
+        return self.type 
  
      # type setter 
-     def settype(type=0):  
-     self.type=type 
+    def settype(type=0):  
+        self.type=type 
      
     lat = "" 
      # lat getter 
-     def getlat(self): 
-      return self.lat 
+    def getlat(self): 
+        return self.lat 
  
      # lat setter 
-     def setlat(lat=0):  
-     self.lat=lat 
+    def setlat(lat=0):  
+        self.lat=lat 
      
     lon = "" 
      # lon getter 
-     def getlon(self): 
-      return self.lon 
+    def getlon(self): 
+        return self.lon 
  
      # lon setter 
-     def setlon(lon=0):  
-     self.lon=lon 
+    def setlon(lon=0):  
+        self.lon=lon 
      
     uid = "" 
      # uid getter 
-     def getuid(self): 
-      return self.uid 
+    def getuid(self): 
+        return self.uid 
  
      # uid setter 
-     def setuid(uid=0):  
-     self.uid=uid 
+    def setuid(uid=0):  
+        self.uid=uid 
      

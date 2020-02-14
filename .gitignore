@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+*.sqlite
+/.vs/TAKlib/v16/.suo
+/.vs/VSWorkspaceState.json

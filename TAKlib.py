@@ -18,7 +18,9 @@ import socket
 import sys
 import time
 import _thread
-from CoT import CursorOnTarget as COT
+
+
+   
 __all__ = ["TAK"]
 
 # Tuneable parameters
@@ -61,6 +63,10 @@ class TAK:
         self.xml = "/home/natha/TAK/xmlfile.xml"
         if host is not None:
             self.start(host, port)
+
+    def SetCOT():
+        from CoT import CursorOnTarget as COT
+        return COT
 
     def start(self, host, port=0):
         """Start the server instance.

@@ -1,8 +1,9 @@
 # Imported modules
 from TAKlib import *
+from CoT import *
 import time
 import os
-from CoT import CursorOnTarget
+
 
 # TAK connection defaults
 HostAddress = "192.168.0.104"
@@ -35,6 +36,7 @@ isRunning = False
 
 # Main loop
 print('To start server type "start"')
+
 CursorOnTarget.atoms()
 while True:
     # Grab user input and convert it to uppercase

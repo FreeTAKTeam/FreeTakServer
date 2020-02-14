@@ -16,10 +16,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.data = self.data.strip()
             print(str(self.client_address[0]) + " wrote: ")
             print (self.data)
-            self.request.send(self.data.upper())
+            self.request.send(self.data)
 
 if __name__ == "__main__":
-    HOST, PORT = "192.168.0.19", 8087
+    HOST, PORT = "192.168.0.104", 8087
 
     # Create the server, binding to localhost on port 9999
     with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
