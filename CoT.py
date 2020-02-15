@@ -51,6 +51,17 @@ class CursorOnTarget:
         f.close()
         print(cot_xml)
         print('running')
+        return cot_xml
+
+    def pushUDP(__self, ip_address, port, cot_xml):
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sent = sock.sendto(cot_xml, (ip_address, port))
+            return sent
+
+    def pushTCP(__self, ip_address, port, cot_xml):
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                conn = sock.connect((ip_address, port))
+                return sock.send(cot_xml)
 
 class CoT:
     """The Cursor-On-Target (CoT) Event data model defines an XML data schema for
