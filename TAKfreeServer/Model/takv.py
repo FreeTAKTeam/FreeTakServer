@@ -10,45 +10,48 @@
 
 
 class takv:
-# default constructor       def __init__(self):  
 
+ # the version of TAK running on the device
+    __version = "3.12.0-45691.45691-CIV" 
     # the variant of TAK
     __platform = "ATAK-CIV" 
-     # platform getter 
-     def getplatform(self): 
-      return self.platform 
- 
-     # platform setter 
-     def setplatform(platform=0):  
-     self.platform=platform 
- 
     # type of physical device
     __device = "Pirate Device" 
-     # device getter 
-     def getdevice(self): 
-      return self.device 
- 
-     # device setter 
-     def setdevice(device=0):  
-     self.device=device 
- 
     # the operating system running TAK
     __os = "Linux" 
+
+    # default constructor       
+    def __init__(self):  
+
      # os getter 
-     def getos(self): 
+    def getos(self): 
       return self.os 
  
      # os setter 
-     def setos(os=0):  
+   def setos(os=0):  
      self.os=os 
  
-    # the version of TAK running on the device
-    __version = "3.12.0-45691.45691-CIV" 
+   
      # version getter 
-     def getversion(self): 
+    def getversion(self): 
       return self.version 
  
      # version setter 
      def setversion(version=0):  
      self.version=version 
      
+
+    def getplatform(self): 
+        return self.platform 
+ 
+     # platform setter 
+     def setplatform(platform=0):  
+          self.platform=platform 
+
+   # device getter 
+     def getdevice(self): 
+      return self.device 
+ 
+     # device setter 
+     def setdevice(device=0):  
+     self.device=device 

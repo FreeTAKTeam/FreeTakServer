@@ -130,3 +130,4 @@ dmypy.json
 *.sqlite
 /.vs/TAKlib/v16/.suo
 /.vs/VSWorkspaceState.json
+/.vs/tasks.vs.json

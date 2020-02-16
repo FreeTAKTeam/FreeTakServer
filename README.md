@@ -1,6 +1,9 @@
 # TAKlib
 TAKlib is a Python3 library made to emulate a TAK Server for use with TAK devices, it is cross-platform and is only dependant on python stdlib libraries. 
 
+## Documentation
+under docs, you can find various documents including a UMl model of the model classes involved in a COT event.
+
 ## Requirements
 - Python 3
 

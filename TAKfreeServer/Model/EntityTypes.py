@@ -13,14 +13,9 @@ class EntityTypes:
 # default constructor       def __init__(self):  
 
     military = "" 
-     # military getter 
-     def getmilitary(self): 
-      return self.military 
+  
  
-     # military setter 
-     def setmilitary(military=0):  
-     self.military=military 
- 
+   
     civilian = "" 
      # civilian getter 
      def getcivilian(self): 
@@ -29,4 +24,13 @@ class EntityTypes:
      # civilian setter 
      def setcivilian(civilian=0):  
      self.civilian=civilian 
+
+        # military getter 
+     def getmilitary(self): 
+      return self.military 
+
+    # military setter 
+     def setmilitary(military=0):  
+     self.military=military 
+ 
      

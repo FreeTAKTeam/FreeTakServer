@@ -10,55 +10,67 @@
 import chatgrp
 
 class __chat:
-# default constructor       def __init__(self):  
+
 
     # the call sign of the sender
     senderCallsign = "" 
-     # senderCallsign getter 
-     def getsenderCallsign(self): 
-      return self.senderCallsign 
- 
-     # senderCallsign setter 
-     def setsenderCallsign(senderCallsign=0):  
-     self.senderCallsign=senderCallsign 
+    xmlChat="<__chat senderCallsign='corvTab' chatroom='Eliopoli HQ' groupOwner='false' id='aa0b0312-b5cd-4c2c-bbbc-9c4c70216261' parent='RootContactGroup'><chatgrp uid0='ANDROID-R52JB0CDC4E' uid1='aa0b0312-b5cd-4c2c-bbbc-9c4c70216261' id='aa0b0312-b5cd-4c2c-bbbc-9c4c70216261'/></__chat>"
+    
  
     # TBD: the callsign of the receiver?
     chatroom = "" 
-     # chatroom getter 
+
+    m_chatgrp= chatgrp()
+ 
+    # TBD, 
+    groupOwner = "" 
+ 
+ 
+    # TBD: the unique ID of the sender?
+    id = "" 
+  
+    parent = "" 
+    # default constructor       
+    def __init__(self):  
+     # parent getter 
+     def getparent(self): 
+          return self.parent 
+ 
+     # parent setter 
+     def setparent(parent=0):  
+       self.parent=parent 
+    
+     
+
+     # senderCallsign getter 
+     def getsenderCallsign(self): 
+         return self.senderCallsign 
+ 
+     # senderCallsign setter 
+     def setsenderCallsign(senderCallsign=0):  
+       self.senderCallsign=senderCallsign 
+
+       # chatroom getter 
      def getchatroom(self): 
       return self.chatroom 
  
      # chatroom setter 
      def setchatroom(chatroom=0):  
-     self.chatroom=chatroom 
- 
-    # TBD, 
-    groupOwner = "" 
-     # groupOwner getter 
+         self.chatroom=chatroom 
+
+         # groupOwner getter 
      def getgroupOwner(self): 
       return self.groupOwner 
  
      # groupOwner setter 
      def setgroupOwner(groupOwner=0):  
-     self.groupOwner=groupOwner 
- 
-    # TBD: the unique ID of the sender?
-    id = "" 
-     # id getter 
+        self.groupOwner=groupOwner 
+
+        # id getter 
      def getid(self): 
       return self.id 
  
      # id setter 
      def setid(id=0):  
-     self.id=id 
+        self.id=id 
  
-    parent = "" 
-     # parent getter 
-     def getparent(self): 
-      return self.parent 
- 
-     # parent setter 
-     def setparent(parent=0):  
-     self.parent=parent 
- 
-    m_chatgrp= chatgrp()

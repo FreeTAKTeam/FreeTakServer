@@ -33,6 +33,10 @@ DIM = {
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
 
+class Time:
+    sleep=''
+    bytes(sleep,'utf8')
+
 class CursorOnTarget:
 
     def atoms():
