@@ -13,6 +13,8 @@ import argparse
 import logging
 import time
 import xml.etree.ElementTree as ET
+import constant
+const = constant.vars()
 ''' Server class '''
 class ThreadedServer(object):
 	def __init__(self, host, port):
@@ -48,10 +50,10 @@ class ThreadedServer(object):
 		check xml type or class
 		'''
 		data_value = ''
-		if xml_string == b'':
+		if xml_string == const.EMPTY_BYTE:
 			print('client disconnected now setting as disconnected')
 			self.client_dict[current_id]['alive'] = 0
-			return 'fail'
+			return const.FAIL
 
 		tree = ET.fromstring(xml_string)
 		print(tree)
@@ -64,14 +66,14 @@ class ThreadedServer(object):
 		except:
 			uid_by_dash = uid.split('-')
 
-		if uid_by_dash[-1] == 'ping':
+		if uid_by_dash[-1] == const.PING:
 			print('is ping')
-			data_value = 'ping'
+			data_value = const.PING
 			self.data_important.append(xml_string)
 		elif len(uid_by_dot)>0:
-			if uid_by_dot[0] == 'GeoChat':
+			if uid_by_dot[0] == const.GEOCHAT:
 				print('is geochat')
-				data_value = 'geochat'
+				data_value = const.GEOCHAT
 				self.data_important.append(xml_string)
 			else:
 				True
@@ -96,7 +98,7 @@ class ThreadedServer(object):
 		for x in self.client_dict:
 			if x == current_id:
 				True
-			elif x != current_id and data_value != 'geochat':
+			elif x != current_id and data_value != const.GEOCHAT:
 				self.client_dict[x]['main_data'].insert(0, xml_string)
 			elif x!=current_id:
 				self.client_dict[x]['main_data'].append(xml_string)
@@ -168,7 +170,7 @@ class ThreadedServer(object):
 
 			working = self.check_xml(self.data, current_id)
 			#checking if check_xml detected client disconnect
-			if working == 'fail':
+			if working == const.FAIL:
 				client.close()
 				break
 			#check if all connected clients are detected
@@ -192,8 +194,11 @@ class ThreadedServer(object):
 if __name__ == "__main__":
 	''' Taking port number from the command line.
 	Run the code as name.py -p PortNumber '''
-	parser=argparse.ArgumentParser()
-	parser.add_argument("-p", type=int)
-	args=parser.parse_args()
-	port_num = args.p
-	ThreadedServer('',port_num).listen()
+	try:
+		parser=argparse.ArgumentParser()
+		parser.add_argument("-p", type=int)
+		args=parser.parse_args()
+		port_num = args.p
+		ThreadedServer('',port_num).listen()
+	except:
+		ThreadedServer('',const.DEFAULTPORT).listen()
