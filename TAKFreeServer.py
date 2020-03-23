@@ -21,6 +21,7 @@ const = constant.vars()
 ''' Server class '''
 class ThreadedServer(object):
 	def __init__(self, host, port):
+		print('listening on port '+str(port))
 		self.host = host
 		self.port = port
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,6 +36,14 @@ class ThreadedServer(object):
 		self.client_id = 0
 		self.client_dict = {}
 		self.killSwitch = 0
+	def logall(self):
+		#kill all processes
+		while True:
+			try:
+				time.sleep(60)
+				const.LOGFILE.write('time is {:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now()) + 'client dict is as follows '+'\n'+self.client_dict+'\n')
+			except:
+				const.LOGFILE.write('log all error')
 	def listen(self):
 		'''
 		listen for client connections and begin thread if found
@@ -219,5 +228,7 @@ if __name__ == "__main__":
 
 	args=parser.parse_args()
 	port_num = args.p
-	print(args.p)
-	ThreadedServer('',const.PORT).listen()
+	if args.p == '':
+		ThreadedServer('',const.PORT).listen()
+	else:
+		ThreadedServer('',args.p).listen()
