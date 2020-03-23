@@ -15,3 +15,9 @@
 #7 type "beginProgramAsService.py start"
 <br>
 if you have any issues don't hesitate to bring it up as this program is still in development
+<br>
+<br>
+if you have this error Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
+<br>
+<br>
+attempt to add python to the system path
