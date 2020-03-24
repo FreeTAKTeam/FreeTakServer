@@ -21,3 +21,5 @@ if you have this error Python windows service “Error starting service: The ser
 <br>
 <br>
 attempt to add python to the system path
+<br>
+side note TAKFreeServer_running_as_service.py can be run independently without being run as service 
