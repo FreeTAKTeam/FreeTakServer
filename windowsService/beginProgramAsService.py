@@ -9,8 +9,8 @@ import os.path
 import threading
 import sys
 class AppServerSvc (win32serviceutil.ServiceFramework):
-    _svc_name_ = "TestService"
-    _svc_display_name_ = "Test Service"
+    _svc_name_ = "TAKServer"
+    _svc_display_name_ = "TAKServer"
     killSwitch = 0
 
     def __init__(self,args):
@@ -28,9 +28,6 @@ class AppServerSvc (win32serviceutil.ServiceFramework):
 
     def main(self):
         t = threading.Thread(target = ThreadedServer('',8087).listen, args = (), daemon=True)
-        x = open('C:/Users/Stephen Paquette/Documents/TAKFreeServerVersions/logs.txt', 'w')
-        x.write('thread starting')
-        x.close
         t.start()
         while True:
             if self.killSwitch == 1:
