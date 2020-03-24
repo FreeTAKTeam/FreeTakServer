@@ -5,3 +5,4 @@ class vars():
        self.FAIL = 'fail'
        self.EMPTY_BYTE = b''
        self.DEFAULTPORT = 8087
+       self.LOGFILEPATH = 'your error log path'
