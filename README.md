@@ -67,16 +67,12 @@ if you have this error Python windows service “Error starting service: The ser
 attempt to add python to the system path
 
 ##  Project Structure
- TakFreeServer
-    Controllers: Contains all the business Logic
-    Models: Contains all the COT object model
-    TAKLinux: to be renamed as TakLinuxService a demon for linux OS
-    WindowsService: a windows service
-  Docs: Usefull documentation regarding COTS and different logs to understand how those are implemented
-  Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html). 
-  Old: Legacy versions
-
-
-<br>
-
+- TakFreeServer
+  - Controllers: Contains all the business Logic
+  - Models: Contains all the COT object model
+  - TAKLinux: to be renamed as TakLinuxService a demon for linux OS
+  -  WindowsService: a windows service
+- Docs: Usefull documentation regarding COTS and different logs to understand how those are implemented
+- Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html). 
+- Old: Legacy versions
 
