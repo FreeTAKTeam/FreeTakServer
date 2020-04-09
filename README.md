@@ -30,22 +30,36 @@ It is available in 2 flavours:
 ### Linux Demon
 
 run the following command in terminal in the directory where TAKDaemon.py is installed
-```python3 TAKDaemon.py
+```
+python3 TAKDaemon.py
 ```
 
 ### Windows Service
-<h1>To run this program you require admin priviliges</h1>
+To run this program you require admin priviliges
 
 #1 allow python.exe in firewall
 #2 open whichever port you will be using for connections in firewall
 #3 kill any program already running on whichever port you've decided to use
-#4 open CMD with admin(advisable to have green text on black background)
-#5 cd into whichever directory this file is located
-#6 type the following "beginProgramAsService.py install"
-#7 type "beginProgramAsService.py start"
+#4 open CMD with admin
+#5 cd into whichever directory FreetakServer is located
+```
+Cd FreeTakServer/TakWinService
+```
+
+#6 type the following 
+```
+beginProgramAsService.py install
+```
+#7 type 
+```
+beginProgramAsService.py start
+```
 
 #### side note 
-TAKFreeServer_running_as_service.py can be run independently without being run as service 
+```
+TAKFreeServer_running_as_service.py
+```
+can be run independently 
 
 #### Troubleshooting
 if you have this error Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
