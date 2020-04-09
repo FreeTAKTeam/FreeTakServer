@@ -37,20 +37,19 @@ python3 TAKDaemon.py
 ### Windows Service
 To run this program you require admin priviliges
 
-#1 allow python.exe in firewall
-#2 open whichever port you will be using for connections in firewall
-#3 kill any program already running on whichever port you've decided to use
-#4 open CMD with admin
-#5 cd into whichever directory FreetakServer is located
+1. allow python.exe in firewall
+2. open whichever port you will be using for connections in firewall
+3. kill any program already running on whichever port you've decided to use
+4. open CMD with admin
+5. cd into whichever directory FreetakServer is located
 ```
 Cd FreeTakServer/TakWinService
 ```
-
-#6 type the following 
+6. type the following 
 ```
 beginProgramAsService.py install
 ```
-#7 type 
+7. type 
 ```
 beginProgramAsService.py start
 ```
@@ -68,10 +67,10 @@ attempt to add python to the system path
 
 ##  Project Structure
 - TakFreeServer
-  - Controllers: Contains all the business Logic
-  - Models: Contains all the COT object model
-  - TAKLinux: to be renamed as TakLinuxService a demon for linux OS
-  -  WindowsService: a windows service
+  - **Controllers**: Contains all the business Logic
+  - **Models**: Contains all the COT object model
+  - **TAKLinuxService**:   a demon for linux OS
+  -  **TakWinService**: a service for the windows OS 
 - Docs: Usefull documentation regarding COTS and different logs to understand how those are implemented
 - Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html). 
 - Old: Legacy versions
