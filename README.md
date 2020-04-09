@@ -1,58 +1,50 @@
 # TAKlib
-TAKlib is a Python3 library made to emulate a TAK Server for use with TAK devices, it is cross-platform and is only dependant on python stdlib libraries. 
+TAKFreeServer is a Python3 implemnentation of the TAK Server for devices like CivTAK , WinTak and Itak, it is cross-platform and is only dependant on python stdlib libraries. 
 
 ## Documentation
-under docs, you can find various documents including a UMl model of the model classes involved in a COT event.
+under docs, you can find various documents including an UMl model of the model classes involved in a COT event.
 
 ## Requirements
 - Python 3
 
-## Installing and using TAKLib
-TAKLib requires Python 3.0 or later to run. Once you’ve installed Python 3, install TAKLib using git:
+## Installing and using FreeTakServer
+FreeTakServer is available in 2 flavours:
+- Windows service
+- Linux Service
+
+requires Python 3.0 or later to run. Once you’ve installed Python 3, install TAKLib using git:
 ```bash
 git clone https://github.com/Tapawingo/TAKlib.git
 cd TAKLib
 ```
-Once TAKLib is installed you can use it by importing it to your project:
-```python
-from TAKlib import TAK
-```
-This will import the TAK class from TAKLib into your project. This means that you can now make a new server instance with:
-```python
-TAKServer = TAK(hostAddress, port)
-```
+<h1>run the following command in terminal in the directory where TAKDaemon.py is installed</h1>
+<code>python3 TAKDaemon.py</code>
 
-## Example Server
-The following is a simple example on how you can create a new server instance:
-```python
-# Imported modules
-from TAKlib import TAK
 
-# TAK connection defaults
-HostAddress = "10.0.0.115"
-HostPort = 8087
+<h1>To run this program you require admin priviliges</h1>
 
-# Create server
-TAKSock = TAK(HostAddress, HostPort)
+#1 allow python.exe in firewall
+<br>
+#2 open whichever port you will be using for connections in firewall
+<br>
+#3 kill any program already running on whichever port you've decided to use
+<br>
+#4 open CMD with admin(advisable to have green text on black background)
+<br>
+#5 cd into whichever directory this file is located
+<br>
+#6 type the following "beginProgramAsService.py install"
+<br>
+#7 type "beginProgramAsService.py start"
+<br>
+if you have any issues don't hesitate to bring it up as this program is still in development
+<br>
+<br>
+if you have this error Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
+<br>
+<br>
+attempt to add python to the system path
+<br>
+side note TAKFreeServer_running_as_service.py can be run independently without being run as service 
 
-# Create a server console
-While True:
 
-    # Grab user input
-    Inp = input("Command: ")
-    
-    # If user enters "show clients", output connected clients
-    if Inp == "show clients":
-        print(str(TAKSock.getClients()))
-
-    # If user enters "stop", stop the server
-    if Inp == "stop":
-        prompt = input("Are you sure(y/n)? ")
-        if prompt == "y":
-            TAKSock.close()
-            break
-```
-For more information on how to use TAKlib reference the [Documentation](https://github.com/Tapawingo/TAKlib/wiki "Documentation")
-
-The repository contains an example server with a simple console which is the same server i use for testing:
-[Example Server with simple console](https://github.com/Tapawingo/TAKlib/blob/master/ServerExample.py "Example Server with simple console")
