@@ -1,6 +1,6 @@
 import uuid
 import datetime as dt
-info = []
+from Model.detail import detail as detail1
 class Event:
     # Event.py
     # Python implementation of the Class Event
@@ -16,7 +16,15 @@ class Event:
         
         #default constructor
     def __init__(self, connType=None, arg1=None, arg2=None):
-        print('initing')
+        if connType == 'dropPin':
+            self.handelPinImport(arg1, arg2)
+        elif connType == 'GeoToAllRooms':
+            self.handelGeoToAllRoomsImport(arg1, arg2)
+        elif connType == 'GeoToGroup':
+            self.handelGeoToGroupImport(arg1, arg2)
+        elif connType == 'GeoToTeam':
+            self.handelGeoToTeamImport(arg1, arg2)
+        self.detail = detail1()
         self.DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         self.GEOCHATPREFIX = "GeoChat."
         # flag to determin e if this event is a geo chcat if so, will be added as a
@@ -65,47 +73,22 @@ class Event:
         self.setstart(self.zulu)
         self.setstale(self.stale)
 
-    def __new__(self, connType=None, arg1=None, arg2=None):
-        global info
-        if connType == 'dropPin':
-            info1 = self.handelPinImport(self, arg1, arg2)
-            for x in info1:
-                info.append(x)
-        elif connType == 'GeoToAllRooms':
-            info1 = self.handelGeoToAllRoomsImport(self, arg1, arg2)
-            info.append(info1)
-        elif connType == 'GeoToGroup':
-            info1 = self.handelGeoToGroupImport(self, arg1, arg2)
-            info.append(info1)       
-        elif connType == 'GeoToTeam':
-            info1 = self.handelGeoToTeamImport(self, arg1, arg2)
-            info.append(info1) 
-        return info
+
     def handelPinImport(self, lat, lon):
         import Model.point as point
         point.COTPoint().setlat(lat)
         point.COTPoint().setlon(lon)
-        lat = point.COTPoint().getlat()
-        lon = point.COTPoint().getlon()
-        return lat, lon
-        
+        print(str(lat)+ ' '+ str(lon))
+
     def handelGeoToAllRoomsImport(self, text, callSign):
-        import Model.details.chat as chat
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
+        from Model.detail import detail
 
     def handelGeoToGroupImport(self, text, callSign):
-        from Model.details import detail
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
+        from Model.detail import detail
 
     def handelGeoToTeamImport(self, text, callSign):
         from Model.detail import detail
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
+
         #Start getter
     def getstart(self): 
         return self.Start 

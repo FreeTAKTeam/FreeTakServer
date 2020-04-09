@@ -1,6 +1,6 @@
 import uuid
 import datetime as dt
-info = []
+from point import COTPoint as m_point
 class Event:
     # Event.py
     # Python implementation of the Class Event
@@ -15,8 +15,7 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-    def __init__(self, connType=None, arg1=None, arg2=None):
-        print('initing')
+    def __init__(self):
         self.DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         self.GEOCHATPREFIX = "GeoChat."
         # flag to determin e if this event is a geo chcat if so, will be added as a
@@ -57,68 +56,49 @@ class Event:
         self.now = self.timer.utcnow()
         self.zulu = self.now.strftime(self.DATETIME_FMT)
         self.stale_part = self.now.minute + 1
+        print('ran')
         if self.stale_part > 59:
             self.stale_part = self.stale_part - 60
             self.stale_now = self.now.replace(minute=self.stale_part)
             self.stale = self.stale_now.strftime(self.DATETIME_FMT)
         self.settime(self.zulu)
-        self.setstart(self.zulu)
+        self.setStart(self.zulu)
         self.setstale(self.stale)
+        self.m_point = self.getm_point()
+        self.setXMLEvent()
 
-    def __new__(self, connType=None, arg1=None, arg2=None):
-        global info
-        if connType == 'dropPin':
-            info1 = self.handelPinImport(self, arg1, arg2)
-            for x in info1:
-                info.append(x)
-        elif connType == 'GeoToAllRooms':
-            info1 = self.handelGeoToAllRoomsImport(self, arg1, arg2)
-            info.append(info1)
-        elif connType == 'GeoToGroup':
-            info1 = self.handelGeoToGroupImport(self, arg1, arg2)
-            info.append(info1)       
-        elif connType == 'GeoToTeam':
-            info1 = self.handelGeoToTeamImport(self, arg1, arg2)
-            info.append(info1) 
-        return info
-    def handelPinImport(self, lat, lon):
-        import Model.point as point
-        point.COTPoint().setlat(lat)
-        point.COTPoint().setlon(lon)
-        lat = point.COTPoint().getlat()
-        lon = point.COTPoint().getlon()
-        return lat, lon
-        
-    def handelGeoToAllRoomsImport(self, text, callSign):
-        import Model.details.chat as chat
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
 
-    def handelGeoToGroupImport(self, text, callSign):
-        from Model.details import detail
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
+    def setXMLEvent(self):
+        XMLEvent = "<event version='2.0' uid='" + self.uid + "' type='" + self.type + "' time='" + self.time + "' start='" + self.start + "' stale='" + self.stale + "' how='" + self.how + "'"+'>'
+        XMLEvent = self.xmlheader + XMLEvent + self.m_point.getXMLPoint()
+        print('ran')
+        print(XMLEvent)
 
-    def handelGeoToTeamImport(self, text, callSign):
-        from Model.detail import detail
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
         #Start getter
-    def getstart(self): 
+    def getStart(self): 
         return self.Start 
     
         # Start setter
-    def setstart(self, Start=0):  
+    def setStart(self, Start=0):  
         self.Start = Start 
+        
+            # m_point getter
+    def getm_point(self):
+        return m_point()
     
         # m_point setter
-    def setpoint(self, m_point=0):  
-        self.point = m_point
+    def setm_point(self, m_point=0):  
+        self.m_point = m_point
+
+            # m_detail getter
+    def getm_detail(self): 
+        return self.m_detail 
     
-        # how getter
+        # m_detail setter
+    def setm_detail(self, m_detail=0):  
+            self.m_detail = m_detail
+
+            # how getter
     def gethow(self): 
         return self.how 
     
@@ -147,7 +127,7 @@ class Event:
         return self.version 
     
         # version setter
-    def setversion(self, version):  
+    def setversion(self, version=0):  
         self.version = version 
 
             # time getter
@@ -173,3 +153,4 @@ class Event:
         # type setter
     def settype(self, type=0):  
         self.type = type
+Event()
