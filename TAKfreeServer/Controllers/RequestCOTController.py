@@ -42,5 +42,3 @@ class RequestCOTController:
     def default(self):
         event = Event(conn.DEFAULT)
         return event
-aEvent = RequestCOTController().ping(lat = 123, lon = 123)
-print('over')

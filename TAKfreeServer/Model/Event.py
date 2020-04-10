@@ -14,7 +14,7 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-    def __init__(self, connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000"):
+    def __init__(self, connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", detailType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
         print('initing')
         self.DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         self.GEOCHATPREFIX = "GeoChat."

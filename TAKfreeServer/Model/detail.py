@@ -12,7 +12,7 @@
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
     """
-    def __init__(self, detailType = 'ping', arg1 = None, arg2 = None, arg3 = None, arg4 = None, arg5 = None, arg6 = None, arg7 = None, arg8 = None, arg9 = None, arg10 = None, arg11 = None):
+    def __init__(self, detailType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None, arg10 = None, arg11 = None):
         self.detailType = detailType
         if detailType == 'Chat':
             from chat import chat

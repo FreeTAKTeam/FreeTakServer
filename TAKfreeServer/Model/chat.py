@@ -7,21 +7,22 @@
 # Original author: Corvo
 # 
 #######################################################
-from details.chatgrp import chatgrp
-senderCallsign = "" 
 
 class chat:
 
 
 
     # default constructor       
-  def __init__(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrp1 = None, chatgrp2 = None, chatgrp3 = None):
+  def __init__(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
       if chatType == 'chatToGroup':
-
+          from details.chatgrp import chatgrp
+          chatgrp.chatToGroup(uid0 = chatgrpuid0, uid1 = chatgrpuid1, id = chatgrpid)
       elif chatType == 'chatToAll':
-
+          from details.chatgrp import chatgrp
+          chatgrp.chatToAll(uid0 = chatgrpuid0, uid1 = chatgrpuid1, id = chatgrpid)
       elif chatType == 'chatToTeam':
-
+          from details.chatgrp import chatgrp
+          chatgrp.chatToTeam(uid0 = chatgrpuid0, uid1 = chatgrpuid1, id = chatgrpid)
 
   # parent getter 
   def getparent(self): 
