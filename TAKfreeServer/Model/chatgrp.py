@@ -10,11 +10,26 @@
 
 
 class chatgrp:
-   # default constructor       def __init__(self):  
+   def __init__(self, uid0 = "", uid1 = "", id = ''):  
+       pass
 
-   # the machine ID of the sender
-   uid0 = ""
-   # uid0 getter 
+   # uid0 getter
+   
+   def chatToTeam(self, uid0, uid1, id):
+       self.setuid0(uid0)
+       self.setuid1(uid1)
+       self.setid(id)
+
+   def chatToGroup(self, uid0, uid1, id):
+       self.setuid0(uid0)
+       self.setuid1(uid1)
+       self.setid(id)
+    
+   def chatToAll(self, uid0, uid1, id):
+       self.setuid0(uid0)
+       self.setuid1(uid1)
+       self.setid(id)
+   
    def getuid0(self):
       return self.uid0 
 
@@ -22,8 +37,6 @@ class chatgrp:
    def setuid0(self, uid0=0):  
       self.uid0=uid0 
 
-   # another ID
-   uid1 = "" 
    # uid1 getter 
    def getuid1(self): 
       return self.uid1 
@@ -32,8 +45,6 @@ class chatgrp:
    def setuid1(self, uid1=0):  
       self.uid1=uid1 
 
-   # third ID
-   id = "" 
    # id getter 
    def getid(self): 
       return self.id 
@@ -41,4 +52,5 @@ class chatgrp:
    # id setter 
    def setid(self, id=0):  
       self.id=id 
+     
      

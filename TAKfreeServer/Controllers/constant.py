@@ -5,3 +5,4 @@ class vars:
         self.GEOTOALLROOMS = 'GeoToAllRooms'
         self.GEOTOGROUP = 'GeoToGroup'
         self.GEOTOTEAM = 'GeoToTeam'
+        self.PING = 'ping'

@@ -1,6 +1,5 @@
 import uuid
 import datetime as dt
-info = []
 class Event:
     # Event.py
     # Python implementation of the Class Event
@@ -15,7 +14,7 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-    def __init__(self, connType=None, arg1=None, arg2=None):
+    def __init__(self, connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000"):
         print('initing')
         self.DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         self.GEOCHATPREFIX = "GeoChat."
@@ -28,7 +27,6 @@ class Event:
         # xml header
         self.xmlheader = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
         # basic event
-        self.XMLEvent = "<event version='2.0' uid='deccf9b1-ee37-4205-a235-a6d527fc7c24' type='a-f-G-I' time='{0}' start='{0}' stale='{1}' how='h-g-i-g-o'>"
         # Gives a hint about how the coordinates were generated
         self.how = "m-g" 
 
@@ -65,47 +63,19 @@ class Event:
         self.setstart(self.zulu)
         self.setstale(self.stale)
 
-    def __new__(self, connType=None, arg1=None, arg2=None):
-        global info
-        if connType == 'dropPin':
-            info1 = self.handelPinImport(self, arg1, arg2)
-            for x in info1:
-                info.append(x)
-        elif connType == 'GeoToAllRooms':
-            info1 = self.handelGeoToAllRoomsImport(self, arg1, arg2)
-            info.append(info1)
-        elif connType == 'GeoToGroup':
-            info1 = self.handelGeoToGroupImport(self, arg1, arg2)
-            info.append(info1)       
-        elif connType == 'GeoToTeam':
-            info1 = self.handelGeoToTeamImport(self, arg1, arg2)
-            info.append(info1) 
-        return info
-    def handelPinImport(self, lat, lon):
-        import Model.point as point
-        point.COTPoint().setlat(lat)
-        point.COTPoint().setlon(lon)
-        lat = point.COTPoint().getlat()
-        lon = point.COTPoint().getlon()
-        return lat, lon
-        
-    def handelGeoToAllRoomsImport(self, text, callSign):
-        import Model.details.chat as chat
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
+        if connType == 'ping':
+            from Model.detail import Detail
+            from Model.point import Point
+            self.detail = Detail(connType)
+            self.point = Point(lat=lat, lon=lon, le=le, ce=ce, hae=hae)
 
-    def handelGeoToGroupImport(self, text, callSign):
-        from Model.details import detail
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
+        elif connType == 'Chat':
+            from Model.detail import Detail
+            from Model.point import Point
+            Detail(connType)
+            Point(lat, lon, le, ce, hae)
 
-    def handelGeoToTeamImport(self, text, callSign):
-        from Model.detail import detail
-        chat.chat().setsenderCallsign(callSign)
-        callsign = chat.chat().getsenderCallsign()
-        return callsign
+
         #Start getter
     def getstart(self): 
         return self.Start 

@@ -15,25 +15,14 @@ class chat:
 
 
     # default constructor       
-  def __init__(self):
-    # the call sign of the sender
-    self.senderCallsign = "" 
-    self.xmlChat="<__chat senderCallsign='corvTab' chatroom='Eliopoli HQ' groupOwner='false' id='aa0b0312-b5cd-4c2c-bbbc-9c4c70216261' parent='RootContactGroup'><chatgrp uid0='ANDROID-R52JB0CDC4E' uid1='aa0b0312-b5cd-4c2c-bbbc-9c4c70216261' id='aa0b0312-b5cd-4c2c-bbbc-9c4c70216261'/></__chat>"
-    
- 
-    # TBD: the callsign of the receiver?
-    self.chatroom = "" 
+  def __init__(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrp1 = None, chatgrp2 = None, chatgrp3 = None):
+      if chatType == 'chatToGroup':
 
-    self.m_chatgrp = chatgrp()
- 
-    # TBD, 
-    self.groupOwner = "" 
- 
- 
-    # TBD: the unique ID of the sender?
-    self.id = "" 
-  
-    self.parent = "" 
+      elif chatType == 'chatToAll':
+
+      elif chatType == 'chatToTeam':
+
+
   # parent getter 
   def getparent(self): 
     return self.parent 

@@ -11,8 +11,8 @@ import os,sys,inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir) 
-from Event import Event
-from controllers.constant import vars as con
+from Model.Event import Event
+from constant import vars as con
 conn = con()
 
 class RequestCOTController:
@@ -21,9 +21,10 @@ class RequestCOTController:
 # default constructor  
     def __init__(self):  
         a = 1
-    def dropPin(self, lat, lon):
-       event = Event(conn.DROPPIN, lat, lon) 
+    def ping(self, lat, lon):
+       event = Event(conn.PING, lat, lon) 
        return event
+
     def sendGeoChatToAllChatRooms(self, text, callsign):
         event = Event(conn.GEOTOALLROOMS, text, callsign)
         print(event)
@@ -38,6 +39,8 @@ class RequestCOTController:
         """
         event = Event(conn.GEOTOTEAM, text, callsign)
         return event
+    def default(self):
+        event = Event(conn.DEFAULT)
+        return event
 aEvent = RequestCOTController().ping(lat = 123, lon = 123)
-print('over1')
-print('over3')
+print('over')
