@@ -38,3 +38,6 @@ class RequestCOTController:
         """
         event = Event(conn.GEOTOTEAM, text, callsign)
         return event
+aEvent = RequestCOTController().ping(lat = 123, lon = 123)
+print('over1')
+print('over3')
