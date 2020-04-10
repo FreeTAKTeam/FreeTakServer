@@ -25,20 +25,6 @@ class RequestCOTController:
        event = Event(conn.PING, lat, lon) 
        return event
 
-    def sendGeoChatToAllChatRooms(self, text, callsign):
-        event = Event(conn.GEOTOALLROOMS, text, callsign)
-        print(event)
-        return event
-    def sendGeoChatToGroup(self, text, callsign):
-        event = Event(conn.GEOTOGROUP, text, callsign)
-        return event
-        print(event)
-    def sendGeoChatToTeam(self, text, callsign):
-        """
-        this will send the geochat to team
-        """
-        event = Event(conn.GEOTOTEAM, text, callsign)
-        return event
-    def default(self):
-        event = Event(conn.DEFAULT)
+    def chat(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+        event = Event(connType = 'chat', chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
         return event

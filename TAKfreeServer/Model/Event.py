@@ -69,11 +69,12 @@ class Event:
             self.detail = Detail(connType)
             self.point = Point(lat=lat, lon=lon, le=le, ce=ce, hae=hae)
 
-        elif connType == 'Chat':
+
+        elif connType == 'chat':
             from Model.detail import Detail
             from Model.point import Point
-            Detail(connType)
-            Point(lat, lon, le, ce, hae)
+            self.detail = Detail(connType = connType, chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
+            self.point = Point(lat=lat, lon=lon, le=le, ce=ce, hae=hae)
 
 
         #Start getter

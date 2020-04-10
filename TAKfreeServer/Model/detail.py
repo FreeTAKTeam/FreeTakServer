@@ -12,11 +12,10 @@
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
     """
-    def __init__(self, detailType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None, arg10 = None, arg11 = None):
-        self.detailType = detailType
-        if detailType == 'Chat':
-            from chat import chat
-            self.chat(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
+    def __init__(self, connType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None, arg10 = None, arg11 = None):
+        if connType == 'chat':
+            from Model.chat import chat
+            self.chat = chat(chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
         else:
             pass
         

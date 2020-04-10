@@ -5,4 +5,4 @@ class vars():
        self.FAIL = 'fail'
        self.EMPTY_BYTE = b''
        self.DEFAULTPORT = 8087
-       self.LOGFILEPATH = 'your log path'
+       self.LOGFILEPATH = 'C:/Users/Stephen Paquette/source/repos/Tapawingo/TAKlib/TAKfreeServer/logs.log'
