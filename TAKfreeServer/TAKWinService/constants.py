@@ -6,3 +6,4 @@ class vars():
        self.EMPTY_BYTE = b''
        self.DEFAULTPORT = 8087
        self.LOGFILEPATH = ' '
+       self.BUFFER = 16384
