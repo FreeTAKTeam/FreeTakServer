@@ -14,13 +14,20 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-    def __init__(self, connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", detailType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+    def __init__(self, type = "a-f-G-I",how = 'm-g' ,isGeochat = 0 ,DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", uid = "UIDString" ,version = '2.0', connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", detailType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
         print('initing')
-        self.DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        self.version = version
+
+        self.uid = uid
+
+        self.DATETIME_FMT = DATETIME_FMT
+
         self.GEOCHATPREFIX = "GeoChat."
+
+        self.type = type
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
-        self.isGeochat = 0
+        self.isGeochat = isGeochat
         
         # starting time when an event should be considered valid
         self.start = "%Y-%m-%dT%H:%M:%SZ"
@@ -28,17 +35,16 @@ class Event:
         self.xmlheader = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
         # basic event
         # Gives a hint about how the coordinates were generated
-        self.how = "m-g" 
+        self.how = how
 
         # Schema version of this event instance (e.g.  2.0)
-        self.version = "2.0" 
             
         # time stamp: when the event was generated
         self.time = "%Y-%m-%dT%H:%M:%SZ" 
         
         # Hierarchically organized hint about event type (defaultis is 'a-f-G-I'
         # for infrastructure)
-        self.type = "a-f-G-I" 
+        self.type = type
         
             # ending time when an event should no longer be considered valid
         self.stale = "%Y-%m-%dT%H:%M:%SZ" 
@@ -46,7 +52,7 @@ class Event:
             # Globally unique name for this information on this event can have
             # additional information attached.
         # e.g.  -ping means that this request is a ping
-        self.uid = "UIDString"
+        
         # flag to determin e if this event is a Ping, in this case append to the UID
         self.PINGSUFFIX = "-ping"
         self.isPing = 0
