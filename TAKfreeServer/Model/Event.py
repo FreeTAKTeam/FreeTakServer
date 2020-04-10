@@ -14,7 +14,7 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-    def __init__(self, type = "a-f-G-I",how = 'm-g' ,isGeochat = 0 ,DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", uid = "UIDString" ,version = '2.0', connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", detailType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+    def __init__(self,isPing = 0 ,type = "a-f-G-I" , how = 'm-g' ,isGeochat = 0 ,DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", uid = "UIDString" ,version = '2.0', connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", detailType = 'ping', chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
         print('initing')
         self.version = version
 
@@ -44,7 +44,6 @@ class Event:
         
         # Hierarchically organized hint about event type (defaultis is 'a-f-G-I'
         # for infrastructure)
-        self.type = type
         
             # ending time when an event should no longer be considered valid
         self.stale = "%Y-%m-%dT%H:%M:%SZ" 
@@ -55,7 +54,9 @@ class Event:
         
         # flag to determin e if this event is a Ping, in this case append to the UID
         self.PINGSUFFIX = "-ping"
-        self.isPing = 0
+
+        self.isPing = ping
+        
         self.setuid()
         self.timer = dt.datetime
         self.now = self.timer.utcnow()
