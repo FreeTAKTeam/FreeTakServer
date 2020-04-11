@@ -13,7 +13,7 @@ class chat:
 
 
       # default constructor       
-    def __init__(self, chatType = None, senderCallsign = None1, chatroom = None1, groupOwner = None1, id = None1, parent = None1, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+    def __init__(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
         from Model.chatgrp import chatgrp
         self.senderCallsign = senderCallsign
         self.id = id

@@ -22,9 +22,9 @@ class RequestCOTController:
     def __init__(self):  
         a = 1
     def ping(self, lat, lon):
-       event = Event(conn.PING, lat, lon) 
+       event = Event(conn.PING, isPing = 1, lat = lat, lon = lon) 
        return event
 
-    def chat(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+    def chat(self, isChat = 1,chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
         event = Event(connType = 'chat', chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
         return event
