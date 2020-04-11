@@ -12,8 +12,8 @@ current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfra
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir) 
 from Model.Event import Event
-from constant import vars as con
-conn = con()
+import constant as con
+conn = con.vars()
 
 class RequestCOTController:
     """this controller manage all the different types of COTS, including the geochat
@@ -21,10 +21,10 @@ class RequestCOTController:
 # default constructor  
     def __init__(self):  
         a = 1
-    def ping(self, lat, lon):
-       event = Event(conn.PING, isPing = 1, lat = lat, lon = lon) 
+    def ping(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000"):
+       event = Event(connType = conn.PING, isPing = 1, lat=lat, lon=lon, le=le, ce=ce, hae=hae) 
        return event
 
-    def chat(self, isChat = 1,chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
-        event = Event(connType = 'chat', chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
+    def chat(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000",isChat = 1,chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+        event = Event(connType = 'chat', chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid, lat=lat, lon=lon, le=le, ce=ce, hae=hae)
         return event

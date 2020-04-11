@@ -18,7 +18,8 @@ class Detail:
         args = self.createArguments(argumentsRecieved)
 
         case = {
-            'chat': self.chatFunc
+            'chat': self.chatFunc,
+            'ping': self.pingFunc
             }
 
         case[connType](args)
@@ -30,6 +31,8 @@ class Detail:
             else:
                 pass
         return argumentsToBePassed
+    def pingFunc(self,info):
+        pass
     def chatFunc(self, info):
         from Model.chat import chat
         chat = chat(chatType = info['chatType'], senderCallsign = info['senderCallsign'] , chatroom = info['chatroom'], groupOwner = info['groupOwner'], id = info['id'], parent = info['parent'], chatgrpuid0 = info['chatgrpuid0'], chatgrpuid1 = info['chatgrpuid1'], chatgrpid = info['chatgrpid'])

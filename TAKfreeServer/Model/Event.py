@@ -14,7 +14,7 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-    def __init__(self,isPing = 0 ,type = "a-f-G-I" , how = 'm-g' ,isGeochat = 0 ,DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", uid = "UIDString" ,version = '2.0', connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+    def __init__(self, isPing = 0 ,type = "a-f-G-I" , how = 'm-g' ,isGeochat = 0 ,DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", uid = "UIDString" ,version = '2.0', connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
         
         from Model.detail import Detail
         from Model.point import Point
@@ -23,58 +23,54 @@ class Event:
 
         self.uid = uid
 
-        self.DATETIME_FMT = DATETIME_FMT
+        DATETIME_FMT = DATETIME_FMT
 
-        self.GEOCHATPREFIX = "GeoChat."
 
         self.type = type
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
-        self.isGeochat = isGeochat
+        isGeochat = isGeochat
         
         # starting time when an event should be considered valid
-        self.start = "%Y-%m-%dT%H:%M:%SZ"
-        # xml header
-        self.xmlheader = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+        start = "%Y-%m-%dT%H:%M:%SZ"
         # basic event
         # Gives a hint about how the coordinates were generated
-        self.how = how
+        
 
         # Schema version of this event instance (e.g.  2.0)
             
         # time stamp: when the event was generated
-        self.time = "%Y-%m-%dT%H:%M:%SZ" 
+        time = "%Y-%m-%dT%H:%M:%SZ" 
         
         # Hierarchically organized hint about event type (defaultis is 'a-f-G-I'
         # for infrastructure)
         
             # ending time when an event should no longer be considered valid
-        self.stale = "%Y-%m-%dT%H:%M:%SZ" 
+        stale = "%Y-%m-%dT%H:%M:%SZ" 
         
             # Globally unique name for this information on this event can have
             # additional information attached.
         # e.g.  -ping means that this request is a ping
         
         # flag to determine if this event is a Ping, in this case append to the UID
-        self.PINGSUFFIX = "-ping"
-
-        self.isPing = isPing
         
-        self.setuid()
-        self.timer = dt.datetime
-        self.now = self.timer.utcnow()
-        self.zulu = self.now.strftime(self.DATETIME_FMT)
-        self.stale_part = self.now.minute + 1
-        if self.stale_part > 59:
-            self.stale_part = self.stale_part - 60
-            self.stale_now = self.now.replace(minute=self.stale_part)
-            self.stale = self.stale_now.strftime(self.DATETIME_FMT)
-        self.settime(self.zulu)
-        self.setstart(self.zulu)
-        self.setstale(self.stale)
+        
+        self.setuid(isGeochat = isGeochat, isPing = isPing)
+        timer = dt.datetime
+        now = timer.utcnow()
+        zulu = now.strftime(DATETIME_FMT)
+        
+        self.settime(zulu)
+        self.setstart(zulu)
+        print(zulu)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 1)
+        stale_part = stale_part.strftime(DATETIME_FMT)
+        self.setstale(str(stale_part))
+        self.how = how
         #calls detail and point
-        self.detail = Detail(connType, chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
         self.point = Point(lat=lat, lon=lon, le=le, ce=ce, hae=hae)
+        self.detail = Detail(connType, chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
+        
 
 
         #Start getter
@@ -103,14 +99,16 @@ class Event:
         return self.uid 
     
         # uid setter
-    def setuid(self, uid=0):  
+    def setuid(self, isGeochat, isPing):
+        GEOCHATPREFIX = "GeoChat."
+        PINGSUFFIX = "-ping"
         a = uuid.uuid1()
         self.uid = str(a)
-        if self.isGeochat == 1:
-                uid = self.GEOCHATPREFIX + uid
+        if isGeochat == 1:
+                uid = GEOCHATPREFIX + uid
                 self.settype('h-g-i-g-o')
-        elif self.isPing == 1:
-                uid = uid + self.PINGSUFFIX
+        elif isPing == 1:
+                self.uid = self.uid + PINGSUFFIX
                 self.settype('t-x-c-t')
 
             # version getter
