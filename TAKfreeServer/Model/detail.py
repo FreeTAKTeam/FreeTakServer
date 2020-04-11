@@ -12,7 +12,7 @@
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
     """
-    def __init__(self, connType = None, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None, arg10 = None, arg11 = None):
+    def __init__(self, connType = None, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, uid0 = None, uid1 = None, arg10 = None, arg11 = None):
         argumentsRecieved = locals()
 
         args = self.createArguments(argumentsRecieved)
@@ -35,5 +35,5 @@ class Detail:
         pass
     def chatFunc(self, info):
         from Model.chat import chat
-        chat = chat(chatType = info['chatType'], senderCallsign = info['senderCallsign'] , chatroom = info['chatroom'], groupOwner = info['groupOwner'], id = info['id'], parent = info['parent'], chatgrpuid0 = info['chatgrpuid0'], chatgrpuid1 = info['chatgrpuid1'], chatgrpid = info['chatgrpid'])
+        chat = chat(chatType = info['chatType'], senderCallsign = info['senderCallsign'] , chatroom = info['chatroom'], groupOwner = info['groupOwner'], id = info['id'], parent = info['parent'], uid0 = info['uid0'], uid1 = info['uid1'])
         self.chat = chat

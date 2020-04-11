@@ -73,16 +73,16 @@ class __chat:
   def setid(self, id=0):  
     self.id=id
     #chatgrp uid0 getter
-  def getchatgrpuid0(self):
+  def getuid0(self):
       chatgrp().getuid0()
   
-  def setchatgrpuid0(self, uid0=0):
+  def setuid0(self, uid0=0):
       chatgrp().setuid0(uid0)
 
-  def getchatgrpuid1(self):
+  def getuid1(self):
       chatgrp().getuid1()
   
-  def setchatgrpuid1(self, uid1=0):
+  def setuid1(self, uid1=0):
       chatgrp().setuid1(uid1)
 
   def getchatgrpid(self):

@@ -13,12 +13,12 @@ class chat:
 
 
       # default constructor       
-    def __init__(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+    def __init__(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, uid0 = None, uid1 = None):
         from Model.chatgrp import chatgrp
         self.senderCallsign = senderCallsign
         self.id = id
         self.parent = parent
-        self.chatgrp = chatgrp(chatType = chatType, uid0 = chatgrpuid0, uid1 = chatgrpuid1, id = chatgrpid)
+        self.chatgrp = chatgrp(chatType = chatType, uid0 = uid0, uid1 = uid1, id = id)
 
 
     def getparent(self): 
@@ -61,16 +61,16 @@ class chat:
     def setid(self, id=0):  
         self.id=id
     #chatgrp uid0 getter
-    def getchatgrpuid0(self):
+    def getuid0(self):
       chatgrp().getuid0()
   
-    def setchatgrpuid0(self, uid0=0):
+    def setuid0(self, uid0=0):
         chatgrp().setuid0(uid0)
 
-    def getchatgrpuid1(self):
+    def getuid1(self):
         chatgrp().getuid1()
   
-    def setchatgrpuid1(self, uid1=0):
+    def setuid1(self, uid1=0):
         chatgrp().setuid1(uid1)
 
     def getchatgrpid(self):

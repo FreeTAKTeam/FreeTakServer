@@ -1,3 +1,7 @@
+import xml.etree.ElementTree as et
+
+aEvent = 'call COT controller with parameters'
+
 root = et.Element('event')
 xmlheader = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
 
