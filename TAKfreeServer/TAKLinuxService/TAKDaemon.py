@@ -205,4 +205,4 @@ class ThreadedServer(object):
 					   
 if __name__ == "__main__":
 	with daemon.DaemonContext():
-		ThreadedServer('142.93.239.220',const.DEFAULTPORT).listen()
+		ThreadedServer('your ip',const.DEFAULTPORT).listen()
