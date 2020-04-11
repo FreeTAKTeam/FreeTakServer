@@ -22,25 +22,9 @@ class RequestCOTController:
     def __init__(self):  
         a = 1
     def ping(self, lat, lon):
-       event = Event(conn.PING, lat, lon) 
+       event = Event(conn.PING, isPing = 1, lat = lat, lon = lon) 
        return event
 
-    def sendGeoChatToAllChatRooms(self, text, callsign):
-        event = Event(conn.GEOTOALLROOMS, text, callsign)
-        print(event)
+    def chat(self, isChat = 1,chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None):
+        event = Event(connType = 'chat', chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1, chatgrpid = chatgrpid)
         return event
-    def sendGeoChatToGroup(self, text, callsign):
-        event = Event(conn.GEOTOGROUP, text, callsign)
-        return event
-        print(event)
-    def sendGeoChatToTeam(self, text, callsign):
-        """
-        this will send the geochat to team
-        """
-        event = Event(conn.GEOTOTEAM, text, callsign)
-        return event
-    def default(self):
-        event = Event(conn.DEFAULT)
-        return event
-aEvent = RequestCOTController().ping(lat = 123, lon = 123)
-print('over')

@@ -13,9 +13,9 @@ import argparse
 import logging
 import time
 import xml.etree.ElementTree as ET
-import constant
+import constants
 import logging
-const = constant.vars()
+const = constants.vars()
 ''' Server class '''
 class ThreadedServer(object):
 	def __init__(self, host, port):

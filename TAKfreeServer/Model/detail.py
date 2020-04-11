@@ -12,11 +12,25 @@
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
     """
-    def __init__(self, detailType = 'ping', arg1 = None, arg2 = None, arg3 = None, arg4 = None, arg5 = None, arg6 = None, arg7 = None, arg8 = None, arg9 = None, arg10 = None, arg11 = None):
-        self.detailType = detailType
-        if detailType == 'Chat':
-            from chat import chat
-            self.chat(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)
-        else:
-            pass
-        
+    def __init__(self, connType = None, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, chatgrpuid0 = None, chatgrpuid1 = None, chatgrpid = None, arg10 = None, arg11 = None):
+        argumentsRecieved = locals()
+
+        args = self.createArguments(argumentsRecieved)
+
+        case = {
+            'chat': self.chatFunc
+            }
+
+        case[connType](args)
+    def createArguments(self, argumentsRecieved):
+        argumentsToBePassed = {}
+        for x, y in argumentsRecieved.items():
+            if x != 'self' and x != 'argumentsRecieved' and y != None:
+                argumentsToBePassed[x] = y
+            else:
+                pass
+        return argumentsToBePassed
+    def chatFunc(self, info):
+        from Model.chat import chat
+        chat = chat(chatType = info['chatType'], senderCallsign = info['senderCallsign'] , chatroom = info['chatroom'], groupOwner = info['groupOwner'], id = info['id'], parent = info['parent'], chatgrpuid0 = info['chatgrpuid0'], chatgrpuid1 = info['chatgrpuid1'], chatgrpid = info['chatgrpid'])
+        self.chat = chat

@@ -10,22 +10,27 @@
 
 
 class chatgrp:
-   def __init__(self, uid0 = "", uid1 = "", id = ''):  
-       pass
+   def __init__(self, uid0 = None, uid1 = None, id = None, chatType = None):  
+       case = {
+            'chatToGroup': self.chatToGroupFunc,
+            'chatToTeam': self.chatToTeamFunc,
+            'chatToAll': self.chatToAllFunc
+            }
+       case[chatType](uid0 = uid0, uid1 = uid1, id = id)
 
    # uid0 getter
    
-   def chatToTeam(self, uid0, uid1, id):
+   def chatToTeamFunc(self, uid0, uid1, id):
        self.setuid0(uid0)
        self.setuid1(uid1)
        self.setid(id)
 
-   def chatToGroup(self, uid0, uid1, id):
+   def chatToGroupFunc(self, uid0, uid1, id):
        self.setuid0(uid0)
        self.setuid1(uid1)
        self.setid(id)
     
-   def chatToAll(self, uid0, uid1, id):
+   def chatToAllFunc(self, uid0, uid1, id):
        self.setuid0(uid0)
        self.setuid1(uid1)
        self.setid(id)

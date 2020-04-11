@@ -5,5 +5,6 @@ class vars():
        self.FAIL = 'fail'
        self.EMPTY_BYTE = b''
        self.DEFAULTPORT = 8087
-       self.LOGFILEPATH = ' '
+       self.LOGFILEPATH = 'path'
+       self.HOSTIP = 'ip'
        self.BUFFER = 16384
