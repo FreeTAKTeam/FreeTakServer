@@ -1,26 +1,22 @@
 import xml.etree.ElementTree as et
 
-aEvent = 'call COT controller with parameters'
+class Serializer:
+    def __init__(self):
+        self.xmlheader = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
 
-root = et.Element('event')
-xmlheader = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+    def serializerRoot(self, object):
+        root = et.Element('event')
+        for key, value in vars(object).items():
+            if hasattr(value, '__dict__') == True and isinstance(value, type) == False:
+                self.serializerSub(root, key, value)
+            else:
+                root.set(key, str(value))
+        return self.xmlheader + et.tostring(root).decode()
 
-def serializerRoot(root, object):
-    for key, value in vars(object).items():
-        print(str(key)+' '+str(value)+' '+str(hasattr(value, '__dict__')))
-        if hasattr(value, '__dict__') == True and isinstance(value, type) == False:
-            serializerSub(root, key, value)
-        else:
-            root.set(key, str(value))
-    return xmlheader + et.tostring(root).decode()
-
-def serializerSub(parent, tag, object):
-    tag = et.SubElement(parent, tag)
-    for key, value in vars(object).items():
-        print(str(key)+' '+str(value)+' '+str(hasattr(value, '__dict__')))
-        if hasattr(value, '__dict__') == True and isinstance(value, type) == False:
-            serializer2(tag, key, value)
-        else:
-            tag.set(key, str(value))
-
-print(serializerRoot(root, aEvent))
+    def serializerSub(self, parent, tag, object):
+        tag = et.SubElement(parent, tag)
+        for key, value in vars(object).items():
+            if hasattr(value, '__dict__') == True and isinstance(value, type) == False:
+                self.serializer2(tag, key, value)
+            else:
+                tag.set(key, str(value))

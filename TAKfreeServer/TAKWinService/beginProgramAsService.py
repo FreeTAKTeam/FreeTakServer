@@ -4,10 +4,14 @@ import win32event
 import servicemanager
 import socket
 import time
-from TAKFreeServer_running_as_service import ThreadedServer
 import os.path
 import threading
 import sys
+import os
+PACKAGE_PARENT = '..'
+SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+from TAKFreeServer_running_as_service import ThreadedServer
 class AppServerSvc (win32serviceutil.ServiceFramework):
     _svc_name_ = "TAKServer"
     _svc_display_name_ = "TAKServer"

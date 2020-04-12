@@ -12,7 +12,7 @@ current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfra
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir) 
 from Model.Event import Event
-import constant as con
+import Controllers.constant as con
 conn = con.vars()
 
 class RequestCOTController:
@@ -20,7 +20,7 @@ class RequestCOTController:
     """
 # default constructor  
     def __init__(self):  
-        a = 1
+        pass
     def ping(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000"):
        event = Event(connType = conn.PING, isPing = 1, lat=lat, lon=lon, le=le, ce=ce, hae=hae) 
        return event
