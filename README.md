@@ -7,6 +7,7 @@ use https://www.reddit.com/r/ATAK/
 
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
+![Image of the Domain](docs/FreeTakServer specs/FreeTAKServer Model.png)
 
 ## Documentation
 under docs, you can find various documents including an UMl model of the model classes involved in a COT event.
