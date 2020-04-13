@@ -182,22 +182,50 @@ class ThreadedServer(object):
 
 			try:
 				if first_run == 0:
-					self.data = client.recv(const.BUFFER)
-					logging.debug('recieved '+str(self.data)+' from '+str(self.client_dict[current_id]['uid']))
+					total_data = []
+					count = 0
+					dead = 0
+					final = []
+					while True:
+
+						data = client.recv(32768)
+						if data != b'':
+							
+							total_data.append(data)
+
+							logging.debug('recieved '+str(data)+' from '+str(self.client_dict[current_id]['uid']))
+							
+							break
+							
+						elif data == b'' and count ==0:
+							dead = 1
+							break
+
+						else:
+							break
+					if dead == 0:
+						for x in total_data:
+							y = x.decode()
+							final.append(y)
+						final = ''.join(final)
+						data = final.encode()
+					else:
+						data = b''
+					working = self.check_xml(data, current_id)
+					#checking if check_xml detected client disconnect
+					if working == const.FAIL:
+						client.close()
+						break
+					else:
+						pass
 				elif first_run == 1:
 					for x in self.client_dict[current_id]['main_data']:
 						client.send(x)
 				#just some debug stuff
-				working = self.check_xml(self.data, current_id)
-				#checking if check_xml detected client disconnect
-				if working == const.FAIL:
-					client.close()
-					break
-				else:
-					pass
 				first_run = 0
 			except Exception as e:
 				logging.warning('error in main loop '+str(e))
+
 	def sendClientData(self, client, address, current_id):
 		killSwitch = 0
 		try:

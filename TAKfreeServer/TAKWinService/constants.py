@@ -6,5 +6,5 @@ class vars():
        self.EMPTY_BYTE = b''
        self.DEFAULTPORT = 8087
        self.LOGFILEPATH = 'log.log'
-       self.BUFFER = 16384
+       self.BUFFER = 32784
        self.DELAY = 5
