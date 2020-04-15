@@ -23,6 +23,7 @@ import TAKWinService.constants as constants
 import logging
 from Controllers.serializer import Serializer
 from Controllers.RequestCOTController import RequestCOTController
+import multiprocessing as multi
 const = constants.vars()
 ''' Server class '''
 class ThreadedServer(object):
@@ -107,9 +108,7 @@ class ThreadedServer(object):
 			#adds data to all connected client data list except sending client
 			for x in self.client_dict:
 				if x == current_id:
-					True
-				elif x != current_id and data_value != const.GEOCHAT:
-					self.client_dict[x]['main_data'].insert(0, xml_string)
+					pass
 				elif x!=current_id:
 					self.client_dict[x]['main_data'].append(xml_string)
 			self.data1.append(xml_string)
@@ -133,7 +132,7 @@ class ThreadedServer(object):
 				current_id = self.client_id
 				self.client_id += 1
 				#add identifying information
-				self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': ''}
+				self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
 				self.client_dict[current_id]['id_data'] = id_data
 				self.client_dict[current_id]['uid'] = uid
 			print('con setup '+'\n')
@@ -152,7 +151,7 @@ class ThreadedServer(object):
 				current_id = self.client_id
 				self.client_id += 1
 				#add identifying information
-				self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': ''}
+				self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
 				self.client_dict[current_id]['id_data'] = id_data
 				self.client_dict[current_id]['uid'] = uid
 			logging.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
@@ -160,6 +159,27 @@ class ThreadedServer(object):
 			return str(first_run)+' δ '+str(total_clients_connected)+' δ '+str(id_data)+' δ '+str(current_id)
 		except Exception as e:
 			logging.warning('error in connection setup: ' + str(e))
+
+	def recieveAll(self, client):
+					total_data = []
+					count = 0
+					dead = 0
+					final = []
+					#227:260
+					#360:393
+					while True:
+						data = client.recv(227)
+						print(sys.getsizeof(data))
+						if sys.getsizeof(data)==227+33:
+							total_data.append(data)
+						elif sys.getsizeof(data) < 227+33:
+							total_data.append(data)
+							break
+					print(total_data)
+					total_data=b''.join(total_data)
+					print(total_data)
+					return total_data
+					
 	def listenToClient(self, client, address):
 		''' 
 		Function to receive data from the client. this must be long as everything
@@ -182,45 +202,40 @@ class ThreadedServer(object):
 
 			try:
 				if first_run == 0:
-					total_data = []
-					count = 0
-					dead = 0
-					final = []
-					while True:
-
-						data = client.recv(32768)
-						if data != b'':
-							
-							total_data.append(data)
-
-							logging.debug('recieved '+str(data)+' from '+str(self.client_dict[current_id]['uid']))
-							
-							break
-							
-						elif data == b'' and count ==0:
-							dead = 1
-							break
-
-						else:
-							break
-					if dead == 0:
-						for x in total_data:
-							y = x.decode()
-							final.append(y)
-						final = ''.join(final)
-						data = final.encode()
-					else:
-						data = b''
+					data = self.recieveAll(client)
+					logging.debug('recieved '+str(data)+' from '+str(self.client_dict[current_id]['uid']))
 					working = self.check_xml(data, current_id)
 					#checking if check_xml detected client disconnect
 					if working == const.FAIL:
+						print('here')
+						timeoutInfo = Serializer().serializerRoot(RequestCOTController().timeout(linkuid = self.client_dict[current_id]['uid']))
+						if len(self.client_dict)>1:
+							for x in self.client_dict:
+						
+
+								if x != current_id:
+									print(self.client_dict[x]['client'])
+									self.client_dict[x]['client'].send(timeoutInfo.encode())
+								else:
+									pass
+						else:
+							pass
+						del self.client_dict[current_id]
 						client.close()
 						break
 					else:
 						pass
+				'''
 				elif first_run == 1:
+					print('there')
+					print(self.client_dict[current_id]['main_data'])
 					for x in self.client_dict[current_id]['main_data']:
+						print('ok')
+						print(client)
+						print(self.client_dict[current_id]['main_data'])
 						client.send(x)
+						print('cool')
+				'''
 				#just some debug stuff
 				first_run = 0
 			except Exception as e:
@@ -233,15 +248,18 @@ class ThreadedServer(object):
 				time.sleep(const.DELAY)
 				if killSwitch == 1:
 					break
-				elif len(self.client_dict[current_id]['main_data'])>1:
-						for x in self.client_dict[current_id]['main_data']:
-							client.send(x)
-							print('\n'+'sent '+ str(x)+' to '+ str(address) + '\n')
-							self.client_dict[current_id]['main_data'].remove(x)
+				elif len(self.client_dict[current_id]['main_data'])>0:
+					for x in self.client_dict[current_id]['main_data']:
+						print('sending' + str(client))
+						client.send(x)
+						print('\n'+'sent '+ str(x)+' to '+ str(address) + '\n')
+						self.client_dict[current_id]['main_data'].remove(x)
 				else:
+					print('sending' + str(client))
 					client.send(Serializer().serializerRoot(RequestCOTController().ping()).encode())
 			client.close()
-		except:
+		except Exception as e:
+			logging.warning('error in send info '+str(e))
 			client.close()
 				
 				

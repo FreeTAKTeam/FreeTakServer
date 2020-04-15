@@ -10,9 +10,37 @@
 
 
 class link:
-    # default constructor       def __init__(self):  
+    def __init__(self, linkType=None, linkuid = None, linkproduction_time=None, linkrelation=None, linktype=None, linkparent_callsign=None):
 
-    uid = "" 
+        argumentsRecieved = locals()
+
+        args = self.createArguments(argumentsRecieved)
+
+        case = {
+            
+            'timeout':self.timeoutFunc
+            
+            }
+        print(args)
+        case[linkType](args)
+
+
+    def createArguments(self, argumentsRecieved):
+        argumentsToBePassed = {}
+        for x, y in argumentsRecieved.items():
+            if x != 'self' and x != 'argumentsRecieved' and y != None:
+                argumentsToBePassed[x] = y
+            else:
+                pass
+        return argumentsToBePassed
+    def timeoutFunc(self, args):
+
+        self.setuid(args['linkuid'])
+
+        self.settype(args['linktype'])
+
+        self.setrelation(args['linkrelation'])
+
     # uid getter 
     def getuid(self): 
         return self.uid 
@@ -21,7 +49,6 @@ class link:
     def setuid(self, uid=0):  
         self.uid=uid 
 
-    production_time = "" 
     # production_time getter 
     def getproduction_time(self): 
         return self.production_time 
@@ -30,7 +57,6 @@ class link:
     def setproduction_time(self, production_time=0):  
         self.production_time=production_time 
 
-    relation = "" 
     # relation getter 
     def getrelation(self): 
         return self.relation 
@@ -39,7 +65,6 @@ class link:
     def setrelation(self, relation=0):  
         self.relation=relation 
 
-    type = "" 
     # type getter 
     def gettype(self): 
         return self.type 
@@ -48,7 +73,6 @@ class link:
     def settype(self, type=0):  
         self.type=type 
 
-    parent_callsign = "" 
     # parent_callsign getter 
     def getparent_callsign(self): 
         return self.parent_callsign 
