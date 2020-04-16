@@ -156,7 +156,7 @@ class ThreadedServer(object):
 				self.client_dict[current_id]['uid'] = uid
 			logging.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
 			threading.Thread(target = self.sendClientData, args = (client, address, current_id), daemon=True).start()
-			return str(first_run)+' δ '+str(total_clients_connected)+' δ '+str(id_data)+' δ '+str(current_id)
+			return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
 		except Exception as e:
 			logging.warning('error in connection setup: ' + str(e))
 
@@ -185,7 +185,7 @@ class ThreadedServer(object):
 		Function to receive data from the client. this must be long as everything
 		'''
 		defaults = self.connectionSetup(client, address)
-		defaults = defaults.split(' δ ')
+		defaults = defaults.split(' ? ')
 		print(defaults)
 		first_run=defaults[0]
 		total_clients_connected=defaults[1]
