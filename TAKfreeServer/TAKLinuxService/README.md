@@ -1,4 +1,4 @@
-
+# How To install FreeTakServer on Linux #
 * clone repository with the following command 
 ```
 git clone https://github.com/Tapawingo/TAKlib.git
