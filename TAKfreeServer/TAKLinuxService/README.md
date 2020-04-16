@@ -1,2 +1,7 @@
-<h1>run the following command in terminal in the directory where TAKDaemon.py is installed</h1>
-<code>python3 TAKDaemon.py</code>
+1. clone repository
+
+2.install python3 with the following command 'sudo apt update && sudo apt install python3'
+
+3.enter the TAKLinuxService directory
+
+4.run the following command 'python3 beginServerFromLinux.py'
