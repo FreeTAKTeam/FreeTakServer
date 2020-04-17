@@ -9,8 +9,8 @@
 #######################################################
 import sys
 import os
-import ascii
-
+from ascii import ascii
+ascii()
 
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
