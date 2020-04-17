@@ -8,6 +8,7 @@ import os.path
 import threading
 import sys
 import os
+import argparse
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
@@ -18,6 +19,7 @@ class AppServerSvc (win32serviceutil.ServiceFramework):
     killSwitch = 0
 
     def __init__(self,args):
+        print(args)
         win32serviceutil.ServiceFramework.__init__(self,args)
         self.hWaitStop = win32event.CreateEvent(None,0,0,None)
 
@@ -31,7 +33,7 @@ class AppServerSvc (win32serviceutil.ServiceFramework):
         self.main()
 
     def main(self):
-        t = threading.Thread(target = ThreadedServer('',8087).listen, args = (), daemon=True)
+        t = threading.Thread(target = ThreadedServer(ip,port).listen, args = (), daemon=True)
         t.start()
         while True:
             if self.killSwitch == 1:
@@ -40,4 +42,9 @@ class AppServerSvc (win32serviceutil.ServiceFramework):
                 True
 
 if __name__ == '__main__':
-    win32serviceutil.HandleCommandLine(AppServerSvc)
+    if sys.argv[1] == 'start':
+        ip = input('please enter your server IP: ')
+        port = int(input('please enter the port your server should be listening on: '))
+        win32serviceutil.HandleCommandLine(AppServerSvc)
+    else:
+        win32serviceutil.HandleCommandLine(AppServerSvc)
