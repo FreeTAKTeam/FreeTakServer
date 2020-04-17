@@ -7,7 +7,7 @@ def slowprint(s):
         sys.stdout.write(c)
         sys.stdout.flush()
         time.sleep(1. / 500)
-def ascii()
+def ascii():
     slowprint(r'''\
     *** ***       FREE TAK SERVER        *** ***       
                 .------.
