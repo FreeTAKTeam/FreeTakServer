@@ -14,13 +14,13 @@ sudo apt update && sudo apt install python3
 ```
 cd freeTak/TAKLinuxService
 ```
-* run the following command 
+* run the following command to start the server on port 8087 (standard)
 ```
 sudo python3 beginServerFromLinux.py
 ```
-** in alternative you can run
+*  in alternative you can run
 ```
- run python TAKfreeServer/server.py -p 8089
+ python TAKfreeServer/server.py -p 8089
  ```
  if you run FTS without the demon, the process will depend on the console being open.  it's suggested to use the demon, so that you can close the console
 
