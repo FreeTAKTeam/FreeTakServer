@@ -14,22 +14,30 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-    def __init__(self, isPing = 0 ,type = "a-f-G-I" , how = 'm-g' ,isGeochat = 0 ,DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", uid = "UIDString" ,version = '2.0', connType=None, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, uid0 = None, uid1 = None):
+    def __init__(self, linkType=None, linkuid = None, linkproduction_time=None, linkrelation=None, linktype=None, linkparent_callsign=None, eventType = 'default', eventisPing = 0 ,eventtype = "a-f-G-I" , eventhow = 'm-g' ,eventisGeochat = 0 ,eventDATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", eventuid = "UIDString", eventversion = '2.0', eventconnType=None, pointlat="00.00000000", pointlon='00.00000000', pointle = "9999999.0", pointce = "9999999.0", pointhae = "00.00000000", chatType = None, chatsenderCallsign = None, chatchatroom = None, chatgroupOwner = None,chatid = None, chatparent = None ,chatgrpid = None ,chatgrpuid0 = None, chatgrpuid1 = None):
         
+        
+
         from Model.detail import Detail
         from Model.point import Point
         
-        self.version = version
+        case = {
 
-        self.uid = uid
+            'default': self.defaultFunc,
 
-        DATETIME_FMT = DATETIME_FMT
+            'timeout': self.timeoutFunc
+            
+            }
 
+        self.version = eventversion
 
-        self.type = type
+        self.uid = eventuid
+
+        DATETIME_FMT = eventDATETIME_FMT
+
+        self.type = eventtype
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
-        isGeochat = isGeochat
         
         # starting time when an event should be considered valid
         start = "%Y-%m-%dT%H:%M:%SZ"
@@ -55,23 +63,38 @@ class Event:
         # flag to determine if this event is a Ping, in this case append to the UID
         
         
-        self.setuid(isGeochat = isGeochat, isPing = isPing)
+        self.setuid(isGeochat = eventisGeochat, isPing = eventisPing)
+        
+        self.how = eventhow
+        #calls detail and point
+        self.point = Point(lat=pointlat, lon=pointlon, le=pointle, ce=pointce, hae=pointhae)
+        self.detail = Detail(connType=eventconnType,linkuid=linkuid ,linkType=linkType, uid = eventuid, linkproduction_time=linkproduction_time, linkrelation=linkrelation, linktype=linktype, linkparent_callsign=linkparent_callsign, chatType = chatType, chatsenderCallsign = chatsenderCallsign, chatchatroom = chatchatroom, chatgroupOwner = chatgroupOwner, chatid = chatid, chatparent = chatparent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1)
+        
+        case[eventType](DATETIME_FMT)
+
+    def defaultFunc(self, DATETIME_FMT):
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
         
         self.settime(zulu)
         self.setstart(zulu)
-        print(zulu)
         stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 1)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
-        self.how = how
-        #calls detail and point
-        self.point = Point(lat=lat, lon=lon, le=le, ce=ce, hae=hae)
-        self.detail = Detail(connType, chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, uid0 = uid0, uid1 = uid1)
-        
 
+    def timeoutFunc(self, DATETIME_FMT):
+        timer = dt.datetime
+        now = timer.utcnow()
+        zulu = now.strftime(DATETIME_FMT)
+        
+        self.settime(zulu)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) - dt.timedelta(minutes = 1)
+        stale_part = stale_part.strftime(DATETIME_FMT)
+        self.setstart(stale_part)
+        self.setstale(str(stale_part))
+        self.how = 'h-g-i-g-o'
+        self.type = 't-x-d-d'
 
         #Start getter
     def getstart(self): 
