@@ -12,10 +12,19 @@ To run FreeTakServer you require admin priviliges
 
 TIP: kill any program already running on whichever port you've decided to use
 
-5. Press WIN+ X to open the  Command MD with admin(advisable to have green text on black background)
-6.   cd into whichever directory this file is located
+5. download the release of FTS from https://github.com/Tapawingo/TAKlib/releases
+ 5.1 unzip and move to a good location (e.g. 
+ ```
+ C:\Program Files (x86)
+ ```
+6.   Press WIN+ X to open the  Command MD with admin(advisable to have green text on black background)
 
-7. type the following 
+7. cd into whichever directory the file is located 
+ ```
+ cd C:\Program Files (x86)\FreeTakServer
+ ```
+
+type the following 
 ```
 beginProgramAsService.py install"
 ```
