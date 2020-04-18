@@ -1,16 +1,15 @@
-> 
-To run FreeTakServer you require admin priviliges
+> To run FreeTakServer you require admin priviliges
 
 # Installing FreeTakServer on Windows step by step
-1. download python for windows (current release  here:  https://www.python.org/ftp/python/3.8.2/python-3.8.2.exe)
+1. download python for windows 
+ (current release  here:  https://www.python.org/ftp/python/3.8.2/python-3.8.2.exe)
 2. allow python.exe in firewall
 3. install pip from here https://bootstrap.pypa.io/get-pip.py
   * navigate to the directory where it is installed
   * run the following 'py get-pip.py'
   * verify installation using pip -V
 4. open whichever port (FTS standard is 8087) you will be using for connections in firewall
-
-TIP: kill any program already running on whichever port you've decided to use
+ > TIP: kill any program already running on whichever port you've decided to use
 
 5. download the release of FTS from https://github.com/Tapawingo/TAKlib/releases
  5.1 unzip and move to a good location (e.g. 
@@ -24,10 +23,11 @@ TIP: kill any program already running on whichever port you've decided to use
  cd C:\Program Files (x86)\FreeTakServer
  ```
 
-type the following 
+7.1. type the following 
 ```
 beginProgramAsService.py install"
 ```
+7.2 REQUIRED: be **very** impressed by the incredible Parrot logo and the profound tagline reference. Failure to fullfil this requirement could delete all your friends from Facebook
 
 8. type 
 ```
