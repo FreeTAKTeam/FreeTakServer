@@ -15,8 +15,6 @@ class Event:
         
         #default constructor
     def __init__(self, linkType=None, linkuid = None, linkproduction_time=None, linkrelation=None, linktype=None, linkparent_callsign=None, eventType = 'default', eventisPing = 0 ,eventtype = "a-f-G-I" , eventhow = 'm-g' ,eventisGeochat = 0 ,eventDATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", eventuid = "UIDString", eventversion = '2.0', eventconnType=None, pointlat="00.00000000", pointlon='00.00000000', pointle = "9999999.0", pointce = "9999999.0", pointhae = "00.00000000", chatType = None, chatsenderCallsign = None, chatchatroom = None, chatgroupOwner = None,chatid = None, chatparent = None ,chatgrpid = None ,chatgrpuid0 = None, chatgrpuid1 = None):
-        
-        
 
         from Model.detail import Detail
         from Model.point import Point
@@ -29,13 +27,7 @@ class Event:
             
             }
 
-        self.version = eventversion
-
-        self.uid = eventuid
-
         DATETIME_FMT = eventDATETIME_FMT
-
-        self.type = eventtype
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
         
@@ -63,46 +55,49 @@ class Event:
         # flag to determine if this event is a Ping, in this case append to the UID
         
         
-        self.setuid(isGeochat = eventisGeochat, isPing = eventisPing)
-        
-        self.how = eventhow
+
         #calls detail and point
         self.point = Point(lat=pointlat, lon=pointlon, le=pointle, ce=pointce, hae=pointhae)
         self.detail = Detail(connType=eventconnType,linkuid=linkuid ,linkType=linkType, uid = eventuid, linkproduction_time=linkproduction_time, linkrelation=linkrelation, linktype=linktype, linkparent_callsign=linkparent_callsign, chatType = chatType, chatsenderCallsign = chatsenderCallsign, chatchatroom = chatchatroom, chatgroupOwner = chatgroupOwner, chatid = chatid, chatparent = chatparent, chatgrpuid0 = chatgrpuid0, chatgrpuid1 = chatgrpuid1)
         
-        case[eventType](DATETIME_FMT)
+        case[eventType](DATETIME_FMT,version = eventversion, uid = eventuid, how = eventhow, type = eventtype,isGeochat = eventisGeochat, isPing = eventisPing)
 
-    def defaultFunc(self, DATETIME_FMT):
+    def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
+        self.how = how
+
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        
-        self.settime(zulu)
-        self.setstart(zulu)
         stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 1)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
+        self.setstart(zulu)
+        self.settime(zulu)
+        self.type = type
+        self.setuid(isGeochat = isGeochat, isPing=isPing)
+        self.version = version
 
-    def timeoutFunc(self, DATETIME_FMT):
+    def timeoutFunc(self, DATETIME_FMT, version, uid, type, how, isGeochat, isPing):
+        self.how = how
+
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        
-        self.settime(zulu)
         stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) - dt.timedelta(minutes = 1)
         stale_part = stale_part.strftime(DATETIME_FMT)
-        self.setstart(stale_part)
         self.setstale(str(stale_part))
-        self.how = 'h-g-i-g-o'
-        self.type = 't-x-d-d'
-
+        self.setstart(zulu)
+        self.settime(zulu)
+        self.type = type
+        self.setuid(isGeochat = isGeochat, isPing=isPing)
+        self.version = version
         #Start getter
     def getstart(self): 
         return self.Start 
     
         # Start setter
     def setstart(self, Start=0):  
-        self.Start = Start 
+        self.start = Start 
     
         # m_point setter
     def setpoint(self, m_point=0):  

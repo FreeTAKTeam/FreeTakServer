@@ -23,8 +23,8 @@ import time
 import xml.etree.ElementTree as ET
 import TAKWinService.constants as constants
 import logging
-from Controllers.serializer import Serializer
 from Controllers.RequestCOTController import RequestCOTController
+from Controllers.serializer import Serializer
 import multiprocessing as multi
 const = constants.vars()
 ''' Server class '''
@@ -187,6 +187,7 @@ class ThreadedServer(object):
 		Function to receive data from the client. this must be long as everything
 		'''
 		defaults = self.connectionSetup(client, address)
+		print(defaults)
 		defaults = defaults.split(' ? ')
 		print(defaults)
 		first_run=defaults[0]
@@ -210,13 +211,17 @@ class ThreadedServer(object):
 					#checking if check_xml detected client disconnect
 					if working == const.FAIL:
 						print('here')
-						timeoutInfo = Serializer().serializerRoot(RequestCOTController().timeout(linkuid = self.client_dict[current_id]['uid']))
+						timeoutInfo = Serializer().serializerRoot(RequestCOTController().timeout(eventhow = 'h-g-i-g-o', eventuid = 'aef53602-ea19-4a82-a07b-f0069470b23d', linkuid = self.client_dict[current_id]['uid']))
+						print(timeoutInfo.encode())
+						logging.debug(timeoutInfo.encode())
+						logging.debug('timeout info is with utf8 '+str(timeoutInfo))
+						logging.debug('timeout info is with ascii '+str(bytes(timeoutInfo, 'utf-8')))
 						if len(self.client_dict)>0:
 
 							for x in self.client_dict:
 						
 								if x != current_id:
-									print(self.client_dict[x]['client'])
+									logging.debug('sending timeout to '+str(self.client_dict[x]['client']))
 									self.client_dict[x]['client'].send(timeoutInfo.encode())
 
 								else:

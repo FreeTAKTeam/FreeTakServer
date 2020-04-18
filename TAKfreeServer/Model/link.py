@@ -34,12 +34,11 @@ class link:
                 pass
         return argumentsToBePassed
     def timeoutFunc(self, args):
+        self.settype('a-f-G-U-C')
 
         self.setuid(args['linkuid'])
 
-        self.settype(args['linktype'])
-
-        self.setrelation(args['linkrelation'])
+        self.setrelation('p-p')
 
     # uid getter 
     def getuid(self): 

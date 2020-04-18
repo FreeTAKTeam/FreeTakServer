@@ -18,12 +18,13 @@ conn = con.vars()
 class RequestCOTController:
     """this controller manage all the different types of COTS, including the geochat
     """
-# default constructor  
+    
+    # default constructor  
     def __init__(self):  
         pass
 
-    def timeout(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", linkuid='abc', linktype='a-f-G-U-C', linkrelation='p-p'):
-       event = Event(eventType = 'timeout',eventconnType = 'timeout',linkType='timeout' ,pointlat=lat, pointlon=lon, pointle=le, pointce=ce, pointhae=hae, linkuid=linkuid, linktype=linktype, linkrelation=linkrelation) 
+    def timeout(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", linkuid='abc', linktype='a-f-G-U-C', linkrelation='p-p', eventhow ='h-g-i-g-o', eventuid = None):
+       event = Event(eventhow = eventhow, eventuid = eventuid,eventType = 'timeout',eventconnType = 'timeout',linkType='timeout' ,pointlat=lat, pointlon=lon, pointle=le, pointce=ce, pointhae=hae, linkuid=linkuid, linktype=linktype, linkrelation=linkrelation) 
        return event
 
     def ping(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000"):
@@ -33,4 +34,3 @@ class RequestCOTController:
     def chat(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000",isChat = 1,chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, uid0 = None, uid1 = None):
         event = Event(connType = 'chat', chatType = chatType, senderCallsign = senderCallsign, chatroom = chatroom, groupOwner = groupOwner, id = id, parent = parent, uid0 = uid0, uid1 = uid1, chatgrpid = chatgrpid, lat=lat, lon=lon, le=le, ce=ce, hae=hae)
         return event
-RequestCOTController().ping()

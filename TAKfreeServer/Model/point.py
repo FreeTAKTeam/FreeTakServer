@@ -12,11 +12,11 @@
 class Point:
 
     def __init__(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000"):
-        self.lat = lat
-        self.lon = lon
         self.le = le
         self.ce = ce
         self.hae = hae
+        self.lon = lon        
+        self.lat = lat
         pass
 
 

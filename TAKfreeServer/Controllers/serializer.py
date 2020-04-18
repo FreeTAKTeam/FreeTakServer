@@ -1,8 +1,7 @@
 import xml.etree.ElementTree as et
-from Controllers.RequestCOTController import RequestCOTController
 class Serializer:
     def __init__(self):
-        self.xmlheader = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+        self.xmlheader = '<?xml version="1.0" encoding="UTF-8" standalone="true"?>'
 
     def serializerRoot(self, object):
         root = et.Element('event')
