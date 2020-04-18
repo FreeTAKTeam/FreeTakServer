@@ -1,29 +1,42 @@
-﻿<h1>To run this program you require admin privliges</h1>
+> 
+To run FreeTakServer you require admin priviliges
 
-#1 allow python.exe in firewall
-<br>
-#2 open whichever port you will be using for connections in firewall
-<br>
-#3 kill any program already running on whichever port you've decided to use
-<br>
-#4 open CMD with admin(advisable to have green text on black background)
-<br>
-#5 cd into whichever directory this file is located
-<br>
-#6 type the following "beginProgramAsService.py install"
-<br>
-#7 type "beginProgramAsService.py start"
-<br><br>
-TROUBLESHOOTING
-<br><br>
+# Installing FreeTakServer on Windows step by step
+1. download python for windows (current release  here:  https://www.python.org/ftp/python/3.8.2/python-3.8.2.exe)
+2. allow python.exe in firewall
+3. install pip from here https://bootstrap.pypa.io/get-pip.py
+  * navigate to the directory where it is installed
+  * run the following 'py get-pip.py'
+  * verify installation using pip -V
+4. open whichever port (FTS standard is 8087) you will be using for connections in firewall
+
+TIP: kill any program already running on whichever port you've decided to use
+
+5. Press WIN+ X to open the  Command MD with admin(advisable to have green text on black background)
+6.   cd into whichever directory this file is located
+
+7. type the following 
+```
+beginProgramAsService.py install"
+```
+
+8. type 
+```
+beginProgramAsService.py start
+```
+9. the service will ask for you internet IP  and a port (8087)
+
+# TROUBLESHOOTING
+
 if you have any issues don't hesitate to bring it up as this program is still in development
 <br><br>
-1. ERROR: Could not find a version that satisfies the requirement win32serviceutil
-<br>
+
+## ERROR: Could not find a version that satisfies the requirement win32serviceutil
+```
 cmd > pip install pywin32
-<br><br>
-2. Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
-<br>
+```
+## Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
 attempt to add python to the system path
-<br><br>
+
+>
 side note TAKFreeServer_running_as_service.py can be run independently without being run as service 
