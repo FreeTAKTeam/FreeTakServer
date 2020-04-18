@@ -127,6 +127,9 @@ class ThreadedServer(object):
 			total_clients_connected = 0
 			total_clients_connected += 1
 			id_data = client.recv(const.BUFFER)
+			print(id_data)
+			print('\n'+str(id_data))
+			print('\n \n')
 			self.data = id_data
 			tree = ET.fromstring(id_data)
 			uid = tree.get('uid')
@@ -187,7 +190,6 @@ class ThreadedServer(object):
 		Function to receive data from the client. this must be long as everything
 		'''
 		defaults = self.connectionSetup(client, address)
-		print(defaults)
 		defaults = defaults.split(' ? ')
 		print(defaults)
 		first_run=defaults[0]
@@ -236,6 +238,14 @@ class ThreadedServer(object):
 				
 				elif first_run == 1:
 					print('something \n')
+					for x in self.client_dict:
+						client = self.client_dict[x]['client']
+						if client != self.client_dict[current_id]['client']:
+							print('sending'+str(id_data))
+							print(id_data)
+							client.send(self.client_dict[current_id]['id_data'])
+						else:
+							pass
 					for x in self.client_dict:
 						data = self.client_dict[x]['id_data']
 						logging.debug('sending conn data abc'+str(self.client_dict[x]['id_data'])+'to '+str(client)+'\n')
