@@ -14,8 +14,8 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 from server import ThreadedServer
 class AppServerSvc (win32serviceutil.ServiceFramework):
-    _svc_name_ = "TAKServer"
-    _svc_display_name_ = "TAKServer"
+    _svc_name_ = "FreeTAKServer"
+    _svc_display_name_ = "FreeTAKServer"
     killSwitch = 0
 
     def __init__(self,args):
