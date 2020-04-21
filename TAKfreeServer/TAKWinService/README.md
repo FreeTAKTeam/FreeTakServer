@@ -20,7 +20,7 @@
 
 7. cd into whichever directory the file is located 
  ```
- cd C:\Program Files (x86)\FreeTakServer
+ cd C:\Program Files (x86)\FreeTakServer\TAKWinService
  ```
 
 7.1. type the following 
