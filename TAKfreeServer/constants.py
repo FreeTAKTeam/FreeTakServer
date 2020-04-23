@@ -11,4 +11,10 @@ class vars():
        self.DELAY = 5
        self.IP = 'your ip'
        self.LOGTIMEFORMAT = '%(levelname)s:%(asctime)s:%(message)s'
+       self.LOGNAME = 'FTS'
+       self.WARNINGLOG = 'FTS_warning.log'
+       self.DEBUGLOG = 'FTS_debug.log'
+       self.INFOLOG = 'FTS_info.log'
        self.DELIMITER = ' ? '
+       self.MAXFILESIZE = 2000000
+       self.BACKUPCOUNT = 5

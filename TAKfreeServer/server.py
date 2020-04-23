@@ -15,7 +15,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 import socket
 import threading
 import argparse
-import logging
 import time
 import xml.etree.ElementTree as ET
 import constants
@@ -24,8 +23,27 @@ from Controllers.RequestCOTController import RequestCOTController
 from Controllers.serializer import Serializer
 import multiprocessing as multi
 const = constants.vars()
-logging.basicConfig(filename=const.LOGFILEPATH, level=logging.DEBUG, format='%(levelname)s:%(asctime)s:%(message)s')
-logging.debug('called or imported')
+from logging.handlers import RotatingFileHandler
+'''
+configure logging
+'''
+format = logging.Formatter(const.LOGTIMEFORMAT)
+logger = logging.getLogger(const.LOGNAME)
+logger.setLevel(logging.DEBUG)
+debug = RotatingFileHandler(const.DEBUGLOG, maxBytes=const.MAXFILESIZE,backupCount=const.BACKUPCOUNT)
+debug.setLevel(logging.DEBUG)
+warning = RotatingFileHandler(const.WARNINGLOG, maxBytes=const.MAXFILESIZE,backupCount=const.BACKUPCOUNT)
+warning.setLevel(logging.WARNING)
+info = RotatingFileHandler(const.INFOLOG, maxBytes=const.MAXFILESIZE,backupCount=const.BACKUPCOUNT)
+info.setLevel(logging.INFO)
+debug.setFormatter(format)
+warning.setFormatter(format)
+info.setFormatter(format)
+logger.addHandler(warning)
+logger.addHandler(debug)
+logger.addHandler(info)
+
+logger.debug('called or imported')
 hostname = socket.gethostname()
 ''' Server class '''
 class ThreadedServer(object):
@@ -45,7 +63,7 @@ class ThreadedServer(object):
 		self.connected_xml = []
 		self.client_id = 0
 		self.client_dict = {}
-		logging.debug('startup ip is '+self.host+' startup port is '+str(self.port))
+		logger.info('startup ip is '+self.host+' startup port is '+str(self.port))
 		self.emergencyDict = {}
 
 	def listen(self):
@@ -59,7 +77,7 @@ class ThreadedServer(object):
 				threading.Thread(target = self.listenToClient,args = (client,address), daemon=True).start()
 				
 			except Exception as e:
-				logging.warning('error in main listen function '+str(e))
+				logger.warning('error in main listen function '+str(e))
 	#issue in following func
 	def check_xml(self, xml_string, current_id):
 		'''
@@ -70,18 +88,18 @@ class ThreadedServer(object):
 			if xml_string == const.EMPTY_BYTE:
 				print('client disconnected now setting as disconnected')
 				self.client_dict[current_id]['alive'] = 0
-				logging.info(str(self.client_dict[current_id]['uid'])+' disconnected')
+				logger.info(str(self.client_dict[current_id]['uid'])+' disconnected')
 				return const.FAIL
 
 			tree = ET.fromstring(xml_string)
 			uid = tree.get('uid')
-			logging.debug('parsing data uid is ' +str(uid))
+			logger.debug('parsing data uid is ' +str(uid))
 			try:
 				uid_by_dot = uid.split('.')
 				uid_by_dash = uid.split('-')
 			except:
 				uid_by_dash = uid.split('-')
-			logging.debug(uid_by_dash)
+			logger.debug(uid_by_dash)
 			if str(uid_by_dash[-1]) == '1' and str(uid_by_dash[-2]) == '1' and str(uid_by_dash[-3] == '9'):
 				for x in tree.iter('emergency'):
 					if x.get('cancel') != 'true':
@@ -124,7 +142,7 @@ class ThreadedServer(object):
 			
 			return data_value
 		except Exception as e:
-			logging.warning('error in message parsing '+str(e))
+			logger.warning('error in message parsing '+str(e))
 
 	def connectionSetup(self, client, address):
 #		try:
@@ -166,11 +184,11 @@ class ThreadedServer(object):
 			self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
 			self.client_dict[current_id]['id_data'] = id_data
 			self.client_dict[current_id]['uid'] = uid
-		logging.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
+		logger.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
 		threading.Thread(target = self.sendClientData, args = (client, address, current_id), daemon=True).start()
 		return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
 #		except Exception as e:
-#			logging.warning('error in connection setup: ' + str(e))
+#			logger.warning('error in connection setup: ' + str(e))
 
 	def recieveAll(self, client):
 					total_data = []
@@ -215,22 +233,22 @@ class ThreadedServer(object):
 			try:
 				if first_run == 0:
 					data = self.recieveAll(client)
-					logging.debug('recieved '+str(data)+' from '+str(self.client_dict[current_id]['uid']))
+					logger.debug('recieved '+str(data)+' from '+str(self.client_dict[current_id]['uid']))
 					working = self.check_xml(data, current_id)
 					#checking if check_xml detected client disconnect
 					if working == const.FAIL:
 						print('here')
 						timeoutInfo = Serializer().serializerRoot(RequestCOTController().timeout(eventhow = 'h-g-i-g-o', eventuid = 'aef53602-ea19-4a82-a07b-f0069470b23d', linkuid = self.client_dict[current_id]['uid']))
 						print(timeoutInfo.encode())
-						logging.debug(timeoutInfo.encode())
-						logging.debug('timeout info is with utf8 '+str(timeoutInfo))
-						logging.debug('timeout info is with ascii '+str(bytes(timeoutInfo, 'utf-8')))
+						logger.debug(timeoutInfo.encode())
+						logger.debug('timeout info is with utf8 '+str(timeoutInfo))
+						logger.debug('timeout info is with ascii '+str(bytes(timeoutInfo, 'utf-8')))
 						if len(self.client_dict)>0:
 
 							for x in self.client_dict:
 						
 								if x != current_id:
-									logging.debug('sending timeout to '+str(self.client_dict[x]['client']))
+									logger.debug('sending timeout to '+str(self.client_dict[x]['client']))
 									self.client_dict[x]['client'].send(timeoutInfo.encode())
 
 								else:
@@ -255,14 +273,14 @@ class ThreadedServer(object):
 							pass
 					for x in self.client_dict:
 						data = self.client_dict[x]['id_data']
-						logging.debug('sending conn data abc'+str(self.client_dict[x]['id_data'])+'to '+str(client)+'\n')
+						logger.debug('sending conn data abc'+str(self.client_dict[x]['id_data'])+'to '+str(client)+'\n')
 						client.send(data)
 
 				#just some debug stuff
 				first_run = 0
 			except Exception as e:
-				logging.warning('error in main loop')
-				logging.warning(str(e))
+				logger.warning('error in main loop')
+				logger.warning(str(e))
 				killSwitch =1 
 	def sendClientData(self, client, address, current_id):
 		killSwitch = 0
@@ -275,7 +293,7 @@ class ThreadedServer(object):
 						for x in self.emergencyDict:
 							client.send(self.emergencyDict[x])
 				else:
-					logging.debug('emergency not found')
+					logger.debug('emergency not found')
 
 				if len(self.client_dict[current_id]['main_data'])>0:
 
@@ -284,13 +302,13 @@ class ThreadedServer(object):
 						client.send(x)
 						print('\n'+'sent '+ str(x)+' to '+ str(address) + '\n')
 						self.client_dict[current_id]['main_data'].remove(x)
-						logging.debug('sending '+str(x)+' to '+str(client))
+						logger.debug('sending '+str(x)+' to '+str(client))
 				else:
 					print('sending' + str(client))
 					client.send(Serializer().serializerRoot(RequestCOTController().ping()).encode())
 			client.close()
 		except Exception as e:
-			logging.warning('error in send info '+str(e))
+			logger.warning('error in send info '+str(e))
 			client.close()
 
 if __name__ == "__main__":
