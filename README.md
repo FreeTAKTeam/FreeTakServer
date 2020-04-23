@@ -20,26 +20,36 @@ under docs, you can find various documents including an UMl model of the model c
 - Python 3
 
 ## Installing and using FreeTakServer
-FreeTakServer  requires Python 3.0 or later to run. Once you’ve installed Python 3, install TAKLib using git:
+### Prerequisites
+- Install Python3
 
-```bash
-git clone https://github.com/Tapawingo/TAKlib.git
+  `sudo apt update && sudo apt install python3` (Ubuntu)
 
-cd TAKLib
+- Clone TAKLib repository
+
+  `git clone https://github.com/Tapawingo/TAKlib.git`
+
+### Linux
+
+#### Run Server in console
+
+```
+cd TAKlib/TAKfreeServer/
+
+python3 server.py
 ```
 
-It is available in 2 flavours:
-- Windows service
-- Linux Demon
+#### Run Server as Demon
 
-### Linux Demon
-
-run the following command in terminal in the directory where TAKDaemon.py is installed
 ```
-python3 TAKDaemon.py
+cd TAKlib/TAKfreeServer/TAKLinuxService
+
+sudo python3 beginServerFromLinux.py
 ```
 
-### Windows Service
+### Windows
+
+#### Windows Service
 To run this program you require admin priviliges
 
 1. allow python.exe in firewall
@@ -50,22 +60,22 @@ To run this program you require admin priviliges
 ```
 Cd FreeTakServer/TakWinService
 ```
-6. type the following 
+6. type the following
 ```
 beginProgramAsService.py install
 ```
-7. type 
+7. type
 ```
 beginProgramAsService.py start
 ```
 
-#### side note 
+### side note
 ```
 TAKFreeServer_running_as_service.py
 ```
-can be run independently 
+can be run independently
 
-#### Troubleshooting
+### Troubleshooting
 if you have this error Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
 
 attempt to add python to the system path
@@ -75,8 +85,7 @@ attempt to add python to the system path
   - **Controllers**: Contains all the business Logic
   - **Models**: Contains all the COT object model
   - **TAKLinuxService**:   a demon for linux OS
-  -  **TakWinService**: a service for the windows OS 
+  -  **TakWinService**: a service for the windows OS
 - Docs: Usefull documentation regarding COTS and different logs to understand how those are implemented
-- Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html). 
+- Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html).
 - Old: Legacy versions
-
