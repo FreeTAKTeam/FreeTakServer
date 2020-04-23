@@ -6,5 +6,9 @@ class vars():
        self.EMPTY_BYTE = b''
        self.DEFAULTPORT = 8087
        self.LOGFILEPATH = 'log.log'
-       self.BUFFER = 32784
+       self.STARTBUFFER = 32784
+       self.BUFFER =227
        self.DELAY = 5
+       self.IP = 'your ip'
+       self.LOGTIMEFORMAT = '%(levelname)s:%(asctime)s:%(message)s'
+       self.DELIMITER = ' ? '

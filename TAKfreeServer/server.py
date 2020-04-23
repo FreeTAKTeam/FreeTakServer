@@ -9,9 +9,6 @@
 #######################################################
 import sys
 import os
-from ascii import ascii
-ascii()
-
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
@@ -21,17 +18,19 @@ import argparse
 import logging
 import time
 import xml.etree.ElementTree as ET
-import TAKWinService.constants as constants
+import constants
 import logging
 from Controllers.RequestCOTController import RequestCOTController
 from Controllers.serializer import Serializer
 import multiprocessing as multi
 const = constants.vars()
+logging.basicConfig(filename=const.LOGFILEPATH, level=logging.DEBUG, format='%(levelname)s:%(asctime)s:%(message)s')
+logging.debug('called or imported')
+hostname = socket.gethostname()
 ''' Server class '''
 class ThreadedServer(object):
-	def __init__(self, host, port=const.DEFAULTPORT):
+	def __init__(self, host = const.IP, port=const.DEFAULTPORT):
 		#change from string
-		logging.basicConfig(filename=const.LOGFILEPATH, level=logging.DEBUG, format='%(levelname)s:%(asctime)s:%(message)s')
 		self.host = host
 		self.port = port
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -46,6 +45,8 @@ class ThreadedServer(object):
 		self.connected_xml = []
 		self.client_id = 0
 		self.client_dict = {}
+		logging.debug('startup ip is '+self.host+' startup port is '+str(self.port))
+		self.emergencyDict = {}
 
 	def listen(self):
 		'''
@@ -74,14 +75,20 @@ class ThreadedServer(object):
 
 			tree = ET.fromstring(xml_string)
 			uid = tree.get('uid')
-
+			logging.debug('parsing data uid is ' +str(uid))
 			try:
 				uid_by_dot = uid.split('.')
 				uid_by_dash = uid.split('-')
 			except:
 				uid_by_dash = uid.split('-')
-
-			if uid_by_dash[-1] == const.PING:
+			logging.debug(uid_by_dash)
+			if str(uid_by_dash[-1]) == '1' and str(uid_by_dash[-2]) == '1' and str(uid_by_dash[-3] == '9'):
+				for x in tree.iter('emergency'):
+					if x.get('cancel') != 'true':
+						self.emergencyDict[uid] = xml_string
+					else:
+						del self.emergencyDict[uid]
+			elif uid_by_dash[-1] == const.PING:
 				data_value = const.PING
 				self.data_important.append(xml_string)
 			elif len(uid_by_dot)>0:
@@ -120,50 +127,50 @@ class ThreadedServer(object):
 			logging.warning('error in message parsing '+str(e))
 
 	def connectionSetup(self, client, address):
+#		try:
+		first_run = 1
+		#create client dictionary within main dictionary containing arrays for data and chat also other stuff for client enitial connection
+		current_id = 0
+		total_clients_connected = 0
+		total_clients_connected += 1
+		id_data = client.recv(const.STARTBUFFER)
+		print(id_data)
+		print('\n'+str(id_data))
+		print('\n \n')
+		self.data = id_data
+		tree = ET.fromstring(id_data)
+		uid = tree.get('uid')
+		if self.client_id == 0:
+			current_id = self.client_id
+			self.client_id += 1
+			#add identifying information
+			self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
+			self.client_dict[current_id]['id_data'] = id_data
+			self.client_dict[current_id]['uid'] = uid
+		print('con setup '+'\n')
+		#print(self.client_dict)
 		try:
-			first_run = 1
-			#create client dictionary within main dictionary containing arrays for data and chat also other stuff for client enitial connection
-			current_id = 0
-			total_clients_connected = 0
-			total_clients_connected += 1
-			id_data = client.recv(const.BUFFER)
-			print(id_data)
-			print('\n'+str(id_data))
-			print('\n \n')
-			self.data = id_data
-			tree = ET.fromstring(id_data)
-			uid = tree.get('uid')
-			if self.client_id == 0:
-				current_id = self.client_id
-				self.client_id += 1
-				#add identifying information
-				self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
-				self.client_dict[current_id]['id_data'] = id_data
-				self.client_dict[current_id]['uid'] = uid
-			print('con setup '+'\n')
-			#print(self.client_dict)
-			try:
-				for x in self.client_dict:
-					print(self.client_dict[x]['uid'])
-					if self.client_dict[x]['uid'] == uid:
-						current_id = x
-						print('already there ')
-					else:
-						True
-			except:
-				True
-			if current_id == 0:
-				current_id = self.client_id
-				self.client_id += 1
-				#add identifying information
-				self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
-				self.client_dict[current_id]['id_data'] = id_data
-				self.client_dict[current_id]['uid'] = uid
-			logging.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
-			threading.Thread(target = self.sendClientData, args = (client, address, current_id), daemon=True).start()
-			return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
-		except Exception as e:
-			logging.warning('error in connection setup: ' + str(e))
+			for x in self.client_dict:
+				print(self.client_dict[x]['uid'])
+				if self.client_dict[x]['uid'] == uid:
+					current_id = x
+					print('already there ')
+				else:
+					True
+		except:
+			True
+		if current_id == 0:
+			current_id = self.client_id
+			self.client_id += 1
+			#add identifying information
+			self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
+			self.client_dict[current_id]['id_data'] = id_data
+			self.client_dict[current_id]['uid'] = uid
+		logging.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
+		threading.Thread(target = self.sendClientData, args = (client, address, current_id), daemon=True).start()
+		return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
+#		except Exception as e:
+#			logging.warning('error in connection setup: ' + str(e))
 
 	def recieveAll(self, client):
 					total_data = []
@@ -254,8 +261,9 @@ class ThreadedServer(object):
 				#just some debug stuff
 				first_run = 0
 			except Exception as e:
-				logging.warning('error in main loop '+str(e))
-
+				logging.warning('error in main loop')
+				logging.warning(str(e))
+				killSwitch =1 
 	def sendClientData(self, client, address, current_id):
 		killSwitch = 0
 		try:
@@ -263,7 +271,14 @@ class ThreadedServer(object):
 				time.sleep(const.DELAY)
 				if killSwitch == 1:
 					break
-				elif len(self.client_dict[current_id]['main_data'])>0:
+				if len(self.emergencyDict)>0:
+						for x in self.emergencyDict:
+							client.send(self.emergencyDict[x])
+				else:
+					logging.debug('emergency not found')
+
+				if len(self.client_dict[current_id]['main_data'])>0:
+
 					for x in self.client_dict[current_id]['main_data']:
 						print('sending' + str(client))
 						client.send(x)
@@ -277,12 +292,8 @@ class ThreadedServer(object):
 		except Exception as e:
 			logging.warning('error in send info '+str(e))
 			client.close()
-				
-				
-					   
+
 if __name__ == "__main__":
-	''' Taking port number from the command line.
-	Run the code as name.py -p PortNumber '''
 	try:
 		parser=argparse.ArgumentParser()
 		parser.add_argument("-p", type=int)
@@ -290,4 +301,4 @@ if __name__ == "__main__":
 		port_num = args.p
 		ThreadedServer('',port_num).listen()
 	except:
-		ThreadedServer('',const.DEFAULTPORT).listen()
+		ThreadedServer(host = '',port = const.DEFAULTPORT).listen()
