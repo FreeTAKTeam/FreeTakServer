@@ -24,6 +24,7 @@ from Controllers.serializer import Serializer
 import multiprocessing as multi
 const = constants.vars()
 from logging.handlers import RotatingFileHandler
+import uuid
 '''
 configure logging
 '''
@@ -158,32 +159,16 @@ class ThreadedServer(object):
 		self.data = id_data
 		tree = ET.fromstring(id_data)
 		uid = tree.get('uid')
-		if self.client_id == 0:
-			current_id = self.client_id
-			self.client_id += 1
-			#add identifying information
-			self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
-			self.client_dict[current_id]['id_data'] = id_data
-			self.client_dict[current_id]['uid'] = uid
+
+		current_id = uuid.uuid1().int
+
+		#add identifying information
+		self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
+		self.client_dict[current_id]['id_data'] = id_data
+		self.client_dict[current_id]['uid'] = uid
+
 		print('con setup '+'\n')
 		#print(self.client_dict)
-		try:
-			for x in self.client_dict:
-				print(self.client_dict[x]['uid'])
-				if self.client_dict[x]['uid'] == uid:
-					current_id = x
-					print('already there ')
-				else:
-					True
-		except:
-			True
-		if current_id == 0:
-			current_id = self.client_id
-			self.client_id += 1
-			#add identifying information
-			self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client}
-			self.client_dict[current_id]['id_data'] = id_data
-			self.client_dict[current_id]['uid'] = uid
 		logger.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
 		threading.Thread(target = self.sendClientData, args = (client, address, current_id), daemon=True).start()
 		return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
@@ -218,11 +203,9 @@ class ThreadedServer(object):
 		defaults = defaults.split(' ? ')
 		print(defaults)
 		first_run=defaults[0]
-		total_clients_connected=defaults[1]
 		id_data=defaults[2]
 		current_id = defaults[3]
 		first_run = int(first_run)
-		total_clients_connected = int(total_clients_connected)
 		id_data = bytes(id_data, 'utf-8')
 		current_id = int(current_id)
 		#main connection loop
