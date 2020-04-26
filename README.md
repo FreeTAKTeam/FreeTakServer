@@ -7,9 +7,25 @@ Welcome to the TakFreeServer git repository.
 TAKFreeServer is a Python3 implemnentation of the TAK Server for devices like CivTAK , WinTak and ITak, it is cross-platform and is only dependent on python stdlib libraries. It intend to support all the major use cases of the original TAK server.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 
+## Community 
 This code is currently in *ALPHA STAGE*
-If you have any issues don't hesitate to bring it up as TAKFreeServer is still in the early stages of development.
-use https://www.reddit.com/r/ATAK/
+Check out our roadmap #25 to see what is planned
+If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is still in the early stages of development.
+
+### Public instance
+we support a public instance of the FTS.
+download the configuration here
+https://drive.google.com/open?id=1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli
+use the Import manager in ATAK to import the configuration
+
+### Tell us what you think!
+to discuss with the developer team
+Use the reddit server 
+https://www.reddit.com/r/ATAK/ 
+and the Discord chat
+https://discordapp.com/invite/XEPyhHA
+
+
 
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
