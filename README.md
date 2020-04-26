@@ -9,7 +9,7 @@ TAKFreeServer is a Python3 implemnentation of the TAK Server for devices like Ci
 
 ## Community 
 This code is currently in *ALPHA STAGE*
-Check out our roadmap #25 to see what is planned
+Check out our roadmap @ FreeTakServer#25 to see what is planned
 If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is still in the early stages of development.
 
 ### Public instance
