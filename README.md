@@ -1,6 +1,6 @@
 # TAKFreeServer
-![the Parrot is not dead]
-(https://github.com/Tapawingo/FreeTakServer/blob/master/docs/FreeTakServer%20specs/FreeTakServerLogo.png?raw=true)
+
+![the Parrot is not dead](https://github.com/Tapawingo/FreeTakServer/blob/master/docs/FreeTakServer%20specs/FreeTakServerLogo.png?raw=true)
 
 Welcome to the TakFreeServer git repository.
 
