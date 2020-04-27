@@ -25,7 +25,7 @@
 
 7.1. type the following 
 ```
-beginProgramAsService.py install"
+beginProgramAsService.py install
 ```
 7.2 REQUIRED: be **very** impressed by the incredible Parrot logo and the profound tagline reference. Failure to fullfil this requirement could delete all your friends from Facebook
 
