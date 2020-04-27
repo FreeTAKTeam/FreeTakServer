@@ -46,6 +46,7 @@ cmd > pip install pywin32
 ```
 ## Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
 attempt to add python to the system path
+setx /M PATH "%PATH%;'path to your python installation file';C:\Python38\Scripts;'path to your python installation file'\Lib\site-packages\pywin32_system32;'path to your python installation file'\Lib\site-packages\win32
 
 >
 side note TAKFreeServer_running_as_service.py can be run independently without being run as service 
