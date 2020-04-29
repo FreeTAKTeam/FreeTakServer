@@ -28,7 +28,6 @@ and the Discord chat
 https://discordapp.com/invite/XEPyhHA
 
 
-
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTAKServer%20Model.png?raw=true)
@@ -63,7 +62,7 @@ python3 server.py
 ```
 
 #### Run Server as Demon
-
+see also https://github.com/Tapawingo/FreeTakServer/tree/master/TAKfreeServer/TAKLinuxService
 ```
 cd TAKlib/TAKfreeServer/TAKLinuxService
 
@@ -73,6 +72,7 @@ sudo python3 beginServerFromLinux.py
 ### Windows
 
 #### Windows Service
+see also https://github.com/Tapawingo/FreeTakServer/tree/master/TAKfreeServer/TAKWinService
 To run this program you require admin priviliges
 
 1. allow python.exe in firewall
