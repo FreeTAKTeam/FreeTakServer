@@ -2,12 +2,13 @@
 
 ![the Parrot is not dead](https://github.com/Tapawingo/FreeTakServer/blob/master/docs/FreeTakServer%20specs/FreeTakServerLogo.png?raw=true)
 
-Welcome to the TakFreeServer git repository.
+Welcome to the FreeTakServer (FTS) git repository.
 
-FreeTAKServer (FTS)  is a Python3 implemnentation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform and is only dependent on python stdlib libraries. 
-FTS is free and open source  (released under the Eclipse Public License)
+FTS  is a Python3 implemnentation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform and is only dependent on python stdlib libraries. 
+it's free and open source  (released under the Eclipse Public License).
 
 ## Use cases
+FTS allows you to connect ATAK clients to share geo information, to chat with all the connected clients, exchange files and more.
 It intends to support all the major use cases of the original TAK server.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 
