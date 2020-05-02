@@ -1,10 +1,35 @@
-# TAKFreeServer
-TAKFreeServer is a Python3 implemnentation of the TAK Server for devices like CivTAK , WinTak and ITak, it is cross-platform and is only dependent on python stdlib libraries. It intend to support all the major use cases of the original TAK server.
+# FreeTAKServer
+
+![the Parrot is not dead](https://github.com/Tapawingo/FreeTakServer/blob/master/docs/FreeTakServer%20specs/FreeTakServerLogo.png?raw=true)
+
+Welcome to the FreeTakServer (FTS) git repository.
+
+FTS  is a Python3 implemnentation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform and is only dependent on python stdlib libraries. 
+it's free and open source  (released under the Eclipse Public License).
+
+## Use cases
+FTS allows you to connect ATAK clients to share geo information, to chat with all the connected clients, exchange files and more.
+It intends to support all the major use cases of the original TAK server.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 
+## Community 
 This code is currently in *ALPHA STAGE*
-If you have any issues don't hesitate to bring it up as TAKFreeServer is still in the early stages of development.
-use https://www.reddit.com/r/ATAK/
+Check out our roadmap @ FreeTakServer#25 to see what is planned
+If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is still in the early stages of development.
+
+### Public instance
+we support a public instance of FTS.
+- download the configuration here
+https://drive.google.com/open?id=1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli
+- use the Import manager in ATAK to import the configuration
+
+### Tell us what you think!
+to discuss with the developer team
+Use the reddit server 
+https://www.reddit.com/r/ATAK/ 
+and the Discord chat
+https://discordapp.com/invite/XEPyhHA
+
 
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
@@ -40,7 +65,7 @@ python3 server.py
 ```
 
 #### Run Server as Demon
-
+see also https://github.com/Tapawingo/FreeTakServer/tree/master/TAKfreeServer/TAKLinuxService
 ```
 cd TAKlib/TAKfreeServer/TAKLinuxService
 
@@ -50,6 +75,7 @@ sudo python3 beginServerFromLinux.py
 ### Windows
 
 #### Windows Service
+see also https://github.com/Tapawingo/FreeTakServer/tree/master/TAKfreeServer/TAKWinService
 To run this program you require admin priviliges
 
 1. allow python.exe in firewall
