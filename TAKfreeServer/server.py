@@ -191,11 +191,11 @@ class ThreadedServer(object):
 					#227:260
 					#360:393
 					while True:
-						data = client.recv(227)
+						data = client.recv(const.BUFFER)
 						print(sys.getsizeof(data))
-						if sys.getsizeof(data)==227+33:
+						if sys.getsizeof(data)==const.BUFFER+33:
 							total_data.append(data)
-						elif sys.getsizeof(data) < 227+33:
+						elif sys.getsizeof(data) < const.BUFFER+33:
 							total_data.append(data)
 							break
 					logger.debug('data is as follows')
