@@ -11,11 +11,14 @@ if __name__ == '__main__':
 	if ip_addr != None and port_num != None:
 		os.chdir('..')
 		path = os.path.dirname(__file__)
-		path = str(path)+'server.py'
-		os.system('sudo nohup python3 '+path+' &')
+		serverpath = str(path)+'server.py'
+		os.system('sudo nohup python3 '+serverpath+' &')
+		httpserverpath = str(path)+'httpServer.py'
+		os.system('sudo nohup python3 '+httpserverpath+' &')
 	else:
-		print('false')
 		os.chdir('..')
 		path = os.path.dirname(__file__)
-		path = str(path)+'server.py'
-		os.system('sudo nohup python3 '+path+' &')
+		serverpath = str(path)+'server.py'
+		os.system('sudo nohup python3 '+serverpath+' &')
+		httpserverpath = str(path)+'httpServer.py'
+		os.system('sudo nohup python3 '+httpserverpath+' &')

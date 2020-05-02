@@ -10,10 +10,9 @@ import win32service
 class SMWinservice(win32serviceutil.ServiceFramework):
     '''Base class to create winservice in Python'''
 
-    _svc_name_ = 'FTCSupport'
-    _svc_display_name_ = 'FTCSupport'
-    _svc_description_ = 'FTCSupport remove this service'
-
+    _svc_name_ = 'FTS Support service'
+    _svc_display_name_ = 'FTS Support service'
+    
     @classmethod
     def parse_command_line(cls):
         '''
