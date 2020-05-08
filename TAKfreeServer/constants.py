@@ -37,5 +37,7 @@ class vars():
        self.POST = 'POST'
        self.DATAPACKAGEFOLDER = 'DataPackages'
        self.versionInfo = 'FreeTAKServer-0.7-Alpha'
+       self.NodeID = 'Public-FTS'
+       self.VERSIONJSON = '{"version":"2","type":"ServerConfig", "data":{"version": "%s", "api": "2","hostname":"%s"}, "nodeId":"%s"}' % (self.versionInfo, self.IP ,self.NodeID)
        self.HTTPDEBUG = False
        self.HTTPMETHODS = ['POST', 'GET', 'PUT']

@@ -37,7 +37,7 @@ app = Flask(__name__) #create the Flask app
 @app.route('/Marti/api/version/config', methods=const.HTTPMETHODS)
 def versionConfig():
     if request.method == const.GET:
-        return '{"version":"2","type":"ServerConfig", "data":{"version": "0.6.8-FTS-RELEASE", "api": "2","hostname":"204.48.30.216"}, "nodeId":"FreeTAKServer-0.6.8"}'
+        return const.VERSIONJSON
 
 @app.route('/Marti/api/clientEndPoints', methods=const.HTTPMETHODS)
 def clientEndPoint():
