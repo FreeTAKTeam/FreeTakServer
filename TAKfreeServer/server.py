@@ -63,13 +63,13 @@ class ThreadedServer(object):
 		logger.info('startup ip is '+self.host+' startup port is '+str(self.port))
 		self.emergencyDict = {}
 		#configure sql database
-		os.chdir('..')
 		sqliteServer = sqlite3.connect(const.DATABASE)
 		cursor = sqliteServer.cursor()
 		cursor.execute(sql.CREATEUSERSTABLE)
 		sqliteServer.commit()
 		cursor.close()
 		sqliteServer.close()
+		self.bandaidUID = ''
 	def listen(self):
 		'''
 		listen for client connections and begin thread if found
@@ -90,12 +90,16 @@ class ThreadedServer(object):
 			end = start + datetime.timedelta(minutes = const.RENEWTIME)
 			while datetime.datetime.now() < end:
 				time.sleep(10)
+			self.bandaidUID=uuid.uuid1()
 			mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			mysock.connect(('127.0.0.1', const.DEFAULTPORT))
-			mysock.send(Serializer().serializerRoot(RequestCOTController().ping()).encode())
+			mysock.send(Serializer().serializerRoot(RequestCOTController().ping(eventuid = self.bandaidUID)).encode())
 			mysock.recv(2048)
+			mysock.shutdown()
 			mysock.close()
-			logger.info('finished keepalive temp conn')
+			logger.info('finished bandaid keepalive')
+			logger.info('nuber of threads is ')
+			logger.info(threading.enumerate())
 	def check_xml(self, xml_string, current_id):
 		'''
 		check xml type or class
@@ -103,7 +107,12 @@ class ThreadedServer(object):
 		data_value = ''
 		try:
 			if xml_string == const.EMPTY_BYTE:
-				print('client disconnected now setting as disconnected')
+				print('client disconnected via empty byte response')
+				self.client_dict[current_id]['alive'] = 0
+				logger.info(str(self.client_dict[current_id]['uid'])+' disconnected')
+				return const.FAIL
+			elif xml_string == None:
+				print('client disconnected via none response')
 				self.client_dict[current_id]['alive'] = 0
 				logger.info(str(self.client_dict[current_id]['uid'])+' disconnected')
 				return const.FAIL
@@ -111,6 +120,24 @@ class ThreadedServer(object):
 			tree = ET.fromstring(xml_string)
 			uid = tree.get('uid')
 			logger.debug('parsing data uid is ' +str(uid))
+			type = tree.get('type')
+			if type == "a-f-G-U-C":
+				self.client_dict[current_id]['id_data'] = xml_string
+			elif type == 'b-f-t-a':
+				detail = tree.find('detail')
+				marti = detail.find('marti')
+				dest = marti.find('dest')
+				destination = dest.attrib['callsign']
+				connData = self.client_dict[current_id]["id_data"]
+				for x in self.client_dict:
+					if self.client_dict[x]["callsign"] == destination:
+						self.client_dict[x]["main_data"].append(connData)
+						print('adding conn data to '+str(x))
+						logger.info('now adding connection data as follows')
+						logger.info(str(connData))
+					else:
+						pass
+
 			try:
 				uid_by_dot = uid.split('.')
 				uid_by_dash = uid.split('-')
@@ -128,21 +155,47 @@ class ThreadedServer(object):
 			elif len(uid_by_dot)>0:
 				if uid_by_dot[0] == const.GEOCHAT:
 					data_value = const.GEOCHAT
+					logger.info('recieved the following GeoChat '+str(xml_string))
 				else:
 					True
 			else:
+				logger.info('recieved the following CoT '+str(xml_string))
 				pass
 			
 			#adds data to all connected client data list except sending client
-			for x in self.client_dict:
-				if x == current_id:
-					pass
-				elif x!=current_id:
-					self.client_dict[x]['main_data'].append(xml_string)
-			
-			return data_value
+			for detail in tree.findall('detail'):
+				marti = detail.find('marti')
+				if marti != None:
+					sqliteServer = sqlite3.connect(const.DATABASE)
+					dest = marti.find('dest')
+					callsign = dest.attrib['callsign']
+					if type == 'b-f-t-a':
+						for x in self.client_dict:
+							id = x
+							if self.client_dict[id]['callsign'] == callsign:
+								self.client_dict[id]['main_data'].insert(-1 ,xml_string)
+							else:
+								pass
+					else:
+						for x in self.client_dict:
+							id = x
+							if self.client_dict[id]['callsign'] == callsign:
+								self.client_dict[id]['main_data'].append(xml_string)
+							else:
+								pass
+				else:
+					for x in self.client_dict:
+						if x == current_id:
+							pass
+						elif x!=current_id:
+							self.client_dict[x]['main_data'].append(xml_string)
+		
+				return data_value
+
 		except Exception as e:
 			logger.warning('error in message parsing '+str(e))
+			logger.warning(xml_string)
+
 
 	def connectionSetup(self, client, address):
 		try:
@@ -161,17 +214,16 @@ class ThreadedServer(object):
 			print('\n \n')
 			tree = ET.fromstring(id_data)
 			uid = tree.get('uid')
-
+			if uid == self.bandaidUID:
+				return 'Bandaid'
 			callsign = tree[1][1].attrib['callsign']
-
-
 			current_id = uuid.uuid1().int
 
 			#add identifying information
 			self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client, 'callsign':callsign}
 			self.client_dict[current_id]['id_data'] = id_data
 			self.client_dict[current_id]['uid'] = uid
-			cursor.execute(sql.INSERTNEWUSER,(uid, callsign))
+			cursor.execute(sql.INSERTNEWUSER,(str(current_id), str(uid), str(callsign)))
 			sqliteServer.commit()
 			cursor.close()
 			sqliteServer.close()
@@ -184,6 +236,7 @@ class ThreadedServer(object):
 			return "error"
 
 	def recieveAll(self, client):
+				try:
 					total_data = []
 					count = 0
 					dead = 0
@@ -198,10 +251,12 @@ class ThreadedServer(object):
 						elif sys.getsizeof(data) < const.BUFFER+33:
 							total_data.append(data)
 							break
-					logger.debug('data is as follows')
 					total_data=b''.join(total_data)
 					return total_data
-					
+				except Exception as e:
+					logger.warning('error in recieve all')
+					logger.warning(e)
+					return None
 	def listenToClient(self, client, address):
 		''' 
 		Function to receive data from the client. this must be long as everything
@@ -209,7 +264,12 @@ class ThreadedServer(object):
 		try:
 			defaults = self.connectionSetup(client, address)
 			if defaults == 'error':
+				client.shutdown()
 				client.close()
+				return 1
+			elif defaults == 'Bandaid':
+				client.close()
+				return 1
 			else:
 				defaults = defaults.split(' ? ')
 				print(defaults)
@@ -227,22 +287,18 @@ class ThreadedServer(object):
 					try:
 						if first_run == 0:
 							data = self.recieveAll(client)
-							logger.debug('recieved the following from '+str(self.client_dict[current_id]['uid']))
 							logger.debug(data)
 							working = self.check_xml(data, current_id)
 							#checking if check_xml detected client disconnect
 							if working == const.FAIL:
 								timeoutInfo = Serializer().serializerRoot(RequestCOTController().timeout(eventhow = 'h-g-i-g-o', eventuid = uuid.uuid1(), linkuid = self.client_dict[current_id]['uid']))
 								print(timeoutInfo.encode())
-								logger.debug(timeoutInfo.encode())
-								logger.debug('timeout info is with utf8 '+str(timeoutInfo))
-								logger.debug('timeout info is with ascii '+str(bytes(timeoutInfo, 'utf-8')))
+								logger.debug('sending timeout information')
 								if len(self.client_dict)>0:
 
 									for x in self.client_dict:
 						
 										if x != current_id:
-											logger.debug('sending timeout to '+str(self.client_dict[x]['client']))
 											self.client_dict[x]['client'].send(timeoutInfo.encode())
 
 										else:
@@ -257,8 +313,12 @@ class ThreadedServer(object):
 								sqliteServer.commit()
 								cursor.close()
 								sqliteServer.close()
+								client.shutdown()
 								client.close()
 								break
+							elif working == const.PING:
+								logger.debug('recieved ping')
+
 							else:
 								pass
 				
@@ -283,9 +343,15 @@ class ThreadedServer(object):
 					except Exception as e:
 						logger.warning('error in main loop')
 						logger.warning(str(e))
+						client.shutdown()
+						client.close()
 						killSwitch =1
+						return 1
 		except Exception as e:
+			client.shutdown()
+			client.close()
 			return 1
+			
 	def sendClientData(self, client, address, current_id):
 		killSwitch = 0
 		try:
@@ -304,18 +370,19 @@ class ThreadedServer(object):
 
 					for x in self.client_dict[current_id]['main_data']:
 						logger.debug(self.client_dict[current_id]['main_data'])
-						print('sending' + str(client))
 						client.send(x)
 						print('\n'+'sent '+ str(x)+' to '+ str(address) + '\n')
 						self.client_dict[current_id]['main_data'].remove(x)
-						logger.debug('sending '+str(x)+' to '+str(client))
+
 				else:
-					print('sending' + str(client))
-					client.send(Serializer().serializerRoot(RequestCOTController().ping()).encode())
+					client.send(Serializer().serializerRoot(RequestCOTController().ping(eventuid = uuid.uuid1())).encode())
+			client.shutdown()
 			client.close()
 		except Exception as e:
 			logger.warning('error in send info '+str(e))
+			client.shutdown()
 			client.close()
+			return 1
 
 	def queryCallSign(self, uid):
 		for x in self.client_dict:

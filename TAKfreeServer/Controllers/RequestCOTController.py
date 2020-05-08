@@ -27,7 +27,7 @@ class RequestCOTController:
        event = Event(eventhow = eventhow, eventuid = eventuid,eventType = 'timeout',eventconnType = 'timeout',linkType='timeout' ,pointlat=lat, pointlon=lon, pointle=le, pointce=ce, pointhae=hae, linkuid=linkuid, linktype=linktype, linkrelation=linkrelation) 
        return event
 
-    def ping(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000"):
+    def ping(self, lat="00.00000000", lon='00.00000000', le = "9999999.0", ce = "9999999.0", hae = "00.00000000", eventuid=None):
        event = Event(eventconnType = conn.PING, eventisPing = 1, pointlat=lat, pointlon=lon, pointle=le, pointce=ce, pointhae=hae) 
        return event
 

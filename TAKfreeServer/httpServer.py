@@ -3,7 +3,7 @@ import zipfile
 from werkzeug.datastructures import FileStorage
 import os
 import sqlite3
-from pathlib import Path
+from pathlib import Path, PurePath, PosixPath
 import sys
 import string
 import random
@@ -12,38 +12,42 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR)))
 from constants import vars
 from SQLcommands import sql
+
 sql = sql()
 const = vars()
-os.chdir('..')
-if os.path.exists('DataPackages')==True:
+dir = dir_path = os.path.dirname(os.path.realpath(__file__))
+print(dir)
+path = PurePath(dir, 'DataPackages')
+print(path)
+if Path(path).exists()==True:
     pass
-elif os.path.exists('DataPackages')==False:
-    os.mkdir('DataPackages')
+elif Path(path).exists()==False:
+    os.mkdir(path)
 
 sqliteServer = sqlite3.connect(const.DATABASE)
 cursor = sqliteServer.cursor()
 
 cursor.execute(sql.CREATEDPTABLE)
-sqliteServer.commit()
 cursor.close()
+sqliteServer.commit()
+
 sqliteServer.close()
 app = Flask(__name__) #create the Flask app
 
 @app.route('/Marti/api/version/config', methods=const.HTTPMETHODS)
 def versionConfig():
     if request.method == const.GET:
-        return const.versionInfo
+        return '{"version":"2","type":"ServerConfig", "data":{"version": "0.6.8-FTS-RELEASE", "api": "2","hostname":"204.48.30.216"}, "nodeId":"FreeTAKServer-0.6.8"}'
 
 @app.route('/Marti/api/clientEndPoints', methods=const.HTTPMETHODS)
 def clientEndPoint():
     if request.method == const.GET:
         return const.versionInfo
     else:
-        return const.DEFAULTRETURN
+        return 'c'
 
 @app.route('/Marti/sync/missionupload', methods=const.HTTPMETHODS)
 def upload():
-    print('dwuaidwuiabui')
     print(request.method)
     sqliteServer = sqlite3.connect(const.DATABASE)
     cursor = sqliteServer.cursor()
@@ -59,12 +63,13 @@ def upload():
         file = request.files.getlist('assetfile')
         print(file[0])
         file = file[0]
-        if os.path.exists(const.DATAPACKAGEFOLDER+'/'+hash)==True:
+        path = Path(dir, const.DATAPACKAGEFOLDER, hash)
+        if Path.exists(path)==True:
             pass
-        elif os.path.exists(const.DATAPACKAGEFOLDER+'/'+hash)==False:
-            os.mkdir(const.DATAPACKAGEFOLDER+'/'+hash)
-        file.save(const.DATAPACKAGEFOLDER+'/'+hash+'/'+str(filename)+'.zip')
-        fileSize = int(Path(const.DATAPACKAGEFOLDER+'/'+hash+'/'+str(filename)+'.zip').stat().st_size)
+        elif Path.exists(path)==False:
+            os.mkdir(path)
+        file.save(Path(path,filename))
+        fileSize = int(Path(const.DATAPACKAGEFOLDER,hash,str(filename)).stat().st_size)
 
         cursor.execute(sql.MISSIONUPLOADCALLSIGN,(creatorUid,))
         Callsign = cursor.fetchone()
@@ -72,23 +77,34 @@ def upload():
         sqliteServer.commit()
         cursor.close()
         sqliteServer.close()
-        return const.DEFAULTRETURN
+        return const.IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+hash+"/tool"
     else:
-        return const.DEFAULTRETURN
+        return 'e'
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=const.HTTPMETHODS)
 def theUploadPart2(hash):
+    sqliteServer = sqlite3.connect(const.DATABASE)
+    cursor = sqliteServer.cursor()
     if request.method == const.PUT:
         print(request.data)
-        data = getAllPackages()
-        return const.DEFAULTRETURN
+        if request.data == b'private':
+            cursor.execute("UPDATE DataPackages SET Privacy = 1 WHERE Hash = ?;", (hash,))
+            sqliteServer.commit()
+            cursor.close()
+            sqliteServer.close()
+            
+        else:
+            pass
+        return 'a'
     elif request.method == const.GET:
         file_list=os.listdir(const.DATAPACKAGEFOLDER+'/'+str(hash))
-        dir = os.getcwd()
-        return send_file(str(str(dir)+'\\'+const.DATAPACKAGEFOLDER+'\\'+str(hash)+'\\'+file_list[0]))
+        dir = PurePath('.')
+        path = PurePath(dir, const.DATAPACKAGEFOLDER, str(hash), file_list[0])
+        print(str(path))
+        return send_file(str(path))
 
     else:
-        return const.DEFAULTRETURN
+        return 'b'
 @app.route('/Marti/sync/search', methods=const.HTTPMETHODS)
 def retrieveData():
     keyword = request.args.get('keyword')
@@ -102,16 +118,18 @@ def specificPackage():
     print(os.listdir(const.DATAPACKAGEFOLDER+'/'+str(hash)))
     file_list=os.listdir(const.DATAPACKAGEFOLDER+'/'+str(hash))
 
-    print(const.DATAPACKAGEFOLDER+'/'+hash+'/'+file_list[0])
-    dir = os.getcwd()
-    return send_file(str(str(dir)+'\\'+const.DATAPACKAGEFOLDER+'\\'+str(hash)+'\\'+file_list[0]))
+    print(const.DATAPACKAGEFOLDER+'\\'+hash+'\\'+file_list[0])
+    dir = PurePath('.')
+    path = PurePath(dir, const.DATAPACKAGEFOLDER, str(hash), file_list[0])
+    print(str(path))
+    return send_file(str(path))
 
 @app.route('/Marti/api/version', methods=const.HTTPMETHODS)
 def returnVersion():
     if request.method == const.GET:
         return const.versionInfo
     else:
-        return const.DEFAULTRETURN
+        return 'f'
 
 @app.route('/Marti/sync/missionquery', methods=const.HTTPMETHODS)
 def checkPresent():
@@ -124,7 +142,6 @@ def checkPresent():
 
 
 def getSpecific(hash):
-    os.chdir('TAKlib')
     sqliteServer = sqlite3.connect(const.DATABASE)
     cursor = sqliteServer.cursor()
     cursor.execute(sql.ROWBYHASH,(hash,))

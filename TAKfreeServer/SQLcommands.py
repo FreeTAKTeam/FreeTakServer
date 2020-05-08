@@ -11,7 +11,8 @@ class sql:
         "CreatorUid         STRING,"
         "Keywords           CHAR     DEFAULT foobar,"
         "MIMEType           STRING   DEFAULT [application/x-zip-compressed],"
-        "Size               INTEGER);")
+        "Size               INTEGER,"
+        "Privacy            INTEGER  DEFAULT 0);")
 
         self.MISSIONUPLOADCALLSIGN = "SELECT Callsign FROM Users WHERE UID=?"
     
@@ -19,7 +20,7 @@ class sql:
 
         self.ROWBYHASH = "SELECT * FROM DataPackages WHERE Hash=?"
 
-        self.SELECTALLDP = "SELECT * FROM DataPackages"
+        self.SELECTALLDP = "SELECT * FROM DataPackages WHERE Privacy = 0"
     
         #querys for server
         self.DELETEBYUID = "DELETE FROM Users WHERE UID=?"
@@ -27,6 +28,7 @@ class sql:
         self.CREATEUSERSTABLE = ("CREATE TABLE IF NOT EXISTS Users"
         "(PrimaryKey INTEGER PRIMARY KEY ON CONFLICT FAIL AUTOINCREMENT UNIQUE ON CONFLICT FAIL,"
         "UID STRING,"
+        "ID  STRING,"
         "Callsign STRING);")
 
-        self.INSERTNEWUSER = "INSERT INTO users (UID, Callsign) VALUES(?, ?)"
+        self.INSERTNEWUSER = "INSERT INTO users (ID, UID, Callsign) VALUES(?, ?, ?)"
