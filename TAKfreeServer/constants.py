@@ -36,6 +36,6 @@ class vars():
        self.PUT = 'PUT'
        self.POST = 'POST'
        self.DATAPACKAGEFOLDER = 'DataPackages'
-       self.versionInfo = 'TAK Server 1.3.12-RELEASE-2'
+       self.versionInfo = 'FreeTAKServer-0.7-Alpha'
        self.HTTPDEBUG = False
        self.HTTPMETHODS = ['POST', 'GET', 'PUT']
