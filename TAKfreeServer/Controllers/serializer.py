@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 class Serializer:
     def __init__(self):
-        self.xmlheader = '<?xml version="1.0" encoding="UTF-8" standalone="true"?>'
+        self.xmlheader = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
 
     def serializerRoot(self, object):
         root = et.Element('event')

@@ -70,6 +70,7 @@ class ThreadedServer(object):
 		cursor.close()
 		sqliteServer.close()
 		self.bandaidUID = ''
+		self.bandaidXML = b''
 	def listen(self):
 		'''
 		listen for client connections and begin thread if found
@@ -90,10 +91,12 @@ class ThreadedServer(object):
 			end = start + datetime.timedelta(minutes = const.RENEWTIME)
 			while datetime.datetime.now() < end:
 				time.sleep(10)
-			self.bandaidUID=uuid.uuid1()
+			bandaidUID=uuid.uuid1()
+			print(self.bandaidUID+'\n')
 			mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			mysock.connect(('127.0.0.1', const.DEFAULTPORT))
-			mysock.send(Serializer().serializerRoot(RequestCOTController().ping(eventuid = self.bandaidUID)).encode())
+			self.bandaidXML = Serializer().serializerRoot(RequestCOTController().ping(eventuid = bandaidUID)).encode()
+			mysock.send(self.bandaidXML)
 			mysock.recv(2048)
 			mysock.shutdown(socket.SHUT_RDWR)
 			mysock.close()
@@ -214,22 +217,25 @@ class ThreadedServer(object):
 			print('\n \n')
 			tree = ET.fromstring(id_data)
 			uid = tree.get('uid')
-			if uid == self.bandaidUID:
+			print(self.bandaidXML)
+			if id_data == self.bandaidXML:
+				print('\n Bandaid \n')
 				return 'Bandaid'
-			callsign = tree[1][1].attrib['callsign']
-			current_id = uuid.uuid1().int
+			elif str(uid) != str(self.bandaidUID):
+				callsign = tree[1][1].attrib['callsign']
+				current_id = uuid.uuid1().int
 
-			#add identifying information
-			self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client, 'callsign':callsign}
-			self.client_dict[current_id]['id_data'] = id_data
-			self.client_dict[current_id]['uid'] = uid
-			cursor.execute(sql.INSERTNEWUSER,(str(current_id), str(uid), str(callsign)))
-			sqliteServer.commit()
-			cursor.close()
-			sqliteServer.close()
-			#print(self.client_dict)
-			logger.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
-			return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
+				#add identifying information
+				self.client_dict[current_id] = {'id_data': '', 'main_data': [], 'alive': 1, 'uid': '', 'client':client, 'callsign':callsign}
+				self.client_dict[current_id]['id_data'] = id_data
+				self.client_dict[current_id]['uid'] = uid
+				cursor.execute(sql.INSERTNEWUSER,(str(current_id), str(uid), str(callsign)))
+				sqliteServer.commit()
+				cursor.close()
+				sqliteServer.close()
+				#print(self.client_dict)
+				logger.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
+				return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
 		except Exception as e:
 			logger.warning('error in connection setup: ' + str(e))
 			logger.warning(id_data)
