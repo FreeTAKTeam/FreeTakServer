@@ -14,7 +14,7 @@ class vars():
        self.BUFFER =513
        self.DELAY = 5
        self.IP = 'Your IP'
-       self.RENEWTIME = 10
+       self.RENEWTIME = 1
        #logging config
        self.LOGTIMEFORMAT = '%(levelname)s:%(asctime)s:%(message)s:%(lineno)d'
        self.LOGNAME = 'FTS'
@@ -36,7 +36,7 @@ class vars():
        self.PUT = 'PUT'
        self.POST = 'POST'
        self.DATAPACKAGEFOLDER = 'DataPackages'
-       self.versionInfo = 'FreeTAKServer-0.7-Alpha'
+       self.versionInfo = 'FreeTAKServer-0.7.0.2-Alpha'
        self.NodeID = 'Public-FTS'
        self.VERSIONJSON = '{"version":"2","type":"ServerConfig", "data":{"version": "%s", "api": "2","hostname":"%s"}, "nodeId":"%s"}' % (self.versionInfo, self.IP ,self.NodeID)
        self.HTTPDEBUG = False

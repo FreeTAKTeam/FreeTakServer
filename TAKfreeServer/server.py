@@ -95,7 +95,7 @@ class ThreadedServer(object):
 			mysock.connect(('127.0.0.1', const.DEFAULTPORT))
 			mysock.send(Serializer().serializerRoot(RequestCOTController().ping(eventuid = self.bandaidUID)).encode())
 			mysock.recv(2048)
-			mysock.shutdown()
+			mysock.shutdown(socket.SHUT_RDWR)
 			mysock.close()
 			logger.info('finished bandaid keepalive')
 			logger.info('nuber of threads is ')
@@ -264,10 +264,11 @@ class ThreadedServer(object):
 		try:
 			defaults = self.connectionSetup(client, address)
 			if defaults == 'error':
-				client.shutdown()
+				client.shutdown(socket.SHUT_RDWR)
 				client.close()
 				return 1
 			elif defaults == 'Bandaid':
+				self.sock.shutdown(socket.SHUT_RDWR)
 				client.close()
 				return 1
 			else:
@@ -313,7 +314,7 @@ class ThreadedServer(object):
 								sqliteServer.commit()
 								cursor.close()
 								sqliteServer.close()
-								client.shutdown()
+								client.shutdown(socket.SHUT_RDWR)
 								client.close()
 								break
 							elif working == const.PING:
@@ -343,12 +344,10 @@ class ThreadedServer(object):
 					except Exception as e:
 						logger.warning('error in main loop')
 						logger.warning(str(e))
-						client.shutdown()
 						client.close()
 						killSwitch =1
 						return 1
 		except Exception as e:
-			client.shutdown()
 			client.close()
 			return 1
 			
@@ -376,11 +375,10 @@ class ThreadedServer(object):
 
 				else:
 					client.send(Serializer().serializerRoot(RequestCOTController().ping(eventuid = uuid.uuid1())).encode())
-			client.shutdown()
+			client.shutdown(socket.SHUT_RDWR)
 			client.close()
 		except Exception as e:
 			logger.warning('error in send info '+str(e))
-			client.shutdown()
 			client.close()
 			return 1
 

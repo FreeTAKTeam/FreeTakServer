@@ -68,7 +68,7 @@ def upload():
             pass
         elif Path.exists(path)==False:
             os.mkdir(path)
-        file.save(Path(path,filename))
+        file.save(os.path.join(path,filename))
         fileSize = int(Path(const.DATAPACKAGEFOLDER,hash,str(filename)).stat().st_size)
 
         cursor.execute(sql.MISSIONUPLOADCALLSIGN,(creatorUid,))
