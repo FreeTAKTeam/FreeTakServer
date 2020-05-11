@@ -52,9 +52,9 @@ under docs, you can find various documents including an UMl model of the model c
   
 - install Flask
 
-```
-pip install flask`
-```
+
+  `pip install flask`
+
 
 - Clone TAKLib repository
 
