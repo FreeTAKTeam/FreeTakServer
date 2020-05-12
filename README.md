@@ -48,12 +48,17 @@ under docs, you can find various documents including an UMl model of the model c
 ### Prerequisites
 - Install Python3
 
-  `sudo apt update && sudo apt install python3` (Ubuntu)
+  `sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)
   
 - install Flask
 
 
   `pip install flask`
+
+- install git
+
+
+  `pip install git`
 
 
 - Clone TAKLib repository
