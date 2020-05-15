@@ -1,6 +1,6 @@
 class sql:
     def __init__(self):
-        #querys for httpServer
+        # Statements for Data Package records. Accessed from HTTP server
         self.CREATEDPTABLE = ("CREATE TABLE IF NOT EXISTS DataPackages"
         "(PrimaryKey          INTEGER  PRIMARY KEY ON CONFLICT FAIL AUTOINCREMENT UNIQUE ON CONFLICT FAIL,"
         "UID                STRING,"
@@ -13,22 +13,37 @@ class sql:
         "MIMEType           STRING   DEFAULT [application/x-zip-compressed],"
         "Size               INTEGER,"
         "Privacy            INTEGER  DEFAULT 0);")
-
         self.MISSIONUPLOADCALLSIGN = "SELECT Callsign FROM Users WHERE UID=?"
-    
         self.INSERTDPINFO = "INSERT INTO DataPackages (UID, Name, Hash, SubmissionUser, CreatorUid, Size) VALUES(?,?,?,?,?,?);"
-
         self.ROWBYHASH = "SELECT * FROM DataPackages WHERE Hash=?"
-
         self.SELECTALLDP = "SELECT * FROM DataPackages WHERE Privacy = 0"
-    
-        #querys for server
-        self.DELETEBYUID = "DELETE FROM Users WHERE UID=?"
 
+        # Statements to work with storing/retrieving video links. Accessed from HTTP server
+        self.CREATEVIDEOTABLE = ("CREATE TABLE IF NOT EXISTS VideoLinks"
+        "(PrimaryKey         INTEGER PRIMARY KEY ON CONFLICT FAIL AUTOINCREMENT UNIQUE ON CONFLICT FAIL,"
+        "FullXmlString       STRING,"
+        "Timestamp           DATETIME DEFAULT (CURRENT_TIMESTAMP),"
+        "Protocol            STRING,"
+        "Alias               STRING,"
+        "Uid                 STRING,"
+        "Address             STRING,"
+        "Port                INTEGER DEFAULT -1,"
+        "RoverPort           INTEGER DEFAULT -1,"
+        "IgnoreEmbeddedKlv   STRING DEFAULT false,"
+        "PreferredMacAddress STRING DEFAULT NULL,"
+        "Path                STRING DEFAULT NULL,"
+        "Buffer              INTEGER DEFAULT -1,"
+        "Timeout             INTEGER,"
+        "RtspReliable        INTEGER DEFAULT 0);")
+        self.INSERTVIDEO = "INSERT INTO VideoLinks (FullXmlString,Protocol,Alias,Uid,Address,Port,RoverPort,IgnoreEmbeddedKlv,PreferredMacAddress,Path,Buffer,Timeout,RtspReliable) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        self.GETALLVIDEOS = "SELECT FullXmlString FROM VideoLinks"
+        self.GETVIDEOSWITHUID = "SELECT FullXmlString from VideoLinks WHERE Uid=?"
+
+        # Statements for User records, accessed from TCP server only
         self.CREATEUSERSTABLE = ("CREATE TABLE IF NOT EXISTS Users"
         "(PrimaryKey INTEGER PRIMARY KEY ON CONFLICT FAIL AUTOINCREMENT UNIQUE ON CONFLICT FAIL,"
         "UID STRING,"
         "ID  STRING,"
         "Callsign STRING);")
-
+        self.DELETEBYUID = "DELETE FROM Users WHERE UID=?"
         self.INSERTNEWUSER = "INSERT INTO users (ID, UID, Callsign) VALUES(?, ?, ?)"

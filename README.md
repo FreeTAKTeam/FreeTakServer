@@ -4,7 +4,7 @@
 
 Welcome to the FreeTakServer (FTS) git repository.
 
-FTS  is a Python3 implemnentation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform and is only dependent on python stdlib libraries. 
+FTS  is a Python3 implementation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform and is only dependent on python stdlib libraries. We use the Flask framework for web services. 
 it's free and open source  (released under the Eclipse Public License).
 
 ## Use cases
@@ -48,11 +48,22 @@ under docs, you can find various documents including an UMl model of the model c
 ### Prerequisites
 - Install Python3
 
-  `sudo apt update && sudo apt install python3` (Ubuntu)
+  `sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)
+  
+- install Flask
+
+
+  `pip install flask`
+
+- install git
+
+
+  `pip install git`
+
 
 - Clone TAKLib repository
 
-  `git clone https://github.com/Tapawingo/TAKlib.git`
+  `git clone https://github.com/Tapawingo/FreeTakServer.git`
 
 ### Linux
 

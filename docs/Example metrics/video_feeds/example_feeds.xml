@@ -1,0 +1,30 @@
+<videoConnections>
+	<feed>
+		<protocol>rtsp</protocol>
+		<alias>BigBuckBunny</alias>
+		<uid>1357c5e9-ff10-40eb-8b1b-35ecb8adb7db</uid>
+		<address>wowzaec2demo.streamlock.net</address>
+		<port>-1</port>
+		<roverPort>-1</roverPort>
+		<ignoreEmbeddedKLV>false</ignoreEmbeddedKLV>
+		<preferredMacAddress/>
+		<path>/vod/mp4:BigBuckBunny_115k.mov</path>
+		<buffer>-1</buffer>
+		<timeout>0</timeout>
+		<rtspReliable>0</rtspReliable>
+	</feed>
+	<feed>
+		<protocol>http</protocol>
+		<alias>Sochi, Russia</alias>
+		<uid>c779053a-2f13-4683-a643-83ec8eb2558d</uid>
+		<address>158.58.130.148</address>
+		<port>80</port>
+		<roverPort>-1</roverPort>
+		<ignoreEmbeddedKLV>false</ignoreEmbeddedKLV>
+		<preferredMacAddress/>
+		<path>/mjpg/video.mjpg</path>
+		<buffer>-1</buffer>
+		<timeout>0</timeout>
+		<rtspReliable>0</rtspReliable>
+	</feed>
+</videoConnections>
