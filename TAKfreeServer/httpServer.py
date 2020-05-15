@@ -64,7 +64,7 @@ def insert_video_link():
     cursor = db.cursor()
     try:
         xml_root = ET.fromstring(request.data.decode("utf-8"))
-        for xml_feed in videoConnections:
+        for xml_feed in xml_root:
             protocol = xml_feed.find("protocol").text
             alias = xml_feed.find("alias").text
             uid = xml_feed.find("uid").text
