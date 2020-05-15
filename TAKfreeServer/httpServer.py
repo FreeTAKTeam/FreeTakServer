@@ -8,6 +8,8 @@ import sys
 import string
 import random
 import datetime
+import traceback
+import xml.etree.ElementTree as ET
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR)))
 from constants import vars
@@ -26,13 +28,72 @@ elif Path(path).exists()==False:
 
 sqliteServer = sqlite3.connect(const.DATABASE)
 cursor = sqliteServer.cursor()
-
 cursor.execute(sql.CREATEDPTABLE)
+cursor.execute(sql.CREATEVIDEOTABLE)
 cursor.close()
 sqliteServer.commit()
-
 sqliteServer.close()
+
 app = Flask(__name__) #create the Flask app
+
+@app.route("/Marti/vcm", methods=[const.GET])
+def get_all_video_links():
+    # This is called when the user selects the Download button in the Videos window. It
+    # expects an XML listing of all known feeds, so the user can pick and choose which ones
+    # to store locally
+    try:
+        with sqlite3.connect(const.DATABASE) as db:
+            cursor = db.cursor();
+            cursor.execute(sql.GETALLVIDEOS)
+            feeds = cursor.fetchall()
+            print(f"Found {len(feeds)} video feeds in {const.DATABASE}")
+            if len(feeds) == 0:
+                return ("No video feeds found", 500)
+            all_feeds = ""
+            for feed in feeds:
+                # 'feed' is a tuple with one element, so we only append that
+                all_feeds += feed[0].decode("utf-8")
+            return f"<videoConnections>{all_feeds}</videoConnections>"
+    except:
+        traceback.print_exc()
+        return "Error", 500
+
+@app.route("/Marti/vcm", methods=[const.POST])
+def insert_video_link():
+    db = sqlite3.connect(const.DATABASE)
+    cursor = db.cursor()
+    try:
+        xml_root = ET.fromstring(request.data.decode("utf-8"))
+        for xml_feed in videoConnections:
+            protocol = xml_feed.find("protocol").text
+            alias = xml_feed.find("alias").text
+            uid = xml_feed.find("uid").text
+            address = xml_feed.find("address").text
+            port = xml_feed.find("port").text
+            rover_port = xml_feed.find("roverPort").text
+            ignore_klv = xml_feed.find("ignoreEmbeddedKLV").text
+            preferred_mac = xml_feed.find("preferredMacAddress").text
+            path = xml_feed.find("path").text
+            buf = xml_feed.find("buffer").text
+            timeout = xml_feed.find("timeout").text
+            rtsp_reliable = xml_feed.find("rtspReliable").text
+            # Check that no other feeds with the same UID have been received
+            cursor.execute(sql.GETVIDEOSWITHUID, (uid,))
+            if len(cursor.fetchall()) > 0:
+                print(f"Already received feed with UID={uid} (alias = {alias})")
+                continue # Ignore this feed if there are duplicates
+            cursor.execute(
+                sql.INSERTVIDEO,
+                (ET.tostring(xml_feed), protocol, alias, uid, address, port, rover_port,
+                 ignore_klv, preferred_mac, path, buf, timeout, rtsp_reliable)
+            )
+        return "Okay", 200
+    except:
+        traceback.print_exc()
+        return "Error", 500
+    finally:
+        db.commit()
+        db.close()
 
 @app.route('/Marti/api/version/config', methods=const.HTTPMETHODS)
 def versionConfig():
