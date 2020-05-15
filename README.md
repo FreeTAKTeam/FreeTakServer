@@ -63,7 +63,7 @@ under docs, you can find various documents including an UMl model of the model c
 
 - Clone TAKLib repository
 
-  `git clone https://github.com/Tapawingo/TAKlib.git`
+  `git clone https://github.com/Tapawingo/FreeTakServer.git`
 
 ### Linux
 
