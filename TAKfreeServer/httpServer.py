@@ -7,7 +7,7 @@ import sys
 import traceback
 import xml.etree.ElementTree as ET
 import zipfile
-from pathlib import Path, PosixPath, PurePath
+from pathlib import Path, PurePath
 
 from flask import Flask, request, send_file
 from werkzeug.datastructures import FileStorage
@@ -18,24 +18,11 @@ import SQLcommands
 sql = SQLcommands.sql()
 const = constants.vars()
 
-dir = dir_path = os.path.dirname(os.path.realpath(__file__))
-print(dir)
-path = PurePath(dir, 'DataPackages')
-print(path)
-if Path(path).exists()==True:
-    pass
-elif Path(path).exists()==False:
-    os.makedirs(path)
+app = Flask(__name__)  # create the Flask app
 
-sqliteServer = sqlite3.connect(const.DATABASE)
-cursor = sqliteServer.cursor()
-cursor.execute(sql.CREATEDPTABLE)
-cursor.execute(sql.CREATEVIDEOTABLE)
-cursor.close()
-sqliteServer.commit()
-sqliteServer.close()
+file_dir = os.path.dirname(os.path.realpath(__file__))
+dp_directory = PurePath(file_dir, const.DATAPACKAGEFOLDER)
 
-app = Flask(__name__) #create the Flask app
 
 @app.route("/Marti/vcm", methods=[const.GET])
 def get_all_video_links():
@@ -44,7 +31,7 @@ def get_all_video_links():
     # to store locally
     try:
         with sqlite3.connect(const.DATABASE) as db:
-            cursor = db.cursor();
+            cursor = db.cursor()
             cursor.execute(sql.GETALLVIDEOS)
             feeds = cursor.fetchall()
             print(f"Found {len(feeds)} video feeds in {const.DATABASE}")
@@ -58,6 +45,7 @@ def get_all_video_links():
     except:
         traceback.print_exc()
         return "Error", 500
+
 
 @app.route("/Marti/vcm", methods=[const.POST])
 def insert_video_link():
@@ -82,7 +70,7 @@ def insert_video_link():
             cursor.execute(sql.GETVIDEOSWITHUID, (uid,))
             if len(cursor.fetchall()) > 0:
                 print(f"Already received feed with UID={uid} (alias = {alias})")
-                continue # Ignore this feed if there are duplicates
+                continue  # Ignore this feed if there are duplicates
             cursor.execute(
                 sql.INSERTVIDEO,
                 (ET.tostring(xml_feed), protocol, alias, uid, address, port, rover_port,
@@ -96,138 +84,149 @@ def insert_video_link():
         db.commit()
         db.close()
 
-@app.route('/Marti/api/version/config', methods=const.HTTPMETHODS)
+
+@app.route('/Marti/api/version/config', methods=[const.GET])
 def versionConfig():
-    if request.method == const.GET:
-        return const.VERSIONJSON
+    return const.VERSIONJSON
 
-@app.route('/Marti/api/clientEndPoints', methods=const.HTTPMETHODS)
+
+@app.route('/Marti/api/clientEndPoints', methods=[const.GET])
 def clientEndPoint():
-    if request.method == const.GET:
-        return const.versionInfo
-    else:
-        return 'c'
+    return const.versionInfo
 
-@app.route('/Marti/sync/missionupload', methods=const.HTTPMETHODS)
+
+@app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
-    print(request.method)
-    sqliteServer = sqlite3.connect(const.DATABASE)
-    cursor = sqliteServer.cursor()
-    if request.method == 'POST':
-        hash = request.args.get('hash')
-        print(type(hash))
-        print(hash)
+    with sqlite3.connect(const.DATABASE) as db:
+        cursor = db.cursor()
+        file_hash = request.args.get('hash')
+        print(f"Data Package hash = {str(file_hash)}")
         letters = string.ascii_letters
         uid = ''.join(random.choice(letters) for i in range(4))
         uid = 'uid-'+str(uid)
         filename = request.args.get('filename')
-        creatorUid=request.args.get('creatorUid')
-        file = request.files.getlist('assetfile')
-        print(file[0])
-        file = file[0]
-        path = Path(dir, const.DATAPACKAGEFOLDER, hash)
-        if Path.exists(path)==True:
-            pass
-        elif Path.exists(path)==False:
-            os.mkdir(path)
-        file.save(os.path.join(path,filename))
-        fileSize = int(Path(const.DATAPACKAGEFOLDER,hash,str(filename)).stat().st_size)
-
-        cursor.execute(sql.MISSIONUPLOADCALLSIGN,(creatorUid,))
-        Callsign = cursor.fetchone()
-        cursor.execute(sql.INSERTDPINFO,(uid, filename, str(hash), str(Callsign), str(creatorUid), int(fileSize),))
-        sqliteServer.commit()
+        creatorUid = request.args.get('creatorUid')
+        file = request.files.getlist('assetfile')[0]
+        directory = Path(dp_directory, file_hash)
+        if not Path.exists(directory):
+            os.mkdir(directory)
+        file.save(os.path.join(directory, filename))
+        fileSize = Path(directory, filename).stat().st_size
+        cursor.execute(sql.MISSIONUPLOADCALLSIGN, (creatorUid,))
+        callsign = cursor.fetchone()[0] # fetchone() gives a tuple, so only grab the first element
+        cursor.execute(
+            sql.INSERTDPINFO,
+            (uid, filename, file_hash, callsign, creatorUid, fileSize)
+        )
         cursor.close()
-        sqliteServer.close()
-        return const.IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+hash+"/tool"
-    else:
-        return 'e'
+        db.commit()
+    return const.IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+file_hash+"/tool"
 
-@app.route('/Marti/api/sync/metadata/<hash>/tool', methods=const.HTTPMETHODS)
-def theUploadPart2(hash):
-    sqliteServer = sqlite3.connect(const.DATABASE)
-    cursor = sqliteServer.cursor()
-    if request.method == const.PUT:
-        print(request.data)
-        if request.data == b'private':
+
+@app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
+def putDataPackageTool(hash):
+    print(f"request.data = {request.data}")
+    if request.data == b'private':
+        with sqlite3.connect(const.DATABASE) as db:
+            cursor = db.cursor()
             cursor.execute("UPDATE DataPackages SET Privacy = 1 WHERE Hash = ?;", (hash,))
-            sqliteServer.commit()
             cursor.close()
-            sqliteServer.close()
-            
-        else:
-            pass
-        return 'a'
-    elif request.method == const.GET:
-        file_list=os.listdir(const.DATAPACKAGEFOLDER+'/'+str(hash))
-        dir = PurePath('.')
-        path = PurePath(dir, const.DATAPACKAGEFOLDER, str(hash), file_list[0])
-        print(str(path))
-        return send_file(str(path))
+            db.commit()
+    return "Okay", 200
 
-    else:
-        return 'b'
-@app.route('/Marti/sync/search', methods=const.HTTPMETHODS)
+
+@app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.GET])
+def getDataPackageTool(hash):
+    file_list = os.listdir(str(dp_directory)+'/'+str(hash))
+    path = PurePath(dp_directory, str(hash), file_list[0])
+    print(f"Sending data package from {str(path)}")
+    return send_file(str(path))
+
+
+@app.route('/Marti/sync/search', methods=[const.GET])
 def retrieveData():
     keyword = request.args.get('keyword')
-    Packages = getAllPackages()
-    print(Packages)
-    return str(Packages)
-    
+    packages = getAllPackages()
+    print(f"packages = {packages}")
+    return str(packages)
+
+
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
     hash = request.args.get('hash')
-    print(os.listdir(const.DATAPACKAGEFOLDER+'/'+str(hash)))
-    file_list=os.listdir(const.DATAPACKAGEFOLDER+'/'+str(hash))
-
+    print(os.listdir(str(dp_directory)+'/'+str(hash)))
+    file_list = os.listdir(str(dp_directory)+'/'+str(hash))
     print(const.DATAPACKAGEFOLDER+'\\'+hash+'\\'+file_list[0])
-    dir = PurePath('.')
-    path = PurePath(dir, const.DATAPACKAGEFOLDER, str(hash), file_list[0])
+    path = PurePath(dp_directory, str(hash), file_list[0])
     print(str(path))
     return send_file(str(path))
 
-@app.route('/Marti/api/version', methods=const.HTTPMETHODS)
+
+@app.route('/Marti/api/version', methods=[const.GET])
 def returnVersion():
-    if request.method == const.GET:
-        return const.versionInfo
-    else:
-        return 'f'
+    return const.versionInfo
+
 
 @app.route('/Marti/sync/missionquery', methods=const.HTTPMETHODS)
 def checkPresent():
     hash = request.args.get('hash')
-    present = getSpecific(hash)
-    if present == False:
-        return '404', 404
-    else:
+    if hashIsPresent(hash):
         return const.IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+hash+"/tool"
-
-
-def getSpecific(hash):
-    sqliteServer = sqlite3.connect(const.DATABASE)
-    cursor = sqliteServer.cursor()
-    cursor.execute(sql.ROWBYHASH,(hash,))
-    data = cursor.fetchall()
-
-    if len(data)> 0:
-        return True
-    
     else:
-        return False
+        return '404', 404
+
+
+def hashIsPresent(hash):
+    with sqlite3.connect(const.DATABASE) as db:
+        cursor = db.cursor()
+        cursor.execute(sql.ROWBYHASH, (hash,))
+        data = cursor.fetchall()
+        cursor.close()
+        return len(data) > 0
+
 
 def getAllPackages():
-    sqliteServer = sqlite3.connect(const.DATABASE)
-    cursor = sqliteServer.cursor()
-    cursor.execute(sql.SELECTALLDP)
-    data = cursor.fetchall()
-    PackageDict = {"resultCount":len(data), "results":[]}
-    for i in data:
-        singlePackage = {"UID":str(i[1]), "Name": str(i[2]), "Hash": str(i[3]), "PrimaryKey":str(i[0]), "SubmissionDateTime": str(i[4]),"SubmissionUser": str(i[5]), "CreatorUid": str(i[6]), "Keywords": (i[7]), "MIMEType": str(i[8]), "Size": int(i[9])}
-        PackageDict["results"].append(singlePackage)
-    return PackageDict
+    with sqlite3.connect(const.DATABASE) as db:
+        cursor = db.cursor()
+        cursor.execute(sql.SELECTALLDP)
+        data = cursor.fetchall()
+        cursor.close()
+        package_dict = {
+            "resultCount": len(data),
+            "results": []
+        }
+        for i in data:
+            package_dict["results"].append({
+                "UID": i[1],
+                "Name": i[2],
+                "Hash": i[3],
+                "PrimaryKey": i[0],
+                "SubmissionDateTime": i[4],
+                "SubmissionUser": i[5],
+                "CreatorUid": i[6],
+                "Keywords": i[7],
+                "MIMEType": i[8],
+                "Size": i[9]
+            })
+        return package_dict
+
 
 def startup():
+    # Make sure the data package directory exists
+    if not Path(dp_directory).exists():
+        os.makedirs(str(dp_directory))
+
+    # Create the relevant database tables
+    with sqlite3.connect(const.DATABASE) as db:
+        cursor = db.cursor()
+        cursor.execute(sql.CREATEDPTABLE)
+        cursor.execute(sql.CREATEVIDEOTABLE)
+        cursor.close()
+        db.commit()
+
+    # Start the server
     app.run(host=const.IP, port=const.HTTPPORT, debug=const.HTTPDEBUG)
 
+
 if __name__ == "__main__":
-    app.run(host=const.IP, port=const.HTTPPORT, debug=const.HTTPDEBUG)
+    startup()
