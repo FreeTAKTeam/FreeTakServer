@@ -28,30 +28,31 @@ from Controllers.serializer import Serializer
 const = constants.vars()
 sql = SQLcommands.sql()
 
-'''
-configure logging
-'''
-format = logging.Formatter(const.LOGTIMEFORMAT)
+
+def newHandler(filename, log_level, log_format):
+    handler = RotatingFileHandler(
+        filename,
+        maxBytes=const.MAXFILESIZE,
+        backupCount=const.BACKUPCOUNT
+    )
+    handler.setFormatter(log_format)
+    handler.setLevel(log_level)
+    return handler
+
+
+log_format = logging.Formatter(const.LOGTIMEFORMAT)
 logger = logging.getLogger(const.LOGNAME)
 logger.setLevel(logging.DEBUG)
-debug = RotatingFileHandler(const.DEBUGLOG, maxBytes=const.MAXFILESIZE, backupCount=const.BACKUPCOUNT)
-debug.setLevel(logging.DEBUG)
-warning = RotatingFileHandler(const.WARNINGLOG, maxBytes=const.MAXFILESIZE, backupCount=const.BACKUPCOUNT)
-warning.setLevel(logging.WARNING)
-info = RotatingFileHandler(const.INFOLOG, maxBytes=const.MAXFILESIZE, backupCount=const.BACKUPCOUNT)
-info.setLevel(logging.INFO)
-debug.setFormatter(format)
-warning.setFormatter(format)
-info.setFormatter(format)
-logger.addHandler(warning)
-logger.addHandler(debug)
-logger.addHandler(info)
+logger.addHandler(newHandler(const.DEBUGLOG, logging.DEBUG, log_format))
+logger.addHandler(newHandler(const.WARNINGLOG, logging.WARNING, log_format))
+logger.addHandler(newHandler(const.INFOLOG, logging.INFO, log_format))
+console = logging.StreamHandler(sys.stdout)
+console.setFormatter(log_format)
+console.setLevel(logging.DEBUG)
+logger.addHandler(console)
 
-logger.debug('called or imported')
-hostname = socket.gethostname()
+
 ''' Server class '''
-
-
 class ThreadedServer(object):
     def __init__(self, host=const.IP, port=const.PORT):
         # change from string
@@ -110,12 +111,12 @@ class ThreadedServer(object):
         data_value = ''
         try:
             if xml_string == const.EMPTY_BYTE:
-                print('client disconnected via empty byte response')
+                logger.info('client disconnected via empty byte response')
                 self.client_dict[current_id]['alive'] = 0
                 logger.info(str(self.client_dict[current_id]['uid'])+' disconnected')
                 return const.FAIL
             elif xml_string == None:
-                print('client disconnected via none response')
+                logger.info('client disconnected via none response')
                 self.client_dict[current_id]['alive'] = 0
                 logger.info(str(self.client_dict[current_id]['uid'])+' disconnected')
                 return const.FAIL
@@ -135,7 +136,7 @@ class ThreadedServer(object):
                 for x in self.client_dict:
                     if self.client_dict[x]["callsign"] == destination:
                         self.client_dict[x]["main_data"].append(connData)
-                        print('adding conn data to '+str(x))
+                        logger.info('adding conn data to '+str(x))
                         logger.info('now adding connection data as follows')
                         logger.info(str(connData))
                     else:
@@ -211,9 +212,8 @@ class ThreadedServer(object):
             total_clients_connected = 0
             total_clients_connected += 1
             id_data = client.recv(const.STARTBUFFER)
-            print(id_data)
-            print('\n'+str(id_data))
-            print('\n \n')
+            logger.debug(id_data)
+            logger.debug('\n'+str(id_data)+"\n\n")
             tree = ET.fromstring(id_data)
             uid = tree.get('uid')
             if uid == self.bandaidUID:
@@ -229,7 +229,6 @@ class ThreadedServer(object):
             sqliteServer.commit()
             cursor.close()
             sqliteServer.close()
-            # print(self.client_dict)
             logger.info('client connected, information is as follows initial' + '\n' +'connection data:'+str(id_data)+'\n'+'current id:' + str(current_id))
             return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
         except Exception as e:
@@ -247,7 +246,7 @@ class ThreadedServer(object):
             # 360:393
             while True:
                 data = client.recv(const.BUFFER)
-                print(sys.getsizeof(data))
+                logger.debug(sys.getsizeof(data))
                 if sys.getsizeof(data) == const.BUFFER+33:
                     total_data.append(data)
                 elif sys.getsizeof(data) < const.BUFFER+33:
@@ -276,7 +275,7 @@ class ThreadedServer(object):
                 return 1
             else:
                 defaults = defaults.split(' ? ')
-                print(defaults)
+                logger.debug(defaults)
                 first_run = defaults[0]
                 id_data = defaults[2]
                 current_id = defaults[3]
@@ -296,7 +295,7 @@ class ThreadedServer(object):
                             # checking if check_xml detected client disconnect
                             if working == const.FAIL:
                                 timeoutInfo = Serializer().serializerRoot(RequestCOTController().timeout(eventhow='h-g-i-g-o', eventuid=uuid.uuid1(), linkuid=self.client_dict[current_id]['uid']))
-                                print(timeoutInfo.encode())
+                                logger.debug(timeoutInfo.encode())
                                 logger.debug('sending timeout information')
                                 if len(self.client_dict) > 0:
                                     for x in self.client_dict:
@@ -323,12 +322,10 @@ class ThreadedServer(object):
                                 pass
 
                         elif first_run == 1:
-                            print('something \n')
                             for x in self.client_dict:
                                 client = self.client_dict[x]['client']
                                 if client != self.client_dict[current_id]['client']:
-                                    print('sending'+str(id_data))
-                                    print(id_data)
+                                    logger.info('Sending'+str(id_data))
                                     client.send(self.client_dict[current_id]['id_data'])
                                 else:
                                     pass
@@ -369,7 +366,7 @@ class ThreadedServer(object):
                     for x in self.client_dict[current_id]['main_data']:
                         logger.debug(self.client_dict[current_id]['main_data'])
                         client.send(x)
-                        print('\n'+'sent ' + str(x) + ' to ' + str(address) + '\n')
+                        logger.info('\n'+'sent ' + str(x) + ' to ' + str(address) + '\n')
                         self.client_dict[current_id]['main_data'].remove(x)
 
                 else:
