@@ -1,5 +1,7 @@
 > To run FreeTakServer you require admin priviliges
 
+This package is deprecated we're sorry for any inconvenience
+
 # Installing FreeTakServer on Windows step by step
 
 for general information see also 
