@@ -15,7 +15,9 @@ class vars():
        self.STARTBUFFER = 32784
        #The default buffer to dynamically recieve data from client
        self.BUFFER =8192
-       #The delay in seconds between the server sending data to each indevidual client
+       #The delay in seconds between the server sending data to each individual client
+       #highly recomended to keep at at least 1
+       #though theoretically you could make it lower but it's not advisable as with a lot of clients it may take up a lot of resources
        self.DELAY = 5
        #your current ip
        self.IP = 'Your IP'
@@ -33,7 +35,7 @@ class vars():
        self.INFOLOG = 'FTS_info.log'
        #delimiter between connection data DO NOT TOUCH
        self.DELIMITER = ' ? '
-       #maximum size of each log file
+       #maximum size of each log file before it get deleted
        self.MAXFILESIZE = 100000
        self.BACKUPCOUNT = 5
        #http server config
@@ -42,14 +44,17 @@ class vars():
        fullPath = path.absolute()
        fullPath = fullPath.as_posix()
        self.DATABASE = fullPath
+       #the port used by the HTTP server, if you change it you must change also in your ATAK client
        self.HTTPPORT = '8080'
        self.DEFAULTRETURN = 'other'
        self.GET = 'GET'
        self.PUT = 'PUT'
        self.POST = 'POST'
        self.DATAPACKAGEFOLDER = 'DataPackages'
+       #DO NO TOUCH IF YOU WANT SUPPORT!!!  
        self.versionInfo = 'FreeTAKServer-0.7.0.2-Alpha'
-       self.NodeID = 'Public-FTS'
+       # Optional Name of your server  
+       self.NodeID = 'Mighty Parrot'
        self.VERSIONJSON = '{"version":"2","type":"ServerConfig", "data":{"version": "%s", "api": "2","hostname":"%s"}, "nodeId":"%s"}' % (self.versionInfo, self.IP ,self.NodeID)
        self.HTTPDEBUG = False
        self.HTTPMETHODS = ['POST', 'GET', 'PUT']
