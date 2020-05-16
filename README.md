@@ -85,7 +85,8 @@ sudo python3 beginServerFromLinux.py
 
 ### Windows
 
-#### Windows Service
+#### DO NOT USE ----> Windows Service <--- CURRENTLY DEPRECATED
+
 see also https://github.com/Tapawingo/FreeTakServer/tree/master/TAKfreeServer/TAKWinService
 To run this program you require admin priviliges
 
