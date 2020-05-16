@@ -16,7 +16,7 @@ class vars():
        self.IP = 'Your IP'
        self.RENEWTIME = 1
        #logging config
-       self.LOGTIMEFORMAT = '%(levelname)s:%(asctime)s:%(message)s:%(lineno)d'
+       self.LOGTIMEFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
        self.LOGNAME = 'FTS'
        self.WARNINGLOG = 'FTS_warning.log'
        self.DEBUGLOG = 'FTS_debug.log'
