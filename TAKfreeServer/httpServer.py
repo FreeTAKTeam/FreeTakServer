@@ -25,7 +25,7 @@ print(path)
 if Path(path).exists()==True:
     pass
 elif Path(path).exists()==False:
-    os.mkdir(path)
+    os.makedirs(path)
 
 sqliteServer = sqlite3.connect(const.DATABASE)
 cursor = sqliteServer.cursor()
@@ -231,4 +231,3 @@ def startup():
 
 if __name__ == "__main__":
     app.run(host=const.IP, port=const.HTTPPORT, debug=const.HTTPDEBUG)
-    
