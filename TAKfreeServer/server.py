@@ -53,7 +53,7 @@ hostname = socket.gethostname()
 
 
 class ThreadedServer(object):
-    def __init__(self, host=const.IP, port=const.DEFAULTPORT):
+    def __init__(self, host=const.IP, port=const.PORT):
         # change from string
         self.host = host
         self.port = port
@@ -94,7 +94,7 @@ class ThreadedServer(object):
                 time.sleep(10)
             self.bandaidUID = uuid.uuid1()
             mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            mysock.connect(('127.0.0.1', const.DEFAULTPORT))
+            mysock.connect(('127.0.0.1', const.PORT))
             mysock.send(Serializer().serializerRoot(RequestCOTController().ping(eventuid=self.bandaidUID)).encode())
             mysock.recv(2048)
             mysock.shutdown(socket.SHUT_RDWR)
@@ -391,7 +391,7 @@ class ThreadedServer(object):
 
 def startup():
     logger.info('starting windows service')
-    ThreadedServer(host='', port=const.DEFAULTPORT).listen()
+    ThreadedServer(host='', port=const.PORT).listen()
 
 
 if __name__ == "__main__":
@@ -402,4 +402,4 @@ if __name__ == "__main__":
         port_num = args.p
         ThreadedServer('', port_num).listen()
     except:
-        ThreadedServer(host='', port=const.DEFAULTPORT).listen()
+        ThreadedServer(host='', port=const.PORT).listen()

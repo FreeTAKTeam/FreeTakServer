@@ -8,7 +8,7 @@ class vars():
        self.GEOCHAT = 'GeoChat'
        self.FAIL = 'fail'
        self.EMPTY_BYTE = b''
-       self.DEFAULTPORT = 8087
+       self.PORT = 8087
        self.LOGFILEPATH = 'log.log'
        self.STARTBUFFER = 32784
        self.BUFFER =513
