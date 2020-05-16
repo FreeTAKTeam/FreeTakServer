@@ -18,10 +18,7 @@ cd freeTak/TAKLinuxService
 ```
 sudo python3 beginServerFromLinux.py
 ```
-*  in alternative you can run
-```
- python TAKfreeServer/server.py -p 8089
- ```
+
  if you run FTS without the demon, the process will depend on the console being open.  it's suggested to use the demon, so that you can close the console
 
 ## Notice ##
