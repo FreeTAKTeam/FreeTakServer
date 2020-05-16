@@ -388,7 +388,7 @@ class ThreadedServer(object):
 
 def startup():
     logger.info('starting windows service')
-    ThreadedServer(host='', port=const.PORT).listen()
+    ThreadedServer(host=const.IP, port=const.PORT).listen()
 
 
 if __name__ == "__main__":
@@ -396,7 +396,9 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser()
         parser.add_argument("-p", type=int)
         args = parser.parse_args()
-        port_num = args.p
-        ThreadedServer('', port_num).listen()
+        port = args.p
     except:
         ThreadedServer(host='', port=const.PORT).listen()
+        logger.error(f"Failed to read port number from command arguments, defaulting to {const.PORT}")
+        port = const.PORT
+    ThreadedServer(host=const.IP, port=port).listen()
