@@ -329,7 +329,6 @@ class ThreadedServer(object):
             logger.error(traceback.format_exc())
             logger.warning('Error in sendClientData')
         finally:
-            client.shutdown(socket.SHUT_RDWR)
             client.close()
 
 
