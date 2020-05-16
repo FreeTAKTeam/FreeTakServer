@@ -172,7 +172,7 @@ class ThreadedServer(object):
 
         except:
             logger.error(traceback.format_exc())
-            logger.error("Error in check_xml for: {xml_string}")
+            logger.error(f"Error in check_xml for: {xml_string}")
 
     def connectionSetup(self, client, address):
         db = sqlite3.connect(const.DATABASE)
@@ -217,7 +217,7 @@ class ThreadedServer(object):
             total_data = []
             while True:
                 data = client.recv(const.BUFFER)
-                logger.debug(sys.getsizeof(data))
+                logger.debug(f"Received {sys.getsizeof(data)} bytes from {client}")
                 if sys.getsizeof(data) == const.BUFFER+33:
                     total_data.append(data)
                 elif sys.getsizeof(data) < const.BUFFER+33:
@@ -227,7 +227,7 @@ class ThreadedServer(object):
             return total_data
         except:
             logger.error(traceback.format_exc())
-            logger.error('Error in recieveAll()')
+            logger.error(f"Error in recieveAll() from {client}")
             return None
 
     def listenToClient(self, client, address):
@@ -290,7 +290,7 @@ class ThreadedServer(object):
                                     client.send(self.client_dict[current_id]['id_data'])
                             for client_id in self.client_dict:
                                 data = self.client_dict[client_id]['id_data']
-                                logger.debug('Sending conn data '+str(self.client_dict[client_id]['id_data'])+'to '+str(client)+'\n')
+                                logger.debug('Sending conn data to '+str(client))
                                 client.send(data)
                             threading.Thread(
                                 target=self.sendClientData,
@@ -321,7 +321,7 @@ class ThreadedServer(object):
                     for x in self.client_dict[current_id]['main_data']:
                         logger.debug(self.client_dict[current_id]['main_data'])
                         client.send(x)
-                        logger.info('\n'+'sent ' + str(x) + ' to ' + str(address) + '\n')
+                        logger.info('Sent ' + str(x) + ' to ' + str(address))
                         self.client_dict[current_id]['main_data'].remove(x)
                 else:
                     client.send(Serializer().serializerRoot(RequestCOTController().ping(eventuid=uuid.uuid1())).encode())
