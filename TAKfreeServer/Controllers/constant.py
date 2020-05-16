@@ -1,4 +1,3 @@
-
 class vars:
     def __init__(self):
         self.DROPPIN = 'dropPin'

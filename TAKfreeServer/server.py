@@ -7,28 +7,27 @@
 # credit to Harshini73 for base code
 #
 #######################################################
-import sys
-import os
-PACKAGE_PARENT = '..'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-import socket
-import threading
 import argparse
-import time
-import xml.etree.ElementTree as ET
-import constants
+import datetime
 import logging
+import os
+import socket
+import sqlite3
+import sys
+import threading
+import time
+import uuid
+import xml.etree.ElementTree as ET
+from logging.handlers import RotatingFileHandler
+
+import constants
+import SQLcommands
 from Controllers.RequestCOTController import RequestCOTController
 from Controllers.serializer import Serializer
-import multiprocessing as multi
+
 const = constants.vars()
-from logging.handlers import RotatingFileHandler
-import uuid
-import datetime
-import sqlite3
-from SQLcommands import sql
-sql = sql()
+sql = SQLcommands.sql()
+
 '''
 configure logging
 '''

@@ -1,6 +1,6 @@
 import sys
 import time
-import os
+
 
 def slowprint(s):
     for c in s + '\n' :

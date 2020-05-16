@@ -7,14 +7,13 @@
 # Original author: Corvo
 # 
 #######################################################
+from Model.chatgrp import chatgrp
+
 
 class chat:
 
-
-
       # default constructor       
     def __init__(self, chatType = None, senderCallsign = None, chatroom = None, groupOwner = None, id = None, parent = None, uid0 = None, uid1 = None):
-        from Model.chatgrp import chatgrp
         self.senderCallsign = senderCallsign
         self.id = id
         self.parent = parent

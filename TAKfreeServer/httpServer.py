@@ -1,22 +1,23 @@
-from flask import Flask, request, send_file #import main Flask class and request object
-import zipfile
-from werkzeug.datastructures import FileStorage
-import os
-import sqlite3
-from pathlib import Path, PurePath, PosixPath
-import sys
-import string
-import random
 import datetime
+import os
+import random
+import sqlite3
+import string
+import sys
 import traceback
 import xml.etree.ElementTree as ET
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR)))
-from constants import vars
-from SQLcommands import sql
+import zipfile
+from pathlib import Path, PosixPath, PurePath
 
-sql = sql()
-const = vars()
+from flask import Flask, request, send_file
+from werkzeug.datastructures import FileStorage
+
+import constants
+import SQLcommands
+
+sql = SQLcommands.sql()
+const = constants.vars()
+
 dir = dir_path = os.path.dirname(os.path.realpath(__file__))
 print(dir)
 path = PurePath(dir, 'DataPackages')

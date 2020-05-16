@@ -1,5 +1,10 @@
-import uuid
 import datetime as dt
+import uuid
+
+from Model.detail import Detail
+from Model.point import Point
+
+
 class Event:
     # Event.py
     # Python implementation of the Class Event
@@ -16,8 +21,6 @@ class Event:
         #default constructor
     def __init__(self, linkType=None, linkuid = None, linkproduction_time=None, linkrelation=None, linktype=None, linkparent_callsign=None, eventType = 'default', eventisPing = 0 ,eventtype = "a-f-G-I" , eventhow = 'm-g' ,eventisGeochat = 0 ,eventDATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ", eventuid = "UIDString", eventversion = '2.0', eventconnType=None, pointlat="00.00000000", pointlon='00.00000000', pointle = "9999999.0", pointce = "9999999.0", pointhae = "00.00000000", chatType = None, chatsenderCallsign = None, chatchatroom = None, chatgroupOwner = None,chatid = None, chatparent = None ,chatgrpid = None ,chatgrpuid0 = None, chatgrpuid1 = None):
 
-        from Model.detail import Detail
-        from Model.point import Point
         
         case = {
 
