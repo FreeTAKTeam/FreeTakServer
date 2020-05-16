@@ -1,14 +1,9 @@
-
-from server import startup
-import httpServer
-import constants
 import threading
-import queue
-import os
-import ascii
-const = constants.vars()
 
-tcpServerThread = threading.Thread(target = startup, args = (), daemon=True)
+import httpServer
+import server
+
+tcpServerThread = threading.Thread(target = server.startup, args = (), daemon=True)
 tcpServerThread.start()
 httpServerThread= threading.Thread(target = httpServer.startup, args = (), daemon=True)
 httpServerThread.start()

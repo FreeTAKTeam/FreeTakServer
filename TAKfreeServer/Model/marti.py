@@ -1,5 +1,6 @@
 from Model.dest import dest
 
+
 class marti:
     def getdestcallsign(self):
         return dest.getcallsign()

@@ -7,6 +7,8 @@
 # Original author: Corvo
 #
 #######################################################
+from Model.chat import chat
+from Model.link import link
 
 
 class Detail:
@@ -38,10 +40,8 @@ class Detail:
         pass
 
     def chatFunc(self, info):
-        from Model.chat import chat
         chat = chat(chatType = info['chatType'], senderCallsign = info['senderCallsign'] , chatroom = info['chatroom'], groupOwner = info['groupOwner'], id = info['id'], parent = info['parent'], uid0 = info['uid0'], uid1 = info['uid1'])
         self.chat = chat
     
     def timeoutFunc(self, info):
-        from Model.link import link
         self.link = link(linkType = info['linkType'],linktype = info['linktype'] ,linkuid=info['linkuid'],linkrelation = info['linkrelation'])
