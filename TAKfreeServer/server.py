@@ -41,7 +41,7 @@ def newHandler(filename, log_level, log_format):
     return handler
 
 
-log_format = logging.Formatter(const.LOGTIMEFORMAT)
+log_format = logging.Formatter(const.LOGFORMAT)
 logger = logging.getLogger(const.LOGNAME)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(newHandler(const.DEBUGLOG, logging.DEBUG, log_format))

@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import random
 import sqlite3
@@ -7,9 +8,11 @@ import sys
 import traceback
 import xml.etree.ElementTree as ET
 import zipfile
+from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
 
 from flask import Flask, request, send_file
+from flask.logging import default_handler
 from werkzeug.datastructures import FileStorage
 
 import constants
@@ -23,6 +26,26 @@ app = Flask(__name__)  # create the Flask app
 file_dir = os.path.dirname(os.path.realpath(__file__))
 dp_directory = PurePath(file_dir, const.DATAPACKAGEFOLDER)
 
+# Set up logging
+if not Path(const.LOGDIRECTORY).exists():
+    print(f"Creating directory at {const.LOGDIRECTORY}")
+    os.makedirs(const.LOGDIRECTORY)
+app.logger.removeHandler(default_handler)
+formatter = logging.Formatter(const.LOGFORMAT)
+file_handler = RotatingFileHandler(
+    const.HTTPLOG,
+    maxBytes=const.MAXFILESIZE,
+    backupCount=const.BACKUPCOUNT
+)
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.DEBUG)
+app.logger.addHandler(file_handler)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setFormatter(formatter)
+console_handler.setLevel(logging.DEBUG)
+app.logger.addHandler(console_handler)
+app.logger.setLevel(logging.DEBUG)
+
 
 @app.route("/Marti/vcm", methods=[const.GET])
 def get_all_video_links():
@@ -34,7 +57,7 @@ def get_all_video_links():
             cursor = db.cursor()
             cursor.execute(sql.GETALLVIDEOS)
             feeds = cursor.fetchall()
-            print(f"Found {len(feeds)} video feeds in {const.DATABASE}")
+            app.logger.info(f"Found {len(feeds)} video feeds in {const.DATABASE}")
             if len(feeds) == 0:
                 return ("No video feeds found", 500)
             all_feeds = ""
@@ -43,7 +66,7 @@ def get_all_video_links():
                 all_feeds += feed[0].decode("utf-8")
             return f"<videoConnections>{all_feeds}</videoConnections>"
     except:
-        traceback.print_exc()
+        app.logger.error(traceback.format_exc())
         return "Error", 500
 
 
@@ -69,8 +92,9 @@ def insert_video_link():
             # Check that no other feeds with the same UID have been received
             cursor.execute(sql.GETVIDEOSWITHUID, (uid,))
             if len(cursor.fetchall()) > 0:
-                print(f"Already received feed with UID={uid} (alias = {alias})")
+                app.logger.info(f"Already received feed with UID={uid} (alias = {alias})")
                 continue  # Ignore this feed if there are duplicates
+            app.logger.info(f"Inserting video feed into database: {request.data.decode('utf-8')}")
             cursor.execute(
                 sql.INSERTVIDEO,
                 (ET.tostring(xml_feed), protocol, alias, uid, address, port, rover_port,
@@ -78,7 +102,7 @@ def insert_video_link():
             )
         return "Okay", 200
     except:
-        traceback.print_exc()
+        app.logger.error(traceback.format_exc())
         return "Error", 500
     finally:
         db.commit()
@@ -100,7 +124,7 @@ def upload():
     with sqlite3.connect(const.DATABASE) as db:
         cursor = db.cursor()
         file_hash = request.args.get('hash')
-        print(f"Data Package hash = {str(file_hash)}")
+        app.logger.info(f"Data Package hash = {str(file_hash)}")
         letters = string.ascii_letters
         uid = ''.join(random.choice(letters) for i in range(4))
         uid = 'uid-'+str(uid)
@@ -125,7 +149,6 @@ def upload():
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
-    print(f"request.data = {request.data}")
     if request.data == b'private':
         with sqlite3.connect(const.DATABASE) as db:
             cursor = db.cursor()
@@ -139,7 +162,7 @@ def putDataPackageTool(hash):
 def getDataPackageTool(hash):
     file_list = os.listdir(str(dp_directory)+'/'+str(hash))
     path = PurePath(dp_directory, str(hash), file_list[0])
-    print(f"Sending data package from {str(path)}")
+    app.logger.info(f"Sending data package from {str(path)}")
     return send_file(str(path))
 
 
@@ -147,18 +170,18 @@ def getDataPackageTool(hash):
 def retrieveData():
     keyword = request.args.get('keyword')
     packages = getAllPackages()
-    print(f"packages = {packages}")
+    app.logger.info(f"Data packages in the database: {packages}")
     return str(packages)
 
 
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
     hash = request.args.get('hash')
-    print(os.listdir(str(dp_directory)+'/'+str(hash)))
+    app.logger.debug(os.listdir(str(dp_directory)+'/'+str(hash)))
     file_list = os.listdir(str(dp_directory)+'/'+str(hash))
-    print(const.DATAPACKAGEFOLDER+'\\'+hash+'\\'+file_list[0])
+    app.logger.debug(const.DATAPACKAGEFOLDER+'\\'+hash+'\\'+file_list[0])
     path = PurePath(dp_directory, str(hash), file_list[0])
-    print(str(path))
+    app.logger.debug(str(path))
     return send_file(str(path))
 
 
@@ -171,8 +194,10 @@ def returnVersion():
 def checkPresent():
     hash = request.args.get('hash')
     if hashIsPresent(hash):
+        app.logger.info(f"Data package with hash {hash} exists")
         return const.IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+hash+"/tool"
     else:
+        app.logger.info(f"Data package with hash {hash} does not exist")
         return '404', 404
 
 
@@ -212,8 +237,10 @@ def getAllPackages():
 
 
 def startup():
+    app.logger.info("Starting HTTP Server")
     # Make sure the data package directory exists
     if not Path(dp_directory).exists():
+        app.logger.info(f"Creating directory at {str(dp_directory)}")
         os.makedirs(str(dp_directory))
 
     # Create the relevant database tables
