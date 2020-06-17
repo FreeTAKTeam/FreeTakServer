@@ -54,7 +54,9 @@ class ClientReceptionHandler:
             self.eventPipe = eventPipe
             threading.Thread(target=self.monitorEventPipe, args=(), daemon=True).start()
             threading.Thread(target=self.returnDataToOrchestrator, args=(), daemon=True).start()
+            logger.propagate = False
             logger.info("client reception handler has finished startup")
+            logger.propagate = True
             while True:
                 time.sleep(1000)
         except Exception as e:
@@ -114,35 +116,35 @@ class ClientReceptionHandler:
                 data = b''
             except Exception as e:
                 logger.error('there has been an error in a clients reception thread section A '+str(e))
-                self.returnRecievedData(clientInformation, b'')
+                self.returnReceivedData(clientInformation, b'')
             while alive.isSet():
                 try:
                     part = client.recv(BUFF_SIZE)
                 except OSError as e:
                     logger.error('there has been an error in a clients reception thread section B '+str(e))
-                    self.returnRecievedData(clientInformation, b'')
+                    self.returnReceivedData(clientInformation, b'')
                     break
                 try:
                     if part == b'' or part == None:
-                        self.returnRecievedData(clientInformation, b'')
+                        self.returnReceivedData(clientInformation, b'')
                         break
                     elif len(part) < BUFF_SIZE:
                         # either 0 or end of data
                         data += part 
-                        self.returnRecievedData(clientInformation, data)
+                        self.returnReceivedData(clientInformation, data)
                         data = b''
                     else:
                         data += part
                 except Exception as e:
                     logger.error('there has been an error in a clients reception thread section C '+str(e))
-                    self.returnRecievedData(clientInformation, b'')
+                    self.returnReceivedData(clientInformation, b'')
                     break
             return 1
         except Exception as e:
             logger.error('there has been an error in a clients reception thread section D '+str(e))
-            self.returnRecievedData(clientInformation, b'')
+            self.returnReceivedData(clientInformation, b'')
 
-    def returnRecievedData(self, clientInformation, data):
+    def returnReceivedData(self, clientInformation, data):
         try:
             from model.RawCoT import RawCoT
             RawCoT = RawCoT()

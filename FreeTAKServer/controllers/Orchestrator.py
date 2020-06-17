@@ -8,14 +8,14 @@
 # 
 #######################################################
 from importlib import import_module
-from RecieveConnections import RecieveConnections
+from ReceiveConnections import ReceiveConnections
 from ClientInformationController import ClientInformationController
-from ClientSendHandeler import ClientSendHandeler
+from ClientSendHandler import ClientSendHandler
 from SendClientData import SendClientData
 from DataQueueController import DataQueueController
 from ClientInformationQueueController import ClientInformationQueueController
 from ActiveThreadsController import ActiveThreadsController
-from RecieveConnectionsProcessController import RecieveConnectionsProcessController
+from ReceiveConnectionsProcessController import ReceiveConnectionsProcessController
 from MainSocketController import MainSocketController
 from XMLCoTController import XMLCoTController
 from SendOtherController import SendOtherController
@@ -78,10 +78,10 @@ class Orchestrator:
         self.m_ActiveThreadsController = ActiveThreadsController()
         self.m_ClientInformationController = ClientInformationController()
         self.m_ClientInformationQueueController = ClientInformationQueueController() 
-        self.m_ClientSendHandeler = ClientSendHandeler() 
+        self.m_ClientSendHandler = ClientSendHandler() 
         self.m_DataQueueController = DataQueueController() 
-        self.m_RecieveConnections = RecieveConnections() 
-        self.m_RecieveConnectionsProcessController = RecieveConnectionsProcessController()
+        self.m_ReceiveConnections = ReceiveConnections() 
+        self.m_ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
         self.m_MainSocketController = MainSocketController()
         self.m_XMLCoTController = XMLCoTController()
         self.m_SendClientData = SendClientData()        
@@ -107,7 +107,7 @@ class Orchestrator:
         except Exception as e:
             logger.error('there has been an error in a clients connection'+str(e))
     
-    def emergencyRecieved(self, processedCoT):
+    def emergencyReceived(self, processedCoT):
         try:
             if processedCoT.status == 'on':
                 self.internalCoTArray.append(processedCoT)
@@ -120,7 +120,7 @@ class Orchestrator:
         except Exception as e:
             logger.error('there has been an error in a clients connection'+str(e))
 
-    def dataRecieved(self,RawCoT):
+    def dataReceived(self,RawCoT):
         # this will be executed in the event that the use case for the CoT isnt specified in the orchestrator
         try:
             #this will check if the CoT is applicable to any specific controllers            
@@ -135,7 +135,7 @@ class Orchestrator:
             try:
                 print(processedCoT.type)
                 if processedCoT.type == 'emergency':
-                    self.emergencyRecieved(processedCoT)
+                    self.emergencyReceived(processedCoT)
             except:
                 pass
         except Exception as e:
@@ -220,8 +220,8 @@ class Orchestrator:
             self.CallSignsForDataPackagesPipe = pipeTuple
 
             #create pipe for reception of connections
-            orchestratorPipe, recieveConnectionPipe = multiprocessing.Pipe()
-            pipeTuple = (orchestratorPipe, recieveConnectionPipe)
+            orchestratorPipe, receiveConnectionPipe = multiprocessing.Pipe()
+            pipeTuple = (orchestratorPipe, receiveConnectionPipe)
             self.pipeList.append(pipeTuple)
 
             
@@ -230,9 +230,6 @@ class Orchestrator:
             dataPackageServerProcess = multiprocessing.Process(target = DataPackageServer.FlaskFunctions().startup, args=(DataIP, DataPort,DataPackageServerPipe,), daemon=True)
             dataPackageServerProcess.start()
             time.sleep(2.5)
-            print('loading ...')
-            loading = threading.Thread(target=self.loadAscii, args=())
-            loading.start()
             #establish client handeler
             orchestratorPipe, clientReceptionHandlerEventPipe = multiprocessing.Pipe()
             pipeTuple = (orchestratorPipe, clientReceptionHandlerEventPipe)
@@ -244,22 +241,28 @@ class Orchestrator:
 
             clientReceptionHandlerProcess = multiprocessing.Process(target=ClientReceptionHandler().startup, args=(clientReceptionHandlerDataPipe, clientReceptionHandlerEventPipe), daemon=True)
             clientReceptionHandlerProcess.start()
+            
+            time.sleep(1.5)
 
-            time.sleep(3)
+            print('loading ...')
+            loading = threading.Thread(target=self.loadAscii, args=())
+            loading.start()
+
+            time.sleep(5)
 
             #begin to monitor all pipes
             monitorRawCoTProcess = multiprocessing.Process(target = self.monitorRawCoT, args = ())
             monitorRawCoTProcess.start()
 
             loading.join()
-            #begin to recieve connections
-            recieveConnectionProcess = multiprocessing.Process(target=self.m_RecieveConnections.listen, args=(sock,recieveConnectionPipe,), daemon=True)
-            recieveConnectionProcess.start()
+            #begin to receive connections
+            receiveConnectionProcess = multiprocessing.Process(target=self.m_ReceiveConnections.listen, args=(sock,receiveConnectionPipe,), daemon=True)
+            receiveConnectionProcess.start()
             
 
 
             #instantiate domain model and save process as object
-            activeRecieveConnectionProcess = self.m_RecieveConnectionsProcessController.InstantiateModel(recieveConnectionProcess)
+            activeReceiveConnectionProcess = self.m_ReceiveConnectionsProcessController.InstantiateModel(receiveConnectionProcess)
             logger.propagate = True
             logger.info('server has started')
             while True:

@@ -24,9 +24,6 @@ const = DataPackageServerConstants()
 log =LoggingConstants()
 
 app = Flask(__name__) #create the Flask app
-app.logger.disabled = True
-log_Flask = logging.getLogger('werkzeug')
-log_Flask.disabled = True
 
 file_dir = os.path.dirname(os.path.realpath(__file__))
 dp_directory = PurePath(file_dir, const.DATAPACKAGEFOLDER)
