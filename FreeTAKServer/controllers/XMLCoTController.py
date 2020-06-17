@@ -33,7 +33,7 @@ class XMLCoTController:
             #this is the default in the event of an generic CoT or a CoT without a specific associated use case in the orchestrator
             try:
 
-                return ("dataRecieved", data)
+                return ("dataReceived", data)
 
             except Exception as e:
                 print('exception in monitor raw 4')
