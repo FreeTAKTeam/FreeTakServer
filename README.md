@@ -42,7 +42,7 @@ The target architecture supports also the ability to implement "plugins", thanks
 under docs, you can find various documents including an UMl model of the model classes involved in a COT event.
 
 ## Requirements
-- Python 3
+- Python  3.6 (or better)
 
 ## Installing and using FreeTakServer
 ### Prerequisites
