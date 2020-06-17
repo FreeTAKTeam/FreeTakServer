@@ -13,7 +13,7 @@ It intends to support all the major use cases of the original TAK server.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 
 ## Community 
-This code is currently in *ALPHA STAGE*
+This code is currently in *BETA STAGE*
 Check out our roadmap @ FreeTakServer#25 to see what is planned
 If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is still in the early stages of development.
 
@@ -47,72 +47,34 @@ under docs, you can find various documents including an UMl model of the model c
 ## Installing and using FreeTakServer
 ### Prerequisites
 - Install Python3
+```
+  sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)```
+ ```
+- install FreeTakServer
 
-  `sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)
-  
-- install Flask
-
-
-  `pip install flask`
-
-- install git
-
-
-  `pip install git`
-
-
-- Clone TAKLib repository
-
-  `git clone https://github.com/Tapawingo/FreeTakServer.git`
+```
+  pip install FreeTAKServer
+```
+## Run FreeTakServer
 
 ### Linux
 
 #### Run Server in console
 
 ```
-cd TAKlib/TAKfreeServer/
-
-python3 server.py
+python -m FreeTAKServer.controllers.Orchestrator
 ```
 
 #### Run Server as Demon
-see also https://github.com/Tapawingo/FreeTakServer/tree/master/TAKfreeServer/TAKLinuxService
-```
-cd TAKlib/TAKfreeServer/TAKLinuxService
 
-sudo python3 beginServerFromLinux.py
+```
+sudo nohup python -m FreeTAKServer.controllers.Orchestrator &
 ```
 
 ### Windows
-
-#### DO NOT USE ----> Windows Service <--- CURRENTLY DEPRECATED
-
-see also https://github.com/Tapawingo/FreeTakServer/tree/master/TAKfreeServer/TAKWinService
-To run this program you require admin priviliges
-
-1. allow python.exe in firewall
-2. open whichever port you will be using for connections in firewall
-3. kill any program already running on whichever port you've decided to use
-4. open CMD with admin
-5. cd into whichever directory FreetakServer is located
 ```
-Cd FreeTakServer/TakWinService
+python -m FreeTAKServer.controllers.Orchestrator
 ```
-6. type the following
-```
-beginProgramAsService.py install
-```
-7. type
-```
-beginProgramAsService.py start
-```
-
-### side note
-```
-TAKFreeServer_running_as_service.py
-```
-can be run independently
-
 ### Troubleshooting
 if you have this error Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
 
