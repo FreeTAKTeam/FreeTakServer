@@ -75,10 +75,7 @@ sudo nohup python -m FreeTAKServer.controllers.Orchestrator &
 ```
 python -m FreeTAKServer.controllers.Orchestrator
 ```
-### Troubleshooting
-if you have this error Python windows service “Error starting service: The service did not respond to the start or control request in a timely fashion”
 
-attempt to add python to the system path
 
 ##  Project Structure
 - TakFreeServer
