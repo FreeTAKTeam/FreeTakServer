@@ -55,6 +55,17 @@ under docs, you can find various documents including an UMl model of the model c
 ```
   pip install FreeTAKServer
 ```
+
+Optional: check if installtion is correctly executed
+```
+pip check FreeTakServer 
+```
+
+note under windows it's installed under
+```
+C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
+```
+
 ## Run FreeTakServer
 
 ### Linux
@@ -75,7 +86,12 @@ sudo nohup python -m FreeTAKServer.controllers.Orchestrator &
 ```
 python -m FreeTAKServer.controllers.Orchestrator
 ```
-
+### Troubleshooting
+if, trying to start FTS you get an error 'package not found'
+```
+'package not found'
+```
+navigate to the physical location where the controllers are installed and start the server from there
 
 ##  Project Structure
 - TakFreeServer
