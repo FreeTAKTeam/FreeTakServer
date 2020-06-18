@@ -11,9 +11,9 @@ import zipfile
 from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
 
-from constants.DataPackageServerConstants import DataPackageServerConstants
-from constants.SQLcommands import SQLcommands
-from constants.LoggingConstants import LoggingConstants
+from configuration.DataPackageServerConstants import DataPackageServerConstants
+from configuration.SQLcommands import SQLcommands
+from configuration.LoggingConstants import LoggingConstants
 
 from flask import Flask, request, send_file
 from flask.logging import default_handler

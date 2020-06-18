@@ -15,7 +15,7 @@ from logging.handlers import RotatingFileHandler
 import logging
 import sys
 
-from constants.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
+from configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 loggingConstants = ClientReceptionLoggingConstants()
 #TODO: add more rigid exception management
 

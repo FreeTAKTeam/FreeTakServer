@@ -21,7 +21,7 @@ from XMLCoTController import XMLCoTController
 from SendOtherController import SendOtherController
 from SendDataController import SendDataController
 from AsciiController import AsciiController
-from constants.LoggingConstants import LoggingConstants
+from configuration.LoggingConstants import LoggingConstants
 
 ascii = AsciiController().ascii
 import sys
