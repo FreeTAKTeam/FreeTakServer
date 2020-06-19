@@ -75,12 +75,25 @@ C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
 ```
 python -m FreeTAKServer.controllers.Orchestrator
 ```
+this will start the server with Port 8087 and API port 8080 on your current IP
+to change that you can use
+```
+python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -CoTIP 192.127.1.1 -DataPort 9999
+```
 
+run the above command with 
+```
+-h
+``` 
+to get a list of other supported commands
 #### Run Server as Demon
 
 ```
 sudo nohup python -m FreeTAKServer.controllers.Orchestrator &
 ```
+
+
+
 
 ### Windows
 ```
