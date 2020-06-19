@@ -12,19 +12,16 @@ from logging.handlers import RotatingFileHandler
 import logging
 from configuration.LoggingConstants import LoggingConstants
 import sys
-
-
-
+from CreateLoggerController import CreateLoggerController
+logger = CreateLoggerController("SendClientData").getLogger()
 
 loggingConstants = LoggingConstants()
 
 class SendClientData:
     def __init__(self):
-        
-        self.logger = logging.getLogger(__name__)
-
+        pass
     def SendDataInQueue(self,  dataQueue, clientQueue):
-        self.logger.info(loggingConstants.SENDCLIENTDATASENDDATAINQUEUEINFO)
+        logger.info(loggingConstants.SENDCLIENTDATASENDDATAINQUEUEINFO)
         while True:
             tempQueue = clientQueue
             tempArray = []

@@ -13,14 +13,14 @@ from logging.handlers import RotatingFileHandler
 import logging
 from configuration.LoggingConstants import LoggingConstants
 import sys
+from CreateLoggerController import CreateLoggerController
+logger = CreateLoggerController("XMLCoTController").getLogger()
 
 loggingConstants = LoggingConstants()
 
 class XMLCoTController:
     def __init__(self):  
-        
-        self.logger = logging.getLogger(__name__)
-
+        pass
     def determineCoTGeneral(self, data):
         # this will establish the CoTs general type
         if type(data) == type([]):
@@ -32,7 +32,7 @@ class XMLCoTController:
                 return ("clientConnected", serializedData)
 
             except Exception as e:
-                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
+                logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
         #this runs if it is infact regular data
         elif data.xmlString == b'' or data.xmlString == None:
             #this handeles a client dissconection CoT
@@ -44,7 +44,7 @@ class XMLCoTController:
                 return ("dataReceived", data)
 
             except Exception as e:
-                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB+str(e))
+                logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB+str(e))
 
     def determineCoTType(self, RawCoT):
         # this function is to establish which specific controller applys to the CoT if any

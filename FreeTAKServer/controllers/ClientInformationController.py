@@ -16,13 +16,13 @@ from logging.handlers import RotatingFileHandler
 import logging
 from configuration.LoggingConstants import LoggingConstants
 import sys
+from CreateLoggerController import CreateLoggerController
+logger = CreateLoggerController("ClientInformationController").getLogger()
 loggingConstants = LoggingConstants()
 
 class ClientInformationController(BasicModelInstantiate):
     def __init__(self):
-
-        self.logger = logging.getLogger(__name__)
-
+        pass
     '''
     connection setup is obsolete with intstantiateClientInformationModelFromController
     '''
@@ -42,7 +42,7 @@ class ClientInformationController(BasicModelInstantiate):
             self.m_clientInformation.modelObject = self.modelObject
             return self.m_clientInformation
         except Exception as e:
-            self.logger.error('error in client information controller '+str(e))
+            logger.error('error in client information controller '+str(e))
         
         
         
@@ -81,11 +81,11 @@ class ClientInformationController(BasicModelInstantiate):
             cursor.close()
             sqliteServer.close()
             #print(self.client_dict)
-            self.logger.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
+            logger.info('client connected, information is as follows initial'+ '\n'+ 'connection data:'+str(id_data)+'\n'+'current id:'+ str(current_id))
             return str(first_run)+' ? '+str(total_clients_connected)+' ? '+str(id_data)+' ? '+str(current_id)
         except Exception as e:
-            self.logger.warning('error in connection setup: ' + str(e))
-            self.logger.warning(id_data)
+            logger.warning('error in connection setup: ' + str(e))
+            logger.warning(id_data)
             return "error"
     '''
 #rawClientInformation = ['abc', 'def', b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<event version="2.0" uid="ANDROID-359975090666199" type="a-f-G-U-C" time="2020-05-25T12:23:13.288Z" start="2020-05-25T12:23:13.288Z" stale="2020-05-25T12:29:28.288Z" how="h-e"><point lat="43.855596" lon="-66.10805" hae="20.395709421887993" ce="62.1" le="9999999.0"/><detail><takv os="28" version="3.12.0-45691.45691-CIV" device="SAMSUNG SM-G950W" platform="ATAK-CIV"/><contact endpoint="*:-1:stcp" callsign="SUMMER"/><uid Droid="SUMMER"/><precisionlocation altsrc="GPS" geopointsrc="GPS"/><__group role="Sniper" name="Cyan"/><status battery="4"/><track course="191.76600028243948" speed="0.0"/></detail></event>']

@@ -253,12 +253,12 @@ class Orchestrator:
             time.sleep(5)
 
             #begin to monitor all pipes
-            monitorRawCoTProcess = multiprocessing.Process(target = self.monitorRawCoT, args = ())
+            monitorRawCoTProcess = multiprocessing.Process(target = self.monitorRawCoT, args = (), daemon=True)
             monitorRawCoTProcess.start()
 
             loading.join()
             #begin to receive connections
-            receiveConnectionProcess = multiprocessing.Process(target=self.m_ReceiveConnections.listen, args=(sock,receiveConnectionPipe,), daemon=True)
+            receiveConnectionProcess = multiprocessing.Process(target=ReceiveConnections().listen, args=(sock,receiveConnectionPipe,), daemon=True)
             receiveConnectionProcess.start()
             
 

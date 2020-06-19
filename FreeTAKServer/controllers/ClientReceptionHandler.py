@@ -14,7 +14,8 @@ from queue import Queue
 from logging.handlers import RotatingFileHandler
 import logging
 import sys
-
+from CreateLoggerController import CreateLoggerController
+logger = CreateLoggerController("ClientReceptionHandler").getLogger()
 from configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 loggingConstants = ClientReceptionLoggingConstants()
 #TODO: add more rigid exception management
@@ -25,7 +26,6 @@ class ClientReceptionHandler:
         self.eventPipe = ''
         self.threadDict = {}
         self.dataArray = []
-        self.logger = logging.getLogger(__name__)
 
     def startup(self, dataPipe, eventPipe):
         try:
@@ -33,14 +33,14 @@ class ClientReceptionHandler:
             self.eventPipe = eventPipe
             threading.Thread(target=self.monitorEventPipe, args=(), daemon=True).start()
             threading.Thread(target=self.returnDataToOrchestrator, args=(), daemon=True).start()
-            self.logger.propagate = False
-            self.logger.info(loggingConstants.CLIENTRECEPTIONHANDLERSTART)
-            self.logger.propagate = True
+            logger.propagate = False
+            logger.info(loggingConstants.CLIENTRECEPTIONHANDLERSTART)
+            logger.propagate = True
             while True:
                 time.sleep(120)
-                self.logger.info('the number of threads is ')
+                logger.info('the number of threads is ' + str(threading.active_count()))
         except Exception as e:
-            self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERSTARTUPERROR+str(e))
+            logger.error(loggingConstants.CLIENTRECEPTIONHANDLERSTARTUPERROR+str(e))
 
     def monitorEventPipe(self):
         while True:
@@ -52,7 +52,7 @@ class ClientReceptionHandler:
                     elif command[0] == loggingConstants.DESTROY:
                         self.destroyClientMonitor(command[1])
             except Exception as e:
-                self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITOREVENTPIPEERROR+str(e))
+                logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITOREVENTPIPEERROR+str(e))
 
     def returnDataToOrchestrator(self):
         while True:
@@ -61,7 +61,7 @@ class ClientReceptionHandler:
                     value = self.dataArray.pop(0)
                     self.dataPipe.send(value)
             except Exception as e:
-                self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNDATATOORCHESTRATORERROR+str(e))
+                logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNDATATOORCHESTRATORERROR+str(e))
 
     def createClientMonitor(self, clientInformation):
         try:
@@ -70,20 +70,20 @@ class ClientReceptionHandler:
             clientMonitorThread = threading.Thread(target=self.monitorForData, args = (clientInformation, alive), daemon=True)
             clientMonitorThread.start()
             self.threadDict[clientInformation.ID] = [clientMonitorThread, alive]
-            self.logger.info(loggingConstants.CLIENTRECEPTIONHANDLERCREATECLIENTMONITORINFO)
+            logger.info(loggingConstants.CLIENTRECEPTIONHANDLERCREATECLIENTMONITORINFO)
         except Exception as e:
-            self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERCREATECLIENTMONITORERROR+str(e))
+            logger.error(loggingConstants.CLIENTRECEPTIONHANDLERCREATECLIENTMONITORERROR+str(e))
 
     def destroyClientMonitor(self, clientInformation):
         try:
 
             thread = self.threadDict.pop(clientInformation.clientInformation.ID)
-            self.logger.info(thread)
+            logger.info(thread)
             thread[1].clear()
             thread[0].join()
-            self.logger.info(loggingConstants.CLIENTRECEPTIONHANDLERDESTROYCLIENTMONITORINFO)
+            logger.info(loggingConstants.CLIENTRECEPTIONHANDLERDESTROYCLIENTMONITORINFO)
         except Exception as e:
-            self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERDESTROYCLIENTMONITORERROR+str(e))
+            logger.error(loggingConstants.CLIENTRECEPTIONHANDLERDESTROYCLIENTMONITORERROR+str(e))
 
     def monitorForData(self, clientInformation, alive):
         '''
@@ -95,13 +95,13 @@ class ClientReceptionHandler:
                 client = clientInformation.socket
                 data = b''
             except Exception as e:
-                self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORA+str(e))
+                logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORA+str(e))
                 self.returnReceivedData(clientInformation, b'')
             while alive.isSet():
                 try:
                     part = client.recv(BUFF_SIZE)
                 except OSError as e:
-                    self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORB+str(e))
+                    logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORB+str(e))
                     self.returnReceivedData(clientInformation, b'')
                     break
                 try:
@@ -116,12 +116,12 @@ class ClientReceptionHandler:
                     else:
                         data += part
                 except Exception as e:
-                    self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC+str(e))
+                    logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC+str(e))
                     self.returnReceivedData(clientInformation, b'')
                     break
             return 1
         except Exception as e:
-            self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD+str(e))
+            logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD+str(e))
             self.returnReceivedData(clientInformation, b'')
 
     def returnReceivedData(self, clientInformation, data):
@@ -134,4 +134,4 @@ class ClientReceptionHandler:
             self.dataArray.append(RawCoT)
 
         except Exception as e:
-            self.logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNRECEIVEDDATAERROR+str(e))
+            logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNRECEIVEDDATAERROR+str(e))

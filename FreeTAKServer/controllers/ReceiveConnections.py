@@ -12,14 +12,16 @@ from logging.handlers import RotatingFileHandler
 import logging
 from configuration.LoggingConstants import LoggingConstants
 import sys
-
+from CreateLoggerController import CreateLoggerController
+logger = CreateLoggerController("ReceiveConnections").getLogger()
 loggingConstants = LoggingConstants()
 
 class ReceiveConnections:
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
+        pass
 
     def listen(self, sock, pipe):
+        #logger = CreateLoggerController("ReceiveConnections").getLogger()
         #listen for client connections
         sock.listen(1000)
         while True:
@@ -28,13 +30,13 @@ class ReceiveConnections:
                 client, address = sock.accept()
                 #wait to receive client
                 data = client.recv(1024)
-                self.logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
+                logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
                 #establish the socket array containing important information about the client
                 socket = [client, address, data.decode('utf-8')]
                 self.retrieveNecessaryInformation(socket, pipe)
                 
             except Exception as e:
-                self.logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
+                logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
                 break
         self.listen(sock, pipe)
     def retrieveNecessaryInformation(self, rawConnectionInformation, pipe):

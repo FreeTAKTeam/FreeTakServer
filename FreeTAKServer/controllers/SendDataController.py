@@ -2,34 +2,14 @@ from logging.handlers import RotatingFileHandler
 import logging
 from configuration.LoggingConstants import LoggingConstants
 import sys
-
+from CreateLoggerController import CreateLoggerController
+logger = CreateLoggerController("SendDataController").getLogger()
 loggingConstants = LoggingConstants()
 
 class SendDataController:
 
     def __init__(self):
-        
-        log_format = logging.Formatter(loggingConstants.LOGFORMAT)
-        self.logger = logging.getLogger(loggingConstants.LOGNAME)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(self.newHandler(loggingConstants.DEBUGLOG, logging.DEBUG, log_format))
-        self.logger.addHandler(self.newHandler(loggingConstants.WARNINGLOG, logging.WARNING, log_format))
-        self.logger.addHandler(self.newHandler(loggingConstants.INFOLOG, logging.INFO, log_format))
-        console = logging.StreamHandler(sys.stdout)
-        console.setFormatter(log_format)
-        console.setLevel(logging.DEBUG)
-        self.logger.addHandler(console)
-
-    
-    def newHandler(self, filename, log_level, log_format):
-        handler = RotatingFileHandler(
-            filename,
-            maxBytes=loggingConstants.MAXFILESIZE,
-            backupCount=loggingConstants.BACKUPCOUNT
-        )
-        handler.setFormatter(log_format)
-        handler.setLevel(log_level)
-        return handler
+        pass
 
     def sendDataInQueue(self, sender, processedCoT, clientInformationQueue):
         try:
@@ -69,4 +49,4 @@ class SendDataController:
                     else:
                         break
         except Exception as e:
-            self.logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR+str(e))
+            logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR+str(e))
