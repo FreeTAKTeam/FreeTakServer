@@ -38,3 +38,9 @@ class SQLcommands:
         self.INSERTVIDEO = "INSERT INTO VideoLinks (FullXmlString,Protocol,Alias,Uid,Address,Port,RoverPort,IgnoreEmbeddedKlv,PreferredMacAddress,Path,Buffer,Timeout,RtspReliable) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         self.GETALLVIDEOS = "SELECT FullXmlString FROM VideoLinks"
         self.GETVIDEOSWITHUID = "SELECT FullXmlString from VideoLinks WHERE Uid=?"
+
+        # Statements for User records accessed from HTTP server
+        self.CREATEUSERTABLE = ("CREATE TABLE IF NOT EXISTS VideoLinks"
+        "(PrimaryKey         INTEGER PRIMARY KEY ON CONFLICT FAIL AUTOINCREMENT UNIQUE ON CONFLICT FAIL,"
+        "Uid                 STRING,"
+        "Address             STRING;")

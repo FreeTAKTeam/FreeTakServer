@@ -9,9 +9,17 @@
 #######################################################
 #TODO: add more rigid exception management
 from lxml import etree
+from logging.handlers import RotatingFileHandler
+import logging
+from configuration.LoggingConstants import LoggingConstants
+import sys
+
+loggingConstants = LoggingConstants()
+
 class XMLCoTController:
     def __init__(self):  
-        pass
+        
+        self.logger = logging.getLogger(__name__)
 
     def determineCoTGeneral(self, data):
         # this will establish the CoTs general type
@@ -24,7 +32,7 @@ class XMLCoTController:
                 return ("clientConnected", serializedData)
 
             except Exception as e:
-                print("exception in monitor raw 3")
+                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
         #this runs if it is infact regular data
         elif data.xmlString == b'' or data.xmlString == None:
             #this handeles a client dissconection CoT
@@ -36,8 +44,7 @@ class XMLCoTController:
                 return ("dataReceived", data)
 
             except Exception as e:
-                print('exception in monitor raw 4')
-                print(e)
+                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB+str(e))
 
     def determineCoTType(self, RawCoT):
         # this function is to establish which specific controller applys to the CoT if any

@@ -8,9 +8,17 @@
 # 
 #######################################################
 import socket
+from logging.handlers import RotatingFileHandler
+import logging
+from configuration.LoggingConstants import LoggingConstants
+import sys
+
+loggingConstants = LoggingConstants()
+
 class ReceiveConnections:
-    def __init__(self):  
-        pass
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+
     def listen(self, sock, pipe):
         #listen for client connections
         sock.listen(1000)
@@ -20,17 +28,15 @@ class ReceiveConnections:
                 client, address = sock.accept()
                 #wait to receive client
                 data = client.recv(1024)
-                print('client connected')
+                self.logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
                 #establish the socket array containing important information about the client
                 socket = [client, address, data.decode('utf-8')]
                 self.retrieveNecessaryInformation(socket, pipe)
                 
             except Exception as e:
-                print('error')
-                print(e)
+                self.logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
                 break
         self.listen(sock, pipe)
     def retrieveNecessaryInformation(self, rawConnectionInformation, pipe):
-        print('datapassed through pipe') 
         #this adds the important client data to the data pipe allowing it to be received by the orchestrator
         pipe.send(rawConnectionInformation)

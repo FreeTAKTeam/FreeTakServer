@@ -8,19 +8,29 @@
 # 
 #######################################################
 
+from logging.handlers import RotatingFileHandler
+import logging
+from configuration.LoggingConstants import LoggingConstants
+import sys
+
+
+
+
+loggingConstants = LoggingConstants()
 
 class SendClientData:
     def __init__(self):
-        pass
+        
+        self.logger = logging.getLogger(__name__)
+
     def SendDataInQueue(self,  dataQueue, clientQueue):
-        print('send data in queue started')
+        self.logger.info(loggingConstants.SENDCLIENTDATASENDDATAINQUEUEINFO)
         while True:
             tempQueue = clientQueue
             tempArray = []
             if dataQueue.empty() == False:
                 while tempQueue.empty() == False:
                    tempArray.append(tempQueue.get())
-                print('\n \n processing data \n \n')
                 data = dataQueue.get()
                 sender = data.clientInformation
                 for client in tempArray:
