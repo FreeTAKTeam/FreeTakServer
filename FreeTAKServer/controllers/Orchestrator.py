@@ -22,6 +22,8 @@ from SendOtherController import SendOtherController
 from SendDataController import SendDataController
 from AsciiController import AsciiController
 from configuration.LoggingConstants import LoggingConstants
+from configuration.SQLcommands import SQLcommands as sql
+from configuration.DataPackageServerConstants import DataPackageServerConstants as DPConst
 
 ascii = AsciiController().ascii
 import sys
@@ -38,10 +40,6 @@ import argparse
 import sqlite3
 
 loggingConstants = LoggingConstants()
-
-
-
-
 
 from ClientReceptionHandler import ClientReceptionHandler
 
@@ -102,8 +100,11 @@ class Orchestrator:
             #send all client data needs to be implemented
             SendDataController().sendDataInQueue(clientInformation, clientInformation, self.clientInformationQueue)
             #add the callsign and UID to the DataPackageCallsignPipe
-            pipeData = [loggingConstants.ADD,clientInformation.modelObject.uid ,clientInformation.modelObject.m_detail.m_Contact.callsign]
-            self.CallSignsForDataPackagesPipe[0].send(pipeData)
+            with sqlite3.connect(DPConst().DATABASE) as db:
+                cursor = db.cursor()
+                cursor.execute(sql().ADDUSER, (clientInformation.modelObject.uid,clientInformation.modelObject.m_detail.m_Contact.callsign))
+                cursor.close()
+                db.commit()
             self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED)
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR+str(e))
@@ -154,8 +155,11 @@ class Orchestrator:
                 else:
                     pass
             self.m_ActiveThreadsController.removeClientThread(clientInformation)
-            pipeData = [loggingConstants.REMOVE,clientInformation.clientInformation.modelObject.uid ,clientInformation.clientInformation.modelObject.m_detail.m_Contact.callsign]
-            self.CallSignsForDataPackagesPipe[0].send(pipeData)
+            with sqlite3.connect(DPConst().DATABASE) as db:
+                cursor = db.cursor()
+                cursor.execute(sql().REMOVEUSER, (clientInformation.modelObject.uid))
+                cursor.close()
+                db.commit()
             self.ClientReceptionHandlerEventPipe[0].send((loggingConstants.DESTROY, clientInformation))
             self.logger.info(loggingConstants.CLIENTDISCONNECTEND)
         except Exception as e:
@@ -246,7 +250,6 @@ class Orchestrator:
             time.sleep(1.5)
 
             self.logger.info(loggingConstants.LOADING)
-            print('ji')
             loading = threading.Thread(target=self.loadAscii, args=())
             loading.start()
 
