@@ -14,9 +14,10 @@ class SQLcommands:
         "Size               INTEGER,"
         "Privacy            INTEGER  DEFAULT 0);")
         self.MISSIONUPLOADCALLSIGN = "SELECT Callsign FROM Users WHERE UID=?"
-        self.INSERTDPINFO = "INSERT INTO DataPackages (UID, Name, Hash, SubmissionUser, CreatorUid, Size) VALUES(?,?,?,?,?,?);"
+        self.INSERTDPINFO = "INSERT INTO DataPackages (UID, Name, Hash, SubmissionUser, CreatorUid, Size) VALUES (?,?,?,?,?,?);"
         self.ROWBYHASH = "SELECT * FROM DataPackages WHERE Hash=?"
         self.SELECTALLDP = "SELECT * FROM DataPackages WHERE Privacy = 0"
+        self.RETRIEVECALLSIGNFROMUID = "SELECT Callsign FROM Users WHERE Uid = ?"
 
         # Statements to work with storing/retrieving video links. Accessed from HTTP server
         self.CREATEVIDEOTABLE = ("CREATE TABLE IF NOT EXISTS VideoLinks"
@@ -40,7 +41,9 @@ class SQLcommands:
         self.GETVIDEOSWITHUID = "SELECT FullXmlString from VideoLinks WHERE Uid=?"
 
         # Statements for User records accessed from HTTP server
-        self.CREATEUSERTABLE = ("CREATE TABLE IF NOT EXISTS VideoLinks"
+        self.CREATEUSERTABLE = ("CREATE TABLE IF NOT EXISTS Users"
         "(PrimaryKey         INTEGER PRIMARY KEY ON CONFLICT FAIL AUTOINCREMENT UNIQUE ON CONFLICT FAIL,"
         "Uid                 STRING,"
-        "Address             STRING;")
+        "Callsign             STRING)")
+        self.ADDUSER = ("INSERT INTO Users (Uid, Callsign) VALUES (?, ?)")
+        self.REMOVEUSER = ("DELETE FROM Users WHERE Uid = ?")

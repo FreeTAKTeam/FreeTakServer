@@ -140,10 +140,7 @@ def upload():
         file.save(os.path.join(directory, filename))
         fileSize = Path(directory, filename).stat().st_size
         callsign = FlaskFunctions().getSubmissionUser(creatorUid) # fetchone() gives a tuple, so only grab the first element
-        cursor.execute(
-            sql.INSERTDPINFO,
-            (uid, filename, file_hash, callsign, creatorUid, fileSize)
-        )
+        cursor.execute(sql.INSERTDPINFO, (uid, filename, file_hash, callsign, creatorUid, fileSize))
         cursor.close()
         db.commit()
     return IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+file_hash+"/tool"
@@ -215,23 +212,14 @@ class FlaskFunctions:
             cursor.close()
             return len(data) > 0
 
-    def SubmissionUsersPipe(self):
-        while PIPE.poll():
-            callsign = PIPE.recv()
-            if callsign[0] == 'add':
-                self.callsigns.append(callsign)
-            elif callsign[0] == 'remove':
-                self.callsigns.remove(callsign)
-            else:
-                pass
     def getSubmissionUser(self, UID):
-        self.SubmissionUsersPipe()
-        for user in self.callsigns:
-            if user[1] == UID:
-                return user[2]
-            else:
-                pass
-
+        with sqlite3.connect(const.DATABASE) as db:
+            cursor = db.cursor()
+            cursor.execute(sql.RETRIEVECALLSIGNFROMUID, (UID,))
+            callsign = cursor.fetchone()
+            cursor.close()
+            return callsign
+            
     def getAllPackages(self):
         with sqlite3.connect(const.DATABASE) as db:
             cursor = db.cursor()
@@ -272,9 +260,10 @@ class FlaskFunctions:
             cursor = db.cursor()
             cursor.execute(sql.CREATEDPTABLE)
             cursor.execute(sql.CREATEVIDEOTABLE)
-            cursor.close()
+            cursor.execute(sql.CREATEUSERTABLE)
             db.commit()
-
+            cursor.close()
+            
         app.run(host=IP, port=HTTPPORT, debug=const.HTTPDEBUG)
 
 if __name__ == "__main__":
