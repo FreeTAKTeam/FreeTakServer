@@ -30,13 +30,11 @@ https://www.reddit.com/r/ATAK/
 and the Discord chat
 https://discordapp.com/invite/XEPyhHA
 
-
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTAKServer%20Model.png?raw=true)
 The target architecture supports also the ability to implement "plugins", thanks to a listener, that is decouple from the main server
 ![the FreeTakServer component model](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTakServerComponents.png?raw=true)
-
 
 ## Documentation
 under docs, you can find various documents including an UMl model of the model classes involved in a COT event.
@@ -56,7 +54,7 @@ under docs, you can find various documents including an UMl model of the model c
   pip install FreeTAKServer
 ```
 
-Optional: check if installtion is correctly executed
+Optional: check if installation is correctly executed
 ```
 pip check FreeTakServer 
 ```
@@ -73,9 +71,9 @@ C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
 #### Run Server in console
 
 ```
-python -m FreeTAKServer.controllers.Orchestrator
+python -m FreeTAKServer.controllers.Orchestrator -APIIP (yourIP)
 ```
-this will start the server with Port 8087 and API port 8080 on your current IP
+this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
 to change that you can use
 ```
 python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -CoTIP 192.127.1.1 -DataPort 9999
