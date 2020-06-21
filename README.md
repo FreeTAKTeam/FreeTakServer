@@ -93,8 +93,6 @@ sudo nohup python -m FreeTAKServer.controllers.Orchestrator &
 ```
 
 
-
-
 ### Windows
 ```
 python -m FreeTAKServer.controllers.Orchestrator
@@ -105,6 +103,12 @@ if, trying to start FTS you get an error 'package not found'
 'package not found'
 ```
 navigate to the physical location where the controllers are installed and start the server from there
+
+## Update FreeTakServer
+if you already installed FTS with pip you can use
+```
+pip install FreeTAKServer --upgrade
+```
 
 ##  Project Structure
 - TakFreeServer
