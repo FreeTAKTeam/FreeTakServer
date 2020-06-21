@@ -143,7 +143,7 @@ def upload():
         cursor.execute(sql.INSERTDPINFO, (uid, filename, file_hash, callsign, creatorUid, fileSize))
         cursor.close()
         db.commit()
-    return IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+file_hash+"/tool"
+    return IP+':'+HTTPPORT+"/Marti/api/sync/metadata/"+file_hash+"/tool"
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
@@ -194,7 +194,7 @@ def checkPresent():
     hash = request.args.get('hash')
     if FlaskFunctions().hashIsPresent(hash):
         app.logger.info(f"Data package with hash {hash} exists")
-        return IP+':'+const.HTTPPORT+"/Marti/api/sync/metadata/"+hash+"/tool"
+        return IP+':'+HTTPPORT+"/Marti/api/sync/metadata/"+hash+"/tool"
     else:
         app.logger.info(f"Data package with hash {hash} does not exist")
         return '404', 404
