@@ -8,6 +8,8 @@
 # 
 #######################################################
 from importlib import import_module
+from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
+CreateStartupFilesController()
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.ClientInformationController import ClientInformationController
 from FreeTAKServer.controllers.ClientSendHandler import ClientSendHandler
@@ -25,7 +27,6 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands as sql
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants as DPConst
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
-from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 
 ascii = AsciiController().ascii
@@ -160,7 +161,7 @@ class Orchestrator:
             self.m_ActiveThreadsController.removeClientThread(clientInformation)
             with sqlite3.connect(DPConst().DATABASE) as db:
                 cursor = db.cursor()
-                cursor.execute(sql().REMOVEUSER, (clientInformation.modelObject.uid))
+                cursor.execute(sql().REMOVEUSER, (clientInformation.clientInformation.modelObject.uid,))
                 cursor.close()
                 db.commit()
             self.ClientReceptionHandlerEventPipe[0].send((loggingConstants.DESTROY, clientInformation))
@@ -214,12 +215,12 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
-    def start(self, CoTIP, CoTPort, DataIP, DataPort):
+    def start(self, IP, CoTPort, APIPort):
         try:
-            CreateStartupFilesController()
+
             self.logger.propagate = False
             #create socket controller
-            self.m_MainSocketController.changeIP(CoTIP)
+            self.m_MainSocketController.changeIP(IP)
             self.m_MainSocketController.changePort(CoTPort)
             sock = self.m_MainSocketController.createSocket()
 
@@ -236,7 +237,7 @@ class Orchestrator:
             
 
             #begin DataPackageServer
-            dataPackageServerProcess = multiprocessing.Process(target = DataPackageServer.FlaskFunctions().startup, args=(DataIP, DataPort,DataPackageServerPipe,), daemon=True)
+            dataPackageServerProcess = multiprocessing.Process(target = DataPackageServer.FlaskFunctions().startup, args=(IP, APIPort,DataPackageServerPipe,), daemon=True)
             dataPackageServerProcess.start()
             time.sleep(2.5)
             #establish client handeler
@@ -282,9 +283,12 @@ class Orchestrator:
         pass
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=OrchestratorConstants.FULLDESC)
+    parser = argparse.ArgumentParser(description=OrchestratorConstants().FULLDESC)
+    args = parser.parse_args()
     parser.add_argument(OrchestratorConstants().COTPORTARG, type = int, help = OrchestratorConstants().COTPORTDESC, default=OrchestratorConstants().COTPORT)
+    args = parser.parse_args()
     parser.add_argument(OrchestratorConstants().IPARG, type = str, help = OrchestratorConstants().IPDESC, default=OrchestratorConstants().IP)
+    args = parser.parse_args()
     parser.add_argument(OrchestratorConstants().APIPORTARG, type = int, help = OrchestratorConstants().APIPORTDESC, default=DataPackageServerConstants().APIPORT)
     args = parser.parse_args()
-    Orchestrator().start(args.CoTIP, args.CoTPort, args.APIIP, args.APIPort)
+    Orchestrator().start(args.IP, args.CoTPort, args.APIPort)
