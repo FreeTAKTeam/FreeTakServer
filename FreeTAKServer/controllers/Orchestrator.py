@@ -24,6 +24,9 @@ from FreeTAKServer.controllers.AsciiController import AsciiController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands as sql
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants as DPConst
+from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
+from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
+from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 
 ascii = AsciiController().ascii
 import sys
@@ -135,7 +138,7 @@ class Orchestrator:
             #this will send the processed object to a function which will send it to connected clients
             SendDataController().sendDataInQueue(sender, processedCoT, self.clientInformationQueue)
             try:
-                print(processedCoT.type)
+                self.logger.debug('data received from ' + str(processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is '+processedCoT.type)
                 if processedCoT.type == loggingConstants.EMERGENCY:
                     self.emergencyReceived(processedCoT)
             except:
@@ -213,6 +216,7 @@ class Orchestrator:
 
     def start(self, CoTIP, CoTPort, DataIP, DataPort):
         try:
+            CreateStartupFilesController()
             self.logger.propagate = False
             #create socket controller
             self.m_MainSocketController.changeIP(CoTIP)
@@ -266,7 +270,7 @@ class Orchestrator:
             
 
 
-            #instantiate domain model and save process as object
+            # instantiate domain model and save process as object
             activeReceiveConnectionProcess = self.m_ReceiveConnectionsProcessController.InstantiateModel(receiveConnectionProcess)
             self.logger.propagate = True
             self.logger.info('server has started')
@@ -278,10 +282,9 @@ class Orchestrator:
         pass
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='FreeTAKServer startup settings')
-    parser.add_argument('-CoTPort', type = int, help = 'the port you would like FreeTAKServer to run receive connections on', default=8087)
-    parser.add_argument('-CoTIP', type = str, help = "the IP you would like FreeTAKServer to run receive connections on ONLY CHANGE IF YOU KNOW WHAT YOU'RE DOING", default='0.0.0.0')
-    parser.add_argument('-APIIP', type = str, help = 'the ip address you would like FreeTAKServer to run receive datapackages on this is necesarry if its not set correctly data packages will fail', default = '0.0.0.0')
-    parser.add_argument('-APIPort', type = int, help = 'the port address you would like FreeTAKServer to run receive datapackages on not', default=8080)
+    parser = argparse.ArgumentParser(description=OrchestratorConstants.FULLDESC)
+    parser.add_argument(OrchestratorConstants().COTPORTARG, type = int, help = OrchestratorConstants().COTPORTDESC, default=OrchestratorConstants().COTPORT)
+    parser.add_argument(OrchestratorConstants().IPARG, type = str, help = OrchestratorConstants().IPDESC, default=OrchestratorConstants().IP)
+    parser.add_argument(OrchestratorConstants().APIPORTARG, type = int, help = OrchestratorConstants().APIPORTDESC, default=DataPackageServerConstants().APIPORT)
     args = parser.parse_args()
     Orchestrator().start(args.CoTIP, args.CoTPort, args.APIIP, args.APIPort)

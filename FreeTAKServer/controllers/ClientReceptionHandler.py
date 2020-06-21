@@ -38,7 +38,7 @@ class ClientReceptionHandler:
             logger.propagate = True
             while True:
                 time.sleep(120)
-                logger.info('the number of threads is ' + str(threading.active_count()))
+                logger.info('the number of threads is ' + str(threading.active_count()) +' and the following are the clients ' + str(self.threadDict))
         except Exception as e:
             logger.error(loggingConstants.CLIENTRECEPTIONHANDLERSTARTUPERROR+str(e))
 
@@ -119,6 +119,7 @@ class ClientReceptionHandler:
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC+str(e))
                     self.returnReceivedData(clientInformation, b'')
                     break
+            
             return 1
         except Exception as e:
             logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD+str(e))
