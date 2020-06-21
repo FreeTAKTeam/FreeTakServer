@@ -11,9 +11,9 @@ import zipfile
 from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
 
-from configuration.DataPackageServerConstants import DataPackageServerConstants
-from configuration.SQLcommands import SQLcommands
-from configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
+from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 
 from flask import Flask, request, send_file
 from flask.logging import default_handler
@@ -139,7 +139,7 @@ def upload():
             os.mkdir(directory)
         file.save(os.path.join(directory, filename))
         fileSize = Path(directory, filename).stat().st_size
-        callsign = FlaskFunctions().getSubmissionUser(creatorUid) # fetchone() gives a tuple, so only grab the first element
+        callsign = str(FlaskFunctions().getSubmissionUser(creatorUid)) # fetchone() gives a tuple, so only grab the first element
         cursor.execute(sql.INSERTDPINFO, (uid, filename, file_hash, callsign, creatorUid, fileSize))
         cursor.close()
         db.commit()

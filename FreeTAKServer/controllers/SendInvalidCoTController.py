@@ -1,4 +1,4 @@
-from model.SendInvalidCoT import SendInvalidCoT
+from FreeTAKServer.controllers.model.SendInvalidCoT import SendInvalidCoT
 class SendInvalidCoTController:
     def __init__(self, RawCOT):
         self.m_SendInvalidCoT = SendInvalidCoT()
