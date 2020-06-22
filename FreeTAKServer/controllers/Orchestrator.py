@@ -8,6 +8,7 @@
 # 
 #######################################################
 from importlib import import_module
+import os
 from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
 CreateStartupFilesController()
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
@@ -217,7 +218,7 @@ class Orchestrator:
 
     def start(self, IP, CoTPort, APIPort):
         try:
-
+            os.chdir('../../')
             self.logger.propagate = False
             #create socket controller
             self.m_MainSocketController.changeIP(IP)
