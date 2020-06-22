@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
   name = 'FreeTAKServer',         # How you named your package folder (MyLib)
   packages = ['FreeTAKServer', 'FreeTAKServer.controllers', 'FreeTAKServer.controllers.configuration', 'FreeTAKServer.controllers.model'],   # Chose the same as "name"
-  version = '0.8.20',      # Start with a small number and increase it with every change you make
+  version = '0.8.21',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'An open source server for the TAK family of applications.',   # Give a short description about your library
   long_description=long_description,
@@ -20,6 +20,7 @@ setup(
   install_requires=[            # I get to this in a second
           'flask',
           'lxml',
+          'pathlib',
       ],
   classifiers=[
     'Development Status :: 4 - Beta',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
