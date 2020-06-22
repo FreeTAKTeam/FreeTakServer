@@ -15,12 +15,12 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 import sys
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 logger = CreateLoggerController("XMLCoTController").getLogger()
-
 loggingConstants = LoggingConstants()
 
 class XMLCoTController:
     def __init__(self):  
         pass
+
     def determineCoTGeneral(self, data):
         # this will establish the CoTs general type
         if type(data) == type([]):

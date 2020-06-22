@@ -17,7 +17,9 @@ import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import sys
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+
 logger = CreateLoggerController("ClientInformationController").getLogger()
+
 loggingConstants = LoggingConstants()
 
 class ClientInformationController(BasicModelInstantiate):

@@ -3,14 +3,14 @@ import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import sys
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-logger = CreateLoggerController("SendDataController").getLogger()
 loggingConstants = LoggingConstants()
+logger = CreateLoggerController("SendDataController").getLogger()
+
 
 class SendDataController:
 
     def __init__(self):
         pass
-
     def sendDataInQueue(self, sender, processedCoT, clientInformationQueue):
         try:
             try:

@@ -10,7 +10,6 @@
 from importlib import import_module
 import os
 from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
-CreateStartupFilesController()
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.ClientInformationController import ClientInformationController
 from FreeTAKServer.controllers.ClientSendHandler import ClientSendHandler
@@ -292,4 +291,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     parser.add_argument(OrchestratorConstants().APIPORTARG, type = int, help = OrchestratorConstants().APIPORTDESC, default=DataPackageServerConstants().APIPORT)
     args = parser.parse_args()
+    CreateStartupFilesController()
     Orchestrator().start(args.IP, args.CoTPort, args.APIPort)

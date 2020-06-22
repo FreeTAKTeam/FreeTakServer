@@ -1,13 +1,18 @@
+import os
+from pathlib import PurePath
 class LoggingConstants:
     def __init__(self):
         #main logging config
+        self.CURRENTPATH = os.path.dirname(os.path.realpath(__file__))
+        self.CURRENTPATH = PurePath(self.CURRENTPATH)
+        self.PARENTPATH = self.CURRENTPATH.parents[0]
         self.LOGFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
         self.LOGNAME = 'FTS'
         self.LOGDIRECTORY = 'logs'
-        self.WARNINGLOG = f"{self.LOGDIRECTORY}/{self.LOGNAME}_warning.log"
-        self.DEBUGLOG = f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log"
-        self.INFOLOG = f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log"
-        self.HTTPLOG = f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log"
+        self.WARNINGLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_warning.log")
+        self.DEBUGLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log")
+        self.INFOLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log")
+        self.HTTPLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log")
         self.DELIMITER = ' ? '
         self.MAXFILESIZE = 100000
         self.BACKUPCOUNT = 5

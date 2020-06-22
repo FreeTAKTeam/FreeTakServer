@@ -2,9 +2,11 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from logging.handlers import RotatingFileHandler
 import logging
 import sys
+import os
 loggingConstants = LoggingConstants()
 class CreateLoggerController:
     def __init__(self, loggername):
+        self.currentpath  = os.path.dirname(os.path.realpath(__file__))
         self.logger = logging.getLogger(loggername)
         log_format = logging.Formatter(loggingConstants.LOGFORMAT)
         self.logger.setLevel(logging.DEBUG)

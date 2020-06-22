@@ -13,8 +13,9 @@ import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import sys
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-logger = CreateLoggerController("ReceiveConnections").getLogger()
 loggingConstants = LoggingConstants()
+logger = CreateLoggerController("ReceiveConnections").getLogger()
+
 
 class ReceiveConnections:
     def __init__(self):
