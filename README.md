@@ -48,7 +48,8 @@ under docs, you can find various documents including an UMl model of the model c
 ```
   sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)```
  ```
-- install FreeTakServer
+### install FreeTakServer
+Since version 0.8, FTS supports Pip installation, manual installation can be done with some modifications of the import paths, however we don't support it
 
 ```
   pip install FreeTAKServer
@@ -71,12 +72,12 @@ C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
 #### Run Server in console
 
 ```
-python -m FreeTAKServer.controllers.Orchestrator -APIIP (yourIP)
+sudo  python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
 ```
 this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
 to change that you can use
 ```
-python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -CoTIP 192.127.1.1 -DataPort 9999
+sudo python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -CoTIP 192.127.1.1 -APIPort 9999
 ```
 
 run the above command with 
@@ -87,14 +88,16 @@ to get a list of other supported commands
 #### Run Server as Demon
 
 ```
-sudo nohup python -m FreeTAKServer.controllers.Orchestrator &
+sudo nohup python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP) &
 ```
 
 
 ### Windows
+open a console with admin rights
 ```
-python -m FreeTAKServer.controllers.Orchestrator
+python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
 ```
+
 ### Troubleshooting
 if, trying to start FTS you get an error 'package not found'
 ```
