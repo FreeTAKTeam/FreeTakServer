@@ -1,6 +1,6 @@
 from lxml import etree
-from FreeTAKServer.controllers.model.Event import Event
-from FreeTAKServer.controllers.model.SendOther import SendOther
+from model.Event import Event
+from model.SendOther import SendOther
 
 class SendOtherController:
     #TODO: format needs to fixed as to make it consistent with the format of SendEmergency

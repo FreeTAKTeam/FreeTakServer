@@ -7,7 +7,7 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from FreeTAKServer.controllers.model.MainSocket import MainSocket
+from model.MainSocket import MainSocket
 import socket
 
 class MainSocketController:

@@ -14,9 +14,9 @@ from queue import Queue
 from logging.handlers import RotatingFileHandler
 import logging
 import sys
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from CreateLoggerController import CreateLoggerController
 logger = CreateLoggerController("ClientReceptionHandler").getLogger()
-from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
+from configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 loggingConstants = ClientReceptionLoggingConstants()
 #TODO: add more rigid exception management
 
@@ -127,7 +127,7 @@ class ClientReceptionHandler:
 
     def returnReceivedData(self, clientInformation, data):
         try:
-            from FreeTAKServer.controllers.model.RawCoT import RawCoT
+            from model.RawCoT import RawCoT
             RawCoT = RawCoT()
             #print(data)
             RawCoT.clientInformation = clientInformation

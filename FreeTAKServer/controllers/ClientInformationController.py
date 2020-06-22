@@ -8,15 +8,15 @@
 # 
 #######################################################
 from lxml import etree
-from FreeTAKServer.controllers.model.Event import Event
-from FreeTAKServer.controllers.model.ClientInformation import ClientInformation
-from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiate
+from model.Event import Event
+from model.ClientInformation import ClientInformation
+from BasicModelInstantiate import BasicModelInstantiate
 import uuid
 from logging.handlers import RotatingFileHandler
 import logging
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from configuration.LoggingConstants import LoggingConstants
 import sys
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from CreateLoggerController import CreateLoggerController
 
 logger = CreateLoggerController("ClientInformationController").getLogger()
 

@@ -9,31 +9,31 @@
 #######################################################
 from importlib import import_module
 import os
-from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
-from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
-from FreeTAKServer.controllers.ClientInformationController import ClientInformationController
-from FreeTAKServer.controllers.ClientSendHandler import ClientSendHandler
-from FreeTAKServer.controllers.SendClientData import SendClientData
-from FreeTAKServer.controllers.DataQueueController import DataQueueController
-from FreeTAKServer.controllers.ClientInformationQueueController import ClientInformationQueueController
-from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
-from FreeTAKServer.controllers.ReceiveConnectionsProcessController import ReceiveConnectionsProcessController
-from FreeTAKServer.controllers.MainSocketController import MainSocketController
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
-from FreeTAKServer.controllers.SendOtherController import SendOtherController
-from FreeTAKServer.controllers.SendDataController import SendDataController
-from FreeTAKServer.controllers.AsciiController import AsciiController
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands as sql
-from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants as DPConst
-from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
-from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
+from CreateStartupFilesController import CreateStartupFilesController
+from ReceiveConnections import ReceiveConnections
+from ClientInformationController import ClientInformationController
+from ClientSendHandler import ClientSendHandler
+from SendClientData import SendClientData
+from DataQueueController import DataQueueController
+from ClientInformationQueueController import ClientInformationQueueController
+from ActiveThreadsController import ActiveThreadsController
+from ReceiveConnectionsProcessController import ReceiveConnectionsProcessController
+from MainSocketController import MainSocketController
+from XMLCoTController import XMLCoTController
+from SendOtherController import SendOtherController
+from SendDataController import SendDataController
+from AsciiController import AsciiController
+from configuration.LoggingConstants import LoggingConstants
+from configuration.SQLcommands import SQLcommands as sql
+from configuration.DataPackageServerConstants import DataPackageServerConstants as DPConst
+from configuration.OrchestratorConstants import OrchestratorConstants
+from configuration.DataPackageServerConstants import DataPackageServerConstants
 
 ascii = AsciiController().ascii
 import sys
 from logging.handlers import RotatingFileHandler
 import logging
-import FreeTAKServer.controllers.DataPackageServer as DataPackageServer
+import DataPackageServer as DataPackageServer
 import multiprocessing
 import threading
 import time
@@ -45,7 +45,7 @@ import sqlite3
 
 loggingConstants = LoggingConstants()
 
-from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
+from ClientReceptionHandler import ClientReceptionHandler
 
 class Orchestrator:
 # default constructor  def __init__(self):  
@@ -132,7 +132,7 @@ class Orchestrator:
             #this will check if the CoT is applicable to any specific controllers            
             RawCoT = self.m_XMLCoTController.determineCoTType(RawCoT)
             #the following calls whatever controller was specified by the above function
-            module = importlib.import_module('FreeTAKServer.controllers.'+RawCoT.CoTType)
+            module = importlib.import_module(''+RawCoT.CoTType)
             CoTSerializer = getattr(module, RawCoT.CoTType)
             processedCoT = CoTSerializer(RawCoT).getObject()
             sender = processedCoT.clientInformation
@@ -172,7 +172,7 @@ class Orchestrator:
 
     def monitorRawCoT(self):
         #this needs to be the most robust function as it is the keystone of the program
-        from FreeTAKServer.controllers.model.RawCoT import RawCoT
+        from model.RawCoT import RawCoT
         while True:
             try:
                 if len(self.pipeList)>0:
@@ -217,7 +217,6 @@ class Orchestrator:
 
     def start(self, IP, CoTPort, APIPort):
         try:
-            os.chdir('../../')
             self.logger.propagate = False
             #create socket controller
             self.m_MainSocketController.changeIP(IP)
