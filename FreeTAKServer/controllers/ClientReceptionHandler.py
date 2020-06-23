@@ -31,7 +31,7 @@ class ClientReceptionHandler:
         try:
             self.dataPipe = dataPipe
             self.eventPipe = eventPipe
-            threading.Thread(target=self.monitorEventPipe, args=(), daemon=True).start()
+            #threading.Thread(target=self.monitorEventPipe, args=(), daemon=True).start()
             threading.Thread(target=self.returnDataToOrchestrator, args=(), daemon=True).start()
             logger.propagate = False
             logger.info(loggingConstants.CLIENTRECEPTIONHANDLERSTART)
@@ -45,8 +45,7 @@ class ClientReceptionHandler:
     def monitorEventPipe(self):
         while True:
             try:
-                while self.eventPipe.poll():
-                    command = self.eventPipe.recv()
+                with self.eventPipe.recv() as command:
                     if command[0] == loggingConstants.CREATE:
                         self.createClientMonitor(command[1])
                     elif command[0] == loggingConstants.DESTROY:
