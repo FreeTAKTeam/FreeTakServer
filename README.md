@@ -93,6 +93,7 @@ sudo nohup python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP) &
 
 
 ### Windows
+go to the start menu and type cmd to start a command prompt
 open a console with admin rights
 ```
 python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
