@@ -44,7 +44,7 @@ class SendDataController:
                         try:
                             sock.send(processedCoT.xmlString)
                         except Exception as e:
-                            print(e)
+                            #print(e)
                             break
                     else:
                         break

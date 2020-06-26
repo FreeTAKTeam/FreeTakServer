@@ -9,3 +9,5 @@ class OrchestratorConstants:
         self.IPDESC = "the IP you would like FreeTAKServer to run receive connections on, must be set for private DataPackages to function"
         self.COTPORTDESC = 'the port you would like FreeTAKServer to run receive connections on'
         self.FULLDESC = 'FreeTAKServer startup settings'
+        self.HEALTHCHECK = 'HealthCheck'
+        self.LOCALHOST = '127.0.0.1'
