@@ -26,7 +26,7 @@ class ReceiveConnections:
     def listen(self, sock, pipe):
         #logger = CreateLoggerController("ReceiveConnections").getLogger()
         #listen for client connections
-        sock.listen(1000)
+        sock.listen(0)
         while True:
             try:
                 #establish the socket variables
@@ -45,7 +45,7 @@ class ReceiveConnections:
                     else:
                         pass
                 except Exception as e:
-                    logger.error('')
+                    logger.error('the socket is empty!')
                 
             except Exception as e:
                 logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
