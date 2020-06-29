@@ -77,7 +77,7 @@ sudo  python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
 this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
 to change that you can use
 ```
-sudo python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -CoTIP 192.127.1.1 -APIPort 9999
+sudo python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -IP 192.127.1.1 -APIPort 9999
 ```
 
 run the above command with 
