@@ -7,8 +7,7 @@
 # Original author: Natha Paquette
 #
 #######################################################
-#test commit
-from model.ActiveThreads import ActiveThreads
+from FreeTAKServer.controllers.model.ActiveThreads import ActiveThreads
 
 class ActiveThreadsController:
     def __init__(self):  

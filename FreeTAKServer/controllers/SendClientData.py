@@ -10,9 +10,9 @@
 
 from logging.handlers import RotatingFileHandler
 import logging
-from configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import sys
-from CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 
 logger = CreateLoggerController("SendClientData").getLogger()
 

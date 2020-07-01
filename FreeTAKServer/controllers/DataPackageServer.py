@@ -11,9 +11,9 @@ import zipfile
 from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
 
-from configuration.DataPackageServerConstants import DataPackageServerConstants
-from configuration.SQLcommands import SQLcommands
-from configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
+from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 
 from flask import Flask, request, send_file
 from flask.logging import default_handler
@@ -143,7 +143,7 @@ def upload():
         cursor.execute(sql.INSERTDPINFO, (uid, filename, file_hash, callsign, creatorUid, fileSize))
         cursor.close()
         db.commit()
-    return IP+':'+HTTPPORT+"/Marti/api/sync/metadata/"+file_hash+"/tool"
+    return IP+':'+str(HTTPPORT)+"/Marti/api/sync/metadata/"+file_hash+"/tool"
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
@@ -194,7 +194,7 @@ def checkPresent():
     hash = request.args.get('hash')
     if FlaskFunctions().hashIsPresent(hash):
         app.logger.info(f"Data package with hash {hash} exists")
-        return IP+':'+HTTPPORT+"/Marti/api/sync/metadata/"+hash+"/tool"
+        return IP+':'+str(HTTPPORT)+"/Marti/api/sync/metadata/"+hash+"/tool"
     else:
         app.logger.info(f"Data package with hash {hash} does not exist")
         return '404', 404
@@ -264,7 +264,7 @@ class FlaskFunctions:
             db.commit()
             cursor.close()
             
-        app.run(host=IP, port=HTTPPORT, debug=const.HTTPDEBUG)
+        app.run(host=const.IP, port=HTTPPORT, debug=const.HTTPDEBUG)
 
 if __name__ == "__main__":
     pass

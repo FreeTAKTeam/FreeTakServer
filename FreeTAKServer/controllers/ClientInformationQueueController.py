@@ -7,7 +7,7 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from model.ClientInformationQueue import ClientInformationQueue
+from FreeTAKServer.controllers.model.ClientInformationQueue import ClientInformationQueue
 from multiprocessing import Queue
 
 class ClientInformationQueueController:

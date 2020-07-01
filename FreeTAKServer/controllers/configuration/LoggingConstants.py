@@ -40,7 +40,7 @@ class LoggingConstants:
         self.CLIENTDISCONNECTSTART = 'initiating client disconnection'
         self.REMOVE = "remove"
         self.DESTROY = 'destroy'
-        self.CLIENTDISCONNECTEND = 'there has been an error in the reception of generic data'
+        self.CLIENTDISCONNECTEND = 'client disconnection has concluded '
         self.CLIENTDISCONNECTERROR = 'there has been an error in the reception of generic data'
 
         #monitorRawCoT

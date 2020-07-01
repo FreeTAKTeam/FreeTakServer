@@ -1,4 +1,4 @@
-from configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from logging.handlers import RotatingFileHandler
 import logging
 import sys
