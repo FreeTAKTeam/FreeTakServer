@@ -1,4 +1,4 @@
-from BasicModelInstantiate import BasicModelInstantiate
+from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiate
 from FreeTAKServer.controllers.model.Event import Event
 from lxml import etree
 from FreeTAKServer.controllers.model.SendEmergency import SendEmergency

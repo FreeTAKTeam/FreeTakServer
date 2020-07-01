@@ -58,6 +58,7 @@ class XMLCoTController:
                             "emergency": "SendEmergencyController",
                             "invalid": "SendInvalidCoTController",
                             "health": "SendHealthCheckController",
+                            "ping": "SendPingController",
                             }
             # TODO: the below if statement is probably unnecessary but this needs to be verified
             if RawCoT == b'' or RawCoT == None:
@@ -74,6 +75,10 @@ class XMLCoTController:
 
             elif detail.find('healthCheck') != None:
                 RawCoT.CoTType = CoTTypes['health']
+                return RawCoT
+
+            elif str(event.attrib['type']) == "t-x-c-t":
+                RawCoT.CoTType = CoTTypes['ping']
                 return RawCoT
 
             # TODO: this needs to be expanded for more use cases

@@ -44,6 +44,7 @@ import pickle
 import importlib
 import argparse
 import sqlite3
+import socket
 
 loggingConstants = LoggingConstants()
 
@@ -109,13 +110,16 @@ class Orchestrator:
             # add to active threads
             # send all client data needs to be implemented
             # add the callsign and UID to the DataPackageCallsignPipe
-            with sqlite3.connect(DPConst().DATABASE) as db:
-                cursor = db.cursor()
+            try:
+                cursor = self.db.cursor()
                 cursor.execute(sql().ADDUSER, (
                 clientInformation.modelObject.uid, clientInformation.modelObject.m_detail.m_Contact.callsign))
-                db.commit()
+                self.db.commit()
                 cursor.close()
-            self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED)
+            except Exception as e:
+                print(e)
+                self.logger.error('there has been an error in a clients connection while adding information to the database')
+            self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
             return clientInformation
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
@@ -146,48 +150,62 @@ class Orchestrator:
             sender = processedCoT.clientInformation
             # this will send the processed object to a function which will send it to connected clients
             try:
-                self.logger.debug('data received from ' + str(
-                    processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is ' + processedCoT.type)
+                if processedCoT.type != 'ping':
+                    self.logger.debug('data received from ' + str(
+                        processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is ' + processedCoT.type)
+                else:
+                    pass
                 if processedCoT.type == loggingConstants.EMERGENCY:
                     self.emergencyReceived(processedCoT)
-            except:
-                pass
+            except Exception as e:
+                return -1
             return processedCoT
         except Exception as e:
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
-            pass
+            return -1
 
     def sendInternalCoT(self):
         try:
-            '''if len(self.internalCoTArray)>0:
+            if len(self.internalCoTArray)>0:
                 for processedCoT in self.internalCoTArray:
                     SendDataController().sendDataInQueue(processedCoT.clientInformation, processedCoT, self.clientInformationQueue)
             else:
-                pass'''
+                pass
             return 1
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORINTERNALSCANERROR + str(e))
-
+            return -1
     def clientDisconnected(self, clientInformation):
         # print(self.clientInformationQueue[0])
         # print(clientInformation)
         try:
+            try:
+                clientInformation.clientInformation.socket.shutdown(socket.SHUT_RDWR)
+                clientInformation.clientInformation.socket.close()
+            except Exception as e:
+                self.logger.error('error closing socket in client disconnection')
+                return -1
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
             for client in self.clientInformationQueue:
                 if client.ID == clientInformation.clientInformation.ID:
                     self.clientInformationQueue.remove(client)
                 else:
                     pass
-            self.m_ActiveThreadsController.removeClientThread(clientInformation)
-            with sqlite3.connect(DPConst().DATABASE) as db:
-                cursor = db.cursor()
+            try:
+                self.m_ActiveThreadsController.removeClientThread(clientInformation)
+                cursor = self.db.cursor()
                 cursor.execute(sql().REMOVEUSER, (clientInformation.clientInformation.modelObject.uid,))
                 cursor.close()
-                db.commit()
-            self.logger.info(loggingConstants.CLIENTDISCONNECTEND)
+                self.db.commit()
+                self.db.close()
+            except Exception as e:
+                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
+                return -1
+            self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.clientInformation.modelObject.m_detail.m_Contact.callsign))
+            return 1
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
-            pass
+            return -1
 
     def monitorRawCoT(self,data):
         # this needs to be the most robust function as it is the keystone of the program
@@ -206,8 +224,41 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
+    def mainRunFunction(self, clientData, receiveConnection, sock, pool):
+        while True:
+            try:
+                try:
+                    receiveConnectionOutput = receiveConnection.get(timeout=0.01)
+                    receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+                    CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
+                    if CoTOutput != -1 and CoTOutput != None:
+                        SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
+                                                             self.clientInformationQueue)
+                    else:
+                        pass
+                except multiprocessing.TimeoutError:
+                    pass
+                except Exception as e:
+                    self.logger.info('exception ')
+                try:
+                    clientDataOutput = clientData.get(timeout=0.01)
+                    clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
+                    for clientDataOutputSingle in clientDataOutput:
+                        CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
+                        if CoTOutput != -1 and CoTOutput != None:
+                            SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
+                                                                 self.clientInformationQueue)
+                        else:
+                            pass
+                    self.sendInternalCoT()
+                except multiprocessing.TimeoutError:
+                    pass
+            except Exception as e:
+                self.logger.info('there has been an error thrown in orchestrator' + str(e))
+
     def start(self, IP, CoTPort, APIPort):
         try:
+            self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
             self.logger.propagate = False
             # create socket controller
@@ -231,33 +282,8 @@ class Orchestrator:
             # instantiate domain model and save process as object
             self.logger.propagate = False
             self.logger.info('server has started')
-            while True:
-                try:
-                    try:
-                        receiveConnectionOutput = receiveConnection.get(timeout=0.01)
-                        receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-                        CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
-                        if CoTOutput != -1 and CoTOutput != None:
-                            SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
-                                                               self.clientInformationQueue)
-                        else:
-                            pass
-                    except multiprocessing.TimeoutError:
-                        pass
-                    try:
-                        clientDataOutput = clientData.get(timeout=0.01)
-                        clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
-                        for clientDataOutputSingle in clientDataOutput:
-                            CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
-                            if CoTOutput != -1 and CoTOutput != None:
-                                SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput, self.clientInformationQueue)
-                            else:
-                                pass
-                        self.sendInternalCoT()
-                    except multiprocessing.TimeoutError:
-                        pass
-                except Exception as e:
-                    self.logger.info('there has been an error thrown in orchestrator' + str(e))
+            self.mainRunFunction(clientData, receiveConnection, sock, pool)
+
         except Exception as e:
             self.logger.critical('there has been a critical error in the startup of FTS' + str(e))
 

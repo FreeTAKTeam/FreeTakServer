@@ -109,7 +109,6 @@ class ClientReceptionHandler:
     def returnReceivedData(self, clientInformation, data, queue):
         try:
             from FreeTAKServer.controllers.model.RawCoT import RawCoT
-            logger.debug('returning data to monitor Raw CoT '+ str(data))
             RawCoT = RawCoT()
             # print(data)
             RawCoT.clientInformation = clientInformation
