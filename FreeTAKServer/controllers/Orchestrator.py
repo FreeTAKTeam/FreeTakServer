@@ -42,9 +42,9 @@ import threading
 import time
 import pickle
 import importlib
-from queue import Queue
 import argparse
 import sqlite3
+import socket
 
 loggingConstants = LoggingConstants()
 
@@ -96,9 +96,10 @@ class Orchestrator:
         return handler
 
     def clientConnected(self, rawConnectionInformation):
+        #TODO: remove client pipe and requirements
         try:
+            clientPipe = None
             self.logger.info(loggingConstants.CLIENTCONNECTED)
-            orchestratorPipe, clientPipe = multiprocessing.Pipe()
             # instantiate model
             clientInformation = self.m_ClientInformationController.intstantiateClientInformationModelFromConnection(
                 rawConnectionInformation, clientPipe)
@@ -106,20 +107,23 @@ class Orchestrator:
             self.m_ClientInformationQueueController.addClientToQueue(clientInformation)
             self.clientInformationQueue.append(clientInformation)
             # begin client reception handler
-            self.ClientReceptionHandlerEventPipe[0].send((loggingConstants.CREATE, clientInformation))
             # add to active threads
             # send all client data needs to be implemented
-            SendDataController().sendDataInQueue(clientInformation, clientInformation, self.clientInformationQueue)
             # add the callsign and UID to the DataPackageCallsignPipe
-            with sqlite3.connect(DPConst().DATABASE) as db:
-                cursor = db.cursor()
+            try:
+                self.db.commit()
+                cursor = self.db.cursor()
                 cursor.execute(sql().ADDUSER, (
                 clientInformation.modelObject.uid, clientInformation.modelObject.m_detail.m_Contact.callsign))
-                cursor.close()
-                db.commit()
-            self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED)
+                self.db.commit()
+            except Exception as e:
+                print(e)
+                self.logger.error('there has been an error in a clients connection while adding information to the database')
+            self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
+            return clientInformation
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
+            return -1
 
     def emergencyReceived(self, processedCoT):
         try:
@@ -145,87 +149,143 @@ class Orchestrator:
             processedCoT = CoTSerializer(RawCoT).getObject()
             sender = processedCoT.clientInformation
             # this will send the processed object to a function which will send it to connected clients
-            SendDataController().sendDataInQueue(sender, processedCoT, self.clientInformationQueue)
             try:
-                self.logger.debug('data received from ' + str(
-                    processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is ' + processedCoT.type)
+                if processedCoT.type != 'ping':
+                    self.logger.debug('data received from ' + str(
+                        processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is ' + processedCoT.type)
+                else:
+                    pass
                 if processedCoT.type == loggingConstants.EMERGENCY:
                     self.emergencyReceived(processedCoT)
-            except:
-                pass
+            except Exception as e:
+                return -1
+            return processedCoT
         except Exception as e:
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
-            pass
+            return -1
 
+    def sendInternalCoT(self):
+        try:
+            if len(self.internalCoTArray)>0:
+                for processedCoT in self.internalCoTArray:
+                    SendDataController().sendDataInQueue(processedCoT.clientInformation, processedCoT, self.clientInformationQueue)
+            else:
+                pass
+            return 1
+        except Exception as e:
+            self.logger.error(loggingConstants.MONITORRAWCOTERRORINTERNALSCANERROR + str(e))
+            return -1
     def clientDisconnected(self, clientInformation):
         # print(self.clientInformationQueue[0])
         # print(clientInformation)
         try:
+            try:
+                clientInformation.clientInformation.socket.shutdown(socket.SHUT_RDWR)
+                clientInformation.clientInformation.socket.close()
+            except Exception as e:
+                self.logger.error('error closing socket in client disconnection')
+                return -1
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
             for client in self.clientInformationQueue:
                 if client.ID == clientInformation.clientInformation.ID:
                     self.clientInformationQueue.remove(client)
                 else:
                     pass
-            self.m_ActiveThreadsController.removeClientThread(clientInformation)
-            with sqlite3.connect(DPConst().DATABASE) as db:
-                cursor = db.cursor()
+            try:
+                self.m_ActiveThreadsController.removeClientThread(clientInformation)
+                self.db.commit()
+                cursor = self.db.cursor()
                 cursor.execute(sql().REMOVEUSER, (clientInformation.clientInformation.modelObject.uid,))
                 cursor.close()
-                db.commit()
-            self.ClientReceptionHandlerEventPipe[0].send((loggingConstants.DESTROY, clientInformation))
-            self.logger.info(loggingConstants.CLIENTDISCONNECTEND)
+                self.db.commit()
+            except Exception as e:
+                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
+                return -1
+            self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.clientInformation.modelObject.m_detail.m_Contact.callsign))
+            return 1
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
-            pass
+            return -1
 
-    def monitorRawCoT(self):
+    def monitorRawCoT(self,data):
         # this needs to be the most robust function as it is the keystone of the program
         from FreeTAKServer.controllers.model.RawCoT import RawCoT
-        while True:
-            try:
-                if len(self.pipeList) > 0:
-                    for pipeTuple in self.pipeList:
-                        time.sleep(0.1)
-                        # this while loop runs on each pipe to extract all data within
-                        while pipeTuple[0].poll():
-                            try:
-                                try:
-                                    data = pipeTuple[0].recv()
-                                except OSError as e:
-                                    self.logger.error(loggingConstants.MONITORRAWCOTERRORA + str(e))
-                                    break
-                                # this will attempt to define the type of CoT along with the designated controller
-                                try:
-                                    CoT = XMLCoTController().determineCoTGeneral(data)
-                                    function = getattr(self, CoT[0])
-                                    function(CoT[1])
-                                except Exception as e:
-                                    self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
-                                    pass
-                            except Exception as e:
-                                self.logger.error(loggingConstants.MONITORRAWCOTERRORC + str(e))
-                                break
-                else:
-                    pass
-            except Exception as e:
-                self.logger.error(loggingConstants.MONITORRAWCOTERRORD + str(e))
-                pass
-            if len(self.internalCoTArray) > 0:
-                try:
-                    for processedCoT in self.internalCoTArray:
-                        SendDataController().sendDataInQueue(None, processedCoT, self.clientInformationQueue)
-                except Exception as e:
-                    self.logger.error(loggingConstants.MONITORRAWCOTERRORINTERNALSCANERROR + str(e))
-            else:
-                pass
-        self.monitorRawCoT()
+        # this will attempt to define the type of CoT along with the designated controller
+        try:
+            CoT = XMLCoTController().determineCoTGeneral(data)
+            function = getattr(self, CoT[0])
+            output = function(CoT[1])
+            return output
+        except Exception as e:
+            self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
+            return -1
+
+    def checkOutput(self, output):
+        if output != -1 and output != None:
+            return True
+        else:
+            return False
 
     def loadAscii(self):
         ascii()
 
+    def mainRunFunction(self, clientData, receiveConnection, sock, pool):
+        while True:
+            try:
+                try:
+                    receiveConnectionOutput = receiveConnection.get(timeout=0.01)
+                    receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+                    try:
+                        CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
+                        if CoTOutput != -1 and CoTOutput != None:
+                            output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
+                                                                 self.clientInformationQueue)
+                            if self.checkOutput(output):
+                                self.logger.debug('connection data from client ' + str(CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
+                            else:
+                                raise Exception('error in sending data')
+                        else:
+                            raise Exception('error in connection data processing')
+                    except Exception as e:
+                        self.logger.error('exception in receive connection data processing within main run function ' + str(e) + ' data is ' + str(CoTOutput))
+                        
+                except multiprocessing.TimeoutError:
+                    pass
+                except Exception as e:
+                    self.logger.info('exception in receive connection within main run function '+str(e))
+
+                try:
+                    clientDataOutput = clientData.get(timeout=0.01)
+                    clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
+                    for clientDataOutputSingle in clientDataOutput:
+                        try:
+                            CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
+                            if CoTOutput == 1:
+                                continue
+                            elif self.checkOutput(CoTOutput):
+                                output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
+                                                                     self.clientInformationQueue)
+                                if self.checkOutput(output):
+                                    pass
+                                else:
+                                    self.logger.error('send data failed in main run function with data '+str(CoTOutput.xmlString) + ' from client '+CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
+                            else:
+                                raise Exception('error in general data processing')
+                        except Exception as e:
+                            self.logger.info(
+                                'exception in client data, data processing within main run function ' + str(
+                                    e) + ' data is ' + str(CoTOutput))
+                    self.sendInternalCoT()
+                except multiprocessing.TimeoutError:
+                    pass
+                except Exception as e:
+                    self.logger.info('exception in receive client data within main run function ' + str(e))
+            except Exception as e:
+                self.logger.info('there has been an uncaught error thrown in mainRunFunction' + str(e))
+
     def start(self, IP, CoTPort, APIPort):
         try:
+            self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
             self.logger.propagate = False
             # create socket controller
@@ -238,68 +298,18 @@ class Orchestrator:
             pipeTuple = (orchestratorPipe, DataPackageServerPipe)
             self.CallSignsForDataPackagesPipe = pipeTuple
 
-            # create pipe for reception of connections
-            orchestratorPipe, receiveConnectionPipe = multiprocessing.Pipe()
-            pipeTuple = (orchestratorPipe, receiveConnectionPipe)
-            self.pipeList.append(pipeTuple)
-
             # begin DataPackageServer
             dataPackageServerProcess = multiprocessing.Process(target=DataPackageServer.FlaskFunctions().startup,
                                                                args=(IP, APIPort, DataPackageServerPipe,), daemon=True)
             dataPackageServerProcess.start()
-            time.sleep(2.5)
             # establish client handeler
-            orchestratorPipe, clientReceptionHandlerEventPipe = multiprocessing.Pipe()
-            pipeTuple = (orchestratorPipe, clientReceptionHandlerEventPipe)
-            self.ClientReceptionHandlerEventPipe = pipeTuple
-
-            orchestratorPipe, clientReceptionHandlerDataPipe = multiprocessing.Pipe()
-            pipeTuple = (orchestratorPipe, clientReceptionHandlerDataPipe)
-            self.pipeList.append(pipeTuple)
-
-            clientReceptionHandlerProcess = multiprocessing.Process(target=ClientReceptionHandler().startup, args=(
-            clientReceptionHandlerDataPipe, clientReceptionHandlerEventPipe), daemon=True)
-            clientReceptionHandlerProcess.start()
-
-            time.sleep(1.5)
-
-            self.logger.info(loggingConstants.LOADING)
-            loading = threading.Thread(target=self.loadAscii, args=())
-            loading.start()
-
-            time.sleep(2)
-
-            # begin to monitor all pipes
-            monitorRawCoTProcess = multiprocessing.Process(target=self.monitorRawCoT, args=(), daemon=True)
-            monitorRawCoTProcess.start()
-
-            loading.join()
-            # begin to receive connections
-
-            receiveConnectionProcess = multiprocessing.Process(target=ReceiveConnections().listen,
-                                                               args=(sock, receiveConnectionPipe,), daemon=True)
-            receiveConnectionProcess.start()
-
+            pool = multiprocessing.Pool(processes=2)
+            clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
+            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
-            activeReceiveConnectionProcess = self.m_ReceiveConnectionsProcessController.InstantiateModel(
-                receiveConnectionProcess)
-            self.logger.propagate = True
+            self.logger.propagate = False
             self.logger.info('server has started')
-            while True:
-                try:
-                    he = HealthCheckController(CoTPort, OrchestratorConstants().LOCALHOST)
-                    y = he.returnHealth()
-                    if y == [1, 1]:
-                        self.logger.info("health check finished server is functioning")
-                    elif y == [1, 0]:
-                        self.logger.error('health check finished error after client connection '
-                                          'recommend server restart')
-                    elif y == [0, 0]:
-                        self.logger.error('health check finished error in initial connection server '
-                                          'restart recommended immediately')
-                except Exception as e:
-                    self.logger.error("there has been an unknown critical error in health check")
-                time.sleep(600)
+            self.mainRunFunction(clientData, receiveConnection, sock, pool)
 
         except Exception as e:
             self.logger.critical('there has been a critical error in the startup of FTS' + str(e))
@@ -309,6 +319,7 @@ class Orchestrator:
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(description=OrchestratorConstants().FULLDESC)
     parser.add_argument(OrchestratorConstants().COTPORTARG, type=int, help=OrchestratorConstants().COTPORTDESC,
                         default=OrchestratorConstants().COTPORT)

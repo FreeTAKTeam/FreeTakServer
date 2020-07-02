@@ -8,6 +8,7 @@
 # 
 #######################################################
 import socket
+import time
 from logging.handlers import RotatingFileHandler
 import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
@@ -23,42 +24,29 @@ class ReceiveConnections:
         pass
 
 
-    def listen(self, sock, pipe):
+    def listen(self, sock):
         #logger = CreateLoggerController("ReceiveConnections").getLogger()
         #listen for client connections
         sock.listen(0)
-        while True:
-            try:
-                #establish the socket variables
-                client, address = sock.accept()
-                #wait to receive client
-                data = client.recv(1024)
-                logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
-                #establish the socket array containing important information about the client
-                m_RawConnectionInformation = RawConnectionInformation()
-                m_RawConnectionInformation.ip = address
-                m_RawConnectionInformation.socket = client
-                m_RawConnectionInformation.xmlString = data.decode('utf-8')
-                try:
-                    if socket != None:
-                        self.retrieveNecessaryInformation(m_RawConnectionInformation, pipe)
-                    else:
-                        pass
-                except Exception as e:
-                    logger.error('the socket is empty!')
-                
-            except Exception as e:
-                logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
-                break
-        self.listen(sock, pipe)
-
-    def retrieveNecessaryInformation(self, socket, pipe):
-        #this adds the important client data to the data pipe allowing it to be received by the orchestrator
-        print(str(pipe))
-        print(str(socket))
         try:
-            print(pipe.send(socket))
-            pipe.send(socket)
+            #establish the socket variables
+            client, address = sock.accept()
+            #wait to receive client
+            data = client.recv(1024)
+            logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
+            #establish the socket array containing important information about the client
+            m_RawConnectionInformation = RawConnectionInformation()
+            m_RawConnectionInformation.ip = address
+            m_RawConnectionInformation.socket = client
+            m_RawConnectionInformation.xmlString = data.decode('utf-8')
+            try:
+                if socket != None:
+                    return m_RawConnectionInformation
+                else:
+                    pass
+            except Exception as e:
+                logger.error('')
+
         except Exception as e:
-            logger.error('pipe error')
-            pipe.close()
+            logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
+            return -1
