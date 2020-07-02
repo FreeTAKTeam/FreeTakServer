@@ -179,13 +179,24 @@ class Orchestrator:
         # print(self.clientInformationQueue[0])
         # print(clientInformation)
         try:
-            try:
-                clientInformation.clientInformation.socket.shutdown(socket.SHUT_RDWR)
-                clientInformation.clientInformation.socket.close()
-            except Exception as e:
-                self.logger.error('error closing socket in client disconnection')
-                return -1
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
+            try:
+                try:
+                    clientInformation.clientInformation.socket.shutdown(socket.SHUT_RDWR)
+                except OSError as e:
+                    pass
+                except Exception as e:
+                    self.logger.error('error in socket shutdown ' + str(e))
+                    return -1
+                try:
+                    clientInformation.clientInformation.socket.close()
+                except Exception as e:
+                    self.logger.error('error in socket close ' + str(e))
+                    return -1
+            except Exception as e:
+                self.logger.error('error closing socket in client disconnection ' + str(e))
+                return -1
+
             for client in self.clientInformationQueue:
                 if client.ID == clientInformation.clientInformation.ID:
                     self.clientInformationQueue.remove(client)
@@ -199,7 +210,7 @@ class Orchestrator:
                 cursor.close()
                 self.db.commit()
             except Exception as e:
-                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
+                self.logger.error('there has been an error in a clients disconnection while adding information to the database '+str(e))
                 return -1
             self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.clientInformation.modelObject.m_detail.m_Contact.callsign))
             return 1
@@ -275,6 +286,7 @@ class Orchestrator:
                             self.logger.info(
                                 'exception in client data, data processing within main run function ' + str(
                                     e) + ' data is ' + str(CoTOutput))
+
                     self.sendInternalCoT()
                 except multiprocessing.TimeoutError:
                     pass
