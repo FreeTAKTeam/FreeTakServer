@@ -19,13 +19,11 @@ from flask import Flask, request, send_file
 from flask.logging import default_handler
 from werkzeug.datastructures import FileStorage
 
-
-
 sql = SQLcommands()
 const = DataPackageServerConstants()
-log =LoggingConstants()
+log = LoggingConstants()
 
-app = Flask(__name__) #create the Flask app
+app = Flask(__name__)  # create the Flask app
 
 file_dir = os.path.dirname(os.path.realpath(__file__))
 dp_directory = PurePath(file_dir, const.DATAPACKAGEFOLDER)
@@ -50,16 +48,16 @@ console_handler.setLevel(logging.DEBUG)
 app.logger.addHandler(console_handler)
 app.logger.setLevel(logging.DEBUG)
 
+
 @app.route("/Marti/vcm", methods=[const.GET])
 def get_all_video_links():
     # This is called when the user selects the Download button in the Videos window. It
     # expects an XML listing of all known feeds, so the user can pick and choose which ones
     # to store locally
     try:
-        db.commit()
-        cursor = self.db.cursor()
+        db = sqlite3.connect(const.DATABASE)
+        cursor = db.cursor()
         cursor.execute(sql.GETALLVIDEOS)
-
         feeds = cursor.fetchall()
         app.logger.info(f"Found {len(feeds)} video feeds in {const.DATABASE}")
         if len(feeds) == 0:
@@ -68,6 +66,8 @@ def get_all_video_links():
         for feed in feeds:
             # 'feed' is a tuple with one element, so we only append that
             all_feeds += feed[0].decode("utf-8")
+        cursor.close()
+        db.close()
         return f"<videoConnections>{all_feeds}</videoConnections>"
     except:
         app.logger.error(traceback.format_exc())
@@ -76,7 +76,7 @@ def get_all_video_links():
 
 @app.route("/Marti/vcm", methods=[const.POST])
 def insert_video_link():
-    db.commit()
+    db =  sqlite3.connect(const.DATABASE)
     cursor = db.cursor()
     try:
         xml_root = ET.fromstring(request.data.decode("utf-8"))
@@ -104,13 +104,15 @@ def insert_video_link():
                 (ET.tostring(xml_feed), protocol, alias, uid, address, port, rover_port,
                  ignore_klv, preferred_mac, path, buf, timeout, rtsp_reliable)
             )
+
         return "Okay", 200
     except:
         app.logger.error(traceback.format_exc())
         return "Error", 500
     finally:
+        cursor.close()
         db.commit()
-
+        db.close()
 
 
 @app.route('/Marti/api/version/config', methods=[const.GET])
@@ -125,13 +127,13 @@ def clientEndPoint():
 
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
-    db.commit()
+    db = sqlite3.connect(const.DATABASE)
     cursor = db.cursor()
     file_hash = request.args.get('hash')
     app.logger.info(f"Data Package hash = {str(file_hash)}")
     letters = string.ascii_letters
     uid = ''.join(random.choice(letters) for i in range(4))
-    uid = 'uid-'+str(uid)
+    uid = 'uid-' + str(uid)
     filename = request.args.get('filename')
     creatorUid = request.args.get('creatorUid')
     file = request.files.getlist('assetfile')[0]
@@ -140,27 +142,30 @@ def upload():
         os.mkdir(directory)
     file.save(os.path.join(directory, filename))
     fileSize = Path(directory, filename).stat().st_size
-    callsign = str(FlaskFunctions().getSubmissionUser(creatorUid)) # fetchone() gives a tuple, so only grab the first element
+    callsign = str(
+        FlaskFunctions().getSubmissionUser(creatorUid))  # fetchone() gives a tuple, so only grab the first element
     cursor.execute(sql.INSERTDPINFO, (uid, filename, file_hash, callsign, creatorUid, fileSize))
+    cursor.close()
     db.commit()
-
-    return IP+':'+str(HTTPPORT)+"/Marti/api/sync/metadata/"+file_hash+"/tool"
+    db.close()
+    return IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
     if request.data == b'private':
-        db.commit()
+        db = sqlite3.connect(const.DATABASE)
         cursor = db.cursor()
         cursor.execute("UPDATE DataPackages SET Privacy = 1 WHERE Hash = ?;", (hash,))
+        cursor.close()
         db.commit()
-
+        db.close()
     return "Okay", 200
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.GET])
 def getDataPackageTool(hash):
-    file_list = os.listdir(str(dp_directory)+'/'+str(hash))
+    file_list = os.listdir(str(dp_directory) + '/' + str(hash))
     path = PurePath(dp_directory, str(hash), file_list[0])
     app.logger.info(f"Sending data package from {str(path)}")
     return send_file(str(path))
@@ -177,9 +182,9 @@ def retrieveData():
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
     hash = request.args.get('hash')
-    app.logger.debug(os.listdir(str(dp_directory)+'/'+str(hash)))
-    file_list = os.listdir(str(dp_directory)+'/'+str(hash))
-    app.logger.debug(const.DATAPACKAGEFOLDER+'\\'+hash+'\\'+file_list[0])
+    app.logger.debug(os.listdir(str(dp_directory) + '/' + str(hash)))
+    file_list = os.listdir(str(dp_directory) + '/' + str(hash))
+    app.logger.debug(const.DATAPACKAGEFOLDER + '\\' + hash + '\\' + file_list[0])
     path = PurePath(dp_directory, str(hash), file_list[0])
     app.logger.debug(str(path))
     return send_file(str(path))
@@ -195,10 +200,11 @@ def checkPresent():
     hash = request.args.get('hash')
     if FlaskFunctions().hashIsPresent(hash):
         app.logger.info(f"Data package with hash {hash} exists")
-        return IP+':'+str(HTTPPORT)+"/Marti/api/sync/metadata/"+hash+"/tool"
+        return IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + hash + "/tool"
     else:
         app.logger.info(f"Data package with hash {hash} does not exist")
         return '404', 404
+
 
 class FlaskFunctions:
 
@@ -206,27 +212,30 @@ class FlaskFunctions:
         self.callsigns = []
 
     def hashIsPresent(self, hash):
-        db.commit()
+        db = sqlite3.connect(const.DATABASE)
         cursor = db.cursor()
         cursor.execute(sql.ROWBYHASH, (hash,))
         data = cursor.fetchall()
-
+        cursor.close()
+        db.close()
         return len(data) > 0
 
     def getSubmissionUser(self, UID):
-        db.commit()
+        db = sqlite3.connect(const.DATABASE)
         cursor = db.cursor()
         cursor.execute(sql.RETRIEVECALLSIGNFROMUID, (UID,))
         callsign = cursor.fetchone()
-
+        cursor.close()
+        db.close()
         return callsign
-            
+
     def getAllPackages(self):
-        db.commit()
+        db = sqlite3.connect(const.DATABASE)
         cursor = db.cursor()
         cursor.execute(sql.SELECTALLDP)
         data = cursor.fetchall()
-
+        cursor.close()
+        db.close()
         package_dict = {
             "resultCount": len(data),
             "results": []
@@ -245,30 +254,30 @@ class FlaskFunctions:
                 "Size": i[9]
             })
         return package_dict
-    #starting now
+
     def startup(self, ip, port, pipe):
         global IP, HTTPPORT, PIPE
-        self.db = sqlite3.connect(DataPackageServerConstants().DATABASE)
         PIPE = pipe
         IP = ip
         HTTPPORT = port
-            # Make sure the data package directory exists
+        # Make sure the data package directory exists
         if not Path(dp_directory).exists():
             app.logger.info(f"Creating directory at {str(dp_directory)}")
             os.makedirs(str(dp_directory))
 
         # Create the relevant database tables
-        global db
-        db = self.db
-        db.commit()
-        cursor = self.db.cursor()
+        db = sqlite3.connect(const.DATABASE)
+        cursor = db.cursor()
         cursor.execute(sql.CREATEDPTABLE)
         cursor.execute(sql.CREATEVIDEOTABLE)
         cursor.execute(sql.CREATEUSERTABLE)
-        self.db.commit()
+        cursor.close()
+        db.commit()
+        db.close()
 
         app.run(host=const.IP, port=HTTPPORT, debug=const.HTTPDEBUG)
 
+
 if __name__ == "__main__":
     pass
-    
+
