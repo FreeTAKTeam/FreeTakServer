@@ -56,18 +56,19 @@ def get_all_video_links():
     # expects an XML listing of all known feeds, so the user can pick and choose which ones
     # to store locally
     try:
-        with sqlite3.connect(const.DATABASE) as db:
-            cursor = db.cursor()
-            cursor.execute(sql.GETALLVIDEOS)
-            feeds = cursor.fetchall()
-            app.logger.info(f"Found {len(feeds)} video feeds in {const.DATABASE}")
-            if len(feeds) == 0:
-                return ("No video feeds found", 500)
-            all_feeds = ""
-            for feed in feeds:
-                # 'feed' is a tuple with one element, so we only append that
-                all_feeds += feed[0].decode("utf-8")
-            return f"<videoConnections>{all_feeds}</videoConnections>"
+        db.commit()
+        cursor = self.db.cursor()
+        cursor.execute(sql.GETALLVIDEOS)
+
+        feeds = cursor.fetchall()
+        app.logger.info(f"Found {len(feeds)} video feeds in {const.DATABASE}")
+        if len(feeds) == 0:
+            return ("No video feeds found", 500)
+        all_feeds = ""
+        for feed in feeds:
+            # 'feed' is a tuple with one element, so we only append that
+            all_feeds += feed[0].decode("utf-8")
+        return f"<videoConnections>{all_feeds}</videoConnections>"
     except:
         app.logger.error(traceback.format_exc())
         return "Error", 500
@@ -75,7 +76,7 @@ def get_all_video_links():
 
 @app.route("/Marti/vcm", methods=[const.POST])
 def insert_video_link():
-    db = sqlite3.connect(const.DATABASE)
+    db.commit()
     cursor = db.cursor()
     try:
         xml_root = ET.fromstring(request.data.decode("utf-8"))
@@ -109,7 +110,7 @@ def insert_video_link():
         return "Error", 500
     finally:
         db.commit()
-        db.close()
+
 
 
 @app.route('/Marti/api/version/config', methods=[const.GET])
@@ -124,36 +125,36 @@ def clientEndPoint():
 
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
-    with sqlite3.connect(const.DATABASE) as db:
-        cursor = db.cursor()
-        file_hash = request.args.get('hash')
-        app.logger.info(f"Data Package hash = {str(file_hash)}")
-        letters = string.ascii_letters
-        uid = ''.join(random.choice(letters) for i in range(4))
-        uid = 'uid-'+str(uid)
-        filename = request.args.get('filename')
-        creatorUid = request.args.get('creatorUid')
-        file = request.files.getlist('assetfile')[0]
-        directory = Path(dp_directory, file_hash)
-        if not Path.exists(directory):
-            os.mkdir(directory)
-        file.save(os.path.join(directory, filename))
-        fileSize = Path(directory, filename).stat().st_size
-        callsign = str(FlaskFunctions().getSubmissionUser(creatorUid)) # fetchone() gives a tuple, so only grab the first element
-        cursor.execute(sql.INSERTDPINFO, (uid, filename, file_hash, callsign, creatorUid, fileSize))
-        cursor.close()
-        db.commit()
+    db.commit()
+    cursor = db.cursor()
+    file_hash = request.args.get('hash')
+    app.logger.info(f"Data Package hash = {str(file_hash)}")
+    letters = string.ascii_letters
+    uid = ''.join(random.choice(letters) for i in range(4))
+    uid = 'uid-'+str(uid)
+    filename = request.args.get('filename')
+    creatorUid = request.args.get('creatorUid')
+    file = request.files.getlist('assetfile')[0]
+    directory = Path(dp_directory, file_hash)
+    if not Path.exists(directory):
+        os.mkdir(directory)
+    file.save(os.path.join(directory, filename))
+    fileSize = Path(directory, filename).stat().st_size
+    callsign = str(FlaskFunctions().getSubmissionUser(creatorUid)) # fetchone() gives a tuple, so only grab the first element
+    cursor.execute(sql.INSERTDPINFO, (uid, filename, file_hash, callsign, creatorUid, fileSize))
+    db.commit()
+
     return IP+':'+str(HTTPPORT)+"/Marti/api/sync/metadata/"+file_hash+"/tool"
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
     if request.data == b'private':
-        with sqlite3.connect(const.DATABASE) as db:
-            cursor = db.cursor()
-            cursor.execute("UPDATE DataPackages SET Privacy = 1 WHERE Hash = ?;", (hash,))
-            cursor.close()
-            db.commit()
+        db.commit()
+        cursor = db.cursor()
+        cursor.execute("UPDATE DataPackages SET Privacy = 1 WHERE Hash = ?;", (hash,))
+        db.commit()
+
     return "Okay", 200
 
 
@@ -205,48 +206,49 @@ class FlaskFunctions:
         self.callsigns = []
 
     def hashIsPresent(self, hash):
-        with sqlite3.connect(const.DATABASE) as db:
-            cursor = db.cursor()
-            cursor.execute(sql.ROWBYHASH, (hash,))
-            data = cursor.fetchall()
-            cursor.close()
-            return len(data) > 0
+        db.commit()
+        cursor = db.cursor()
+        cursor.execute(sql.ROWBYHASH, (hash,))
+        data = cursor.fetchall()
+
+        return len(data) > 0
 
     def getSubmissionUser(self, UID):
-        with sqlite3.connect(const.DATABASE) as db:
-            cursor = db.cursor()
-            cursor.execute(sql.RETRIEVECALLSIGNFROMUID, (UID,))
-            callsign = cursor.fetchone()
-            cursor.close()
-            return callsign
+        db.commit()
+        cursor = db.cursor()
+        cursor.execute(sql.RETRIEVECALLSIGNFROMUID, (UID,))
+        callsign = cursor.fetchone()
+
+        return callsign
             
     def getAllPackages(self):
-        with sqlite3.connect(const.DATABASE) as db:
-            cursor = db.cursor()
-            cursor.execute(sql.SELECTALLDP)
-            data = cursor.fetchall()
-            cursor.close()
-            package_dict = {
-                "resultCount": len(data),
-                "results": []
-            }
-            for i in data:
-                package_dict["results"].append({
-                    "UID": i[1],
-                    "Name": i[2],
-                    "Hash": i[3],
-                    "PrimaryKey": i[0],
-                    "SubmissionDateTime": i[4],
-                    "SubmissionUser": i[5],
-                    "CreatorUid": i[6],
-                    "Keywords": i[7],
-                    "MIMEType": i[8],
-                    "Size": i[9]
-                })
-            return package_dict
+        db.commit()
+        cursor = db.cursor()
+        cursor.execute(sql.SELECTALLDP)
+        data = cursor.fetchall()
 
+        package_dict = {
+            "resultCount": len(data),
+            "results": []
+        }
+        for i in data:
+            package_dict["results"].append({
+                "UID": i[1],
+                "Name": i[2],
+                "Hash": i[3],
+                "PrimaryKey": i[0],
+                "SubmissionDateTime": i[4],
+                "SubmissionUser": i[5],
+                "CreatorUid": i[6],
+                "Keywords": i[7],
+                "MIMEType": i[8],
+                "Size": i[9]
+            })
+        return package_dict
+    #starting now
     def startup(self, ip, port, pipe):
         global IP, HTTPPORT, PIPE
+        self.db = sqlite3.connect(DataPackageServerConstants().DATABASE)
         PIPE = pipe
         IP = ip
         HTTPPORT = port
@@ -256,14 +258,15 @@ class FlaskFunctions:
             os.makedirs(str(dp_directory))
 
         # Create the relevant database tables
-        with sqlite3.connect(const.DATABASE) as db:
-            cursor = db.cursor()
-            cursor.execute(sql.CREATEDPTABLE)
-            cursor.execute(sql.CREATEVIDEOTABLE)
-            cursor.execute(sql.CREATEUSERTABLE)
-            db.commit()
-            cursor.close()
-            
+        global db
+        db = self.db
+        db.commit()
+        cursor = self.db.cursor()
+        cursor.execute(sql.CREATEDPTABLE)
+        cursor.execute(sql.CREATEVIDEOTABLE)
+        cursor.execute(sql.CREATEUSERTABLE)
+        self.db.commit()
+
         app.run(host=const.IP, port=HTTPPORT, debug=const.HTTPDEBUG)
 
 if __name__ == "__main__":

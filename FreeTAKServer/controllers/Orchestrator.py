@@ -111,11 +111,11 @@ class Orchestrator:
             # send all client data needs to be implemented
             # add the callsign and UID to the DataPackageCallsignPipe
             try:
+                self.db.commit()
                 cursor = self.db.cursor()
                 cursor.execute(sql().ADDUSER, (
                 clientInformation.modelObject.uid, clientInformation.modelObject.m_detail.m_Contact.callsign))
                 self.db.commit()
-                cursor.close()
             except Exception as e:
                 print(e)
                 self.logger.error('there has been an error in a clients connection while adding information to the database')
@@ -193,11 +193,11 @@ class Orchestrator:
                     pass
             try:
                 self.m_ActiveThreadsController.removeClientThread(clientInformation)
+                self.db.commit()
                 cursor = self.db.cursor()
                 cursor.execute(sql().REMOVEUSER, (clientInformation.clientInformation.modelObject.uid,))
                 cursor.close()
                 self.db.commit()
-                self.db.close()
             except Exception as e:
                 self.logger.error('there has been an error in a clients disconnection while adding information to the database')
                 return -1
@@ -220,6 +220,11 @@ class Orchestrator:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
             return -1
 
+    def checkOutput(self, output):
+        if output != -1 and output != None:
+            return True
+        else:
+            return False
 
     def loadAscii(self):
         ascii()
@@ -230,31 +235,53 @@ class Orchestrator:
                 try:
                     receiveConnectionOutput = receiveConnection.get(timeout=0.01)
                     receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-                    CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
-                    if CoTOutput != -1 and CoTOutput != None:
-                        SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
-                                                             self.clientInformationQueue)
-                    else:
-                        pass
+                    try:
+                        CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
+                        if CoTOutput != -1 and CoTOutput != None:
+                            output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
+                                                                 self.clientInformationQueue)
+                            if self.checkOutput(output):
+                                self.logger.debug('connection data from client ' + str(CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
+                            else:
+                                raise Exception('error in sending data')
+                        else:
+                            raise Exception('error in connection data processing')
+                    except Exception as e:
+                        self.logger.error('exception in receive connection data processing within main run function ' + str(e) + ' data is ' + str(CoTOutput))
+                        
                 except multiprocessing.TimeoutError:
                     pass
                 except Exception as e:
-                    self.logger.info('exception ')
+                    self.logger.info('exception in receive connection within main run function '+str(e))
+
                 try:
                     clientDataOutput = clientData.get(timeout=0.01)
                     clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
                     for clientDataOutputSingle in clientDataOutput:
-                        CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
-                        if CoTOutput != -1 and CoTOutput != None:
-                            SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
-                                                                 self.clientInformationQueue)
-                        else:
-                            pass
+                        try:
+                            CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
+                            if CoTOutput == 1:
+                                continue
+                            elif self.checkOutput(CoTOutput):
+                                output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
+                                                                     self.clientInformationQueue)
+                                if self.checkOutput(output):
+                                    pass
+                                else:
+                                    self.logger.error('send data failed in main run function with data '+str(CoTOutput.xmlString) + ' from client '+CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
+                            else:
+                                raise Exception('error in general data processing')
+                        except Exception as e:
+                            self.logger.info(
+                                'exception in client data, data processing within main run function ' + str(
+                                    e) + ' data is ' + str(CoTOutput))
                     self.sendInternalCoT()
                 except multiprocessing.TimeoutError:
                     pass
+                except Exception as e:
+                    self.logger.info('exception in receive client data within main run function ' + str(e))
             except Exception as e:
-                self.logger.info('there has been an error thrown in orchestrator' + str(e))
+                self.logger.info('there has been an uncaught error thrown in mainRunFunction' + str(e))
 
     def start(self, IP, CoTPort, APIPort):
         try:

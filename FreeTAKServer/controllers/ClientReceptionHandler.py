@@ -73,18 +73,11 @@ class ClientReceptionHandler:
                     part = sock.recv(BUFF_SIZE)
                 except socket.timeout as e:
                     continue
-                except OSError as e:
-                    self.returnReceivedData(client, b'', queue)
+                except BrokenPipeError as e:
                     self.clientInformationArray.remove(client)
                     continue
-                    """try:
-                        logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORB + str(e))
-                        self.returnReceivedData(client, b'', queue)
-                        time.sleep(5)
-                    except:
-                        self.returnReceivedData(client, b'', queue)
-                        self.clientInformationArray.remove(client)
-                        break"""
+                except Exception as e:
+                    logger.error("Exception other than broken pipe in monitor for data function")
                 try:
                     if part == b'' or part == None:
                         self.returnReceivedData(client, b'', queue)
@@ -104,6 +97,7 @@ class ClientReceptionHandler:
             except Exception as e:
                 logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
                 self.returnReceivedData(client, b'', queue)
+                return -1
         return 1
 
     def returnReceivedData(self, clientInformation, data, queue):
