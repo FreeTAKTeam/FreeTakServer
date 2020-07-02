@@ -5,7 +5,7 @@ import pathlib
 class DataPackageServerConstants:
     def __init__(self):
         # http server config
-        self.DATABASE = 'C:\\Users\\natha\\PycharmProjects\\FreeTakServer\\FreeTAKServerDataPackageDataBase.db'
+        self.DATABASE = 'CFreeTAKServerDataPackageDataBase.db'
         self.APIPORT = '8080'
         self.DEFAULTRETURN = 'other'
         self.GET = 'GET'
