@@ -15,7 +15,20 @@ It intends to support all the major use cases of the original TAK server.
 ## Community 
 This code is currently in *BETA STAGE*
 Check out our roadmap @ FreeTakServer#25 to see what is planned
-If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is still in the early stages of development.
+If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is still in  development.
+
+### Donate back
+the FTS team is working  daily on the development of a open and free solution. We plan to do more that simply replicate the functionalities of the legacy TAK server, our road map includes integration with open source systems like LORA's Meshtastic, porting it to Android, having an open API and much more.
+
+We are doing it for free because we believe that donating personal time to a cause its a endeavour that is worthy per-se, However, a part time, we are also spending our own money  to:
+- Maintain a Public server and a test server
+- Investing in different technologies for R&D
+
+if you feel that FTS is useful to you and you can donate in those challenging times please consider to send you contribution here:
+[DONATE](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=brothercorvo%40gmail.com&item_name=FreeTAKServer+R%26D&currency_code=CAD&source=url)
+
+NOTE:
+not a big fan of Paypal, but that is the easier way I found for an initial attempt. We may go to some more ethical system in future.
 
 ### Public instance
 we support a public instance of FTS.
