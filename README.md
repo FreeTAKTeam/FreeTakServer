@@ -31,9 +31,8 @@ NOTE:
 not a big fan of Paypal, but that is the easier way I found for an initial attempt. We may go to some more ethical system in future.
 
 ### Public instance
-we support a public instance of FTS.
-- download the configuration here
-https://drive.google.com/open?id=1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli
+we support a [public instance}(https://www.reddit.com/r/ATAK/wiki/index/freetakserver) of FTS.
+- download the configuration {here}(https://drive.google.com/open?id=1IK1LfPN13EWikHaMyOuDDwIerNGz-Wl)
 - use the Import manager in ATAK to import the configuration
 
 ### Tell us what you think!
