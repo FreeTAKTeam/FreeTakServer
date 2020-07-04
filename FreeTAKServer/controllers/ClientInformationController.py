@@ -8,15 +8,15 @@
 # 
 #######################################################
 from lxml import etree
-from model.Event import Event
-from model.ClientInformation import ClientInformation
-from BasicModelInstantiate import BasicModelInstantiate
+from FreeTAKServer.controllers.model.Event import Event
+from FreeTAKServer.controllers.model.ClientInformation import ClientInformation
+from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiate
 import uuid
 from logging.handlers import RotatingFileHandler
 import logging
-from configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import sys
-from CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 
 logger = CreateLoggerController("ClientInformationController").getLogger()
 
@@ -35,9 +35,9 @@ class ClientInformationController(BasicModelInstantiate):
             argument = "initialConnection"
             self.m_clientInformation.dataQueue = queue
             self.modelObject = Event(argument)
-            self.m_clientInformation.socket = rawClientInformation[0]
-            self.m_clientInformation.IP = rawClientInformation[1]
-            self.m_clientInformation.idData = rawClientInformation[2]
+            self.m_clientInformation.socket = rawClientInformation.socket
+            self.m_clientInformation.IP = rawClientInformation.ip
+            self.m_clientInformation.idData = rawClientInformation.xmlString
             self.m_clientInformation.alive = 1
             self.m_clientInformation.ID = uuid.uuid1().int
             super().__init__(self.m_clientInformation.idData, self.modelObject)
@@ -90,5 +90,3 @@ class ClientInformationController(BasicModelInstantiate):
             logger.warning(id_data)
             return "error"
     '''
-#rawClientInformation = ['abc', 'def', b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<event version="2.0" uid="ANDROID-359975090666199" type="a-f-G-U-C" time="2020-05-25T12:23:13.288Z" start="2020-05-25T12:23:13.288Z" stale="2020-05-25T12:29:28.288Z" how="h-e"><point lat="43.855596" lon="-66.10805" hae="20.395709421887993" ce="62.1" le="9999999.0"/><detail><takv os="28" version="3.12.0-45691.45691-CIV" device="SAMSUNG SM-G950W" platform="ATAK-CIV"/><contact endpoint="*:-1:stcp" callsign="SUMMER"/><uid Droid="SUMMER"/><precisionlocation altsrc="GPS" geopointsrc="GPS"/><__group role="Sniper" name="Cyan"/><status battery="4"/><track course="191.76600028243948" speed="0.0"/></detail></event>']
-#ClientInformationController().intstantiateClientInformationModelFromConnection(rawClientInformation)

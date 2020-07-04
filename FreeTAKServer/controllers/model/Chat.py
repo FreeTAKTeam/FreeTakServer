@@ -14,7 +14,7 @@ class chat:
 
       # default constructor       
     def __init__(self):
-        from model.chatgrp import chatgrp
+        from FreeTAKServer.controllers.model.chatgrp import chatgrp
         self.senderCallsign = senderCallsign
         self.id = id
         self.parent = parent

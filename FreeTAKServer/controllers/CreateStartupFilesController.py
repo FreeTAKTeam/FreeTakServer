@@ -1,6 +1,6 @@
 import os
-from configuration.DataPackageServerConstants import DataPackageServerConstants
-from configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from pathlib import PurePath
 class CreateStartupFilesController:
     def __init__(self):
