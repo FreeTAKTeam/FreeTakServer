@@ -250,7 +250,7 @@ class Orchestrator:
                         CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
                         if CoTOutput != -1 and CoTOutput != None:
                             output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
-                                                                 self.clientInformationQueue)
+                                                                 self.clientInformationQueue, self.internalCoTArray)
                             if self.checkOutput(output):
                                 self.logger.debug('connection data from client ' + str(CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
                             else:
@@ -286,8 +286,6 @@ class Orchestrator:
                             self.logger.info(
                                 'exception in client data, data processing within main run function ' + str(
                                     e) + ' data is ' + str(CoTOutput))
-
-                    self.sendInternalCoT()
                 except multiprocessing.TimeoutError:
                     pass
                 except Exception as e:
@@ -315,7 +313,7 @@ class Orchestrator:
                                                                args=(IP, APIPort, DataPackageServerPipe,), daemon=True)
             dataPackageServerProcess.start()
             # establish client handeler
-            pool = multiprocessing.Pool(processes=2)
+            pool = multiprocessing.Pool(processes=3)
             clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object

@@ -11,7 +11,7 @@ class SendDataController:
 
     def __init__(self):
         pass
-    def sendDataInQueue(self, sender, processedCoT, clientInformationQueue):
+    def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, internalCoT = None):
         try:
             try:
                 if processedCoT.modelObject.m_detail.Marti.m_Dest.callsign != '':
@@ -39,9 +39,15 @@ class SendDataController:
                         sock = client.socket
                         sock.send(processedCoT.idData.encode())
                         sender.socket.send(client.idData.encode())
-                    except:
-                        logger.error('error in sending connection data ' + str(processedCoT.idData))
+                    except Exception as e:
+                        logger.error('error in sending connection data ' + str(processedCoT.idData) + 'error is '+str(e))
                         return -1
+                for CoT in internalCoT:
+                    try:
+                        sock = client.socket
+                        sock.send(CoT.xmlString)
+                    except Exception as e:
+                        logger.error('error in sending internal CoT data to newly connected client data is ' + str(CoT.xmlString))
                 return 1
 
 
@@ -53,8 +59,8 @@ class SendDataController:
                         try:
                             sock.send(processedCoT.xmlString)
                         except Exception as e:
-                            logger.error('error in sending of data ' + str(processedCoT.xmlString))
-                            return -1
+                            logger.error('error in sending of data ' + str(processedCoT.xmlString)+ 'error is '+ str(e))
+                            continue
                     else:
                         continue
                 return 1
