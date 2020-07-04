@@ -21,9 +21,9 @@ class SendDataController:
                                 sock = client.socket
                                 try:
                                     sock.send(processedCoT.xmlString)
-                                except:
+                                except Exception as e:
                                     logger.error('error sending data with marti to client data ' + str(processedCoT.xmlString) + 'error is '+str(e))
-                                    return -1
+                                    return (-1, client)
                             else:
                                 continue
                         except Exception as e:
@@ -54,7 +54,7 @@ class SendDataController:
                             sock.send(processedCoT.xmlString)
                         except Exception as e:
                             logger.error('error in sending of data ' + str(processedCoT.xmlString))
-                            return -1
+                            return (-1, client)
                     else:
                         continue
                 return 1

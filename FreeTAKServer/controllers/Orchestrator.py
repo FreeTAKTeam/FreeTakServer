@@ -31,6 +31,7 @@ from FreeTAKServer.controllers.configuration.DataPackageServerConstants import D
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.controllers.HealthCheckController import HealthCheckController
+from FreeTAKServer.controllers.model.RawCoT import RawCoT
 
 ascii = AsciiController().ascii
 import sys
@@ -178,16 +179,20 @@ class Orchestrator:
     def clientDisconnected(self, clientInformation):
         # print(self.clientInformationQueue[0])
         # print(clientInformation)
+        if isinstance(clientInformation, RawCoT):
+            clientInformation = clientInformation.clientInformation
+        else:
+            pass
         try:
             try:
-                clientInformation.clientInformation.socket.shutdown(socket.SHUT_RDWR)
-                clientInformation.clientInformation.socket.close()
+                clientInformation.socket.shutdown(socket.SHUT_RDWR)
+                clientInformation.socket.close()
             except Exception as e:
                 self.logger.error('error closing socket in client disconnection')
                 return -1
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
             for client in self.clientInformationQueue:
-                if client.ID == clientInformation.clientInformation.ID:
+                if client.ID == clientInformation.ID:
                     self.clientInformationQueue.remove(client)
                 else:
                     pass
@@ -195,13 +200,13 @@ class Orchestrator:
                 self.m_ActiveThreadsController.removeClientThread(clientInformation)
                 self.db.commit()
                 cursor = self.db.cursor()
-                cursor.execute(sql().REMOVEUSER, (clientInformation.clientInformation.modelObject.uid,))
+                cursor.execute(sql().REMOVEUSER, (clientInformation.modelObject.uid,))
                 cursor.close()
                 self.db.commit()
             except Exception as e:
                 self.logger.error('there has been an error in a clients disconnection while adding information to the database')
                 return -1
-            self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.clientInformation.modelObject.m_detail.m_Contact.callsign))
+            self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
             return 1
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
@@ -265,10 +270,15 @@ class Orchestrator:
                             elif self.checkOutput(CoTOutput):
                                 output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
                                                                      self.clientInformationQueue)
-                                if self.checkOutput(output):
+                                if self.checkOutput(output) and isinstance(output, tuple) == False:
                                     pass
+                                elif isinstance(output, tuple):
+                                    self.logger.error('issue sending data to client now disconnecting')
+                                    self.clientDisconnected(output[1])
+
                                 else:
                                     self.logger.error('send data failed in main run function with data '+str(CoTOutput.xmlString) + ' from client '+CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
+
                             else:
                                 raise Exception('error in general data processing')
                         except Exception as e:

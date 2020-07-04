@@ -19,6 +19,7 @@ import logging
 import sys
 from FreeTAKServer.controllers.configuration.ClientReceptionHandlerConstants import ClientReceptionHandlerConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from lxml import etree
 
 logger = CreateLoggerController("ClientReceptionHandler").getLogger()
 from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
@@ -82,13 +83,33 @@ class ClientReceptionHandler:
                     if part == b'' or part == None:
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
-                    elif len(part) < BUFF_SIZE:
-                        # either 0 or end of data
-                        data += part
-                        self.returnReceivedData(client, data, queue)
-                        data = b''
                     else:
-                        data += part
+                        try:
+                            timeout = time.time() + 0.1
+                            while time.time() < timeout:
+                                try:
+                                    event = etree.fromstring(part)
+                                    if event.tag == "event":
+                                        self.returnReceivedData(client, part, queue)
+                                        break
+                                    else:
+                                        break
+                                except:
+                                    try:
+                                        sock.settimeout(0.1)
+                                        part += sock.recv(BUFF_SIZE)
+                                    except socket.timeout as e:
+                                        print(e)
+                                        break
+                                    except BrokenPipeError as e:
+                                        self.clientInformationArray.remove(client)
+                                        break
+                                    except Exception as e:
+                                        logger.error("Exception other than broken pipe in monitor for data function")
+                                        break
+                        except Exception as e:
+                            logger.error('error in buffer ' + str(e))
+
                 except Exception as e:
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC + str(e))
                     self.returnReceivedData(client, b'', queue)
