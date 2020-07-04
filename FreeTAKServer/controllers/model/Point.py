@@ -11,49 +11,65 @@
 
 class Point:
 
-    def __init__(self):
-        self.le = "9999999.0"
-        self.ce = "9999999.0"
-        self.hae = "00.00000000"
-        self.lon = "00.00000000"        
-        self.lat = "00.00000000"
+    def __init__(self, xml):
+        self.le = None
+        self.ce = None
+        self.hae = None
+        self.lon = None
+        self.lat = None
+        self.setle(xml.get('le'))
+        self.setce(xml.get('ce'))
+        self.sethae(xml.get('hae'))
+        self.setlon(xml.get('lon'))
+        self.setlat(xml.get('lat'))
+    @classmethod
+    def Generic(cls, xml):
+        cls.le = None
+        cls.ce = None
+        cls.hae = None
+        cls.lon = None
+        cls.lat = None
+        cls.setle(cls, xml.get('le'))
+        cls.setce(cls, xml.get('ce'))
+        cls.sethae(cls, xml.get('hae'))
+        cls.setlon(cls, xml.get('lon'))
+        cls.setlat(cls, xml.get('lat'))
+        return cls
 
-
-    # ce getter 
-    def getce(self): 
-        return self.ce 
+    def getce(cls): 
+        return cls.ce 
 
     # ce setter 
-    def setce(self, ce):
-        self.ce=ce 
+    def setce(cls, ce):
+        cls.ce=ce 
 
     # le getter 
-    def getle(self): 
-        return self.le 
+    def getle(cls): 
+        return cls.le 
 
     # le setter 
-    def setle(self,le):  
-        self.le=le
+    def setle(cls,le):
+        cls.le=le
 
 
     # lat getter 
-    def getlat(self):
-        return self.lat 
+    def getlat(cls):
+        return cls.lat 
 
     # lat setter 
-    def setlat(self, lat):  
-        self.lat=lat
+    def setlat(cls, lat):  
+        cls.lat=lat
 
         # lon getter 
-    def getlon(self):
-        return self.lon 
+    def getlon(cls):
+        return cls.lon 
 
     # lon setter 
-    def setlon(self,lon):
-        self.lon=lon
+    def setlon(cls,lon):
+        cls.lon=lon
   
-    def gethae(self):
-        return self.hae
+    def gethae(cls):
+        return cls.hae
 
-    def sethae(self,hae):
-        self.hae = hae
+    def sethae(cls,hae):
+        cls.hae = hae

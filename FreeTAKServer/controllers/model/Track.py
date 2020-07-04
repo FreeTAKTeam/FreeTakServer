@@ -10,9 +10,10 @@
 
 
 class Track:
-    def __init__(self):  
-        self.course = "0.00000000"
-        self.speed = "0.00000000" 
+    def __init__(self, xml):
+        self.setcourse(xml.get('course'))
+        self.setspeed(xml.get('speed'))
+
      # speed getter 
     def getspeed(self): 
         return self.speed 

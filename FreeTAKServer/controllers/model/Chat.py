@@ -8,17 +8,17 @@
 # 
 #######################################################
 
-class chat:
+class Chat:
 
 
 
       # default constructor       
     def __init__(self):
         from FreeTAKServer.controllers.model.chatgrp import chatgrp
-        self.senderCallsign = senderCallsign
-        self.id = id
-        self.parent = parent
-        self.chatgrp = chatgrp()
+        self.senderCallsign = None
+        self.id = None
+        self.parent = None
+        self.m_chatgrp = chatgrp()
 
 
     def getparent(self): 

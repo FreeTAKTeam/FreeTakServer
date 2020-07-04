@@ -15,7 +15,6 @@ class Event:
     #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
         
         #default constructor
-
     def __init__(self, CoTType):
         from .Detail import Detail
         from .Point import Point
@@ -67,7 +66,128 @@ class Event:
 
         #calls detail and point
         
-        
+    @classmethod
+    def Ping(self, xml):
+        from .Detail import Detail
+        from .Point import Point
+        self.m_detail = Detail.Ping()
+        self.m_Point = Point.Generic(xml.find('point'))
+        self.version = "2.0"
+        self.uid = xml.get('uid')
+        self.type = xml.get('type')
+        self.how = xml.get('how')
+        self.Start = 0
+        case = {
+            'default': self.defaultFunc,
+            'timeout': self.timeoutFunc
+        }
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        start = "%Y-%m-%dT%H:%M:%SZ"
+        time = "%Y-%m-%dT%H:%M:%SZ"
+        stale = "%Y-%m-%dT%H:%M:%SZ"
+
+    @classmethod
+    def Connection(self, xml):
+        from .Detail import Detail
+        from .Point import Point
+        self.m_detail = Detail.Connection(xml.find('detail'))
+        self.m_Point = Point.Generic(xml.find('point'))
+        self.version = "2.0"
+        self.uid = xml.get('uid')
+        self.type = xml.get('type')
+        self.how = xml.get('how')
+        self.Start = 0
+        case = {
+            'default': self.defaultFunc,
+            'timeout': self.timeoutFunc
+        }
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        start = "%Y-%m-%dT%H:%M:%SZ"
+        time = "%Y-%m-%dT%H:%M:%SZ"
+        stale = "%Y-%m-%dT%H:%M:%SZ"
+        return self
+
+    @classmethod
+    def EmergencyOn(cls, xml):
+        from .Detail import Detail
+        from .Point import Point
+        cls.m_detail = Detail.EmergencyOn(xml.find('detail'))
+        cls.m_Point = Point(xml.find('point'))
+        cls.version = "2.0"
+        cls.uid = xml.get('uid')
+        cls.type = xml.get('type')
+        cls.how = xml.get('how')
+        cls.Start = 0
+        case = {
+            'default': cls.defaultFunc,
+            'timeout': cls.timeoutFunc
+        }
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        start = "%Y-%m-%dT%H:%M:%SZ"
+        time = "%Y-%m-%dT%H:%M:%SZ"
+        stale = "%Y-%m-%dT%H:%M:%SZ"
+        return cls
+
+    @classmethod
+    def EmergencyOff(cls, xml):
+        from .Detail import Detail
+        from .Point import Point
+        cls.m_detail = Detail.EmergencyOff(xml.find('detail'))
+        cls.m_Point = Point(xml.find('point'))
+        cls.version = "2.0"
+        cls.uid = xml.get('uid')
+        cls.type = xml.get('type')
+        cls.how = xml.get('how')
+        cls.Start = 0
+        case = {
+            'default': cls.defaultFunc,
+            'timeout': cls.timeoutFunc
+        }
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        start = "%Y-%m-%dT%H:%M:%SZ"
+        time = "%Y-%m-%dT%H:%M:%SZ"
+        stale = "%Y-%m-%dT%H:%M:%SZ"
+        return cls
+
+    @classmethod
+    def GeoChat(self, xml):
+        from .Detail import Detail
+        from .Point import Point
+        self.m_detail = Detail.EmergencyOff(xml.find('detail'))
+        self.m_Point = Point(xml.find('point'))
+        self.version = "2.0"
+        self.uid = xml.get('uid')
+        self.type = xml.get('type')
+        self.how = xml.get('how')
+        self.Start = 0
+        case = {
+            'default': self.defaultFunc,
+            'timeout': self.timeoutFunc
+        }
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        start = "%Y-%m-%dT%H:%M:%SZ"
+        time = "%Y-%m-%dT%H:%M:%SZ"
+        stale = "%Y-%m-%dT%H:%M:%SZ"
+    
+    @classmethod
+    def Other(cls, xml):
+        from .Detail import Detail
+        from .Point import Point
+        cls.m_detail = Detail.Other(xml.find('detail'))
+        cls.m_Point = Point(xml.find('point'))
+        cls.version = "2.0"
+        cls.uid = xml.get('uid')
+        cls.type = xml.get('type')
+        cls.how = xml.get('how')
+        cls.Start = 0
+        case = {
+            'default': cls.defaultFunc,
+            'timeout': cls.timeoutFunc
+        }
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        start = "%Y-%m-%dT%H:%M:%SZ"
+        time = "%Y-%m-%dT%H:%M:%SZ"
+        stale = "%Y-%m-%dT%H:%M:%SZ"
 
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
         self.how = how

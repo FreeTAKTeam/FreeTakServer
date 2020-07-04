@@ -10,15 +10,10 @@
 
 
 class Chatgrp:
-   def __init__(self, uid0 = None, uid1 = None, id = None, chatType = None):  
-       case = {
-            'chatToGroup': self.chatToGroupFunc,
-            'chatToTeam': self.chatToTeamFunc,
-            'chatToAll': self.chatToAllFunc
-            }
-       case[chatType](uid0 = uid0, uid1 = uid1, id = id)
-
-   # uid0 getter
+   def __init__(self, xml):
+       self.uid0 = None
+       self.uid1 = None
+       self.id = None
    
    def chatToTeamFunc(self, uid0, uid1, id):
        self.setuid0(uid0)

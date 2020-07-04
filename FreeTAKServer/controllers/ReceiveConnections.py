@@ -33,12 +33,15 @@ class ReceiveConnections:
             client, address = sock.accept()
             #wait to receive client
             data = client.recv(1024)
-            logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
-            #establish the socket array containing important information about the client
-            m_RawConnectionInformation = RawConnectionInformation()
-            m_RawConnectionInformation.ip = address
-            m_RawConnectionInformation.socket = client
-            m_RawConnectionInformation.xmlString = data.decode('utf-8')
+            if data != b'' and data != None:
+                logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
+                #establish the socket array containing important information about the client
+                m_RawConnectionInformation = RawConnectionInformation()
+                m_RawConnectionInformation.ip = address
+                m_RawConnectionInformation.socket = client
+                m_RawConnectionInformation.xmlString = data.decode('utf-8')
+            else:
+                raise Exception('client has attempted imporper connection')
             try:
                 if socket != None:
                     return m_RawConnectionInformation

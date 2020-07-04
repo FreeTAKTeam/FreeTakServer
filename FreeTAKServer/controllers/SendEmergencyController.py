@@ -2,13 +2,18 @@ from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiat
 from FreeTAKServer.controllers.model.Event import Event
 from lxml import etree
 from FreeTAKServer.controllers.model.SendEmergency import SendEmergency
+from FreeTAKServer.controllers.model.Event import Event
+
 class SendEmergencyController(BasicModelInstantiate):
     def __init__(self, RawCoT):
         self.m_SendEmergency = SendEmergency()
         self.m_SendEmergency.status =  RawCoT.status
         self.m_SendEmergency.placeInInternalArray = True
         self.m_SendEmergency.clientInformation = RawCoT.clientInformation
-        self.m_SendEmergency.modelObject = self.instantiateDomainModel(RawCoT)
+        if RawCoT.status == 'on':
+            self.m_SendEmergency.modelObject = Event.EmergencyOn(etree.fromstring(RawCoT.xmlString))
+        else:
+            self.m_SendEmergency.modelObject = Event.EmergencyOff(etree.fromstring(RawCoT.xmlString))
         self.m_SendEmergency.xmlString = RawCoT.xmlString
 
             #instantiate model

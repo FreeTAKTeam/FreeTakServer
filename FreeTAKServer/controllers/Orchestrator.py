@@ -165,17 +165,6 @@ class Orchestrator:
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
             return -1
 
-    def sendInternalCoT(self):
-        try:
-            if len(self.internalCoTArray)>0:
-                for processedCoT in self.internalCoTArray:
-                    SendDataController().sendDataInQueue(processedCoT.clientInformation, processedCoT, self.clientInformationQueue)
-            else:
-                pass
-            return 1
-        except Exception as e:
-            self.logger.error(loggingConstants.MONITORRAWCOTERRORINTERNALSCANERROR + str(e))
-            return -1
     def clientDisconnected(self, clientInformation):
         # print(self.clientInformationQueue[0])
         # print(clientInformation)
@@ -244,7 +233,7 @@ class Orchestrator:
                         CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
                         if CoTOutput != -1 and CoTOutput != None:
                             output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
-                                                                 self.clientInformationQueue)
+                                                                 self.clientInformationQueue, self.internalCoTArray)
                             if self.checkOutput(output):
                                 self.logger.debug('connection data from client ' + str(CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
                             else:
@@ -253,6 +242,7 @@ class Orchestrator:
                             raise Exception('error in connection data processing')
                     except Exception as e:
                         self.logger.error('exception in receive connection data processing within main run function ' + str(e) + ' data is ' + str(CoTOutput))
+                        self.clientDisconnected(output[1])
                         
                 except multiprocessing.TimeoutError:
                     pass
@@ -285,7 +275,6 @@ class Orchestrator:
                             self.logger.info(
                                 'exception in client data, data processing within main run function ' + str(
                                     e) + ' data is ' + str(CoTOutput))
-                    self.sendInternalCoT()
                 except multiprocessing.TimeoutError:
                     pass
                 except Exception as e:

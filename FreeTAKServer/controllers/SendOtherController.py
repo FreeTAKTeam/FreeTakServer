@@ -8,24 +8,10 @@ class SendOtherController:
         
         self.m_SendOther = SendOther()
         self.m_SendOther.clientInformation = RawCoT.clientInformation
-        self.m_SendOther.modelObject = Event('other')
-        self.instantiateDomainModel(RawCoT)
         self.m_SendOther.xmlString = RawCoT.xmlString
-
-    def instantiateDomainModel(self, CoT):
-        self.m_SendOther.xmlString = CoT.xmlString
-        self.m_SendOther.clientInformation = CoT.clientInformation
-        xml = etree.fromstring(CoT.xmlString)
-
-        detail = xml.find('detail')
-        marti = detail.find('marti')
-        #check for marti and dest
-        if marti == None:
-            pass
-        else:
-            dest = marti.find('dest')
-            self.m_SendOther.modelObject.m_detail.Marti.m_Dest.callsign = dest.attrib['callsign']
-            self.martiPresent = True
+        arg = self.m_SendOther.xmlString
+        arg = etree.fromstring(arg)
+        self.m_SendOther.modelObject = Event.Other(arg)
     
     def getObject(self):
         return self.m_SendOther

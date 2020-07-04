@@ -10,9 +10,8 @@
 
 
 class DimensionTypes:
-# default constructor    def __init__(self):  
-
-    space = "p" 
+    def __init__(self):
+        self.space = "p"
     # space getter 
     def getspace(self): 
         return self.space 

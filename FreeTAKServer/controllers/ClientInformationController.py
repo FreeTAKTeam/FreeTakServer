@@ -17,6 +17,7 @@ import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import sys
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.model.Event import Event
 
 logger = CreateLoggerController("ClientInformationController").getLogger()
 
@@ -34,17 +35,16 @@ class ClientInformationController(BasicModelInstantiate):
             self.m_clientInformation = ClientInformation()
             argument = "initialConnection"
             self.m_clientInformation.dataQueue = queue
-            self.modelObject = Event(argument)
             self.m_clientInformation.socket = rawClientInformation.socket
             self.m_clientInformation.IP = rawClientInformation.ip
             self.m_clientInformation.idData = rawClientInformation.xmlString
             self.m_clientInformation.alive = 1
             self.m_clientInformation.ID = uuid.uuid1().int
-            super().__init__(self.m_clientInformation.idData, self.modelObject)
-            self.m_clientInformation.modelObject = self.modelObject
+            self.m_clientInformation.modelObject = Event.Connection(etree.fromstring(self.m_clientInformation.idData.encode()))
             return self.m_clientInformation
         except Exception as e:
             logger.error('error in client information controller '+str(e))
+            return -1
         
         
         

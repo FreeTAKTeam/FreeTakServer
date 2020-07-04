@@ -3,4 +3,4 @@ class SendPing:
         self.clientInformation = ''
         self.xmlString = ''
         self.type = "ping"
-        self.modelObject = ''
+        self.Event = ''

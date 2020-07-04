@@ -13,9 +13,40 @@ class Emergency:
     """An Emergency beacon the is continually send to all the connected clients until
     deactivated from the original creator
     """
-    def __init__(self):  
+    def __init__(self, xml):
 
-        self.type = ""    
-        self.Alert = ""    
+        self.type = None
+        self.Alert = None
     # if true the Emergency beacon is canceled
-        self.cancel = ""    
+        self.cancel = None
+        self.settype(xml.get('type'))
+        self.setAlert(xml.get('Alert'))
+        self.setcancel(xml.get('cancel'))
+
+    def gettype(self):
+        return self.iconsetpath
+
+        # iconsetpath setter
+
+    def settype(self, iconsetpath=0):
+        self.iconsetpath = iconsetpath
+
+        # callsign getter
+
+    def getAlert(self):
+        return self.callsign
+
+        # callsign setter
+
+    def setAlert(self, callsign=0):
+        self.callsign = callsign
+
+        # endpoint getter
+
+    def getcancel(self):
+        return self.endpoint
+
+        # endpoint setter
+
+    def setcancel(self, endpoint=0):
+        self.endpoint = endpoint

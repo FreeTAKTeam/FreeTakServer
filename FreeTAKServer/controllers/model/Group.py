@@ -1,7 +1,9 @@
 class Group:
-    def __init__(self):
+    def __init__(self, xml):
         self.name = ''
         self.role = ''
+        self.setname(xml.get('name'))
+        self.setrole(xml.get('role'))
 
     def getrole(self):
         return self.role

@@ -10,13 +10,9 @@
 
 
 class EntityTypes:
-# default constructor       def __init__(self):  
-
-   military = "" 
-   
-
-      
-   civilian = "" 
+   def __init__(self):
+      self.military = ""
+      self.civilian = ""
    # civilian getter 
    def getcivilian(self): 
       return self.civilian 
