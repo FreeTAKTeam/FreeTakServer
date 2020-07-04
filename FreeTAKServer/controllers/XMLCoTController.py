@@ -11,10 +11,9 @@
 from lxml import etree
 from logging.handlers import RotatingFileHandler
 import logging
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from configuration.LoggingConstants import LoggingConstants
 import sys
-from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from CreateLoggerController import CreateLoggerController
 logger = CreateLoggerController("XMLCoTController").getLogger()
 loggingConstants = LoggingConstants()
 
@@ -24,10 +23,13 @@ class XMLCoTController:
 
     def determineCoTGeneral(self, data):
         # this will establish the CoTs general type
-        if data.type == 'RawConnectionInformation':
+        if type(data) == type([]):
             #this handels the event of a connection CoT
+            serializedData = []
             try:
-                return ("clientConnected", data)
+                for value in data:
+                    serializedData.append(value)
+                return ("clientConnected", serializedData)
 
             except Exception as e:
                 logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
@@ -38,6 +40,7 @@ class XMLCoTController:
         else:
             #this is the default in the event of an generic CoT or a CoT without a specific associated use case in the orchestrator
             try:
+
                 return ("dataReceived", data)
 
             except Exception as e:
@@ -47,18 +50,12 @@ class XMLCoTController:
         # this function is to establish which specific controller applys to the CoT if any
         try:
             xml = RawCoT.xmlString
-            if type(xml) != type(b''):
-                xml = xml.encode()
-            else:
-                pass
             event = etree.fromstring(xml)
             detail = event.find('detail')
             CoTTypes = {
                             "*": "SendOtherController",
                             "emergency": "SendEmergencyController",
-                            "invalid": "SendInvalidCoTController",
-                            "health": "SendHealthCheckController",
-                            "ping": "SendPingController",
+                            "invalid": "SendInvalidCoTController"
                             }
             # TODO: the below if statement is probably unnecessary but this needs to be verified
             if RawCoT == b'' or RawCoT == None:
@@ -73,20 +70,12 @@ class XMLCoTController:
                 except:
                     RawCoT.status = 'on'
 
-            elif detail.find('healthCheck') != None:
-                RawCoT.CoTType = CoTTypes['health']
-                return RawCoT
-
-            elif str(event.attrib['type']) == "t-x-c-t":
-                RawCoT.CoTType = CoTTypes['ping']
-                return RawCoT
-
             # TODO: this needs to be expanded for more use cases
             else:
                 RawCoT.CoTType = CoTTypes['*']
-
+            
             return RawCoT
-        except Exception as e:
+        except:
             RawCoT.CoTType = "SendInvalidCoTController"
             return RawCoT
     def findCallsign(self):

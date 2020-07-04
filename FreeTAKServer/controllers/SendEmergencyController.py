@@ -1,7 +1,7 @@
-from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiate
-from FreeTAKServer.controllers.model.Event import Event
+from BasicModelInstantiate import BasicModelInstantiate
+from model.Event import Event
 from lxml import etree
-from FreeTAKServer.controllers.model.SendEmergency import SendEmergency
+from model.SendEmergency import SendEmergency
 class SendEmergencyController(BasicModelInstantiate):
     def __init__(self, RawCoT):
         self.m_SendEmergency = SendEmergency()

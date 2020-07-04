@@ -10,8 +10,8 @@
 
 
 class RawConnectionInformation:
-    def __init__(self):
-        self.type = 'RawConnectionInformation'
-        self.xmlString = ""
-        self.ip = ""
-        self.socket = ""
+# default constructor  def __init__(self):  
+
+    __connectionData = "" 
+    __ip = "" 
+    __socket = "" 

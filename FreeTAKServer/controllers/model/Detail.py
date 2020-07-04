@@ -15,8 +15,17 @@ class Detail:
     def __init__(self, CoTType):
         function = getattr(self, CoTType)
         function()
-
-    def ping(self):
+        '''
+        CoTTypes = {
+                        'initialConnection': self.initialConnection()
+                    }
+        for x in CoTTypes.keys():
+            if CoTType == x:
+                CoTTypes[x]
+            else:
+                pass
+        '''
+    def ping(self,info):
         pass
     
     def initialConnection(self):

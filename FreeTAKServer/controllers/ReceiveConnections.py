@@ -8,45 +8,38 @@
 # 
 #######################################################
 import socket
-import time
 from logging.handlers import RotatingFileHandler
 import logging
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from configuration.LoggingConstants import LoggingConstants
 import sys
-from FreeTAKServer.controllers.model.RawConnectionInformation import RawConnectionInformation
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("ReceiveConnections").getLogger()
-#TODO: move health check values to constants and create controller for HealthCheck data
+
 
 class ReceiveConnections:
     def __init__(self):
         pass
 
-
-    def listen(self, sock):
+    def listen(self, sock, pipe):
         #logger = CreateLoggerController("ReceiveConnections").getLogger()
         #listen for client connections
-        sock.listen(0)
-        try:
-            #establish the socket variables
-            client, address = sock.accept()
-            #wait to receive client
-            data = client.recv(1024)
-            logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
-            #establish the socket array containing important information about the client
-            m_RawConnectionInformation = RawConnectionInformation()
-            m_RawConnectionInformation.ip = address
-            m_RawConnectionInformation.socket = client
-            m_RawConnectionInformation.xmlString = data.decode('utf-8')
+        sock.listen(1000)
+        while True:
             try:
-                if socket != None:
-                    return m_RawConnectionInformation
-                else:
-                    pass
+                #establish the socket variables
+                client, address = sock.accept()
+                #wait to receive client
+                data = client.recv(1024)
+                logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
+                #establish the socket array containing important information about the client
+                socket = [client, address, data.decode('utf-8')]
+                self.retrieveNecessaryInformation(socket, pipe)
+                
             except Exception as e:
-                logger.error('')
-
-        except Exception as e:
-            logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
-            return -1
+                logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
+                break
+        self.listen(sock, pipe)
+    def retrieveNecessaryInformation(self, rawConnectionInformation, pipe):
+        #this adds the important client data to the data pipe allowing it to be received by the orchestrator
+        pipe.send(rawConnectionInformation)

@@ -11,7 +11,7 @@
 
 class RawCoT:
     def __init__(self):  
-        self.type = "RawCoT"
+
         self.CoTType = "" 
         self.clientInformation = ""
         self.xmlString = b""
