@@ -8,12 +8,16 @@ class SendPingController(BasicModelInstantiate):
         self.m_sendPing = SendPing()
         self.m_sendPing.clientInformation = RawCoT.clientInformation
         self.m_sendPing.xmlString = RawCoT.xmlString
-        self.m_sendPing.Event = self.instantiateDomainModel(RawCoT)
+        self.m_sendPing.modelObject = self.instantiateDomainModel(RawCoT)
 
     def instantiateDomainModel(self, RawCoT):
-        xml = etree.fromstring(RawCoT.xmlString)
-        return Event.Ping(xml)
+        self.modelObject = Event("ping")
+        root = RawCoT.xmlString
+        # establish variables
+        self.event = etree.XML(root)
 
+        # instantiate model
+        self.eventAtrib()
 
     def getObject(self):
         return self.m_sendPing

@@ -1,8 +1,7 @@
 
 class Dest:
-    def __init__(self, xml):
-        self.callsign = None
-        self.setcallsign(xml.get('callsign'))
+    def __init__(self):
+        self.callsign = ''
 
     def getcallsign(self):
         return self.callsign

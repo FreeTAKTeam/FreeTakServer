@@ -10,15 +10,12 @@
 
 
 class Contact:
-    def __init__(self, xml):
+    def __init__(self):  
         self.callsign = None 
         self.endpoint = None
-        self.iconsetpath = None
-        self.setcallsign(xml.get('callsign'))
-        self.setendpoint(xml.get('endpoint'))
-        self.seticonsetpath(xml.get('iconsetpath'))
+        self.iconsetpath = None 
 
-    # iconsetpath getter
+    # iconsetpath getter 
     def geticonsetpath(self): 
         return self.iconsetpath 
  

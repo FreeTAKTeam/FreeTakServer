@@ -7,17 +7,7 @@
 # Original author: Corvo
 #
 #######################################################
-from .Takv import Takv
-from .Uid import Uid
-from .Precisionlocation import Precisionlocation
-from .Group import Group
-from .Status import Status
-from .Track import Track
-from .Marti import Marti
-from .Link import Link
-from .Contact import Contact
-from .Emergency import Emergency
-from .Chat import Chat
+
 
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
@@ -26,38 +16,39 @@ class Detail:
         function = getattr(self, CoTType)
         function()
 
-    @classmethod
-    def Ping(self):
+    def ping(self):
         pass
+    
+    def initialConnection(self):
+        from .Takv import Takv
+        from .Contact import Contact
+        from .Uid import Uid
+        from .Precisionlocation import Precisionlocation
+        from .Group import Group
+        from .Status import Status
+        from .Track import Track
+        from .Marti import Marti
+        self.m_Takv = Takv()
+        self.m_Contact = Contact()
+        self.m_Uid = Uid()
+        self.m_precisionlocation = Precisionlocation()
+        self.m_Group = Group()
+        self.m_Status = Status()
+        self.m_Track = Track()
+        self.Marti = Marti()
+    
+    def emergencyOn(self):
+        from .Link import Link
+        from .Contact import Contact
+        from .Emergency import Emergency
+        self.m_Link = Link()
+        self.m_Contact = Contact()
+        self.m_Emergency = Emergency()
 
-    @classmethod
-    def Connection(cls, xml):
-        cls.m_Takv = Takv(xml.find('takv'))
-        cls.m_Contact = Contact(xml.find('contact'))
-        cls.m_Uid = Uid(xml.find('uid'))
-        cls.m_precisionlocation = Precisionlocation(xml.find('precisionlocation'))
-        cls.m_Group = Group(xml.find('__group'))
-        cls.m_Status = Status(xml.find('status'))
-        cls.m_Track = Track(xml.find('track'))
-        return cls
-
-    @classmethod
-    def EmergencyOn(cls, xml):
-        cls.m_Link = Link(xml.find('link'))
-        cls.m_Contact = Contact(xml.find('contact'))
-        cls.m_Emergency = Emergency(xml.find('emergency'))
-        return cls
-
-    @classmethod
-    def EmergencyOff(cls, xml):
-        cls.m_Emergency = Emergency(xml.find('emergency'))
-        return cls
-
-    @classmethod
-    def Other(cls, xml):
-        cls.Marti = Marti(xml.find('marti'))
-        return cls
-
-    @classmethod
-    def GeoChat(cls, xml):
-        cls.m_Chat
+    def emergencyOff(self):
+        from .Emergency import Emergency
+        self.m_Emergency = Emergency()
+    
+    def other(self):
+        from .Marti import Marti
+        self.Marti = Marti()

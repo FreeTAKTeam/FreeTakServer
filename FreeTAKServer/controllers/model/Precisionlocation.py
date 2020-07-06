@@ -17,12 +17,10 @@ class Precisionlocation:
  
 
     # default constructor       
-    def __init__(self, xml):
-        self.altsrc = None
-        self.geopointsrc = None
-        self.setaltsrc(xml.get('altsrc'))
-        self.setgeopointsrc(xml.get('geopointsrc'))
-
+    def __init__(self):  
+        self.altsrc = "change" 
+        self.geopointsrc = "USER"
+        
     # geopointsrc getter 
     def getgeopointsrc(self): 
       return self.geopointsrc 

@@ -124,8 +124,8 @@ class ClientReceptionHandler:
     def returnReceivedData(self, clientInformation, data, queue):
         try:
             from FreeTAKServer.controllers.model.RawCoT import RawCoT
-            print(data)
             RawCoT = RawCoT()
+            # print(data)
             RawCoT.clientInformation = clientInformation
             RawCoT.xmlString = data
             self.dataPipe.append(RawCoT)

@@ -10,8 +10,10 @@
 
 
 class IdentityTypes:
-    def __init__(self, xml):
-        self.pending = "p"
+    # default constructor    def __init__(self,):  
+
+    # pending
+    pending = "p" 
     # pending getter 
     def getpending(self,): 
         return self.pending 

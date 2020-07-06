@@ -12,11 +12,9 @@
 class Mission:
     """Reppresent a TAK Mission
     """
-    def __init__(self):
+# default constructor       def __init__(self):  
 
-        self.name = None
-        self.server = None
-        self.description = None
+    name = "" 
      # name getter 
     def getname(self): 
         return self.name 
