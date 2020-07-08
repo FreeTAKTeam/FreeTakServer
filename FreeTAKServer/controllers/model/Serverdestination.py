@@ -10,15 +10,16 @@
 
 
 class __Serverdestination:
-# default constructor       def __init__(self):  
+    def __init__(self, xml):
 
-    # string composed by IP:port: protocol:machineID. e.g. 192.168.0.103:4242:tcp:
-    # ANDROID-R52JB0CDC4E
-    destinations = "" 
-    # destinations getter 
+        # string composed by IP:port: protocol:machineID. e.g. 192.168.0.103:4242:tcp:
+        # ANDROID-R52JB0CDC4E
+        self.destinations = None
+        self.setdestinations(xml.get('destinations'))
+        # destinations getter
     def getdestinations(self): 
         return self.destinations 
 
     # destinations setter 
-    def setdestinations(self, destinations=0):  
-        self.destinations=destinations
+    def setdestinations(self, destinations=None):
+        self.destinations = destinations

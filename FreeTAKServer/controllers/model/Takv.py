@@ -14,15 +14,20 @@ class Takv:
 
 
   # default constructor       
-  def __init__(self):
+  def __init__(self, xml):
     # the version of TAK running on the device
-    self.version = "3.12.0-45691.45691-CIV" 
+    self.version = None
     # the variant of TAK
-    self.platform = "ATAK-CIV" 
+    self.platform = None
     # type of physical device
-    self.device = "Pirate Device" 
+    self.device = None
     # the operating system running TAK
-    self.os = "Linux" 
+    self.os = None
+
+    self.setversion(xml.get('version'))
+    self.setplatform(xml.get('platform'))
+    self.setdevice(xml.get('device'))
+    self.setos(xml.get('os'))
 
     # os getter 
   def getos(self): 

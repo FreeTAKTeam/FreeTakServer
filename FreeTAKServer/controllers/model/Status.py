@@ -10,9 +10,9 @@
 
 
 class Status:
-    def __init__(self):  
-        self.battery = "100" 
-        
+    def __init__(self, xml):
+        self.battery = None
+        self.setbattery(xml.get('battery'))
     # % of the battery on the phone
     
     # battery getter 

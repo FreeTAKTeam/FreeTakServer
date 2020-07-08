@@ -11,13 +11,20 @@
 
 class Point:
 
-    def __init__(self):
-        self.le = "9999999.0"
-        self.ce = "9999999.0"
-        self.hae = "00.00000000"
-        self.lon = "00.00000000"        
-        self.lat = "00.00000000"
-
+    def __init__(self, xml = None):
+        self.le = None
+        self.ce = None
+        self.hae = None
+        self.lon = None
+        self.lat = None
+        try:
+            self.setle(xml.get('le'))
+            self.setce(xml.get('ce'))
+            self.sethae(xml.get('hae'))
+            self.setlon(xml.get('lon'))
+            self.setlat(xml.get('lat'))
+        except:
+            pass
 
     # ce getter 
     def getce(self): 
@@ -34,7 +41,6 @@ class Point:
     # le setter 
     def setle(self,le):  
         self.le=le
-
 
     # lat getter 
     def getlat(self):

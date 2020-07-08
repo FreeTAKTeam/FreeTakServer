@@ -9,36 +9,40 @@
 #######################################################
 
 
-class remarks:
+class Remarks:
   """Provides a place to annotate CoT with free text information.  e.g. comments
   from other users about the current COT. Used also fro the geoChat.
   the xml body of this class is used to transport the chat message
   """
-  # default constructor       def __init__(self):  
+  def __init__(self, xml):
 
-  time = "%Y-%m-%dT%H:%M:%SZ" 
-  # time getter 
-  def gettime(self): 
-    return self.time 
+    self.time = None
+    self.source = None
+    self.settime(xml.get('time'))
+    self.setsource(xml.get('source'))
 
-  # time setter 
-  def settime(self, time=0):  
-    self.time=time 
+  # time getter
+  def gettime(self):
+    return self.time
 
-  to = "" 
-  # to getter 
-  def getto(self): 
-    return self.to 
+  # time setter
+  def settime(self, time=0):
+    self.time=time
 
-  # to setter 
-  def setto(self, to=0):  
-    self.to=to 
+  to = ""
+  # to getter
+  def getto(self):
+    return self.to
 
-  source = "" 
-  # source getter 
-  def getsource(self): 
-    return self.source 
+  # to setter
+  def setto(self, to=0):
+    self.to=to
 
-  # source setter 
-  def setsource(self, source=0):  
-    self.source=source 
+  source = ""
+  # source getter
+  def getsource(self):
+    return self.source
+
+  # source setter
+  def setsource(self, source=0):
+    self.source=source

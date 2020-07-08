@@ -1,5 +1,7 @@
 import uuid
 import datetime as dt
+from .Detail import Detail
+from .Point import Point
 
 class Event:
     # Event.py
@@ -16,18 +18,17 @@ class Event:
         
         #default constructor
 
-    def __init__(self, CoTType):
-        from .Detail import Detail
-        from .Point import Point
+    def __init__(self):
         
-        self.version = "2.0"
-        self.uid = "change"
-        self.type = "change"
-        self.how = "change"
+        
+        self.version = None
+        self.uid = None
+        self.type = None
+        self.how = None
 
-        self.m_detail = Detail(CoTType = CoTType)
-        self.m_Point = Point()
-        self.Start = 0
+        self.m_detail = None
+        self.m_Point = None
+        self.Start = None
         case = {
 
             'default': self.defaultFunc,
@@ -64,10 +65,71 @@ class Event:
         # flag to determine if this event is a Ping, in this case append to the UID
         
         
+    @staticmethod
+    def Connection(xml):
+        m_event = Event()
+        m_event.setm_detail(Detail.Connection(xml.find('detail')))
+        m_event.setm_Point(Point(xml.find('point')))
+        m_event.setversion("2.0")
+        m_event.setuid(xml.get('uid'))
+        m_event.settype(xml.get('type'))
+        m_event.sethow(xml.get('how'))
+        return m_event
 
-        #calls detail and point
-        
-        
+    @staticmethod
+    def GeoChat(xml):
+        m_event = Event()
+        m_event.setm_detail(Detail.GeoChat(xml.find('detail')))
+        m_event.setm_Point(Point(xml.find('point')))
+        m_event.setversion("2.0")
+        m_event.setuid(xml.get('uid'))
+        m_event.settype(xml.get('type'))
+        m_event.sethow(xml.get('how'))
+        return m_event
+
+    @staticmethod
+    def Ping(xml):
+        m_event = Event()
+        m_event.setm_detail(Detail.Ping(xml.find('detail')))
+        m_event.setm_Point(xml.find('point'))
+        m_event.setversion("2.0")
+        m_event.setuid(xml.get('uid'))
+        m_event.settype(xml.get('type'))
+        m_event.sethow(xml.get('how'))
+        return m_event
+
+    @staticmethod
+    def Other(xml, clientInformation):
+        m_event = Event()
+        m_event.setm_detail(Detail.Other(xml.find('detail')))
+        m_event.setm_Point(xml.find('point'))
+        m_event.setversion("2.0")
+        m_event.setuid(xml.get('uid'))
+        m_event.settype(xml.get('type'))
+        m_event.sethow(xml.get('how'))
+        return m_event
+
+    @staticmethod
+    def emergecyOn(xml):
+        m_event = Event()
+        m_event.setm_detail(Detail.Other(xml.find('detail')))
+        m_event.setm_Point(xml.find('point'))
+        m_event.setversion("2.0")
+        m_event.setuid(xml.get('uid'))
+        m_event.settype(xml.get('type'))
+        m_event.sethow(xml.get('how'))
+        return m_event
+
+    @staticmethod
+    def emergecyOff(xml):
+        m_event = Event()
+        m_event.setm_detail(Detail.Other(xml.find('detail')))
+        m_event.setm_Point(xml.find('point'))
+        m_event.setversion("2.0")
+        m_event.setuid(xml.get('uid'))
+        m_event.settype(xml.get('type'))
+        m_event.sethow(xml.get('how'))
+        return m_event
 
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
         self.how = how
@@ -125,17 +187,8 @@ class Event:
         return self.uid 
     
         # uid setter
-    def setuid(self, isGeochat, isPing):
-        GEOCHATPREFIX = "GeoChat."
-        PINGSUFFIX = "-ping"
-        a = uuid.uuid1()
-        self.uid = str(a)
-        if isGeochat == 1:
-                uid = GEOCHATPREFIX + uid
-                self.settype('h-g-i-g-o')
-        elif isPing == 1:
-                self.uid = self.uid + PINGSUFFIX
-                self.settype('t-x-c-t')
+    def setuid(self, uid):
+        self.uid = uid
 
             # version getter
     def getversion(self): 
@@ -168,3 +221,19 @@ class Event:
         # type setter
     def settype(self, type=0):  
         self.type = type
+
+    def getm_Point(self):
+        return self.m_Point
+
+        # type setter
+
+    def setm_Point(self, m_Point=None):
+        self.m_Point = m_Point
+
+    def getm_detail(self):
+        return self.m_detail
+
+        # type setter
+
+    def setm_detail(self, m_detail=None):
+        self.m_detail = m_detail

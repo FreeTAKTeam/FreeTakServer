@@ -10,52 +10,50 @@
 
 
 class Chatgrp:
-   def __init__(self, uid0 = None, uid1 = None, id = None, chatType = None):  
-       case = {
-            'chatToGroup': self.chatToGroupFunc,
-            'chatToTeam': self.chatToTeamFunc,
-            'chatToAll': self.chatToAllFunc
-            }
-       case[chatType](uid0 = uid0, uid1 = uid1, id = id)
+    def __init__(self, xml):
+        self.uid0 = None
+        self.uid1 = None
+        self.id = None
+        self.setuid0(xml.get('uid0'))
+        self.setuid1(xml.get('uid1'))
+        self.setid(xml.get('id'))
 
-   # uid0 getter
-   
-   def chatToTeamFunc(self, uid0, uid1, id):
-       self.setuid0(uid0)
-       self.setuid1(uid1)
-       self.setid(id)
+    def chatToTeamFunc(self, uid0, uid1, id):
+        self.setuid0(uid0)
+        self.setuid1(uid1)
+        self.setid(id)
 
-   def chatToGroupFunc(self, uid0, uid1, id):
-       self.setuid0(uid0)
-       self.setuid1(uid1)
-       self.setid(id)
-    
-   def chatToAllFunc(self, uid0, uid1, id):
-       self.setuid0(uid0)
-       self.setuid1(uid1)
-       self.setid(id)
-   
-   def getuid0(self):
-      return self.uid0 
+    def chatToGroupFunc(self, uid0, uid1, id):
+        self.setuid0(uid0)
+        self.setuid1(uid1)
+        self.setid(id)
 
-   # uid0 setter 
-   def setuid0(self, uid0=0):  
-      self.uid0=uid0 
+    def chatToAllFunc(self, uid0, uid1, id):
+        self.setuid0(uid0)
+        self.setuid1(uid1)
+        self.setid(id)
 
-   # uid1 getter 
-   def getuid1(self): 
-      return self.uid1 
+    def getuid0(self):
+        return self.uid0
 
-   # uid1 setter 
-   def setuid1(self, uid1=0):  
-      self.uid1=uid1 
+    # uid0 setter
+    def setuid0(self, uid0=0):
+        self.uid0=uid0
 
-   # id getter 
-   def getid(self): 
-      return self.id 
+    # uid1 getter
+    def getuid1(self):
+        return self.uid1
 
-   # id setter 
-   def setid(self, id=0):  
-      self.id=id 
+    # uid1 setter
+    def setuid1(self, uid1=0):
+        self.uid1=uid1
+
+    # id getter
+    def getid(self):
+        return self.id
+
+    # id setter
+    def setid(self, id=0):
+        self.id=id
      
      

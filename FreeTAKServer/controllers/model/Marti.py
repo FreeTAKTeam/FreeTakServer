@@ -1,8 +1,8 @@
 from .Dest import Dest
 
 class Marti:
-    def __init__(self):
-        self.m_Dest = Dest()
+    def __init__(self, xml):
+        self.m_Dest = Dest(xml.find('dest'))
 
     def getDestcallsign(self):
         return self.m_Dest.getcallsign()

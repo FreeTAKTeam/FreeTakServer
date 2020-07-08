@@ -7,48 +7,76 @@
 # Original author: Corvo
 #
 #######################################################
-
+from .Takv import Takv
+from .Contact import Contact
+from .Uid import Uid
+from .Precisionlocation import Precisionlocation
+from ._Group import _Group
+from .Hierarchy import Hierarchy
+from .Status import Status
+from .Track import Track
+from .Marti import Marti
+from .detailObject import detailObject
+from .Link import Link
+from .Contact import Contact
+from .Emergency import Emergency
+from .Chat import Chat
+from .Remarks import Remarks
+from .Serverdestination import __Serverdestination as Serverdestination
 
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
     """
-    def __init__(self, CoTType):
-        function = getattr(self, CoTType)
-        function()
-
-    def ping(self):
+    def __init__(self):
         pass
-    
-    def initialConnection(self):
-        from .Takv import Takv
-        from .Contact import Contact
-        from .Uid import Uid
-        from .Precisionlocation import Precisionlocation
-        from .Group import Group
-        from .Status import Status
-        from .Track import Track
-        from .Marti import Marti
-        self.m_Takv = Takv()
-        self.m_Contact = Contact()
-        self.m_Uid = Uid()
-        self.m_precisionlocation = Precisionlocation()
-        self.m_Group = Group()
-        self.m_Status = Status()
-        self.m_Track = Track()
-        self.Marti = Marti()
-    
-    def emergencyOn(self):
-        from .Link import Link
-        from .Contact import Contact
-        from .Emergency import Emergency
-        self.m_Link = Link()
-        self.m_Contact = Contact()
-        self.m_Emergency = Emergency()
 
-    def emergencyOff(self):
-        from .Emergency import Emergency
-        self.m_Emergency = Emergency()
-    
-    def other(self):
-        from .Marti import Marti
-        self.Marti = Marti()
+    @staticmethod
+    def Connection(xml):
+        m_detail = Detail()
+        m_detail.m_Takv = Takv(xml.find('takv'))
+        m_detail.m_Contact = Contact(xml.find('contact'))
+        m_detail.m_Uid = Uid(xml.find('uid'))
+        try:
+            m_detail.m_Precisionlocation = Precisionlocation(xml.find('precisionlocation'))
+        except Exception:
+            pass
+        m_detail.m___Group = Group(xml.find('__group'))
+        m_detail.m_Status = Status(xml.find('status'))
+        m_detail.m_Track = Track(xml.find('track'))
+        return m_detail
+
+    @staticmethod
+    def GeoChat(xml):
+        m_detail = Detail()
+        m_detail.m_Chat = Chat(xml.find('__chat'))
+        m_detail.m_Link = Link(xml.find('link'))
+        m_detail.m_Remarks = Remarks(xml.find('remarks'))
+        m_detail.m__Serverdestination = Serverdestination(xml.find('__serverdestination'))
+        return m_detail
+
+    @staticmethod
+    def Ping(xml):
+        pass
+
+    @staticmethod
+    def Other(xml):
+        m_detail = Detail()
+        try:
+            m_detail.Marti = Marti(xml.find('marti'))
+        except:
+            pass
+        return m_detail
+
+    @staticmethod
+    def emergencyOn(xml):
+        m_detail = Detail()
+        m_detail.m_Link = Link()
+        m_detail.m_Contact = Contact()
+        m_detail.m_Emergency = Emergency()
+        return m_detail
+
+    @staticmethod
+    def emergencyOff(xml):
+        m_detail = Detail()
+        m_detail.m_Emergency = Emergency()
+        return m_detail

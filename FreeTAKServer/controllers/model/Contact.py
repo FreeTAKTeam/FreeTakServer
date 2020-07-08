@@ -10,17 +10,24 @@
 
 
 class Contact:
-    def __init__(self):  
+    def __init__(self, xml):
         self.callsign = None 
         self.endpoint = None
-        self.iconsetpath = None 
-
+        self.iconsetpath = None
+        self.uid = None
+        self.name = None
+        self.setcallsign(xml.get('callsign'))
+        self.setendpoint(xml.get('endpoint'))
+        self.seticonsetpath(xml.get('iconsetpath'))
+        self.setuid(xml.get('uid'))
+        self.setname(xml.get('name'))
+        
     # iconsetpath getter 
     def geticonsetpath(self): 
         return self.iconsetpath 
  
     # iconsetpath setter 
-    def seticonsetpath(self, iconsetpath=0):  
+    def seticonsetpath(self, iconsetpath=None):
         self.iconsetpath=iconsetpath 
  
     # callsign getter 
@@ -28,7 +35,7 @@ class Contact:
         return self.callsign 
  
     # callsign setter 
-    def setcallsign(self, callsign=0):  
+    def setcallsign(self, callsign=None):
         self.callsign=callsign 
  
      
@@ -37,6 +44,21 @@ class Contact:
         return self.endpoint 
  
     # endpoint setter 
-    def setendpoint(self, endpoint=0):  
-        self.endpoint=endpoint 
-     
+    def setendpoint(self, endpoint=None):
+        self.endpoint=endpoint
+
+    def getuid(self):
+        return self.uid
+
+        # uid setter 
+
+    def setuid(self, uid=None):
+        self.uid = uid 
+        
+    def getname(self):
+        return self.name
+
+        # name setter 
+
+    def setname(self, name=None):
+        self.name = name 

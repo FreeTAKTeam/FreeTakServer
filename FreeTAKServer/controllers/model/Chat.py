@@ -8,17 +8,24 @@
 # 
 #######################################################
 
-class chat:
-
-
-
+class Chat:
       # default constructor       
-    def __init__(self):
-        from FreeTAKServer.controllers.model.chatgrp import chatgrp
-        self.senderCallsign = senderCallsign
-        self.id = id
-        self.parent = parent
-        self.chatgrp = chatgrp()
+    def __init__(self, xml):
+        from FreeTAKServer.controllers.model.Chatgrp import Chatgrp
+        from FreeTAKServer.controllers.model.Hierarchy import Hierarchy
+        self.senderCallsign = None
+        self.id = None
+        self.parent = None
+        self.chatroom = None
+        self.groupOwner = None
+        self.m_Hierarchy = Hierarchy(xml.find('hierarchy'))
+        self.m_Chatgrp = Chatgrp(xml.find('chatgrp'))
+        self.setparent(xml.get('parent'))
+        self.setgroupOwner(xml.get('groupOwner'))
+        self.setchatroom(xml.get('chatroom'))
+        self.setid(xml.get('id'))
+        self.setsenderCallsign(xml.get('senderCallsign'))
+        self.setgroupOwner(xml.get('groupOwner'))
 
 
     def getparent(self): 

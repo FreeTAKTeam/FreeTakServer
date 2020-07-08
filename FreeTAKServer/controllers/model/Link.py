@@ -10,12 +10,17 @@
 
 
 class Link:
-    def __init__(self):
+    def __init__(self, xml):
         self.uid = None
         self.relation = None
         self.production_time = None
         self.type = None
         self.parent_callsign = None
+        self.setuid(xml.get('uid'))
+        self.setrelation(xml.get('relation'))
+        self.setproduction_time(xml.get('production_time'))
+        self.settype(xml.get('type'))
+        self.setparent_callsign(xml.get('parent_callsign'))
 
     # uid getter 
     def getuid(self): 

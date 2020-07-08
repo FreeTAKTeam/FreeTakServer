@@ -186,10 +186,15 @@ class Orchestrator:
         try:
             try:
                 clientInformation.socket.shutdown(socket.SHUT_RDWR)
+            except Exception as e:
+                self.logger.error('error shutting socket down in client disconnection')
+                pass
+            try:
                 clientInformation.socket.close()
             except Exception as e:
                 self.logger.error('error closing socket in client disconnection')
-                return -1
+                pass
+
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
             for client in self.clientInformationQueue:
                 if client.ID == clientInformation.ID:
@@ -205,12 +210,12 @@ class Orchestrator:
                 self.db.commit()
             except Exception as e:
                 self.logger.error('there has been an error in a clients disconnection while adding information to the database')
-                return -1
+                pass
             self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
             return 1
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
-            return -1
+            pass
 
     def monitorRawCoT(self,data):
         # this needs to be the most robust function as it is the keystone of the program
