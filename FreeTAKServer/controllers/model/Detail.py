@@ -40,7 +40,7 @@ class Detail:
             m_detail.m_Precisionlocation = Precisionlocation(xml.find('precisionlocation'))
         except Exception:
             pass
-        m_detail.m___Group = Group(xml.find('__group'))
+        m_detail.m___Group = _Group(xml.find('__group'))
         m_detail.m_Status = Status(xml.find('status'))
         m_detail.m_Track = Track(xml.find('track'))
         return m_detail

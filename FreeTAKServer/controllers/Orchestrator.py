@@ -101,16 +101,10 @@ class Orchestrator:
         try:
             clientPipe = None
             self.logger.info(loggingConstants.CLIENTCONNECTED)
-            # instantiate model
             clientInformation = self.m_ClientInformationController.intstantiateClientInformationModelFromConnection(
                 rawConnectionInformation, clientPipe)
-            # add client information to queue
             self.m_ClientInformationQueueController.addClientToQueue(clientInformation)
             self.clientInformationQueue.append(clientInformation)
-            # begin client reception handler
-            # add to active threads
-            # send all client data needs to be implemented
-            # add the callsign and UID to the DataPackageCallsignPipe
             try:
                 self.db.commit()
                 cursor = self.db.cursor()
@@ -245,20 +239,8 @@ class Orchestrator:
                 try:
                     receiveConnectionOutput = receiveConnection.get(timeout=0.01)
                     receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-                    try:
-                        CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
-                        if CoTOutput != -1 and CoTOutput != None:
-                            output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
-                                                                 self.clientInformationQueue)
-                            if self.checkOutput(output):
-                                self.logger.debug('connection data from client ' + str(CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
-                            else:
-                                raise Exception('error in sending data')
-                        else:
-                            raise Exception('error in connection data processing')
-                    except Exception as e:
-                        self.logger.error('exception in receive connection data processing within main run function ' + str(e) + ' data is ' + str(CoTOutput))
-                        
+                    CoTOutput = self.handel_connection_data(receiveConnectionOutput)
+
                 except multiprocessing.TimeoutError:
                     pass
                 except Exception as e:
@@ -267,36 +249,65 @@ class Orchestrator:
                 try:
                     clientDataOutput = clientData.get(timeout=0.01)
                     clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
-                    for clientDataOutputSingle in clientDataOutput:
-                        try:
-                            CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
-                            if CoTOutput == 1:
-                                continue
-                            elif self.checkOutput(CoTOutput):
-                                output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
-                                                                     self.clientInformationQueue)
-                                if self.checkOutput(output) and isinstance(output, tuple) == False:
-                                    pass
-                                elif isinstance(output, tuple):
-                                    self.logger.error('issue sending data to client now disconnecting')
-                                    self.clientDisconnected(output[1])
-
-                                else:
-                                    self.logger.error('send data failed in main run function with data '+str(CoTOutput.xmlString) + ' from client '+CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
-
-                            else:
-                                raise Exception('error in general data processing')
-                        except Exception as e:
-                            self.logger.info(
-                                'exception in client data, data processing within main run function ' + str(
-                                    e) + ' data is ' + str(CoTOutput))
-                    self.sendInternalCoT()
+                    CoTOutput = self.handel_regular_data(clientDataOutput)
                 except multiprocessing.TimeoutError:
                     pass
                 except Exception as e:
                     self.logger.info('exception in receive client data within main run function ' + str(e))
             except Exception as e:
                 self.logger.info('there has been an uncaught error thrown in mainRunFunction' + str(e))
+
+    def handel_regular_data(self, clientDataOutput):
+        for clientDataOutputSingle in clientDataOutput:
+            try:
+                CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
+                if CoTOutput == 1:
+                    continue
+                elif self.checkOutput(CoTOutput):
+                    output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
+                                                                  self.clientInformationQueue)
+                    if self.checkOutput(output) and isinstance(output, tuple) == False:
+                        pass
+                    elif isinstance(output, tuple):
+                        self.logger.error('issue sending data to client now disconnecting')
+                        self.clientDisconnected(output[1])
+
+                    else:
+                        self.logger.error('send data failed in main run function with data ' + str(
+                            CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
+
+                else:
+                    raise Exception('error in general data processing')
+            except Exception as e:
+                self.logger.info(
+                    'exception in client data, data processing within main run function ' + str(
+                        e) + ' data is ' + str(CoTOutput))
+                return -1
+            except Exception as e:
+                self.logger.info(
+                    'exception in client data, data processing within main run function ' + str(
+                        e) + ' data is ' + str(clientDataOutput))
+        self.sendInternalCoT()
+        return 1
+
+    def handel_connection_data(self, receiveConnectionOutput):
+        try:
+            CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
+            if CoTOutput != -1 and CoTOutput != None:
+                output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
+                                                              self.clientInformationQueue)
+                if self.checkOutput(output):
+                    self.logger.debug('connection data from client ' + str(
+                        CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
+                else:
+                    raise Exception('error in sending data')
+            else:
+                raise Exception('error in connection data processing')
+        except Exception as e:
+            self.logger.error('exception in receive connection data processing within main run function ' + str(
+                e) + ' data is ' + str(CoTOutput))
+            return -1
+        return 1
 
     def start(self, IP, CoTPort, APIPort):
         try:
