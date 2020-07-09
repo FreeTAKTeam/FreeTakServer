@@ -27,6 +27,8 @@ We are doing it for free because we believe that donating personal time to a cau
 if you feel that FTS is useful to you and you can donate in those challenging times please consider to send you contribution here:
 [DONATE](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=brothercorvo%40gmail.com&item_name=FreeTAKServer+R%26D&currency_code=CAD&source=url)
 
+You can also support the project by buying one of our [t-shirts](http://tee.pub/lic/elARpZYCmaw)
+
 NOTE:
 not a big fan of Paypal, but that is the easier way I found for an initial attempt. We may go to some more ethical system in future.
 
