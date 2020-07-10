@@ -18,6 +18,8 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from flask import Flask, request, send_file
 from flask.logging import default_handler
 from werkzeug.datastructures import FileStorage
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 sql = SQLcommands()
 const = DataPackageServerConstants()
@@ -255,28 +257,34 @@ class FlaskFunctions:
             })
         return package_dict
 
-    def startup(self, ip, port, pipe):
-        global IP, HTTPPORT, PIPE
-        PIPE = pipe
-        IP = ip
-        HTTPPORT = port
-        # Make sure the data package directory exists
-        if not Path(dp_directory).exists():
-            app.logger.info(f"Creating directory at {str(dp_directory)}")
-            os.makedirs(str(dp_directory))
+    def startup(self, ip, port):
+        try:
+            global IP, HTTPPORT
+            IP = ip
+            HTTPPORT = port
+            # Make sure the data package directory exists
+            if not Path(dp_directory).exists():
+                app.logger.info(f"Creating directory at {str(dp_directory)}")
+                os.makedirs(str(dp_directory))
+            # Create the relevant database tables
+            db = sqlite3.connect(const.DATABASE)
+            cursor = db.cursor()
+            cursor.execute(sql.CREATEDPTABLE)
+            cursor.execute(sql.CREATEVIDEOTABLE)
+            cursor.execute(sql.CREATEUSERTABLE)
+            cursor.close()
+            db.commit()
+            db.close()
+            app.run(host=const.IP, port=HTTPPORT, debug=const.HTTPDEBUG)
+        except Exception as e:
+            logger.error('there has been an exception in Data Package service startup ' + str(e))
+            return -1
 
-        # Create the relevant database tables
-        db = sqlite3.connect(const.DATABASE)
-        cursor = db.cursor()
-        cursor.execute(sql.CREATEDPTABLE)
-        cursor.execute(sql.CREATEVIDEOTABLE)
-        cursor.execute(sql.CREATEUSERTABLE)
-        cursor.close()
-        db.commit()
-        db.close()
-
-        app.run(host=const.IP, port=HTTPPORT, debug=const.HTTPDEBUG)
-
+    def stop(self):
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
 
 if __name__ == "__main__":
     pass

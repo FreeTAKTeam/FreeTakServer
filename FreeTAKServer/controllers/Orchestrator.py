@@ -9,9 +9,6 @@
 #######################################################
 from importlib import import_module
 import os
-from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
-
-CreateStartupFilesController()
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.ClientInformationController import ClientInformationController
 from FreeTAKServer.controllers.ClientSendHandler import ClientSendHandler
@@ -46,6 +43,8 @@ import importlib
 import argparse
 import sqlite3
 import socket
+import atexit
+from signal import signal, SIGTERM
 
 loggingConstants = LoggingConstants()
 
@@ -65,6 +64,7 @@ class Orchestrator:
         console.setFormatter(log_format)
         console.setLevel(logging.DEBUG)
         self.logger.addHandler(console)
+        self.logger.propagate = False
         # create necessary queues
         self.clientInformationQueue = []
         # this contains a list of all pipes which are transmitting CoT from clients
@@ -85,6 +85,7 @@ class Orchestrator:
         self.m_MainSocketController = MainSocketController()
         self.m_XMLCoTController = XMLCoTController()
         self.m_SendClientData = SendClientData()
+        self.KillSwitch = 0
 
     def newHandler(self, filename, log_level, log_format):
         handler = RotatingFileHandler(
@@ -112,8 +113,7 @@ class Orchestrator:
                 clientInformation.modelObject.uid, clientInformation.modelObject.m_detail.m_Contact.callsign))
                 self.db.commit()
             except Exception as e:
-                print(e)
-                self.logger.error('there has been an error in a clients connection while adding information to the database')
+                self.logger.error('there has been an error in a clients connection while adding information to the database ' + str(e))
             self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
             return clientInformation
         except Exception as e:
@@ -233,27 +233,32 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
-    def mainRunFunction(self, clientData, receiveConnection, sock, pool):
+    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event):
         while True:
             try:
-                try:
-                    receiveConnectionOutput = receiveConnection.get(timeout=0.01)
-                    receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-                    CoTOutput = self.handel_connection_data(receiveConnectionOutput)
+                if event.is_set():
+                    try:
+                        receiveConnectionOutput = receiveConnection.get(timeout=0.01)
+                        receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+                        CoTOutput = self.handel_connection_data(receiveConnectionOutput)
 
-                except multiprocessing.TimeoutError:
-                    pass
-                except Exception as e:
-                    self.logger.info('exception in receive connection within main run function '+str(e))
+                    except multiprocessing.TimeoutError:
+                        pass
+                    except Exception as e:
+                        self.logger.info('exception in receive connection within main run function '+str(e))
 
-                try:
-                    clientDataOutput = clientData.get(timeout=0.01)
-                    clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
-                    CoTOutput = self.handel_regular_data(clientDataOutput)
-                except multiprocessing.TimeoutError:
-                    pass
-                except Exception as e:
-                    self.logger.info('exception in receive client data within main run function ' + str(e))
+                    try:
+                        clientDataOutput = clientData.get(timeout=0.01)
+                        clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
+                        CoTOutput = self.handel_regular_data(clientDataOutput)
+                    except multiprocessing.TimeoutError:
+                        pass
+                    except Exception as e:
+                        self.logger.info('exception in receive client data within main run function ' + str(e))
+                else:
+                    print('stop triggered')
+                    self.stop()
+                    break
             except Exception as e:
                 self.logger.info('there has been an uncaught error thrown in mainRunFunction' + str(e))
 
@@ -309,39 +314,34 @@ class Orchestrator:
             return -1
         return 1
 
-    def start(self, IP, CoTPort, APIPort):
+    def start(self, IP, CoTPort, Event):
         try:
             self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
             self.logger.propagate = False
             # create socket controller
-            self.m_MainSocketController.changeIP(OrchestratorConstants().IP)
+            self.m_MainSocketController.changeIP(IP)
             self.m_MainSocketController.changePort(CoTPort)
             sock = self.m_MainSocketController.createSocket()
-
-            # create Pipe for callsigns between orchestrator and DataPackagesServerProcess
-            orchestratorPipe, DataPackageServerPipe = multiprocessing.Pipe()
-            pipeTuple = (orchestratorPipe, DataPackageServerPipe)
-            self.CallSignsForDataPackagesPipe = pipeTuple
-
-            # begin DataPackageServer
-            dataPackageServerProcess = multiprocessing.Process(target=DataPackageServer.FlaskFunctions().startup,
-                                                               args=(IP, APIPort, DataPackageServerPipe,), daemon=True)
-            dataPackageServerProcess.start()
-            # establish client handeler
             pool = multiprocessing.Pool(processes=2)
+            self.pool = pool
             clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
             self.logger.propagate = False
             self.logger.info('server has started')
-            self.mainRunFunction(clientData, receiveConnection, sock, pool)
+            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event)
 
         except Exception as e:
             self.logger.critical('there has been a critical error in the startup of FTS' + str(e))
+            return -1
 
     def stop(self):
-        pass
+        print('stopping')
+        self.pool.terminate()
+        self.pool.close()
+        self.pool.join()
+
 
 
 if __name__ == "__main__":

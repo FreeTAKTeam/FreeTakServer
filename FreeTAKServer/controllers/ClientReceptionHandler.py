@@ -99,7 +99,7 @@ class ClientReceptionHandler:
                                             sock.settimeout(0.1)
                                             part += sock.recv(BUFF_SIZE)
                                         except socket.timeout as e:
-                                            print(e)
+                                            logger.error('there has been an exception in client reception handler ' + str(e))
                                             break
                                         except BrokenPipeError as e:
                                             self.clientInformationArray.remove(client)
@@ -128,7 +128,6 @@ class ClientReceptionHandler:
         try:
             from FreeTAKServer.controllers.model.RawCoT import RawCoT
             RawCoT = RawCoT()
-            print(data)
             RawCoT.clientInformation = clientInformation
             RawCoT.xmlString = data
             self.dataPipe.append(RawCoT)

@@ -6,17 +6,21 @@ import os
 loggingConstants = LoggingConstants()
 class CreateLoggerController:
     def __init__(self, loggername):
-        self.currentpath  = os.path.dirname(os.path.realpath(__file__))
+        self.currentpath = os.path.dirname(os.path.realpath(__file__))
         self.logger = logging.getLogger(loggername)
+        self.logger.propagate = False
+        self.logger.info('abc')
         log_format = logging.Formatter(loggingConstants.LOGFORMAT)
         self.logger.setLevel(logging.DEBUG)
         self.logger.addHandler(self.newHandler(loggingConstants.DEBUGLOG, logging.DEBUG, log_format))
+        self.logger.debug('123')
         self.logger.addHandler(self.newHandler(loggingConstants.WARNINGLOG, logging.WARNING, log_format))
         self.logger.addHandler(self.newHandler(loggingConstants.INFOLOG, logging.INFO, log_format))
-        console = logging.StreamHandler(sys.stdout)
+        '''console = logging.StreamHandler(sys.stdout)
         console.setFormatter(log_format)
         console.setLevel(logging.DEBUG)
-        self.logger.addHandler(console)
+        self.logger.addHandler(console)'''
+        self.logger.debug('456')
 
     def newHandler(self, filename, log_level, log_format):
         handler = RotatingFileHandler(
@@ -27,5 +31,6 @@ class CreateLoggerController:
         handler.setFormatter(log_format)
         handler.setLevel(log_level)
         return handler
+
     def getLogger(self):
         return self.logger

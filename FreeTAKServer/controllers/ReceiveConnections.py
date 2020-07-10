@@ -33,7 +33,6 @@ class ReceiveConnections:
             client, address = sock.accept()
             #wait to receive client
             data = client.recv(1024)
-            print(data)
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
             #establish the socket array containing important information about the client
             m_RawConnectionInformation = RawConnectionInformation()
