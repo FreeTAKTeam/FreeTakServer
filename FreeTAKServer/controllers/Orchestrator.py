@@ -60,10 +60,6 @@ class Orchestrator:
         self.logger.addHandler(self.newHandler(loggingConstants.DEBUGLOG, logging.DEBUG, log_format))
         self.logger.addHandler(self.newHandler(loggingConstants.WARNINGLOG, logging.WARNING, log_format))
         self.logger.addHandler(self.newHandler(loggingConstants.INFOLOG, logging.INFO, log_format))
-        console = logging.StreamHandler(sys.stdout)
-        console.setFormatter(log_format)
-        console.setLevel(logging.DEBUG)
-        self.logger.addHandler(console)
         self.logger.propagate = False
         # create necessary queues
         self.clientInformationQueue = []
@@ -178,6 +174,7 @@ class Orchestrator:
         else:
             pass
         try:
+            self.clientDataPipe.send(['remove', clientInformation])
             try:
                 clientInformation.socket.shutdown(socket.SHUT_RDWR)
             except Exception as e:
@@ -233,9 +230,10 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
-    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event):
+    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event, clientDataPipe):
         while True:
             try:
+                self.clientDataPipe = clientDataPipe
                 if event.is_set():
                     try:
                         receiveConnectionOutput = receiveConnection.get(timeout=0.01)
@@ -250,48 +248,54 @@ class Orchestrator:
                     try:
                         clientDataOutput = clientData.get(timeout=0.01)
                         clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
-                        CoTOutput = self.handel_regular_data(clientDataOutput)
+                        if self.checkOutput(clientDataOutput) and isinstance(clientDataOutput, list):
+                            CoTOutput = self.handel_regular_data(clientDataOutput)
+                        else:
+                            raise Exception('client reception handler has returned data which is not of type list data is ' + str(clientDataOutput))
                     except multiprocessing.TimeoutError:
                         pass
                     except Exception as e:
                         self.logger.info('exception in receive client data within main run function ' + str(e))
                 else:
-                    print('stop triggered')
                     self.stop()
                     break
             except Exception as e:
                 self.logger.info('there has been an uncaught error thrown in mainRunFunction' + str(e))
 
     def handel_regular_data(self, clientDataOutput):
-        for clientDataOutputSingle in clientDataOutput:
-            try:
-                CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
-                if CoTOutput == 1:
-                    continue
-                elif self.checkOutput(CoTOutput):
-                    output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
-                                                                  self.clientInformationQueue)
-                    if self.checkOutput(output) and isinstance(output, tuple) == False:
-                        pass
-                    elif isinstance(output, tuple):
-                        self.logger.error('issue sending data to client now disconnecting')
-                        self.clientDisconnected(output[1])
+        try:
+            for clientDataOutputSingle in clientDataOutput:
+                try:
+                    CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
+                    if CoTOutput == 1:
+                        continue
+                    elif self.checkOutput(CoTOutput):
+                        output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
+                                                                      self.clientInformationQueue)
+                        if self.checkOutput(output) and isinstance(output, tuple) == False:
+                            pass
+                        elif isinstance(output, tuple):
+                            self.logger.error('issue sending data to client now disconnecting')
+                            self.clientDisconnected(output[1])
+
+                        else:
+                            self.logger.error('send data failed in main run function with data ' + str(
+                                CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
 
                     else:
-                        self.logger.error('send data failed in main run function with data ' + str(
-                            CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
-
-                else:
-                    raise Exception('error in general data processing')
-            except Exception as e:
-                self.logger.info(
-                    'exception in client data, data processing within main run function ' + str(
-                        e) + ' data is ' + str(CoTOutput))
-                return -1
-            except Exception as e:
-                self.logger.info(
-                    'exception in client data, data processing within main run function ' + str(
-                        e) + ' data is ' + str(clientDataOutput))
+                        raise Exception('error in general data processing')
+                except Exception as e:
+                    self.logger.info(
+                        'exception in client data, data processing within main run function ' + str(
+                            e) + ' data is ' + str(CoTOutput))
+                    return -1
+                except Exception as e:
+                    self.logger.info(
+                        'exception in client data, data processing within main run function ' + str(
+                            e) + ' data is ' + str(clientDataOutput))
+        except Exception as e:
+            self.logger.info("there has been an error iterating client data output " + str(e))
+            return -1
         self.sendInternalCoT()
         return 1
 
@@ -302,6 +306,7 @@ class Orchestrator:
                 output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
                                                               self.clientInformationQueue)
                 if self.checkOutput(output):
+                    self.clientDataPipe.send(['add', CoTOutput])
                     self.logger.debug('connection data from client ' + str(
                         CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
                 else:
@@ -314,7 +319,7 @@ class Orchestrator:
             return -1
         return 1
 
-    def start(self, IP, CoTPort, Event):
+    def start(self, IP, CoTPort, Event, clientDataPipe):
         try:
             self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
@@ -330,14 +335,14 @@ class Orchestrator:
             # instantiate domain model and save process as object
             self.logger.propagate = False
             self.logger.info('server has started')
-            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event)
+            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe)
 
         except Exception as e:
             self.logger.critical('there has been a critical error in the startup of FTS' + str(e))
             return -1
 
     def stop(self):
-        print('stopping')
+        self.clientDataPipe.close()
         self.pool.terminate()
         self.pool.close()
         self.pool.join()
