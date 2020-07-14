@@ -60,7 +60,6 @@ class Orchestrator:
         self.logger.addHandler(self.newHandler(loggingConstants.DEBUGLOG, logging.DEBUG, log_format))
         self.logger.addHandler(self.newHandler(loggingConstants.WARNINGLOG, logging.WARNING, log_format))
         self.logger.addHandler(self.newHandler(loggingConstants.INFOLOG, logging.INFO, log_format))
-        self.logger.propagate = False
         # create necessary queues
         self.clientInformationQueue = []
         # this contains a list of all pipes which are transmitting CoT from clients
@@ -100,6 +99,10 @@ class Orchestrator:
             self.logger.info(loggingConstants.CLIENTCONNECTED)
             clientInformation = self.m_ClientInformationController.intstantiateClientInformationModelFromConnection(
                 rawConnectionInformation, clientPipe)
+            if self.checkOutput(clientInformation):
+                pass
+            else:
+                raise Exception('error in the creation of client information')
             self.m_ClientInformationQueueController.addClientToQueue(clientInformation)
             self.clientInformationQueue.append(clientInformation)
             try:
@@ -323,7 +326,6 @@ class Orchestrator:
         try:
             self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
-            self.logger.propagate = False
             # create socket controller
             self.m_MainSocketController.changeIP(IP)
             self.m_MainSocketController.changePort(CoTPort)
@@ -333,7 +335,6 @@ class Orchestrator:
             clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
-            self.logger.propagate = False
             self.logger.info('server has started')
             self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe)
 

@@ -2,6 +2,7 @@ import uuid
 import datetime as dt
 from .Detail import Detail
 from .Point import Point
+from lxml import etree
 
 class Event:
     # Event.py

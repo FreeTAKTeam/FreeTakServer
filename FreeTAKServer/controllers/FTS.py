@@ -23,16 +23,17 @@ class FTS:
         self.CoTPoisonPill = None
         self.ClientDataPipe = None
         self.clientArray = []
-
+        logger.propagate = True
+        logger.info('something')
     def start_CoT_service(self):
         try:
             self.ClientDataPipe, ClientDataPipeParentChild = multiprocessing.Pipe()
-            threading.Thread(target=self.receive_data_from_CoT_service_thread).start()
+            threading.Thread(target=self.receive_data_from_CoT_service_thread, daemon=True).start()
             self.CoTPoisonPill = multiprocessing.Event()
             self.CoTPoisonPill.set()
             self.CoTIP = str(
                 input('enter CoT_service IP[' + str(OrchestratorConstants().IP) + ']: ')) or OrchestratorConstants().IP
-            self.CoTPort = str(input('enter CoT_service Port[' + str(
+            self.CoTPort = int(input('enter CoT_service Port[' + str(
                 OrchestratorConstants().COTPORT) + ']: ')) or OrchestratorConstants().COTPORT
             self.CoTService = multiprocessing.Process(target=Orchestrator().start, args=(self.CoTIP, self.CoTPort, self.CoTPoisonPill, ClientDataPipeParentChild))
             return 1
@@ -177,7 +178,7 @@ class FTS:
     def empty(self):
         return 1
     def receive_input(self):
-        AsciiController.ascii()
+        AsciiController().ascii()
         while self.killSwitch == False:
             try:
                 self.UserCommand = str(input('FTS$ ')) or 'empty'

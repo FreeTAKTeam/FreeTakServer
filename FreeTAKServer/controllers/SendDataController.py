@@ -14,21 +14,22 @@ class SendDataController:
     def sendDataInQueue(self, sender, processedCoT, clientInformationQueue):
         try:
             try:
-                if processedCoT.modelObject.m_detail.Marti.m_Dest.callsign != '':
-                    for client in clientInformationQueue:
-                        try:
-                            if client.modelObject.m_detail.m_Contact.callsign == processedCoT.modelObject.m_detail.Marti.m_Dest.callsign:
-                                sock = client.socket
-                                try:
-                                    sock.send(processedCoT.xmlString)
-                                except Exception as e:
-                                    logger.error('error sending data with marti to client data ' + str(processedCoT.xmlString) + 'error is '+str(e))
-                                    return (-1, client)
-                            else:
-                                continue
-                        except Exception as e:
-                            logger.error('error sending data with marti to client within if data is ' + str(processedCoT.xmlString) + 'error is '+str(e))
-                            return -1
+                if len(processedCoT.modelObject.m_detail.Marti.m_DestList) > 0:
+                    for dest in processedCoT.modelObject.m_detail.Marti.m_DestList:
+                        for client in clientInformationQueue:
+                            try:
+                                if client.modelObject.m_detail.m_Contact.callsign == dest:
+                                    sock = client.socket
+                                    try:
+                                        sock.send(processedCoT.xmlString)
+                                    except Exception as e:
+                                        logger.error('error sending data with marti to client data ' + str(processedCoT.xmlString) + 'error is '+str(e))
+                                        return (-1, client)
+                                else:
+                                    continue
+                            except Exception as e:
+                                logger.error('error sending data with marti to client within if data is ' + str(processedCoT.xmlString) + 'error is '+str(e))
+                                return -1
                     return 1
             except:
                 pass

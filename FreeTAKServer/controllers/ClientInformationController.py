@@ -44,7 +44,7 @@ class ClientInformationController(BasicModelInstantiate):
             return self.m_clientInformation
         except Exception as e:
             logger.error('error in client information controller '+str(e))
-        
+            return -1
         
         
 

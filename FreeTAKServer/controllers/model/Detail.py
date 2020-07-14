@@ -35,14 +35,26 @@ class Detail:
         m_detail = Detail()
         m_detail.m_Takv = Takv(xml.find('takv'))
         m_detail.m_Contact = Contact(xml.find('contact'))
-        m_detail.m_Uid = Uid(xml.find('uid'))
+        try:
+            m_detail.m_Uid = Uid(xml.find('uid'))
+        except Exception:
+            pass
         try:
             m_detail.m_Precisionlocation = Precisionlocation(xml.find('precisionlocation'))
         except Exception:
             pass
-        m_detail.m___Group = _Group(xml.find('__group'))
-        m_detail.m_Status = Status(xml.find('status'))
-        m_detail.m_Track = Track(xml.find('track'))
+        try:
+            m_detail.m___Group = _Group(xml.find('__group'))
+        except Exception:
+            pass
+        try:
+            m_detail.m_Status = Status(xml.find('status'))
+        except Exception:
+            pass
+        try:
+            m_detail.m_Track = Track(xml.find('track'))
+        except Exception:
+            pass
         return m_detail
 
     @staticmethod
