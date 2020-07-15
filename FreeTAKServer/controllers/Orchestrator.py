@@ -259,6 +259,7 @@ class Orchestrator:
                         pass
                     except Exception as e:
                         self.logger.info('exception in receive client data within main run function ' + str(e))
+                        pass
                 else:
                     self.stop()
                     break

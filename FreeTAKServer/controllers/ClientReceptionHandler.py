@@ -78,7 +78,8 @@ class ClientReceptionHandler:
                         self.clientInformationArray.remove(client)
                         continue
                     except Exception as e:
-                        logger.error("Exception other than broken pipe in monitor for data function")
+                        logger.error("Exception other than broken pipe in monitor for data function "+str(e))
+                        return -1
                     try:
                         if part == b'' or part == None:
                             self.returnReceivedData(client, b'', queue)
@@ -109,11 +110,13 @@ class ClientReceptionHandler:
                                             break
                             except Exception as e:
                                 logger.error('error in buffer ' + str(e))
+                                return -1
 
                     except Exception as e:
                         logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC + str(e))
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
+                        return -1
 
                 except Exception as e:
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
