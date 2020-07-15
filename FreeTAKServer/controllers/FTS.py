@@ -20,26 +20,33 @@ class FTS:
         self.DataPackageService = None
         self.UserCommand = None
         self.killSwitch = False
+        self.ReceiveConnectionsReset = None
         self.CoTPoisonPill = None
         self.ClientDataPipe = None
         self.clientArray = []
         logger.propagate = True
         logger.info('something')
+
     def start_CoT_service(self):
         try:
             self.ClientDataPipe, ClientDataPipeParentChild = multiprocessing.Pipe()
             threading.Thread(target=self.receive_data_from_CoT_service_thread, daemon=True).start()
             self.CoTPoisonPill = multiprocessing.Event()
             self.CoTPoisonPill.set()
+            self.ReceiveConnectionsReset = multiprocessing.Event()
             self.CoTIP = str(
                 input('enter CoT_service IP[' + str(OrchestratorConstants().IP) + ']: ')) or OrchestratorConstants().IP
             self.CoTPort = int(input('enter CoT_service Port[' + str(
                 OrchestratorConstants().COTPORT) + ']: ')) or OrchestratorConstants().COTPORT
-            self.CoTService = multiprocessing.Process(target=Orchestrator().start, args=(self.CoTIP, self.CoTPort, self.CoTPoisonPill, ClientDataPipeParentChild))
+            self.CoTService = multiprocessing.Process(target=Orchestrator().start, args=(self.CoTIP, self.CoTPort, self.CoTPoisonPill, ClientDataPipeParentChild, self.ReceiveConnectionsReset))
             return 1
         except Exception as e:
             logger.error('an exception has been thrown in CoT service startup ' + str(e))
             return -1
+
+    def restart_receive_connection_process(self):
+        self.ReceiveConnectionsReset.set()
+        return 1
 
     def receive_data_from_CoT_service_thread(self):
         while True:
@@ -66,11 +73,13 @@ class FTS:
         print('to check the status of the services type: check_service_status')
         print('to show connected user information type: show_users')
         print('to kill the full server type: kill')
+        print('if the server has stopped accepting connections try this: restart_receive_connection_process')
 
     def stop_CoT_service(self):
         try:
             self.ClientDataPipe.close()
             self.CoTPoisonPill.clear()
+
             time.sleep(0.1)
             if self.CoTService.is_alive():
                 self.CoTService.terminate()

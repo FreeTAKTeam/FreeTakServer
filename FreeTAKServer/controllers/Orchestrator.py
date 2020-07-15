@@ -233,15 +233,24 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
-    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event, clientDataPipe):
+    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event, clientDataPipe, ReceiveConnectionKillSwitch):
         while True:
             try:
                 self.clientDataPipe = clientDataPipe
                 if event.is_set():
                     try:
-                        receiveConnectionOutput = receiveConnection.get(timeout=0.01)
-                        receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-                        CoTOutput = self.handel_connection_data(receiveConnectionOutput)
+                        if ReceiveConnectionKillSwitch.is_set():
+                            try:
+                                receiveConnection.successful()
+                            except:
+                                pass
+                            ReceiveConnectionKillSwitch.clear()
+                            receiveConnection = pool.apply_async(ReceiveConnections().listen,
+                                                                 (sock,))
+                        else:
+                            receiveConnectionOutput = receiveConnection.get(timeout=0.01)
+                            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+                            CoTOutput = self.handel_connection_data(receiveConnectionOutput)
 
                     except multiprocessing.TimeoutError:
                         pass
@@ -265,6 +274,7 @@ class Orchestrator:
                     break
             except Exception as e:
                 self.logger.info('there has been an uncaught error thrown in mainRunFunction' + str(e))
+                pass
 
     def handel_regular_data(self, clientDataOutput):
         try:
@@ -323,7 +333,7 @@ class Orchestrator:
             return -1
         return 1
 
-    def start(self, IP, CoTPort, Event, clientDataPipe):
+    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch):
         try:
             self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
@@ -337,7 +347,7 @@ class Orchestrator:
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
             self.logger.info('server has started')
-            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe)
+            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe, ReceiveConnectionKillSwitch)
 
         except Exception as e:
             self.logger.critical('there has been a critical error in the startup of FTS' + str(e))

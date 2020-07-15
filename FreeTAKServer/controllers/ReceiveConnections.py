@@ -48,7 +48,8 @@ class ReceiveConnections:
                 else:
                     pass
             except Exception as e:
-                logger.error('')
+                logger.error('exception in returning data '+str(e))
+                return -1
 
         except Exception as e:
             logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
