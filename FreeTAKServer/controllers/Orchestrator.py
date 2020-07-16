@@ -97,7 +97,6 @@ class Orchestrator:
         #TODO: remove client pipe and requirements
         try:
             self.openSockets += 1
-            self.clientDataPipe.send(['add', CoTOutput, self.openSockets])
             clientPipe = None
             self.logger.info(loggingConstants.CLIENTCONNECTED)
             clientInformation = self.m_ClientInformationController.intstantiateClientInformationModelFromConnection(
@@ -117,6 +116,7 @@ class Orchestrator:
             except Exception as e:
                 self.logger.error('there has been an error in a clients connection while adding information to the database ' + str(e))
             self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
+            self.clientDataPipe.send(['add', clientInformation, self.openSockets])
             return clientInformation
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))

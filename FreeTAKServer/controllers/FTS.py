@@ -24,7 +24,7 @@ class FTS:
         self.CoTPoisonPill = None
         self.ClientDataPipe = None
         self.clientArray = []
-        self.socketCount
+        self.socketCount = 0
         logger.propagate = True
         logger.info('something')
 
@@ -54,7 +54,7 @@ class FTS:
             found = 0
             try:
                 data = self.ClientDataPipe.recv()
-                self.socketCount = self.data[2]
+                self.socketCount = data[2]
                 if data[0] == 'add':
                     self.clientArray.append(data[1])
                 else:
@@ -73,7 +73,7 @@ class FTS:
                                 pass
                     else:
                         pass
-            except:
+            except Exception as e:
                 pass
 
     def help(self):
@@ -116,6 +116,7 @@ class FTS:
         col_width = max(len(word) for row in data for word in row) + 2  # padding
         for row in data:
             print("".join(word.ljust(col_width) for word in row))
+        print('total sockets: '+str(self.socketCount))
         return 1
 
     def start_data_package_service(self):
