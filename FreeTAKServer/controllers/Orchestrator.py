@@ -81,6 +81,7 @@ class Orchestrator:
         self.m_XMLCoTController = XMLCoTController()
         self.m_SendClientData = SendClientData()
         self.KillSwitch = 0
+        self.openSockets = 0
 
     def newHandler(self, filename, log_level, log_format):
         handler = RotatingFileHandler(
@@ -95,6 +96,8 @@ class Orchestrator:
     def clientConnected(self, rawConnectionInformation):
         #TODO: remove client pipe and requirements
         try:
+            self.openSockets += 1
+            self.clientDataPipe.send(['add', CoTOutput, self.openSockets])
             clientPipe = None
             self.logger.info(loggingConstants.CLIENTCONNECTED)
             clientInformation = self.m_ClientInformationController.intstantiateClientInformationModelFromConnection(
@@ -172,12 +175,13 @@ class Orchestrator:
     def clientDisconnected(self, clientInformation):
         # print(self.clientInformationQueue[0])
         # print(clientInformation)
+        self.openSockets -= 1
         if isinstance(clientInformation, RawCoT):
             clientInformation = clientInformation.clientInformation
         else:
             pass
         try:
-            self.clientDataPipe.send(['remove', clientInformation])
+            self.clientDataPipe.send(['remove', clientInformation, self.openSockets])
             try:
                 clientInformation.socket.shutdown(socket.SHUT_RDWR)
             except Exception as e:
@@ -255,7 +259,7 @@ class Orchestrator:
                     except multiprocessing.TimeoutError:
                         pass
                     except Exception as e:
-                        self.logger.info('exception in receive connection within main run function '+str(e))
+                        self.logger.error('exception in receive connection within main run function '+str(e))
 
                     try:
                         clientDataOutput = clientData.get(timeout=0.01)
@@ -320,7 +324,6 @@ class Orchestrator:
                 output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
                                                               self.clientInformationQueue)
                 if self.checkOutput(output):
-                    self.clientDataPipe.send(['add', CoTOutput])
                     self.logger.debug('connection data from client ' + str(
                         CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
                 else:

@@ -24,6 +24,7 @@ class FTS:
         self.CoTPoisonPill = None
         self.ClientDataPipe = None
         self.clientArray = []
+        self.socketCount
         logger.propagate = True
         logger.info('something')
 
@@ -50,16 +51,28 @@ class FTS:
 
     def receive_data_from_CoT_service_thread(self):
         while True:
+            found = 0
             try:
                 data = self.ClientDataPipe.recv()
+                self.socketCount = self.data[2]
                 if data[0] == 'add':
                     self.clientArray.append(data[1])
                 else:
                     for client in self.clientArray:
                         if client.ID == data[1].ID:
                             self.clientArray.remove(client)
+                            found = 1
                         else:
                             pass
+                    if found == 0:
+                        for client in self.clientArray:
+                            if client.IP == data[1].IP and client.modelObject.m_detail.m_Contact.callsign == data[1].modelObject.m_detail.m_Contact.callsign:
+                                self.clientArray.remove(client)
+                                found = 1
+                            else:
+                                pass
+                    else:
+                        pass
             except:
                 pass
 
@@ -186,6 +199,7 @@ class FTS:
 
     def empty(self):
         return 1
+
     def receive_input(self):
         AsciiController().ascii()
         while self.killSwitch == False:
