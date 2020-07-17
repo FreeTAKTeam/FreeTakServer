@@ -263,11 +263,11 @@ class Orchestrator:
 
                     try:
                         clientDataOutput = clientData.get(timeout=0.01)
-                        clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
                         if self.checkOutput(clientDataOutput) and isinstance(clientDataOutput, list):
                             CoTOutput = self.handel_regular_data(clientDataOutput)
                         else:
                             raise Exception('client reception handler has returned data which is not of type list data is ' + str(clientDataOutput))
+                        clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
                     except multiprocessing.TimeoutError:
                         pass
                     except Exception as e:

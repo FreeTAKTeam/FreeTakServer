@@ -81,11 +81,13 @@ class ClientReceptionHandler:
                     except Exception as e:
                         logger.error("Exception other than broken pipe in monitor for data function "+str(e))
                         self.returnReceivedData(client, b'', queue)
+                        self.clientInformationArray.remove(client)
                         continue
                     try:
                         if part == b'' or part == None:
                             self.returnReceivedData(client, b'', queue)
                             self.clientInformationArray.remove(client)
+                            continue
                         else:
                             try:
                                 timeout = time.time() + 0.1
