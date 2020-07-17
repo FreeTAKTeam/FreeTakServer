@@ -46,7 +46,7 @@ class ReceiveConnections:
                 if socket != None and data != b'':
                     return m_RawConnectionInformation
                 else:
-                    pass
+                    return -1
             except Exception as e:
                 logger.error('exception in returning data '+str(e))
                 return -1

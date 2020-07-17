@@ -25,6 +25,7 @@ class FTS:
         self.ClientDataPipe = None
         self.clientArray = []
         self.socketCount = 0
+        self.clientInformationArray = []
         logger.propagate = True
         logger.info('something')
 
@@ -37,9 +38,10 @@ class FTS:
             self.ReceiveConnectionsReset = multiprocessing.Event()
             self.CoTIP = str(
                 input('enter CoT_service IP[' + str(OrchestratorConstants().IP) + ']: ')) or OrchestratorConstants().IP
-            self.CoTPort = int(input('enter CoT_service Port[' + str(
-                OrchestratorConstants().COTPORT) + ']: ')) or OrchestratorConstants().COTPORT
+            self.CoTPort = input('enter CoT_service Port[' + str(OrchestratorConstants().COTPORT) + ']: ') or int(OrchestratorConstants().COTPORT)
+            self.CoTPort = int(self.CoTPort)
             self.CoTService = multiprocessing.Process(target=Orchestrator().start, args=(self.CoTIP, self.CoTPort, self.CoTPoisonPill, ClientDataPipeParentChild, self.ReceiveConnectionsReset))
+            self.CoTService.start()
             return 1
         except Exception as e:
             logger.error('an exception has been thrown in CoT service startup ' + str(e))
@@ -55,6 +57,7 @@ class FTS:
             try:
                 data = self.ClientDataPipe.recv()
                 self.socketCount = data[2]
+                self.clientInformationArray = data[3]
                 if data[0] == 'add':
                     self.clientArray.append(data[1])
                 else:
@@ -109,6 +112,11 @@ class FTS:
         print('CoT service is_alive : ' + str(self.CoTService.is_alive()))
         return 1
 
+    def show_client_array(self):
+        print(self.clientInformationArray)
+        print('length is ' + len(self.clientInformationArray))
+        return 1
+
     def show_users(self):
         data = [['callsign', 'team', 'ip']]
         for client in self.clientArray:
@@ -124,10 +132,13 @@ class FTS:
 
             self.APIPort = str(input('enter DataPackage_Service Port[' + str(
                 DataPackageServerConstants().APIPORT) + ']: ')) or DataPackageServerConstants().APIPORT
+            self.APIPort = int(self.APIPort)
             self.APIIP = str(input('enter DataPackage_Service IP[' + str(
                 DataPackageServerConstants().IP) + ']: ')) or DataPackageServerConstants().IP
             self.DataPackageService = multiprocessing.Process(target=FlaskFunctions().startup,
                                                               args=(self.APIIP, self.APIPort))
+            self.DataPackageService.start()
+            time.sleep(2)
             return 1
         except Exception as e:
             logger.error('there has been an exception in the indevidual starting of the Data Packages Service')
@@ -150,8 +161,6 @@ class FTS:
         try:
             self.start_data_package_service()
             self.start_CoT_service()
-            self.DataPackageService.start()
-            self.CoTService.start()
             return 1
         except Exception as e:
             logger.error('there has been an exception in FTS start_all ' + str(e))

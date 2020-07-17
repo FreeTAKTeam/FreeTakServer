@@ -116,7 +116,7 @@ class Orchestrator:
             except Exception as e:
                 self.logger.error('there has been an error in a clients connection while adding information to the database ' + str(e))
             self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
-            self.clientDataPipe.send(['add', clientInformation, self.openSockets])
+            self.clientDataPipe.send(['add', clientInformation, self.openSockets, self.clientInformationQueue])
             return clientInformation
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
@@ -181,7 +181,7 @@ class Orchestrator:
         else:
             pass
         try:
-            self.clientDataPipe.send(['remove', clientInformation, self.openSockets])
+            self.clientDataPipe.send(['remove', clientInformation, self.openSockets, self.clientInformationQueue])
             try:
                 clientInformation.socket.shutdown(socket.SHUT_RDWR)
             except Exception as e:
@@ -212,7 +212,7 @@ class Orchestrator:
             self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
             return 1
         except Exception as e:
-            self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
+            self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + " " + str(e))
             pass
 
     def monitorRawCoT(self,data):
