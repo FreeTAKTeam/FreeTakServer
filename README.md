@@ -72,31 +72,21 @@ C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
 #### Run Server in console
 
 ```
-sudo  python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
+sudo  python3 -m FreeTAKServer.controllers.FTS
 ```
-this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
-to change that you can use
+this will start the program in an emulated terminal like enviroment
 ```
-sudo python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -IP 192.127.1.1 -APIPort 9999
-```
-
-run the above command with 
-```
--h
+help
 ``` 
-to get a list of other supported commands
-#### Run Server as Demon
+to get a list of other supported commands run the above command
 
-```
-sudo nohup python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP) &
-```
-
+it is recommended to start the server with start_all
 
 ### Windows
 go to the start menu and type cmd to start a command prompt
 open a console with admin rights
 ```
-python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
+python3 -m FreeTAKServer.controllers.FTS
 ```
 
 ### Troubleshooting
@@ -116,8 +106,7 @@ pip install FreeTAKServer --upgrade
 - TakFreeServer
   - **Controllers**: Contains all the business Logic
   - **Models**: Contains all the COT object model
-  - **TAKLinuxService**:   a demon for linux OS
-  -  **TakWinService**: a service for the windows OS
+  - **configuration**: Contains constants and configuration files for FTS
 - Docs: Usefull documentation regarding COTS and different logs to understand how those are implemented
 - Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html).
 - Old: Legacy versions
