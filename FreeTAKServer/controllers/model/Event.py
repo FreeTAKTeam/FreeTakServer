@@ -5,6 +5,7 @@ from .Point import Point
 from lxml import etree
 
 class Event:
+    # TODO: fix emergency methods
     # Event.py
     # Python implementation of the Class Event
     # represents a TAK event: this class is instantiated with a standard set of
@@ -132,6 +133,17 @@ class Event:
         m_event.sethow(xml.get('how'))
         return m_event
 
+    @staticmethod
+    def dropPoint(xml):
+        m_event = Event()
+        m_event.setm_detail(Detail.point(xml.find('detail')))
+        m_event.setm_Point(xml.find('point'))
+        m_event.setversion("2.0")
+        m_event.setuid(xml.get('uid'))
+        m_event.settype(xml.get('type'))
+        m_event.sethow(xml.get('how'))
+        return m_event
+
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
         self.how = how
 
@@ -144,7 +156,7 @@ class Event:
         self.setstart(zulu)
         self.settime(zulu)
         self.type = type
-        self.setuid(isGeochat = isGeochat, isPing=isPing)
+        self.setuid(isGeochat=isGeochat, isPing=isPing)
         self.version = version
 
     def timeoutFunc(self, DATETIME_FMT, version, uid, type, how, isGeochat, isPing):

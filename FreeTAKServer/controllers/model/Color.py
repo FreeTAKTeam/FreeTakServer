@@ -10,9 +10,11 @@
 
 
 class Color:
-# default constructor       def __init__(self):  
+    def __init__(self):
 
-    argb = "-1" 
+        self.argb = None
+        self.setargb(xml.get('argb'))
+
     # argb getter 
     def getargb(self): 
         return self.argb 

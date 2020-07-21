@@ -92,3 +92,15 @@ class Detail:
         m_detail = Detail()
         m_detail.m_Emergency = Emergency()
         return m_detail
+
+    @staticmethod
+    def point(xml):
+        m_detail = Detail()
+        m_detail.m_Status = Status()
+        m_detail.m_Usericon = Usericon
+        m_detail.m_Link = Link()
+        m_detail.m_Color = Color
+        m_detail.m_Precisionlocation = Precisionlocation()
+        m_detail.m_Contact = Contact()
+        m_detail.m_Remarks = Remarks()
+        return m_detail

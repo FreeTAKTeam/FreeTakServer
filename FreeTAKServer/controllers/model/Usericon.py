@@ -10,9 +10,10 @@
 
 
 class Usericon:
-# default constructor       def __init__(self):  
+    def __init__(self):
+        self.iconsetpath = None
+        self.seticonsetpath(xml.get('iconsetpath'))
 
-    iconsetpath = "" 
      # iconsetpath getter 
     def geticonsetpath(self): 
         return self.iconsetpath 
