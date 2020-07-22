@@ -148,8 +148,9 @@ class Orchestrator:
             # this will send the processed object to a function which will send it to connected clients
             try:
                 if processedCoT.type != 'ping':
-                    self.logger.debug('data received from ' + str(
-                        processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is ' + processedCoT.type)
+                    """self.logger.debug('data received from ' + str(
+                        processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is ' + processedCoT.type)"""
+                    pass
                 else:
                     pass
                 if processedCoT.type == loggingConstants.EMERGENCY:
@@ -237,7 +238,7 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
-    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event, clientDataPipe, ReceiveConnectionKillSwitch):
+    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         while True:
             try:
                 self.clientDataPipe = clientDataPipe
@@ -272,6 +273,15 @@ class Orchestrator:
                         pass
                     except Exception as e:
                         self.logger.info('exception in receive client data within main run function ' + str(e))
+                        pass
+                    try:
+                        if RestAPIPipe.poll(timeout=0.1):
+                            data = RestAPIPipe.recv()
+                            CoTOutput = self.handel_regular_data(data)
+                        else:
+                            pass
+                    except Exception as e:
+                        self.logger.error('there has been an excepion in the handling of data supplied by the rest API '+str(e))
                         pass
                 else:
                     self.stop()
@@ -336,7 +346,7 @@ class Orchestrator:
             return -1
         return 1
 
-    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch):
+    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         try:
             self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
@@ -350,7 +360,7 @@ class Orchestrator:
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
             self.logger.info('server has started')
-            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe, ReceiveConnectionKillSwitch)
+            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe)
 
         except Exception as e:
             self.logger.critical('there has been a critical error in the startup of FTS' + str(e))

@@ -10,7 +10,7 @@
 
 
 class Color:
-    def __init__(self):
+    def __init__(self, xml):
 
         self.argb = None
         self.setargb(xml.get('argb'))

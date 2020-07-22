@@ -10,7 +10,7 @@
 
 
 class Usericon:
-    def __init__(self):
+    def __init__(self, xml):
         self.iconsetpath = None
         self.seticonsetpath(xml.get('iconsetpath'))
 

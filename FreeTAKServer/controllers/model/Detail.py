@@ -23,6 +23,8 @@ from .Emergency import Emergency
 from .Chat import Chat
 from .Remarks import Remarks
 from .Serverdestination import __Serverdestination as Serverdestination
+from .Color import Color
+from .Usericon import Usericon
 
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
@@ -96,11 +98,11 @@ class Detail:
     @staticmethod
     def point(xml):
         m_detail = Detail()
-        m_detail.m_Status = Status()
-        m_detail.m_Usericon = Usericon
-        m_detail.m_Link = Link()
-        m_detail.m_Color = Color
-        m_detail.m_Precisionlocation = Precisionlocation()
-        m_detail.m_Contact = Contact()
-        m_detail.m_Remarks = Remarks()
+        m_detail.m_Status = Status(xml.find('status'))
+        m_detail.m_Usericon = Usericon(xml.find('usericon'))
+        m_detail.m_Link = Link(xml.find('link'))
+        m_detail.m_Color = Color(xml.find('color'))
+        m_detail.m_Precisionlocation = Precisionlocation(xml.find('precisionlocation'))
+        m_detail.m_Contact = Contact(xml.find('contact'))
+        m_detail.m_Remarks = Remarks(xml.find('remarks'))
         return m_detail

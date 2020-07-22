@@ -59,7 +59,8 @@ class XMLCoTController:
                             "invalid": "SendInvalidCoTController",
                             "health": "SendHealthCheckController",
                             "ping": "SendPingController",
-                            "geochat": "SendGeoChatController"
+                            "geochat": "SendGeoChatController",
+                            "point": "SendDropPointController"
                             }
             # TODO: the below if statement is probably unnecessary but this needs to be verified
             if RawCoT == b'' or RawCoT == None:
@@ -84,6 +85,10 @@ class XMLCoTController:
 
             elif str(event.attrib['type']) == "b-t-f":
                 RawCoT.CoTType = CoTTypes['geochat']
+                return RawCoT
+
+            elif str(event.attrib['type']) == "a-h-G" or str(event.attrib['type']) == "a-n-G" or str(event.attrib['type']) == "a-f-G":
+                RawCoT.CoTType = CoTTypes['point']
                 return RawCoT
 
             # TODO: this needs to be expanded for more use cases

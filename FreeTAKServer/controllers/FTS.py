@@ -8,6 +8,7 @@ from FreeTAKServer.controllers.configuration.DataPackageServerConstants import D
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.AsciiController import AsciiController
+from FreeTAKServer.controllers.RestAPI import RestAPI
 import time
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("FTS").getLogger()
@@ -29,6 +30,16 @@ class FTS:
         logger.propagate = True
         logger.info('something')
 
+    def start_restAPI_service(self):
+        try:
+            self.RestAPIPipe, self.RestAPIOrchestratorPipe = multiprocessing.Pipe()
+            self.RestAPIProcess = multiprocessing.Process(target=RestAPI().startup, args=(self.RestAPIPipe,))
+            self.RestAPIProcess.start()
+            return 1
+        except Exception as e:
+            logger.error('There has been an exception thrown in the startup of the restAPI service '+str(e))
+            return -1
+
     def start_CoT_service(self):
         try:
             self.ClientDataPipe, ClientDataPipeParentChild = multiprocessing.Pipe()
@@ -40,11 +51,67 @@ class FTS:
                 input('enter CoT_service IP[' + str(OrchestratorConstants().IP) + ']: ')) or OrchestratorConstants().IP
             self.CoTPort = input('enter CoT_service Port[' + str(OrchestratorConstants().COTPORT) + ']: ') or int(OrchestratorConstants().COTPORT)
             self.CoTPort = int(self.CoTPort)
-            self.CoTService = multiprocessing.Process(target=Orchestrator().start, args=(self.CoTIP, self.CoTPort, self.CoTPoisonPill, ClientDataPipeParentChild, self.ReceiveConnectionsReset))
+            self.CoTService = multiprocessing.Process(target=Orchestrator().start, args=(self.CoTIP, self.CoTPort, self.CoTPoisonPill, ClientDataPipeParentChild, self.ReceiveConnectionsReset, self.RestAPIOrchestratorPipe))
             self.CoTService.start()
             return 1
         except Exception as e:
             logger.error('an exception has been thrown in CoT service startup ' + str(e))
+            return -1
+
+    def stop_CoT_service(self):
+        try:
+            self.ClientDataPipe.close()
+            self.CoTPoisonPill.clear()
+
+            time.sleep(0.1)
+            if self.CoTService.is_alive():
+                self.CoTService.terminate()
+                self.CoTService.join()
+            else:
+                self.CoTService.join()
+        except Exception as e:
+            logger.error("there's been an exception in the stopping of CoT Service " + str(e))
+            return -1
+        return 1
+
+    def start_data_package_service(self):
+        try:
+
+            self.APIPort = str(input('enter DataPackage_Service Port[' + str(
+                DataPackageServerConstants().APIPORT) + ']: ')) or DataPackageServerConstants().APIPORT
+            self.APIPort = int(self.APIPort)
+            self.APIIP = str(input('enter DataPackage_Service IP[' + str(
+                DataPackageServerConstants().IP) + ']: ')) or DataPackageServerConstants().IP
+            self.DataPackageService = multiprocessing.Process(target=FlaskFunctions().startup,
+                                                              args=(self.APIIP, self.APIPort))
+            self.DataPackageService.start()
+            time.sleep(2)
+            return 1
+        except Exception as e:
+            logger.error('there has been an exception in the indevidual starting of the Data Packages Service')
+            return -1
+
+    def stop_data_package_service(self):
+        try:
+            self.DataPackageService.terminate()
+        except Exception as e:
+            logger.error("there's been an exception in the termination of DataPackage Service " + str(e))
+            return -1
+        try:
+            self.DataPackageService.join()
+        except Exception as e:
+            logger.error("there's been an exception in the joining of DataPackage Service " + str(e))
+            return -1
+        return 1
+
+    def start_all(self):
+        try:
+            self.start_restAPI_service()
+            self.start_data_package_service()
+            self.start_CoT_service()
+            return 1
+        except Exception as e:
+            logger.error('there has been an exception in FTS start_all ' + str(e))
             return -1
 
     def restart_receive_connection_process(self):
@@ -91,22 +158,6 @@ class FTS:
         print('to kill the full server type: kill')
         print('if the server has stopped accepting connections try this: restart_receive_connection_process')
 
-    def stop_CoT_service(self):
-        try:
-            self.ClientDataPipe.close()
-            self.CoTPoisonPill.clear()
-
-            time.sleep(0.1)
-            if self.CoTService.is_alive():
-                self.CoTService.terminate()
-                self.CoTService.join()
-            else:
-                self.CoTService.join()
-        except Exception as e:
-            logger.error("there's been an exception in the stopping of CoT Service " + str(e))
-            return -1
-        return 1
-
     def check_service_status(self):
         print('Data Package Service : ' + str(self.DataPackageService.is_alive()))
         print('CoT service is_alive : ' + str(self.CoTService.is_alive()))
@@ -126,45 +177,6 @@ class FTS:
             print("".join(word.ljust(col_width) for word in row))
         print('total sockets: '+str(self.socketCount))
         return 1
-
-    def start_data_package_service(self):
-        try:
-
-            self.APIPort = str(input('enter DataPackage_Service Port[' + str(
-                DataPackageServerConstants().APIPORT) + ']: ')) or DataPackageServerConstants().APIPORT
-            self.APIPort = int(self.APIPort)
-            self.APIIP = str(input('enter DataPackage_Service IP[' + str(
-                DataPackageServerConstants().IP) + ']: ')) or DataPackageServerConstants().IP
-            self.DataPackageService = multiprocessing.Process(target=FlaskFunctions().startup,
-                                                              args=(self.APIIP, self.APIPort))
-            self.DataPackageService.start()
-            time.sleep(2)
-            return 1
-        except Exception as e:
-            logger.error('there has been an exception in the indevidual starting of the Data Packages Service')
-            return -1
-
-    def stop_data_package_service(self):
-        try:
-            self.DataPackageService.terminate()
-        except Exception as e:
-            logger.error("there's been an exception in the termination of DataPackage Service " + str(e))
-            return -1
-        try:
-            self.DataPackageService.join()
-        except Exception as e:
-            logger.error("there's been an exception in the joining of DataPackage Service " + str(e))
-            return -1
-        return 1
-
-    def start_all(self):
-        try:
-            self.start_data_package_service()
-            self.start_CoT_service()
-            return 1
-        except Exception as e:
-            logger.error('there has been an exception in FTS start_all ' + str(e))
-            return -1
 
     def verify_output(self, input, example=None):
         try:
