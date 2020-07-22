@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Untitled Form</title>
+<link rel="stylesheet" type="text/css" href="../static/view.css" media="all">
+<script type="text/javascript" src="../static/view.js"></script>
+
+</head>
+<body id="main_body" >
+
+	<img id="top" src="../static/top.png" alt="">
+	<div id="form_container">
+
+		<h1><a>Untitled Form</a></h1>
+		<form id="PointForm" class="appnitro"  method="post" action="#">
+					<div class="form_description">
+			<h2>Untitled Form</h2>
+			<p>This is your form description. Click here to edit.</p>
+		</div>
+			<ul >
+
+					<li id="li_1" >
+		<label class="description" for="element_1">LAT </label>
+		<div>
+			<input id="element_1" name="latitude" class="element text medium" type="text" maxlength="255" value=""/>
+		</div>
+		</li>		<li id="li_2" >
+		<label class="description" for="element_2">LON </label>
+		<div>
+			<input id="element_2" name="longitude" class="element text medium" type="text" maxlength="255" value=""/>
+		</div>
+		</li>		<li id="li_3" >
+		<label class="description" for="element_3">User Callsign </label>
+		<div>
+			<input id="element_3" name="User_Callsign" class="element text medium" type="text" maxlength="255" value=""/>
+		</div>
+		</li>		<li id="li_4" >
+		<label class="description" for="element_4">User UID </label>
+		<div>
+			<input id="element_4" name="User_UID" class="element text medium" type="text" maxlength="255" value=""/>
+		</div>
+		</li>		<li id="li_5" >
+		<label class="description" for="element_5">Block Callsign </label>
+		<div>
+			<input id="element_5" name="Block_Callsign" class="element text medium" type="text" maxlength="255" value=""/>
+		</div>
+		</li>		<li id="li_6" >
+		<label class="description" for="element_6">Drop Down </label>
+		<div>
+		<select class="element select medium" id="element_6" name="Block_Type">
+			<option value="" selected="selected"></option>
+<option value="Red_Square" >Red Square</option>
+<option value="2" >Second option</option>
+<option value="3" >Third option</option>
+
+		</select>
+		</div>
+		</li>		<li id="li_7" >
+		<label class="description" for="element_7">Block Callsign </label>
+		<div>
+			<input id="element_7" name="Block_UID" class="element text medium" type="text" maxlength="255" value=""/>
+		</div>
+		</li>	<li class="buttons">
+
+				<input id="saveForm" class="button_text" type="submit" name="submit" value="Submit" />
+		</li>
+			</ul>
+		</form>
+	</div>
+	<img id="bottom" src="../static/bottom.png" alt="">
+	</body>
+	<script>
+		(function() {
+		  function toJSONString(form) {
+			var obj = {};
+			var elements = form.querySelectorAll("input, select, textarea");
+			for (var i = 0; i < elements.length; ++i) {
+			  var element = elements[i];
+			  var name = element.name;
+			  var value = element.value;
+
+			  if (name) {
+				obj[name] = value;
+			  }
+			}
+
+			return JSON.stringify(obj);
+		  }
+
+		  document.addEventListener("DOMContentLoaded", function() {
+			var form = document.getElementById("PointForm");
+			form.addEventListener("submit", function(e) {
+			  e.preventDefault();
+			  var json = toJSONString(this);
+			  const Http = new XMLHttpRequest();
+			  const url='http://127.0.0.1/Json';
+			  Http.open("POST", url);
+			  Http.setRequestHeader("Content-Type", "application/json");
+			  console.log(json)
+			  Http.send(json);
+			  Http.onreadystatechange = (e) => {
+				console.log(Http.responseText)
+			  }
+
+			}, false);
+
+		  });
+
+		})();
+	</script>
+
+</html>
