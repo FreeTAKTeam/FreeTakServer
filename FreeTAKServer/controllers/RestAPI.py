@@ -3,6 +3,8 @@ from lxml import etree
 from FreeTAKServer.controllers.model.Event import Event
 from FreeTAKServer.controllers.model.RawCoT import RawCoT
 import datetime as dt
+import json
+
 app = Flask(__name__)
 APIPipe = None
 APIPipe1 = '123'
@@ -12,7 +14,7 @@ def hello():
 
 @app.route("/Create", methods=['GET'])
 def CreateGET():
-    return render_template('home.html')
+    return render_template('homeJson.html')
 
 @app.route("/Create", methods=['POST'])
 def CreatePOST():
@@ -42,10 +44,21 @@ def CreatePOST():
         return 'completed', 200
     except Exception as e:
          print(e)
+
 @app.route("/Json", methods=['POST'])
 def JsonPost():
-    data = request.json
-    print(data)
+    outline = '<event>' \
+              '<point/>' \
+              '<detail><status/><usericon/>' \
+              '<link/>' \
+              '<archive/><color/><precisionlocation/>' \
+              '<contact/>' \
+              '<remarks/>' \
+              '</detail>' \
+              '</event>'
+    event = request.json
+    modelObject = Event.dropPoint((etree.fromstring(outline)))
+    EventObject = json.loads(event)
     return 'completed', 200
 
 @app.route("/URL", methods=['GET'])
@@ -70,6 +83,20 @@ def submitData(dataRaw):
     data.xmlString = dataRaw.encode()
     APIPipe.send([data])
 
+def test(json):
+    outline = '<event>' \
+              '<point/>' \
+              '<detail><status/><usericon/>' \
+              '<link/>' \
+              '<archive/><color/><precisionlocation/>' \
+              '<contact/>' \
+              '<remarks/>' \
+              '</detail>' \
+              '</event>'
+    modelObject = Event.dropPoint((etree.fromstring(outline)))
+    EventObject = json
+    RestAPI().serializeJsonToModel(modelObject, EventObject)
+
 class RestAPI:
     def __init__(self):
         pass
@@ -79,6 +106,16 @@ class RestAPI:
         APIPipe = APIPipea
         app.run(host="127.0.0.1", port=80)
 
+    def serializeJsonToModel(self, model, Json):
+        for key, value in Json.items():
+            if isinstance(value, dict):
+                submodel = getattr(model, key)
+                out = self.serializeJsonToModel(submodel, value)
+                setattr(model, key, out)
+            else:
+                setattr(model, key, value)
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=80)
+    #app.run(host="127.0.0.1", port=80)
+    test({'version': '2.0', 'uid': 'dawwa', 'type': 'a-h-G', 'how': 'h-g-i-g-o', 'Point': {'lat': '0', 'lon': '0', 'hae': '9999999.0', 'ce': '9999999.0', 'le': '9999999.0'}, 'detail': {'status': {'readiness': 'true'}, 'usericon': {'iconsetpath': 'COT_MAPPING_2525B/a-h/a-h-G'}, 'Link': {'uid': 'ddwda', 'production_time': '2020-07-23T02:28:32.147Z', 'type': 'a-f-G-U-C', 'parent_callsign': 'dadwadw', 'relation': 'p-p'}, 'color': {'argb': '-1'}, 'precisionlocation': {'m_event.m_detail.m_Precisionlocation.altsrc': '???'}, 'contact': {'m_event.m_detail.m_Contact.callsign': 'avc'}, 'li_6': {'Block_Type': 'h'}}})
+

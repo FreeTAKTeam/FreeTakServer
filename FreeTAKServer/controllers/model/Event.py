@@ -39,7 +39,7 @@ class Event:
             
             }
 
-        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        self.DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
         
@@ -76,6 +76,9 @@ class Event:
         m_event.setuid(xml.get('uid'))
         m_event.settype(xml.get('type'))
         m_event.sethow(xml.get('how'))
+        m_event.settime(xml.get('time'))
+        m_event.setstart(xml.get('start'))
+        m_event.setstale(xml.get('stale'))
         return m_event
 
     @staticmethod
@@ -87,6 +90,9 @@ class Event:
         m_event.setuid(xml.get('uid'))
         m_event.settype(xml.get('type'))
         m_event.sethow(xml.get('how'))
+        m_event.settime(xml.get('time'))
+        m_event.setstart(xml.get('start'))
+        m_event.setstale(xml.get('stale'))
         return m_event
 
     @staticmethod
@@ -98,6 +104,9 @@ class Event:
         m_event.setuid(xml.get('uid'))
         m_event.settype(xml.get('type'))
         m_event.sethow(xml.get('how'))
+        m_event.settime(xml.get('time'))
+        m_event.setstart(xml.get('start'))
+        m_event.setstale(xml.get('stale'))
         return m_event
 
     @staticmethod
@@ -109,6 +118,9 @@ class Event:
         m_event.setuid(xml.get('uid'))
         m_event.settype(xml.get('type'))
         m_event.sethow(xml.get('how'))
+        m_event.settime(xml.get('time'))
+        m_event.setstart(xml.get('start'))
+        m_event.setstale(xml.get('stale'))
         return m_event
 
     @staticmethod
@@ -120,6 +132,9 @@ class Event:
         m_event.setuid(xml.get('uid'))
         m_event.settype(xml.get('type'))
         m_event.sethow(xml.get('how'))
+        m_event.settime(xml.get('time'))
+        m_event.setstart(xml.get('start'))
+        m_event.setstale(xml.get('stale'))
         return m_event
 
     @staticmethod
@@ -131,6 +146,9 @@ class Event:
         m_event.setuid(xml.get('uid'))
         m_event.settype(xml.get('type'))
         m_event.sethow(xml.get('how'))
+        m_event.settime(xml.get('time'))
+        m_event.setstart(xml.get('start'))
+        m_event.setstale(xml.get('stale'))
         return m_event
 
     @staticmethod
@@ -142,6 +160,9 @@ class Event:
         m_event.setuid(xml.get('uid'))
         m_event.settype(xml.get('type'))
         m_event.sethow(xml.get('how'))
+        m_event.settime(xml.get('time'))
+        m_event.setstart(xml.get('start'))
+        m_event.setstale(xml.get('stale'))
         return m_event
 
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
@@ -165,13 +186,13 @@ class Event:
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) - dt.timedelta(minutes = 1)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 1)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
         self.setstart(zulu)
         self.settime(zulu)
         self.type = type
-        self.setuid(isGeochat = isGeochat, isPing=isPing)
+        self.setuid(isGeochat=isGeochat, isPing=isPing)
         self.version = version
         #Start getter
 
@@ -179,8 +200,14 @@ class Event:
         return self.Start 
     
         # Start setter
-    def setstart(self, Start=0):  
-        self.start = Start 
+    def setstart(self, Start=0):
+        if Start == None:
+            timer = dt.datetime
+            now = timer.utcnow()
+            zulu = now.strftime(self.DATETIME_FMT)
+            self.start = zulu
+        else:
+            self.start = Start
     
         # m_Point setter
     def setpoint(self, m_Point=0):  
@@ -216,8 +243,14 @@ class Event:
         return self.time 
     
         # time setter
-    def settime(self, time=0):  
-        self.time = time
+    def settime(self, time=0):
+        if time == None:
+            timer = dt.datetime
+            now = timer.utcnow()
+            zulu = now.strftime(self.DATETIME_FMT)
+            self.time = zulu
+        else:
+            self.time = time
         
         # stale getter
     def getstale(self): 
@@ -225,7 +258,15 @@ class Event:
     
         # stale setter
     def setstale(self, stale=0):
-        self.stale = stale 
+        if stale == None:
+            timer = dt.datetime
+            now = timer.utcnow()
+            zulu = now.strftime(self.DATETIME_FMT)
+            subtract = dt.timedelta(minutes=1)
+            stale_part = dt.datetime.strptime(zulu, self.DATETIME_FMT) - subtract
+            self.stale = stale_part.strftime(self.DATETIME_FMT)
+        else:
+            self.stale = stale
     
             # type getter
     def gettype(self): 
