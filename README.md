@@ -58,6 +58,8 @@ under docs, you can find various documents including an UMl model of the model c
 
 ## Installing and using FreeTakServer
 ### Prerequisites
+you will need to install Python 3, PIP before you can install  FTS
+
 - Install Python3
 ```
   sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)```
@@ -69,7 +71,7 @@ Since version 0.8, FTS supports Pip installation, manual installation can be don
   pip install FreeTAKServer
 ```
 
-Optional: check if installation is correctly executed
+Optional: check if installation is correctly executed and install any missing packages if prompted
 ```
 pip check FreeTakServer 
 ```
@@ -86,18 +88,16 @@ C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
 #### Run Server in console
 
 ```
-sudo  python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
+sudo  python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP]
 ```
 this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
-to change that you can use
+
+Open a new console in a separate window
+run  FTS Command Line Interface  with 
 ```
-sudo python -m FreeTAKServer.controllers.Orchestrator -CoTPort 8099 -IP 192.127.1.1 -APIPort 9999
+python -m FreeTAKServer.views.CLI
 ```
 
-run the above command with 
-```
--h
-``` 
 to get a list of other supported commands
 #### Run Server as Demon
 
@@ -120,6 +120,12 @@ if, trying to start FTS you get an error 'package not found'
 ```
 navigate to the physical location where the controllers are installed and start the server from there
 
+## Update FreeTakServer
+if you already installed FTS with pip you can use
+```
+pip install FreeTAKServer --upgrade
+```
+
 
 ### client2client datapackages
 
@@ -133,11 +139,7 @@ When you post package to specific contact in ATAK, following happens:
 Assuming you want to run open-to-everyone FTS instance, and you have server hosted somewhere, you need to specify _public_ IP address in -IP argument. And just in case, -IP also accepts domain names.   
 If you run it at home and port forward on router doesn't work, check if you receive actual IP address and not being NATed and ports 8080 and 8087 are not filtered - you can ask your ISP about that.
 
-## Update FreeTakServer
-if you already installed FTS with pip you can use
-```
-pip install FreeTAKServer --upgrade
-```
+
 
 ##  Project Structure
 - TakFreeServer
