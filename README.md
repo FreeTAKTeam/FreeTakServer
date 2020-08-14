@@ -72,12 +72,36 @@ C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
 #### Run Server in console
 
 ```
-sudo  python3 -m FreeTAKServer.controllers.FTS
+sudo  python3 -m FreeTAKServer.controllers.FTS -AutoStart (weather the full server start or just the RestAPI, must be True or False) -CoTIP (your IP) -DataPackageIP(your IP) -CoTPort (the port you want atak to connect to) -DataPackagePort (the port you want datapackages to be sent and received on)
 ```
+
+```
+defaults:
+
+AutoStart = True
+
+CoTIP = 0.0.0.0
+
+DataPackageIP = 0.0.0.0
+
+DataPackagePort = 8080
+
+CoTPort = 8087
+```
+
 this will start the program in an emulated terminal like enviroment
+
+### Run CLI in console
+
+```
+sudo  python3 -m FreeTAKServer.views.CLI
+``` 
+to start the commandline
+
 ```
 help
-``` 
+```
+
 to get a list of other supported commands run the above command
 
 it is recommended to start the server with start_all
