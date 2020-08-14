@@ -92,17 +92,29 @@ sudo  python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP]
 ```
 this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
 
+other parameters you can use:
+-AutoStart: (weather the full server start or just the RestAPI, must be True or False)
+ -CoTIP [yourIP] 
+ -DataPackageIP[yourIP] : set the IP where CoTs are send
+ -CoTPort [aPort] : the port you want clients to connect to
+ -DataPackagePort [anotherPort]: the port you want datapackages to be sent and received on
+ 
+if you dont set any of the above, FTS will adopt a "Convention instead of Configuration" approach and try to set all from the configuation file
+
 Open a new console in a separate window
 run  FTS Command Line Interface  with 
 ```
 python -m FreeTAKServer.views.CLI
 ```
 
-to get a list of other supported commands
+to get a list of other supported commands type 
+
+``help```
+
 #### Run Server as Demon
 
 ```
-sudo nohup python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP) &
+sudo nohup python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP] &
 ```
 
 
@@ -110,7 +122,7 @@ sudo nohup python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP) &
 go to the start menu and type cmd to start a command prompt
 open a console with admin rights
 ```
-python3 -m FreeTAKServer.controllers.Orchestrator -IP (yourIP)
+python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP]
 ```
 
 ### Troubleshooting
