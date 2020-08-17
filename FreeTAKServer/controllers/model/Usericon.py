@@ -7,12 +7,18 @@
 # Original author: Corvo
 # 
 #######################################################
-
+from .UsericonVariables import UsericonVariables as vars
 
 class Usericon:
-# default constructor       def __init__(self):  
+    def __init__(self):
+        self.iconsetpath = None
 
-    iconsetpath = "" 
+    @staticmethod
+    def drop_point(iconsetpath=vars.drop_point().ICONSETPATH):
+        usericon = Usericon()
+        usericon.seticonsetpath(iconsetpath=iconsetpath)
+        return usericon
+
      # iconsetpath getter 
     def geticonsetpath(self): 
         return self.iconsetpath 

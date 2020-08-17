@@ -2,22 +2,15 @@ from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiat
 from FreeTAKServer.controllers.model.SendPing import SendPing
 from lxml import etree
 from FreeTAKServer.controllers.model.Event import Event
+from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 
-class SendPingController(BasicModelInstantiate):
+class SendPingController():
     def __init__(self, RawCoT):
-        self.m_sendPing = SendPing()
-        self.m_sendPing.clientInformation = RawCoT.clientInformation
-        self.m_sendPing.xmlString = RawCoT.xmlString
-        self.m_sendPing.modelObject = self.instantiateDomainModel(RawCoT)
-
-    def instantiateDomainModel(self, RawCoT):
-        self.modelObject = Event("ping")
-        root = RawCoT.xmlString
-        # establish variables
-        self.event = etree.XML(root)
-
-        # instantiate model
-        self.eventAtrib()
+        tempObject = Event.Ping()
+        self.sendPing = SendPing()
+        self.sendPing.clientInformation = RawCoT.clientInformation
+        self.sendPing.modelObject = XMLCoTController().serialize_CoT_to_model(tempObject, etree.fromstring(RawCoT.xmlString))
+        self.sendPing.xmlString = XMLCoTController().serialize_model_to_CoT(self.sendPing.modelObject, 'event')
 
     def getObject(self):
-        return self.m_sendPing
+        return self.sendPing

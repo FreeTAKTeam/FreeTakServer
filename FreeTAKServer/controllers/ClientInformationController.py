@@ -9,7 +9,6 @@
 #######################################################
 from lxml import etree
 from FreeTAKServer.controllers.model.Event import Event
-from FreeTAKServer.controllers.model.ClientInformation import ClientInformation
 from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiate
 import uuid
 from logging.handlers import RotatingFileHandler
@@ -17,6 +16,9 @@ import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import sys
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.model.Event import Event
+from FreeTAKServer.controllers.model.ClientInformation import ClientInformation
+from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 
 logger = CreateLoggerController("ClientInformationController").getLogger()
 
@@ -31,21 +33,20 @@ class ClientInformationController(BasicModelInstantiate):
 
     def intstantiateClientInformationModelFromConnection(self, rawClientInformation, queue):
         try:
-            self.m_clientInformation = ClientInformation()
+            tempObject = Event.Connection()
+            self.clientInformation = ClientInformation()
             argument = "initialConnection"
-            self.m_clientInformation.dataQueue = queue
-            self.modelObject = Event(argument)
-            self.m_clientInformation.socket = rawClientInformation.socket
-            self.m_clientInformation.IP = rawClientInformation.ip
-            self.m_clientInformation.idData = rawClientInformation.xmlString
-            self.m_clientInformation.alive = 1
-            self.m_clientInformation.ID = uuid.uuid1().int
-            super().__init__(self.m_clientInformation.idData, self.modelObject)
-            self.m_clientInformation.modelObject = self.modelObject
-            return self.m_clientInformation
+            self.clientInformation.dataQueue = queue
+            self.clientInformation.socket = rawClientInformation.socket
+            self.clientInformation.IP = rawClientInformation.ip
+            self.clientInformation.idData = rawClientInformation.xmlString
+            self.clientInformation.alive = 1
+            self.clientInformation.ID = uuid.uuid1().int
+            self.clientInformation.modelObject = XMLCoTController().serialize_CoT_to_model(tempObject, etree.fromstring(rawClientInformation.xmlString.encode()))
+            return self.clientInformation
         except Exception as e:
             logger.error('error in client information controller '+str(e))
-        
+            return -1
         
         
 

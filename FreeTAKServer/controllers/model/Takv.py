@@ -7,22 +7,31 @@
 # Original author: Corvo
 # 
 #######################################################
-
+from .TakvVariables import TakvVariables as vars
 
 class Takv:
-
-
-
+  
   # default constructor       
   def __init__(self):
     # the version of TAK running on the device
-    self.version = "3.12.0-45691.45691-CIV" 
+    self.version = None
     # the variant of TAK
-    self.platform = "ATAK-CIV" 
+    self.platform = None
     # type of physical device
-    self.device = "Pirate Device" 
+    self.device = None
     # the operating system running TAK
-    self.os = "Linux" 
+    self.os = None
+
+  @staticmethod
+  def connection(VERSION = vars.connection().VERSION, PLATFORM = vars.connection().PLATFORM,
+                 DEVICE = vars.connection().DEVICE, OS = vars.connection().OS):
+    
+    takv = Takv()
+    takv.setversion(VERSION)
+    takv.setplatform(PLATFORM)
+    takv.setos(OS)
+    takv.setdevice(DEVICE)
+    return takv
 
     # os getter 
   def getos(self): 

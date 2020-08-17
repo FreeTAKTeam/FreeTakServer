@@ -7,19 +7,32 @@
 # Original author: Corvo
 # 
 #######################################################
+from .ChatVariables import ChatVariables as vars
+from .Chatgrp import Chatgrp
 
-class chat:
-
-
-
+class Chat:
       # default constructor       
     def __init__(self):
-        from FreeTAKServer.controllers.model.chatgrp import chatgrp
-        self.senderCallsign = senderCallsign
-        self.id = id
-        self.parent = parent
-        self.chatgrp = chatgrp()
+        from .Chatgrp import Chatgrp
+        from .Hierarchy import Hierarchy
+        self.senderCallsign = None
+        self.id = None
+        self.parent = None
+        self.chatroom = None
+        self.groupOwner = None
+        self.chatgrp = None
 
+    @staticmethod
+    def geochat(GROUPOWNER = vars.geochat().GROUPOWNER, ID = vars.geochat().ID, PARENT = vars.geochat().PARENT,
+                CHATROOM = vars.geochat().CHATROOM, SENDERCALLSIGN = vars.geochat().SENDERCALLSIGN):
+        chat = Chat()
+        chat.setgroupOwner(GROUPOWNER)
+        chat.setparent(PARENT)
+        chat.setid(ID)
+        chat.setchatroom(CHATROOM)
+        chat.setsenderCallsign(SENDERCALLSIGN)
+        chat.setchatgrp(Chatgrp.geochat())
+        return chat
 
     def getparent(self): 
         return self.parent 
@@ -73,8 +86,9 @@ class chat:
     def setuid1(self, uid1=0):
         chatgrp().setuid1(uid1)
 
-    def getchatgrpid(self):
-        chatgrp().getid()
+    def getchatgrp(self):
+        return self.chatgrp
   
-    def setchatgrpid(self, id=0):
-        chatgrp().setid(id)
+    def setchatgrp(self, chatgrp=0):
+        print(chatgrp)
+        self.chatgrp = chatgrp

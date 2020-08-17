@@ -17,3 +17,4 @@ class RawCoT:
         self.xmlString = b""
         self.disconnect = 0
         self.status = ''
+        self.protocol = 'xml'

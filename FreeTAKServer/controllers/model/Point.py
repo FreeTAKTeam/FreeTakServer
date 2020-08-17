@@ -8,16 +8,16 @@
 # 
 #######################################################
 # Latitude referred to the WGS 84 ellipsoid in degrees
+from .PointVariables import PointVariables as vars
 
 class Point:
 
-    def __init__(self):
-        self.le = "9999999.0"
-        self.ce = "9999999.0"
-        self.hae = "00.00000000"
-        self.lon = "00.00000000"        
-        self.lat = "00.00000000"
-
+    def __init__(self, le=vars().LE, ce=vars().CE, hae=vars().HAE, lon=vars().LON, lat=vars().LAT):
+        self.le = le
+        self.ce = ce
+        self.hae = hae
+        self.lon = lon
+        self.lat = lat
 
     # ce getter 
     def getce(self): 
@@ -34,7 +34,6 @@ class Point:
     # le setter 
     def setle(self,le):  
         self.le=le
-
 
     # lat getter 
     def getlat(self):

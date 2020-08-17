@@ -7,15 +7,46 @@
 # Original author: Corvo
 # 
 #######################################################
-
+from .EmergencyVariables import EmergencyVariables as vars
 
 class Emergency:
     """An Emergency beacon the is continually send to all the connected clients until
     deactivated from the original creator
     """
     def __init__(self):  
-
-        self.type = ""    
-        self.Alert = ""    
+        self.type = None
+        self.alert = None
     # if true the Emergency beacon is canceled
-        self.cancel = ""    
+        self.cancel = None
+
+    @staticmethod
+    def emergency_on(TYPE = vars.emergency_on().TYPE, ALERT = vars.emergency_on().ALERT, CANCEL = vars.emergency_on().CANCEL):
+        emergency = Emergency()
+        emergency.setType(TYPE)
+        emergency.setAlert(ALERT)
+        emergency.setCancel(CANCEL)
+        return emergency
+
+    @staticmethod
+    def emergency_off(CANCEL = vars.emergency_on().CANCEL):
+        emergency = Emergency()
+        emergency.setCancel(CANCEL)
+        return emergency
+
+    def setType(self, type=None):
+        self.type = type
+    
+    def getType(self):
+        return self.type
+
+    def setAlert(self, alert=None):
+        self.alert = alert
+
+    def getAlert(self):
+        return self.alert
+
+    def setCancel(self, cancel=None):
+        self.cancel = cancel
+
+    def getCancel(self):
+        return self.cancel

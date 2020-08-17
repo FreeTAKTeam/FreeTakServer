@@ -15,6 +15,9 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 import sys
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.model.Event import Event
+import inspect
+import types
 logger = CreateLoggerController("XMLCoTController").getLogger()
 loggingConstants = LoggingConstants()
 
@@ -59,6 +62,8 @@ class XMLCoTController:
                             "invalid": "SendInvalidCoTController",
                             "health": "SendHealthCheckController",
                             "ping": "SendPingController",
+                            "geochat": "SendGeoChatController",
+                            "point": "SendDropPointController"
                             }
             # TODO: the below if statement is probably unnecessary but this needs to be verified
             if RawCoT == b'' or RawCoT == None:
@@ -81,6 +86,14 @@ class XMLCoTController:
                 RawCoT.CoTType = CoTTypes['ping']
                 return RawCoT
 
+            elif str(event.attrib['type']) == "b-t-f":
+                RawCoT.CoTType = CoTTypes['geochat']
+                return RawCoT
+
+            elif str(event.attrib['type']) == "a-h-G" or str(event.attrib['type']) == "a-n-G" or str(event.attrib['type']) == "a-f-G" or str(event.attrib['type']) == "a-u-G":
+                RawCoT.CoTType = CoTTypes['point']
+                return RawCoT
+
             # TODO: this needs to be expanded for more use cases
             else:
                 RawCoT.CoTType = CoTTypes['*']
@@ -97,3 +110,66 @@ class XMLCoTController:
 
     def findUID(self):
         pass
+
+    def serialize_model_to_CoT(self, modelObject, tagName, level = 0):
+        xml = etree.Element(tagName)
+        for attribName, value in modelObject.__dict__.items():
+            if hasattr(value, '__dict__'):
+                tagElement = self.serialize_model_to_CoT(value, attribName, level = level + 1)
+                # handles instances in which tag name begins with double underscore
+                if attribName[0] == '_':
+                    tagElement.tag = '_' + tagElement.tag
+                    xml.append(tagElement)
+                else:
+                    xml.append(tagElement)
+
+            elif value == None:
+                continue
+
+            elif isinstance(value, list):
+                for element in value:
+                    tagElement = self.serialize_model_to_CoT(element, attribName, level=level + 1)
+                    # handles instances in which tag name begins with double underscore
+                    if attribName[0] == '_':
+                        tagElement.tag = '_' + tagElement.tag
+                        xml.append(tagElement)
+                    else:
+                        xml.append(tagElement)
+
+            # handles text data within tag
+            elif attribName == "INTAG":
+                xml.text = value
+
+            else:
+                # handles instances in which attribute name begins with double underscore
+                if attribName[0] == '_':
+                    xml.attrib['_'+attribName] = value
+                else:
+                    xml.attrib[attribName] = value
+
+        if level == 0:
+            return etree.tostring(xml)
+        else:
+            return xml
+
+    def serialize_CoT_to_model(self, model, xml):
+        attributes = xml.attrib
+        if xml.text != None:
+            setter = getattr(model, 'setINTAG')
+            setter(xml.text)
+        else:
+            pass
+
+        for key, value in attributes.items():
+            setter = getattr(model, 'set'+key)
+            setter(value)
+
+        for element in xml:
+            submodel = getattr(model, 'get'+element.tag)
+            submodel = submodel()
+            out = self.serialize_CoT_to_model(submodel, element)
+            setter = getattr(model, 'set'+element.tag)
+            setter(out)
+
+        return model
+

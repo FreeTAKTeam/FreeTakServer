@@ -7,18 +7,24 @@
 # Original author: Corvo
 # 
 #######################################################
+from .ServerdestinationVariables import ServerdestionationVariables as vars
 
+class _Serverdestination:
+    def __init__(self):
+        # string composed by IP:port: protocol:machineID. e.g. 192.168.0.103:4242:tcp:
+        # ANDROID-R52JB0CDC4E
+        self.destinations = None
+        # destinations getter
 
-class __Serverdestination:
-# default constructor       def __init__(self):  
+    @staticmethod
+    def geochat(DESTINATIONS = vars.geochat().DESTINATIONS):
+        serverdestinations = _Serverdestination()
+        serverdestinations.setdestinations(DESTINATIONS)
+        return serverdestinations
 
-    # string composed by IP:port: protocol:machineID. e.g. 192.168.0.103:4242:tcp:
-    # ANDROID-R52JB0CDC4E
-    destinations = "" 
-    # destinations getter 
     def getdestinations(self): 
         return self.destinations 
 
     # destinations setter 
-    def setdestinations(self, destinations=0):  
-        self.destinations=destinations
+    def setdestinations(self, destinations=None):
+        self.destinations = destinations

@@ -1,6 +1,6 @@
 class OrchestratorConstants:
     def __init__(self):
-        self.IP = "0.0.0.0"
+        self.CoTIP = "0.0.0.0"
         self.COTPORT = 8087
         self.APIPORTARG = '-APIPort'
         self.COTPORTARG = '-CoTPort'
