@@ -69,6 +69,15 @@ C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
 
 ### Linux
 
+#### Configuration
+
+it is recomended to edit the maximum number of open connections with the following
+```
+vim /etc/sysctl.conf
+fs.file-max = 200000
+sysctl -p
+```
+
 #### Run Server in console
 
 ```
