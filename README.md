@@ -51,7 +51,7 @@ The target architecture supports also the ability to implement "plugins", thanks
 ![the FreeTakServer component model](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTakServerComponents.png?raw=true)
 
 ## Documentation
-under docs, you can find various documents including an UMl model of the model classes involved in a COT event.
+under docs, you can find various documents including an UML model of the Domain classes involved in a COT event.
 
 ## Requirements
 - Python  3.6 (or better)
