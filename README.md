@@ -52,7 +52,7 @@ under docs, you can find various documents including an UMl model of the model c
 Since version 0.8, FTS supports Pip installation, manual installation can be done with some modifications of the import paths, however we don't support it
 
 ```
-  pip install FreeTAKServer
+  pip3 install FreeTAKServer
 ```
 
 Optional: check if installation is correctly executed
