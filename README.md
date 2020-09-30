@@ -56,6 +56,9 @@ under docs, you can find various documents including an UML model of the Domain 
 - Python  3.6 (or better)
 
 ## Installing and using FreeTakServer
+Important Note: depending from the system you are using, the following commands may be executed using  python3, Pip3 or in alternative python, Pip (without the 3).
+
+
 ### Prerequisites
 you will need to install Python 3, PIP before you can install  FTS
 
@@ -108,14 +111,14 @@ python -m FreeTAKServer.views.CLI
 
 to get a list of other supported commands type 
 
-``help```
+```help```
 
 #### Run Server as Demon
+use this command to run FTS independently from your command window.
 
 ```
 sudo nohup python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP] &
 ```
-
 
 ### Windows
 go to the start menu and type cmd to start a command prompt
