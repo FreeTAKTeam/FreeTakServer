@@ -4,7 +4,7 @@
 
 Welcome to the FreeTakServer (FTS) git repository.
 
-FTS  is a Python3 implementation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform and is only dependent on python stdlib libraries. We use the Flask framework for web services. 
+FTS  is a Python3 implementation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform. We use the Flask framework for web services. 
 it's free and open source  (released under the Eclipse Public License).
 
 ## Use cases
@@ -13,9 +13,9 @@ It intends to support all the major use cases of the original TAK server.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 
 ## Community 
-This code is currently in *BETA STAGE*
+This code is currently in *Early Production Stage*
 Check out our roadmap @ FreeTakServer#25 to see what is planned
-If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is still in  development.
+If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is  in contionous development.
 
 ### Donate back
 the FTS team is working  daily on the development of a open and free solution. We plan to do more that simply replicate the functionalities of the legacy TAK server, our road map includes integration with open source systems like LORA's Meshtastic, porting it to Android, having an open API and much more.
@@ -50,19 +50,20 @@ TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of 
 YOu can see the complete COT description   {here}(https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
 
 ## Documentation
-under docs, you can find various documents including an UML model of the Domain classes involved in a COT event.
+under /docs, you can find various documents including an UML model of the Domain classes involved in a COT event.
 
 ## Requirements
 - Python  3.6 (or better)
+following Python libraries are required and will be installed automatically by Pip: flask, lxml, pathlib, tabulate, sqlalchemy, setuptools, Flask-SQLAlchemy
 
 ## Installing and using FreeTakServer
+the following are the instructions to install FTS 1.1 or better. Past versions can have different procedures.
 Important Note: depending from the system you are using, the following commands may be executed using  python3, Pip3 or in alternative python, Pip (without the 3).
 
-
 ### Prerequisites
-you will need to install Python 3, PIP before you can install  FTS
+you will need to install Python 3 and PIP before you can install FTS
 
-- Install Python3
+- Install Python3 and PIP
 ```
   sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)```
  ```
@@ -70,19 +71,30 @@ you will need to install Python 3, PIP before you can install  FTS
 Since version 0.8, FTS supports Pip installation, manual installation can be done with some modifications of the import paths, however we don't support it
 
 ```
-  pip install FreeTAKServer
+  sudo python3 -m pip install FreeTAKServer 
 ```
 
 Optional: check if installation is correctly executed and install any missing packages if prompted
 ```
 pip check FreeTakServer 
 ```
-
-note under windows it's installed under
+use 
 ```
-C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages
+python3 -m pip show FreeTAKServer
+``` 
+to find the path to FreeTAKServer
+e.g. under windows it's installed under
+```
+C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages\FreeTAKServer
 ```
 
+### Installing specific versions
+if you need, you can install a specific version of FTS by this command
+```
+sudo python3 -m pip install FreeTAKServer==xxx
+```
+you can see a list of versions here
+https://pypi.org/project/FreeTAKServer/#history 
 ## Run FreeTakServer
 
 ### Linux
@@ -108,21 +120,35 @@ run  FTS Command Line Interface  with
 ```
 python -m FreeTAKServer.views.CLI
 ```
+following command are supported:
+start_all: to begin all services type
+start_CoT_service: to begin CoT service type
+start_data_package_service: to begin data package service  type
+stop_all: to terminate all services type
+stop_CoT_service: to terminate CoT service type
+stop_data_package_service: to begin data package service type
+change_connection_info: change the address and port of the server you're connecting to
+show_users: to show connected user information type
+kill: to kill the full server type
+show_DP: to show all DataPackages on the server
+remove_DP: to remove a DataPackages on the server
 
 to get a list of other supported commands type 
 
 ```help```
 
 #### Run Server as Demon
-use this command to run FTS independently from your command window.
+use this command in Ubuntu to run FTS independently from your command window.
 
 ```
 sudo nohup python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP] &
 ```
 
 ### Windows
-go to the start menu and type cmd to start a command prompt
+go to the start menu and type ```cmd``` to start a command prompt
+
 open a console with admin rights
+Powershell has issues so do not use it
 ```
 python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP]
 ```
@@ -132,14 +158,17 @@ if, trying to start FTS you get an error 'package not found'
 ```
 'package not found'
 ```
-navigate to the physical location where the controllers are installed and start the server from there
+navigate to the physical location where the controllers are installed and start the server from there.
+
+You may also check for missing libraries and install then using Pip
 
 ## Update FreeTakServer
 if you already installed FTS with pip you can use
 ```
 pip install FreeTAKServer --upgrade
 ```
-
+subscribe to this feed to be automatically informed about new versions:
+https://pypi.org/rss/project/freetakserver/releases.xml
 
 ### client2client datapackages
 
