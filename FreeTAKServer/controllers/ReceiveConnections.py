@@ -8,12 +8,8 @@
 # 
 #######################################################
 import socket
-import time
-from logging.handlers import RotatingFileHandler
-import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-import sys
-from FreeTAKServer.controllers.model.RawConnectionInformation import RawConnectionInformation as sat
+from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
 loggingConstants = LoggingConstants()

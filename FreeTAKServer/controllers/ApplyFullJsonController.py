@@ -1,5 +1,5 @@
-from FreeTAKServer.controllers.model.Event import Event
-import json as jsonend
+
+from FreeTAKServer.model.FTSModel.Event import Event
 from lxml import etree
 
 class ApplyFullJsonController:

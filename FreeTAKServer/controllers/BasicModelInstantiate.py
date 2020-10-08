@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as etree
-from FreeTAKServer.controllers.model.Event import Event
+
 
 class BasicModelInstantiate:
     def __init__(self, root, modelObject):

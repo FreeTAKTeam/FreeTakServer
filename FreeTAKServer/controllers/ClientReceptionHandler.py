@@ -9,15 +9,6 @@
 #######################################################
 import time
 import socket
-from xml.dom.minidom import parseString
-import threading
-import multiprocessing
-from FreeTAKServer.controllers.model.socketInformation import socketInformation
-from queue import Queue
-from logging.handlers import RotatingFileHandler
-import logging
-import sys
-from FreeTAKServer.controllers.configuration.ClientReceptionHandlerConstants import ClientReceptionHandlerConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from lxml import etree
 
@@ -27,7 +18,6 @@ from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants imp
 loggingConstants = ClientReceptionLoggingConstants()
 
 
-# TODO: add more rigid exception management
 
 class ClientReceptionHandler:
     def __init__(self):
@@ -90,7 +80,7 @@ class ClientReceptionHandler:
                             continue
                         else:
                             try:
-                                timeout = time.time() + 0.1
+                                timeout = time.time() + 1
                                 while time.time() < timeout:
                                     try:
                                         event = etree.fromstring(part)
@@ -134,7 +124,7 @@ class ClientReceptionHandler:
 
     def returnReceivedData(self, clientInformation, data, queue):
         try:
-            from FreeTAKServer.controllers.model.RawCoT import RawCoT
+            from FreeTAKServer.model.RawCoT import RawCoT
             print(data)
             RawCoT = RawCoT()
             RawCoT.clientInformation = clientInformation

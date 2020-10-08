@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+// All items are required unless otherwise noted!
+// "required" means if they are missing on send, the conversion
+// to the message format will be rejected and fall back to opaque
+// XML representation
+message Status {
+     uint32 battery = 1;           // battery=
+}

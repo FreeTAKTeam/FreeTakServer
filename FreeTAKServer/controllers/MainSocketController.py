@@ -7,8 +7,8 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from FreeTAKServer.controllers.model.MainSocket import MainSocket
-import socket
+from FreeTAKServer.model.sockets.MainSocket import MainSocket
+
 
 class MainSocketController:
     def __init__(self):  
@@ -21,7 +21,4 @@ class MainSocketController:
         self.MainSocket.port = port
 
     def createSocket(self):
-        self.MainSocket.sock = socket.socket(self.MainSocket.socketAF, self.MainSocket.socketSTREAM)
-        self.MainSocket.sock.setsockopt(self.MainSocket.solSock, self.MainSocket.soReuseAddr, self.MainSocket.sockProto)
-        self.MainSocket.sock.bind((self.MainSocket.ip, self.MainSocket.port))
-        return self.MainSocket.sock
+        pass

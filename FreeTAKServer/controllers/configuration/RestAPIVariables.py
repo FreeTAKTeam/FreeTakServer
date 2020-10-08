@@ -23,14 +23,17 @@ class RestAPIVariables:
         self.defaultPort = 80
         self.defaultCoTIP = '0.0.0.0'
         self.defaultCoTPort = 15777
+        self.defaultCoTStatus = ''
         self.defaultDataPackageIP = '0.0.0.0'
         self.defaultDataPackagePort = 8080
+        self.defaultDataPackageStatus = ''
 
     def json_content(self):
         self.JsonStatusStartAll = {"CoTService":
-                                   {"IP": self.getdefaultCoTIP(), "PORT": self.getdefaultCoTPort(), "STATUS": "start"},
+                                   {"IP": self.getdefaultCoTIP(), "PORT": self.getdefaultCoTPort(), "STATUS": self.getdefaultCoTStatus()},
                                "DataPackageService":
-                                   {"IP": self.getdefaultDataPackageIP(), "PORT": self.getdefaultDataPackagePort(), "STATUS": "start"}}
+                                   {"IP": self.getdefaultDataPackageIP(), "PORT": self.getdefaultDataPackagePort(), "STATUS": self.getdefaultDataPackageStatus()}}
+
         self.JsonStatusStopAll = {"CoTService":
                                       {"STATUS": "stop"},
                                   "DataPackageService":
@@ -46,7 +49,7 @@ class RestAPIVariables:
 
     def setdefaultCoTIP(self, defaultCoTIP):
         self.defaultCoTIP = defaultCoTIP
-        
+
     def getdefaultCoTIP(self):
         return self.defaultCoTIP
 
@@ -55,6 +58,12 @@ class RestAPIVariables:
 
     def getdefaultCoTPort(self):
         return self.defaultCoTPort
+
+    def setdefaultCoTStatus(self, defaultCoTStatus):
+        self.defaultCoTStatus = defaultCoTStatus
+
+    def getdefaultCoTStatus(self):
+        return self.defaultCoTStatus
 
     def setdefaultDataPackageIP(self, defaultDataPackageIP):
         self.defaultDataPackageIP = defaultDataPackageIP
@@ -67,3 +76,9 @@ class RestAPIVariables:
 
     def getdefaultDataPackagePort(self):
         return self.defaultDataPackagePort
+    
+    def setdefaultDataPackageStatus(self, defaultDataPackageStatus):
+        self.defaultDataPackageStatus = defaultDataPackageStatus
+
+    def getdefaultDataPackageStatus(self):
+        return self.defaultDataPackageStatus

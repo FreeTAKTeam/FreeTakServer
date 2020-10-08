@@ -1,6 +1,6 @@
 import os
 import pathlib
-
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 class DataPackageServerConstants:
     def __init__(self):
@@ -15,7 +15,7 @@ class DataPackageServerConstants:
         self.HTTPDEBUG = False
         self.HTTPMETHODS = ['POST', 'GET', 'PUT']
         self.IP = "0.0.0.0"
-        self.versionInfo = 'FreeTAKServer-1.0RC3'
+        self.versionInfo = MainConfig.version
         self.NodeID = 'FTS'
         self.VERSIONJSON = '{"version":"2","type":"ServerConfig", "data":{"version": "%s", "api": "2","hostname":"%s"}, "nodeId":"%s"}' % (
             self.versionInfo, "0.0.0.0", self.NodeID)

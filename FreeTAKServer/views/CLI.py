@@ -1,16 +1,12 @@
-import http
+import http.client
 import json
-from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
-from FreeTAKServer.controllers.Orchestrator import Orchestrator
-from FreeTAKServer.controllers.DataPackageServer import FlaskFunctions
+import tabulate
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
-from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.AsciiController import AsciiController
-from FreeTAKServer.controllers.model.FTS import FTS
-from FreeTAKServer.controllers.model.RestAPIService import RestAPIService
+from FreeTAKServer.model.ServiceObjects.FTS import FTS
+from FreeTAKServer.model.ServiceObjects.RestAPIService import RestAPIService
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("CLI").getLogger()
@@ -21,6 +17,7 @@ json_content.json_content()
 connectionIP = str(RestAPIService().RestAPIServiceIP)
 connectionPort = int(RestAPIService().RestAPIServicePort)
 
+#TODO: standardize and abstract this
 class RestCLIClient:
 
     def __init__(self):
@@ -43,13 +40,18 @@ class RestCLIClient:
     def start_CoT_service(self):
         try:
             self.CoTIP = str(
-                input('enter CoT_service IP[' + str(OrchestratorConstants().IP) + ']: ')) or OrchestratorConstants().IP
-            self.CoTPort = input('enter CoT_service Port[' + str(OrchestratorConstants().COTPORT) + ']: ') or int(
-                OrchestratorConstants().COTPORT)
+                input('enter CoT_service IP[' + str(FTS().CoTService.CoTServiceIP) + ']: ')) or FTS().CoTService.CoTServiceIP
+            self.CoTPort = input('enter CoT_service Port[' + str(FTS().CoTService.CoTServicePort) + ']: ') or int(
+                FTS().CoTService.CoTServicePort)
             self.CoTPort = int(self.CoTPort)
-            #send start COT to API
-            body = json.dumps({"CoTService": {"IP": str(self.CoTIP), "PORT": int(self.CoTPort)}})
-            self.conn.request("POST", "/CoTService",  body, {"Content-type": "application/json", "Accept": "text/plain"})
+            #send start COT
+            json_content.setdefaultCoTPort(self.CoTPort)
+            json_content.setdefaultCoTIP(self.CoTIP)
+            json_content.setdefaultCoTStatus('start')
+            body = json.dumps(json_content.getJsonStatusStartAll())
+            conn = http.client.HTTPConnection(connectionIP, connectionPort)
+            conn.request("POST", "/changeStatus",  body, {"Content-type": "application/json", "Accept": "text/plain"})
+            response = conn.getresponse()
             if self.check_response(response):
                 print('CoT service started')
             else:
@@ -61,8 +63,11 @@ class RestCLIClient:
 
     def stop_CoT_service(self):
         try:
-            self.conn.request("DELETE", "/CoTService")
-            response = self.conn.getresponse()
+            json_content.setdefaultCoTStatus('stop')
+            body = json.dumps(json_content.getJsonStatusStartAll())
+            conn = http.client.HTTPConnection(connectionIP, connectionPort)
+            conn.request("POST", "/changeStatus", body, {"Content-type": "application/json", "Accept": "text/plain"})
+            response = conn.getresponse()
             if self.check_response(response):
                 print('CoT service stopped')
             else:
@@ -144,6 +149,36 @@ class RestCLIClient:
             logger.error('there has been an exception in RestCLIClient stop_all ' + str(e))
             return -1
 
+    def show_DP(self):
+        try:
+            conn = http.client.HTTPConnection(connectionIP, connectionPort)
+            conn.request("GET", "/DataPackageTable")
+            response = conn.getresponse()
+            DataPackages = json.loads(response.read().decode("utf-8"))
+            DPArray = []
+            for dict in DataPackages['json_list']:
+                values = list(dict.values())
+                DPArray.append(values)
+            table = tabulate.tabulate(DPArray, headers = ["Keywords", "Name", "Index", "Privacy", "Size", "SubmissionDataTime", "SubmissionUser"], tablefmt='psql')
+            print(table)
+            return 1
+
+        except Exception as e:
+            logger.error("there has been an exception thrown in show DP function")
+            return -1
+
+    def remove_DP(self):
+        hash = input('Index of DataPackage to delete: ')
+        conn = http.client.HTTPConnection(connectionIP, connectionPort)
+        conn.request("DELETE", f"/DataPackageTable?Hash={hash}")
+        response = conn.getresponse()
+        DataPackages = json.loads(response.read().decode("utf-8"))
+        if self.check_response(response):
+            print('DP removed succesfully')
+        else:
+            print('DP removed failed')
+        return 1
+
     def help(self):
         print('start_all: to begin all services type')
         print('start_CoT_service: to begin CoT service type')
@@ -153,7 +188,9 @@ class RestCLIClient:
         print('stop_data_package_service: to begin data package service type')
         print("change_connection_info: change the address and port of the server you're connecting to")
         print('show_users: to show connected user information type')
-        print('kill: to kill the full server type')
+        print('kill: terminate all the services')
+        print('show_DP: to show all DataPackages on the server')
+        print('remove_DP: to remove a DataPackages on the server')
         return 1
 
     def check_service_status(self):
@@ -190,11 +227,29 @@ class RestCLIClient:
             conn.request("POST", "/SendGeoChat", body, {"Content-type": "application/json", "Accept": "application/json"})
             data = conn.getresponse()
             conn.close()
-            data = data.read().decode('utf-8')
             if self.check_response(data):
                 print('geochat sent')
+                return 1
+            else:
+                return 1
+                print('geochat failed to send')
+        except Exception as e:
+            pass
+
+    def connection_message(self):
+        try:
+            conn = http.client.HTTPConnection(connectionIP, connectionPort)
+            text = input('enter message: ')
+            body = json.dumps({"detail": {'remarks': {"INTAG": text}}})
+            conn.request("POST", "/ConnectionMessage", body, {"Content-type": "application/json", "Accept": "application/json"})
+            data = conn.getresponse()
+            conn.close()
+            if self.check_response(data):
+                print('geochat sent')
+                return 1
             else:
                 print('geochat failed to send')
+                return 1
         except Exception as e:
             pass
 
@@ -232,15 +287,16 @@ class RestCLIClient:
                 self.UserCommand = str(input('FTS$ ')) or 'empty'
                 try:
                     function = getattr(self, self.UserCommand)
-                except:
-                    logger.error('this is not a valid command')
-                functionOutput = function()
-                if self.verify_output(functionOutput):
-                    pass
-                else:
-                    raise Exception('function returned bad data')
-            except Exception as e:
-                logger.error('error in processing your request ' + str(e))
+                    functionOutput = function()
+                    self.UserCommand = None
+                    if self.verify_output(functionOutput):
+                        pass
+                    else:
+                        raise Exception('function returned bad data')
+                except Exception as e:
+                    print('error in processing your request ' + str(e))
+            except:
+                logger.error('this is not a valid command')
         self.stop_all()
 
 

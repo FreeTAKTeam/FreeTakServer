@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+// All items are required unless otherwise noted!
+// "required" means if they are missing on send, the conversion
+// to the message format will be rejected and fall back to opaque
+// XML representation
+message Takv {
+     string device = 1;             // device=
+     string platform = 2;           // platform=
+     string os = 3;                 // os=
+     string version = 4;            // version=
+}

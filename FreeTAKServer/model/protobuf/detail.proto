@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+import "contact.proto";
+import "group.proto";
+import "precisionlocation.proto";
+import "status.proto";
+import "takv.proto";
+import "track.proto";
+
+// CotEvent detail
+// The strong typed message fields are optional. If used, they *MUST* adhere 
+// to the requirements of the message (see their proto file) and
+// their XML source element used to populate the message MUST
+// be omitted from the xmlDetail.
+// WHOLE ELEMENTS MUST BE CONVERTED TO MESSAGES. Do not try to
+// put part of the data from a given element into one of the messages
+// and put other parts of the data in an element of xmlDetail! This applies
+// especially if you add new things to the XML representation which do not
+// have a place in the equivalent protobuf message.  Instead, omit the
+// message and put the entire element in xmlDetail!
+//
+// xmlDetail is optional. If omitted, all Detail data has been
+// converted to the strongly typed message fields.
+// If present, this contains any remaining detail data that has NOT been
+// included in one of the strongly typed message fields.  To process the
+// xmlDetail, the following rules MUST be followed:
+// Senders of this message MUST:
+//     1. Remove all child elements used to populate the other message
+//        fields
+//     2. If no child elements under <detail> remain, STOP - do not populate
+//        xmlDetail
+//     3. Serialize the remaining XML tree under <detail>....</detail>
+//        as XML in UTF-8 encoding
+//     4. Remove the <detail> and </detail> element tags
+//     5. Remove the XML header
+// Receivers of this message MUST do the equivalent of the following:
+//     1. If the field is not present (zero length), stop - do nothing
+//     2. Prepend <detail> and append </detail>
+//     3. Prepend an XML header for UTF-8 encoding, version 1.0 
+//        (<?xml version="1.0" encoding="UTF-8"?> or similar)
+//     4. Read the result, expecting a valid XML document with a document
+//        root of <detail>
+//     5. Merge in XML equivalents of each of the strongly typed
+//        messages present in this Detail message.
+//        In the event that a sending application does not follow 
+//        sending rule #1 above properly and data for the same element
+//        appears in xmlDetail, the data in xmlDetail should be left alone
+//        and the data in the equivalent message should ignored.
+
+message Detail {
+    string xmlDetail = 1;
+
+    // <contact>
+    Contact contact = 2;
+
+    // <__group>
+    Group group = 3;
+
+    // <precisionlocation>
+    PrecisionLocation precisionLocation = 4;
+
+    // <status>
+    Status status = 5;
+
+    // <takv>
+    Takv takv = 6;
+
+    // <track>
+    Track track = 7;
+}

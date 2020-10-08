@@ -7,7 +7,7 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from FreeTAKServer.controllers.model.ReceiveConnectionsProcess import ReceiveConnectionsProcess
+from FreeTAKServer.model.ReceiveConnectionsProcess import ReceiveConnectionsProcess
 
 class ReceiveConnectionsProcessController:
     def __init__(self):  
