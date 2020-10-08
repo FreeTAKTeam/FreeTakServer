@@ -108,7 +108,7 @@ our team do not maintain it, so please inquire to the original author, if you in
 #### Run Server in console
 
 ```
-sudo  python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP]
+sudo  python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP]
 ```
 this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
 
