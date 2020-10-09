@@ -108,7 +108,7 @@ our team do not maintain it, so please inquire to the original author, if you in
 #### Run Server in console
 
 ```
-sudo  python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP]
+sudo  python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP]
 ```
 this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
 
@@ -147,7 +147,7 @@ to get a list of other supported commands type
 use this command in Ubuntu to run FTS independently from your command window.
 
 ```
-sudo nohup python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP] &
+sudo nohup python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP] &
 ```
 
 ### Windows
@@ -156,7 +156,7 @@ go to the start menu and type ```cmd``` to start a command prompt
 open a console with admin rights
 Powershell has issues so do not use it
 ```
-python3 -m FreeTAKServer.controllers.FTS -DataPackageIP [YourIP]
+python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP]
 ```
 
 ### Troubleshooting
