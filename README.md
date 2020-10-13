@@ -78,6 +78,12 @@ Optional: check if installation is correctly executed and install any missing pa
 ```
 pip check FreeTakServer 
 ```
+if you find a missing package you can install it with Pip. For example
+```
+$ sudo pip3 install flask_socketio and
+$ sudo pip3 install flask_cors
+```
+
 use 
 ```
 python3 -m pip show FreeTAKServer
