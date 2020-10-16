@@ -207,10 +207,10 @@ class RestCLIClient:
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
             conn.request("GET", "/Clients")
             data = conn.getresponse()
+            data = data.read()
             conn.close()
-            data = data.read().decode('utf-8')
             data = json.loads(data)
-            data.insert(0, {'ip': 'IP', 'team': 'TEAM', 'callsign': 'CALLSIGN'})
+            data.insert(0, {'ip': 'IP', 'callsign': 'CALLSIGN', 'team': 'TEAM'})
             col_width = max(len(word) for row in data for word in row.values()) + 2  # padding
             for row in data:
                 print("".join(word.ljust(col_width) for word in row.values()))

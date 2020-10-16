@@ -1,4 +1,5 @@
 README.md
+pyproject.toml
 setup.cfg
 setup.py
 FreeTAKServer/__init__.py

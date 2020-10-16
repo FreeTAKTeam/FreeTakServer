@@ -1,7 +1,7 @@
 import socket
 from time import sleep, gmtime, strftime
 import uuid
-import smtplib
+import smtplib, ssl
 import time
 
 class statusCheck:

@@ -23,10 +23,10 @@ class RestAPIVariables:
         self.defaultPort = 80
         self.defaultCoTIP = '0.0.0.0'
         self.defaultCoTPort = 15777
-        self.defaultCoTStatus = ''
+        self.defaultCoTStatus = 'start'
         self.defaultDataPackageIP = '0.0.0.0'
         self.defaultDataPackagePort = 8080
-        self.defaultDataPackageStatus = ''
+        self.defaultDataPackageStatus = 'start'
 
     def json_content(self):
         self.JsonStatusStartAll = {"CoTService":

@@ -35,7 +35,7 @@ class ReceiveConnections:
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
             #establish the socket array containing important information about the client
             RawConnectionInformation = sat()
-            RawConnectionInformation.ip = address
+            RawConnectionInformation.ip = address[0]
             RawConnectionInformation.socket = client
             RawConnectionInformation.xmlString = data.decode('utf-8')
             try:

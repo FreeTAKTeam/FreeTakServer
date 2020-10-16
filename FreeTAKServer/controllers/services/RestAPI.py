@@ -12,7 +12,6 @@ from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVari
 from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
-
 import os
 import shutil
 import json
@@ -99,6 +98,8 @@ def ConnectionMessage():
 
 @app.route("/RecentCoT", methods=[restMethods.GET])
 def RecentCoT():
+    import time
+    time.sleep(10)
     return b'1234'
 
 @app.route("/URL", methods=[restMethods.GET])
@@ -115,7 +116,8 @@ def Clients():
         returnValue = []
         for client in out:
             returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
-        return json.dumps(returnValue)
+        dumps = json.dumps(returnValue)
+        return dumps
     except Exception as e:
         return str(e), 500
 
@@ -256,7 +258,9 @@ class RestAPI:
         CommandPipe = CommandPipea
         threading.Thread(target=receiveUpdates, daemon=True, args=()).start()
 
-        socketio.run(app, host=IP, port=Port, debug=True, use_reloader=False)
+        socketio.run(app, host=IP, port=Port)
+        # try below if something breaks
+        # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
 
 
     def serializeJsonToModel(self, model, Json):

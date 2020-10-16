@@ -4,6 +4,7 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendCoTAbstract").getLogger()
 
@@ -15,6 +16,17 @@ class SendCoTAbstractController:
     def fill_object(self, object, tempObject, RawCoT, addToDB = MainConfig.SaveCoTToDB):
         try:
             object.modelObject = self.create_model_object(tempObject, RawCoT.xmlString)
+
+        except Exception as e:
+            if tempObject.type != "other":
+                self.handel_serialization_exception(object, RawCoT)
+                logger.error('an undocumented CoT has been sent returning the error ' + str(e) + ' please post this as an issue on the FTS git so we can document and fix it')
+                return 1
+            else:
+                logger.error('there has been an exception in the creation of the model object ' + str(e))
+                return -1
+
+
         except Exception as e:
             logger.error('there has been an exception in the creation of a model object ' + str(e))
         try:
@@ -38,13 +50,8 @@ class SendCoTAbstractController:
         """
         from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 
-        try:
-            modelInstance = XMLCoTController().serialize_CoT_to_model(tempObject,
-                                                      etree.fromstring(xmlString))
-            return modelInstance
-        except Exception as e:
-            logger.error('there has been an exception in the creation of the model object ' + str(e))
-            return -1
+        modelInstance = XMLCoTController().serialize_CoT_to_model(tempObject, etree.fromstring(xmlString))
+        return modelInstance
     def create_xml_string(self, modelObject):
         """
         this function calls the model to xml serializer within XMLCoTController
@@ -57,6 +64,17 @@ class SendCoTAbstractController:
         except Exception as e:
             logger.error('there has been an exception in the creation of the xml string ' +str(e))
             return -1
+
+    def handel_serialization_exception(self, object, RawCoT):
+        """
+        this function will handle any exception thrown in the process of serialization of an xml CoT to it's respective model object
+        by processing it as an Other type
+        """
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+        object = SendOtherController(RawCoT).getObject()
+        object.clientInformation = RawCoT.clientInformation
+        self.setObject(object)
+
 
     def setObject(self, object):
         self.Object = object

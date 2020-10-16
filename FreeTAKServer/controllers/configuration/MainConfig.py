@@ -16,10 +16,10 @@ class MainConfig:
     SaveCoTToDB = bool(False)
 
     # this should be set before startup
-    DBFilePath = str(currentPath + r'\FTSDataBase.db')
+    DBFilePath = str(r'/home/root/FTSDataBase.db')
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.1'
+    version = 'FreeTAKServer-1.1.2'
 
     # set to None if you don't want a message sent
     ConnectionMessage = f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting'

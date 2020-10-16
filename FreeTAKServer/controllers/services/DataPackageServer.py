@@ -12,6 +12,7 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
+import eventlet
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("DataPackageServer").getLogger()
@@ -50,16 +51,19 @@ file_handler = RotatingFileHandler(
 )
 file_handler.setFormatter(formatter)
 file_handler.setLevel(logging.ERROR)
-#app.logger.addHandler(file_handler)
-#console_handler = logging.StreamHandler(sys.stdout)
-#console_handler.setFormatter(formatter)
-#console_handler.setLevel(logging.DEBUG)
-#app.logger.addHandler(console_handler)
-#app.logger.setLevel(logging.DEBUG)
+
+
+# app.logger.addHandler(file_handler)
+# console_handler = logging.StreamHandler(sys.stdout)
+# console_handler.setFormatter(formatter)
+# console_handler.setLevel(logging.DEBUG)
+# app.logger.addHandler(console_handler)
+# app.logger.setLevel(logging.DEBUG)
 
 @app.route('/')
 def hello():
     return 'hello world'
+
 
 @app.route("/Marti/vcm", methods=[const.GET])
 def get_all_video_links():
@@ -104,7 +108,10 @@ def insert_video_link():
                 app.logger.info(f"Already received feed with UID={uid} (alias = {alias})")
                 continue  # Ignore this feed if there are duplicates
             app.logger.info(f"Inserting video feed into database: {request.data.decode('utf-8')}")
-            dbController.create_videostream(FullXmlString = ET.tostring(xml_feed), Protocol = protocol, Alias = alias, uid = uid, Address = address, Port = port, RoverPort=rover_port, IgnoreEmbeddedKlv=ignore_klv, PreferredMacAddress=preferred_mac, Path=path, Buffer=buf, Timeout=timeout, RtspReliable=rtsp_reliable)
+            dbController.create_videostream(FullXmlString=ET.tostring(xml_feed), Protocol=protocol, Alias=alias,
+                                            uid=uid, Address=address, Port=port, RoverPort=rover_port,
+                                            IgnoreEmbeddedKlv=ignore_klv, PreferredMacAddress=preferred_mac, Path=path,
+                                            Buffer=buf, Timeout=timeout, RtspReliable=rtsp_reliable)
 
         return "Okay", 200
     except:
@@ -124,7 +131,6 @@ def clientEndPoint():
 
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
-
     file_hash = request.args.get('hash')
     app.logger.info(f"Data Package hash = {str(file_hash)}")
     letters = string.ascii_letters
@@ -139,8 +145,10 @@ def upload():
     file.save(os.path.join(directory, filename))
     fileSize = Path(directory, filename).stat().st_size
     callsign = str(
-        FlaskFunctions().getSubmissionUser(creatorUid, dbController))  # fetchone() gives a tuple, so only grab the first element
-    FlaskFunctions().create_dp(dbController, uid = uid, Name = filename, Hash = file_hash, SubmissionUser = callsign, CreatorUid = creatorUid, Size = fileSize)
+        FlaskFunctions().getSubmissionUser(creatorUid,
+                                           dbController))  # fetchone() gives a tuple, so only grab the first element
+    FlaskFunctions().create_dp(dbController, uid=uid, Name=filename, Hash=file_hash, SubmissionUser=callsign,
+                               CreatorUid=creatorUid, Size=fileSize)
     return IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
 
 
@@ -192,10 +200,13 @@ def checkPresent():
     else:
         app.logger.info(f"Data package with hash {hash} does not exist")
         return '404', 404
-    
+
+
 @app.route('/')
 def home():
     return 'data package service is up, good job.'
+
+
 class FlaskFunctions:
 
     def __init__(self):
@@ -235,6 +246,7 @@ class FlaskFunctions:
 
     def startup(self, ip, port):
         try:
+            from eventlet import wsgi
             global IP, HTTPPORT
             IP = ip
             HTTPPORT = port
@@ -245,7 +257,9 @@ class FlaskFunctions:
             # Create the relevant database tables
             print(const.IP)
             print(HTTPPORT)
-            app.run(host= ip, port=HTTPPORT, debug=const.HTTPDEBUG)
+            # app.run(host='0.0.0.0', port=8080)
+            wsgi.server(eventlet.listen(('', int(HTTPPORT))), app)
+
         except Exception as e:
             logger.error('there has been an exception in Data Package service startup ' + str(e))
             return -1
@@ -255,6 +269,7 @@ class FlaskFunctions:
         if func is None:
             raise RuntimeError('Not running with the Werkzeug Server')
         func()
+
 
 if __name__ == "__main__":
     pass
