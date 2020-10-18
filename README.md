@@ -102,11 +102,11 @@ sudo python3 -m pip install FreeTAKServer==xxx
 you can see a list of versions here
 https://pypi.org/project/FreeTAKServer/#history 
 
-### Other versions
-a container has been created with FTS here:
-https://github.com/integrii/FreeTakServerContainer 
+### Docker Container
+Information on our official container can be found here
+https://github.com/FreeTAKTeam/FreeTAKServer-Docker
 
-our team do not maintain it, so please inquire to the original author, if you intend to use it
+Please create issues on the FreeTAKServer-Docker regarding inquries regarding the use of docker.
 
 ## Run FreeTakServer
 ### Linux
