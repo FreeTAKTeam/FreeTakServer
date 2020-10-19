@@ -108,6 +108,20 @@ https://github.com/FreeTAKTeam/FreeTAKServer-Docker
 
 Please create issues on the FreeTAKServer-Docker regarding inquries regarding the use of docker.
 
+## configuration
+before the first startup go to the installation dir and the FreeTAKServer/controllers/configuration/MainConfig.py
+here change as follows,
+
+from:
+```
+DBFilePath = str(currentPath + r'\FTSDataBase.db')
+```
+
+to:
+```
+DBFilePath = str('/a/dir/to/store/the/db/FTSDataBase.db')
+```
+
 ## Run FreeTakServer
 ### Linux
 
@@ -166,6 +180,7 @@ python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP]
 ```
 
 ### Troubleshooting
+#### package not found'
 if, trying to start FTS you get an error 'package not found'
 ```
 'package not found'
@@ -173,6 +188,9 @@ if, trying to start FTS you get an error 'package not found'
 navigate to the physical location where the controllers are installed and start the server from there.
 
 You may also check for missing libraries and install then using Pip
+
+#### issue connecting in WinTAK
+if you have issues connecting winTAK to FTS, try to deactivate the TAKChat plugin, under the plugin section
 
 ## Update FreeTakServer
 if you already installed FTS with pip you can use
