@@ -106,7 +106,21 @@ https://pypi.org/project/FreeTAKServer/#history
 a container has been created with FTS here:
 https://github.com/integrii/FreeTakServerContainer 
 
-our team do not maintain it, so please inquire to the original author, if you intend to use it
+our team does not maintain it, so please inquire to the original author, if you intend to use it
+
+## configuration
+before the first startup go to the installation dir and the FreeTAKServer/controllers/configuration/MainConfig.py
+here change as follows,
+
+from:
+```
+DBFilePath = str(currentPath + r'\FTSDataBase.db')
+```
+
+to:
+```
+DBFilePath = str('/a/dir/to/store/the/db/FTSDataBase.db')
+```
 
 ## Run FreeTakServer
 ### Linux
