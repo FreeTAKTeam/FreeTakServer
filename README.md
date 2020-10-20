@@ -14,9 +14,9 @@ It intends to support all the major use cases of the original TAK server.
 [Live version](http://pldemo.sparxsystems.us/TVHOG)
 
 ## Community 
-This code is currently in *Early Production Stage*
-Check out our roadmap @ FreeTakServer#25 to see what is planned
-If you have any issues don't hesitate to bring it up https://github.com/Tapawingo/FreeTakServer/issues,  as TAKFreeServer is  in contionous development.
+This code is currently in *Early Production Stage*.
+Check out our roadmap [@FreeTakServer#25](https://github.com/FreeTAKTeam/FreeTakServer/issues/25) to see what is planned
+If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues),  as TAKFreeServer is in contionous development.
 
 ### Donate back
 the FTS team is working  daily on the development of a open and free solution. We plan to do more that simply replicate the functionalities of the legacy TAK server, our road map includes integration with open source systems like LORA's Meshtastic, porting it to Android, having an open API and much more.
@@ -34,8 +34,8 @@ NOTE:
 not a big fan of Paypal, but that is the easier way I found for an initial attempt. We may go to some more ethical system in future.
 
 ### Public instance
-we support a [public instance}(https://www.reddit.com/r/ATAK/wiki/index/freetakserver) of FTS.
-- download the configuration {here}(https://drive.google.com/open?id=1IK1LfPN13EWikHaMyOuDDwIerNGz-Wl)
+we support a [public instance](https://www.reddit.com/r/ATAK/wiki/index/freetakserver) of FTS.
+- download the configuration [here](https://drive.google.com/open?id=1IK1LfPN13EWikHaMyOuDDwIerNGz-Wl)
 - use the Import manager in ATAK to import the configuration
 
 ### Tell us what you think!
@@ -47,7 +47,7 @@ https://discordapp.com/invite/XEPyhHA
 
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
-![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png) {Live version}(http://pldemo.sparxsystems.us/Ldsd4T)
+![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png) [Live version](http://pldemo.sparxsystems.us/Ldsd4T)
 [generated documentation of the COT description](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
 
 ## Documentation
