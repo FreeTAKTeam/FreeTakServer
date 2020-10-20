@@ -63,9 +63,9 @@ Important Note: depending from the system you are using, the following commands 
 ### Prerequisites
 you will need to install Python 3 and PIP before you can install FTS
 
-- Install Python3 and PIP
+- Install Python3 and PIP for Ubuntu 20
 ```
-  sudo apt update && sudo apt install python3 && sudo apt install pip3` (Ubuntu)```
+  sudo apt update && sudo apt install python3 && sudo apt install  python3-pip` 
  ```
 ### install FreeTakServer
 Since version 0.8, FTS supports Pip installation, manual installation can be done with some modifications of the import paths, however we don't support it
@@ -89,7 +89,12 @@ use
 python3 -m pip show FreeTAKServer
 ``` 
 to find the path to FreeTAKServer
-e.g. under windows it's installed under
+e.g. using Ubuntu amd python3.8 it's installed under
+```
+usr/local/lib/python3.8/dist-packages/FreeTAKServer
+```
+
+e.g. using Windows it's installed under
 ```
 C:\Users\user.name\AppData\Local\Programs\Python\PythonXX\Lib\site-packages\FreeTAKServer
 ```
@@ -109,9 +114,8 @@ https://github.com/integrii/FreeTakServerContainer
 our team does not maintain it, so please inquire to the original author, if you intend to use it
 
 ## configuration
-before the first startup go to the installation dir and the FreeTAKServer/controllers/configuration/MainConfig.py
+before the first startup browse to the installation dir (see above) and find FreeTAKServer/controllers/configuration/MainConfig.py
 here change as follows,
-
 from:
 ```
 DBFilePath = str(currentPath + r'\FTSDataBase.db')
@@ -122,6 +126,10 @@ to:
 DBFilePath = str('/a/dir/to/store/the/db/FTSDataBase.db')
 ```
 
+TIP: using Linux to edit a file you will need to have sudo rights, you can install this utility to get it from nautilus
+https://www.groovypost.com/howto/open-files-folders-as-administrator-in-nautilus-ubuntu/
+
+
 ## Run FreeTakServer
 ### Linux
 
@@ -130,34 +138,37 @@ DBFilePath = str('/a/dir/to/store/the/db/FTSDataBase.db')
 ```
 sudo  python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP]
 ```
-this will start the server with Port 8087 and API port 8080 on the IP defined in [yourIP]
+this will start FTS with Port 8087 and API port 8080 on the IP defined in [yourIP]
 
 other parameters you can use:
--AutoStart: (weather the full server start or just the RestAPI, must be True or False)
- -CoTIP [yourIP] 
- -DataPackageIP[yourIP] : set the IP where CoTs are send
- -CoTPort [aPort] : the port you want clients to connect to
- -DataPackagePort [anotherPort]: the port you want datapackages to be sent and received on
+- AutoStart: (weather the full server start or just the RestAPI, must be True or False)
+ - CoTIP [yourIP] 
+ - DataPackageIP[yourIP] : set the IP where CoTs are send
+ - CoTPort [aPort] : the port you want clients to connect to
+ - DataPackagePort [anotherPort]: the port you want datapackages to be sent and received on
  
-if you dont set any of the above, FTS will adopt a "Convention instead of Configuration" approach and try to set all from the configuation file
+if you dont set any of the above, FTS will adopt a "Convention instead of Configuration" approach and try to set all from the configuration / environment
 
+#### Operate the Command Line Interface CLI
 Open a new console in a separate window
 run  FTS Command Line Interface  with 
 ```
-python -m FreeTAKServer.views.CLI
+sudo python -m FreeTAKServer.views.CLI
 ```
-following command are supported:
-start_all: to begin all services type
-start_CoT_service: to begin CoT service type
-start_data_package_service: to begin data package service  type
-stop_all: to terminate all services type
-stop_CoT_service: to terminate CoT service type
-stop_data_package_service: to begin data package service type
-change_connection_info: change the address and port of the server you're connecting to
-show_users: to show connected user information type
-kill: to kill the full server type
-show_DP: to show all DataPackages on the server
-remove_DP: to remove a DataPackages on the server
+the parrot log appears.
+
+following command are supported in the CLI:
+- start_all: to begin all services type
+- start_CoT_service: to begin CoT service type
+- start_data_package_service: to begin data package service  type
+- stop_all: to terminate all services type
+- stop_CoT_service: to terminate CoT service type
+- stop_data_package_service: to begin data package service type
+- change_connection_info: change the address and port of the server you're connecting to
+- show_users: to show connected user information type
+- kill: to kill the full server type
+- show_DP: to show all DataPackages on the server
+- remove_DP: to remove a DataPackages on the server
 
 to get a list of other supported commands type 
 
