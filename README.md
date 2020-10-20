@@ -7,10 +7,11 @@ Welcome to the FreeTakServer (FTS) git repository.
 FTS  is a Python3 implementation of the TAK Server for devices like CivTAK , WinTAK and ITAK, it is cross-platform. We use the Flask framework for web services. 
 it's free and open source  (released under the Eclipse Public License).
 
-## Use cases
+## supported Use cases
 FTS allows you to connect ATAK clients to share geo information, to chat with all the connected clients, exchange files and more.
 It intends to support all the major use cases of the original TAK server.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
+[Live version](http://pldemo.sparxsystems.us/TVHOG)
 
 ## Community 
 This code is currently in *Early Production Stage*
@@ -47,7 +48,7 @@ https://discordapp.com/invite/XEPyhHA
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
 ![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png) {Live version}(http://pldemo.sparxsystems.us/Ldsd4T)
-YOu can see the complete COT description   {here}(https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
+[generated documentation of the COT description](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
 
 ## Documentation
 under /docs, you can find various documents including an UML model of the Domain classes involved in a COT event.
