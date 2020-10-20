@@ -46,7 +46,7 @@ https://discordapp.com/invite/XEPyhHA
 
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT is described in a set of Domain classes, generated  from the UML model using a Model Driven Architecture approach.
-![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png)
+![the domain model with all the know objects used by CIVTAK/ wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png) {Live version}(http://pldemo.sparxsystems.us/Ldsd4T)
 YOu can see the complete COT description   {here}(https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
 
 ## Documentation
