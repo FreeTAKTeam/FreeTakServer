@@ -58,9 +58,11 @@ the message is placed in the body of the request as JSON formatted
 }
 ```
  #### Response
- Success: 
+ Success: you have create the geoObject
  [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
- 
+ server error 500: you have probably missspelled the list of geoObjects/ supported attitude. the names are case sensitive (!)
+ server error 400: you have probably an error in the format of your JSON query
+ server error 404: you have an error in the end point definition
  
  #### List of supported Geo Objects
   * "Gnd Combat Infantry Rifleman"
@@ -72,9 +74,19 @@ the message is placed in the body of the request as JSON formatted
   * "Gnd Combat Infantry Recon" 
   * "Gnd Combat Infantry anti Tank" 
   * "Gnd Combat Infantry air defense"
-  * "Gnd Combat Infantry Engineer" 
+  * "Gnd Combat Infantry Engineer"
   
-  ## 
+   #### List of supported Attitude
+  * "friend"
+  * "friendly"
+  * "hostile"
+  *  "unknown"
+  *  "pending" 
+  * "assumed"
+  *  "neutral" 
+  *  "suspect" 
+  
+  ## SendGeoChatObject
    verb: POST
  endPoint: Chat
  to send a GeoChat to all, you need to connect to the rest API using a rest key (we are going to explain later how that works).
