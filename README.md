@@ -134,7 +134,7 @@ https://www.groovypost.com/howto/open-files-folders-as-administrator-in-nautilus
 ## Run FreeTakServer
 ### Linux
 
-#### Run Server in console
+#### Run Server in the console
 
 ```
 sudo  python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP]
@@ -224,7 +224,8 @@ When you post package to specific contact in ATAK, following happens:
 Assuming you want to run open-to-everyone FTS instance, and you have server hosted somewhere, you need to specify _public_ IP address in -IP argument. And just in case, -IP also accepts domain names.   
 If you run it at home and port forward on router doesn't work, check if you receive actual IP address and not being NATed and ports 8080 and 8087 are not filtered - you can ask your ISP about that.
 
-
+## Additional Documentation
+  * Since version 1.2 FTS supports a[REST API](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/REST_APIDoc.md)
 
 ##  Project Structure
 - TakFreeServer
