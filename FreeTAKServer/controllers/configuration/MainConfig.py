@@ -1,5 +1,5 @@
-import os
-currentPath = os.path.dirname(os.path.abspath(__file__))
+from pathlib import Path
+home = str(Path.home())
 
 class MainConfig:
     """
@@ -16,7 +16,7 @@ class MainConfig:
     SaveCoTToDB = bool(False)
 
     # this should be set before startup
-    DBFilePath = str(r'/home/root/FTSDataBase.db')
+    DBFilePath = str(home + r'/FTSDataBase.db')
 
     # the version information of the server (recommended to leave as default)
     version = 'FreeTAKServer-1.1.2'
