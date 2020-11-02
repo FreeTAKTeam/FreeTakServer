@@ -1,10 +1,10 @@
 # FreeTAKServer REST API Documentation
 the FreeTAKServer REST API is a human readeble approach to the TAK world. the API  allows you to connect easily third parties to the TAK family, without the need to understand the complexity of the COT structure or what a TCP connection is.  
 
-In the current release FTS supports following API:
+In the current release (1.2), FTS supports following API:
   * SendGeoEvent
   * SendGeoChatToAll
-  * Send Emergency
+  * SendEmergency
   
 ## General Configuration
 > REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/).
@@ -60,7 +60,7 @@ the message is placed in the body of the request as JSON formatted
  #### Response
  Success: you have create the geoObject
  [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
- server error 500: you have probably missspelled the list of geoObjects/ supported attitude. the names are case sensitive (!)
+ server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
  server error 400: you have probably an error in the format of your JSON query
  server error 404: you have an error in the end point definition
  
@@ -101,3 +101,21 @@ After you connect you simply send the text of the message and the sender
 }
 ```
 
+## SendEmergency
+   verb: POST
+ endPoint: SendEmergency
+Name: the name of the person that has an emergency.
+EmergencyType: the type of emergency to be displayed
+Status: if the emergency is currently active or not
+   #### List of supported Emergency Types
+   TBD
+
+Example
+```
+{
+  "Name": "Corvo",
+  "EmergencyType": "911 Alert",
+  "Status": "On"
+}
+```
+ 
