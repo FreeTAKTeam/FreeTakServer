@@ -162,7 +162,8 @@ Example response
 ```
 
 ### deleteEmergency
-delete an active emergency
+delete an active emergency.
+delete of emergencies can be only done by the originator of it.
 
   *  verb: DELETE
    * endPoint: /ManageEmergency/deleteEmergency
