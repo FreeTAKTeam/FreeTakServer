@@ -1,10 +1,12 @@
 # FreeTAKServer REST API Documentation
 the FreeTAKServer REST API is a human readeble approach to the TAK world. the API  allows you to connect easily third parties to the TAK family, without the need to understand the complexity of the COT structure or what a TCP connection is.  
 
+## List of supported API
 In the current release (1.2), FTS supports following API:
-  * SendGeoEvent
-  * SendGeoChatToAll
-  * SendEmergency
+  * ManageGeoEvent
+  * ManageChat
+  * ManageEmergency
+  * ManagePresence
   
 ## General Configuration
 > REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/).
@@ -12,18 +14,21 @@ In the current release (1.2), FTS supports following API:
 ### end Point
 the APi uses the following format
 
-VERB [Protocol]://IP:PORT/APIName
+VERB [Protocol]://IP:PORT/APIName/verb
 
 for example
 ```
-http://104.58.20.216:9999/sendGeoObject
+POST http://104.58.20.216:9999/manageGeoObject/postGeoObject
 ```
 
 ### Authorization
 the authorization is placed in the header of the message.
 Authorization: [YOUR_API_KEY]
 
-you need to request the key to the FTS admin. the following is a non working example
+a valid key is generated from FTS' CLI and stored into the DB. see CLI help for details
+to consume the API you need to request a key to the FTS admin. 
+
+the following is a key non working example
 ```
 {“Authorization”: “K0rv0 meg@secre7apip@guesmeIfyouCan”}
 ```
@@ -31,22 +36,25 @@ you need to request the key to the FTS admin. the following is a non working exa
 ### Message
 the message is placed in the body of the request as JSON formatted
 
-## API List
-  ### SendGeoObject
+## API Details
+  ### manageGeoObject 
+   a GeoObject is an element place on a map. It has a name, characteristics and an attitude. 
+  #### postGeoObject
   
- a GeoObject is an element place on a map. It has a name, characteristics and an attitude. 
  verb: POST
- endPoint: GeoObject
-
+ endPoint: /ManageGeoObject/postGeoObject
+ 
+ #### Parameters
   * GeoObject: It's the information that will determine which type will be placed on the tak maps including his icon. Please see API documentation for a list of valid entries.
   *  longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
   * latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
   * How: the way in which this geo information has been acquired. Please see API documentation for a list of valid entries.
   * attitude: the kind of expected behavior of the GeoObject (e.g friendly, hostile, unknown). Please see API documentation for a list of valid entries.
   * name: a string to ID the GeoObject on a map.
+  * timeout:the length, expressed in seconds  until the point will stale out. Default is 300 seconds or 5 minutes.
 
   
-  #### Example body
+  ##### Example body
 ```
 {
 "longitude": -77.0104,
@@ -54,17 +62,19 @@ the message is placed in the body of the request as JSON formatted
 "attitude": "hostile",
 "geoObject": "Gnd Combat Infantry Sniper",
 "how": "nonCoT",
-"name": "Putin"
+"name": "Putin",
+"timeout": 600  
 }
 ```
- #### Response
- Success: you have create the geoObject
+
+ ##### Response
+ 200 Success: you have create the geoObject
  [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
  server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
  server error 400: you have probably an error in the format of your JSON query
  server error 404: you have an error in the end point definition
  
- #### List of supported Geo Objects
+ ##### List of supported Geo Objects
   * "Gnd Combat Infantry Rifleman"
   * "Gnd Combat Infantry grenadier" 
   * "Gnd Combat Infantry Mortar" 
@@ -76,7 +86,7 @@ the message is placed in the body of the request as JSON formatted
   * "Gnd Combat Infantry air defense"
   * "Gnd Combat Infantry Engineer"
   
-   #### List of supported Attitude
+   ##### List of supported Attitude
   * "friend"
   * "friendly"
   * "hostile"
@@ -86,11 +96,13 @@ the message is placed in the body of the request as JSON formatted
   *  "neutral" 
   *  "suspect" 
   
-  ## SendGeoChatObject
+  ## ManageChat
+  ### SendGeoChatObject
    verb: POST
- endPoint: Chat
+ endPoint: /ManageChat/postChatToAll
  to send a GeoChat to all, you need to connect to the rest API using a rest key (we are going to explain later how that works).
 After you connect you simply send the text of the message and the sender
+ #### Parameters
   * message: the text of the GeoChat message
   * Sender: the name of the chat's sender, changing this will also change the chat room for the client.
 
@@ -100,22 +112,83 @@ After you connect you simply send the text of the message and the sender
 "sender": "Admin"
 }
 ```
-
-## SendEmergency
+## ManageEmergency
+### postEmergency
    verb: POST
- endPoint: SendEmergency
+ endPoint: /ManageEmergency/postEmergency
+ 
+ #### Parameters
 Name: the name of the person that has an emergency.
 EmergencyType: the type of emergency to be displayed
 Status: if the emergency is currently active or not
+UID: server generated Unique Id of this emergency
+
+
    #### List of supported Emergency Types
-   TBD
+* "911 Alert"
+* "Ring The Bell"
+*  "Geo-fence Breached" 
+* "In Contact" 
+
+Example
+```
+
+{
+  "name": "Corvo",
+  "emergencyType": "In Contact",
+  "status": "on"
+}
+
+```
+### getEmergency
+  verb: GET
+ endPoint: /ManageEmergency/getEmergency
+
+Example response
+```
+{
+"json_list": [
+  {
+"PrimaryKey": 1,
+"event_id": "459b5874-1ebf-11eb-9e70-4e58de281c19"
+}
+],
+}
+```
+
+### deleteEmergency
+  verb: DELETE
+ endPoint: /ManageEmergency/deleteEmergency
+
+ #### Parameters
+uid: server generated Unique Id of this emergency
+status: if the emergency is currently active or not (on/off)
+
 
 Example
 ```
 {
-  "Name": "Corvo",
-  "EmergencyType": "911 Alert",
-  "Status": "On"
+"uid": "459b5874-1ebf-11eb-9e70-4e58de281c19",
+  "status": "off"
+}
+```
+
+
+## ManagePresence
+### postPresence
+ verb: POST
+ endPoint: /ManagePresence/postPresence
+
+
+Example
+```
+{
+    "how": "nonCoT",
+    "name": "POTUS",
+"longitude": -77.01385,
+"latitude": 38.889,
+    "role": "Team Member",
+    "team": "Yellow"
 }
 ```
  
