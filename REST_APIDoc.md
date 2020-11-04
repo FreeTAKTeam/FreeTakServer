@@ -9,7 +9,7 @@ In the current release (1.2), FTS supports following API:
   * ManagePresence
   
 ## General Configuration
-> REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/).
+> To quickly test the APi you can use a browser extension (Chrome) like ARC Advanced rest client.REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. Please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/). 
 
 ### end Point
 the APi uses the following format
@@ -68,11 +68,11 @@ the message is placed in the body of the request as JSON formatted
 ```
 
  ##### Response
- 200 Success: you have create the geoObject
- [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
- server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
- server error 400: you have probably an error in the format of your JSON query
- server error 404: you have an error in the end point definition
+   * 200 Success: you have create the geoObject
+   * [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
+   * server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
+  *  server error 400: you have probably an error in the format of your JSON query
+   * server error 404: you have an error in the end point definition
  
  ##### List of supported Geo Objects
   * "Gnd Combat Infantry Rifleman"
@@ -99,8 +99,8 @@ the message is placed in the body of the request as JSON formatted
   
   ## ManageChat
   ### SendGeoChatObject
-  verb: POST
- endPoint: /ManageChat/postChatToAll
+   * verb: POST
+   * endPoint: /ManageChat/postChatToAll
 
  #### Parameters
   * message: the text of the GeoChat message
@@ -116,20 +116,19 @@ the message is placed in the body of the request as JSON formatted
 ### postEmergency
 create a emergency into the server
 
-   verb: POST
- endPoint: /ManageEmergency/postEmergency
+  * verb: POST
+  *  endPoint: /ManageEmergency/postEmergency
  
  #### Parameters
   * Name: the name of the person that has an emergency.
   * EmergencyType: the type of emergency to be displayed
-  * Status: if the emergency is currently active or not
+  * Status: if the emergency is currently active or not (on/off)
  
-
 
    #### List of supported Emergency Types
 * "911 Alert"
 * "Ring The Bell"
-*  "Geo-fence Breached" 
+* "Geo-fence Breached" 
 * "In Contact" 
 
 Example
@@ -145,8 +144,8 @@ Example
 ### getEmergency
 get a list of current active emergencies 
 
-verb: GET
-endPoint: /ManageEmergency/getEmergency
+  * verb: GET
+  * endPoint: /ManageEmergency/getEmergency
 
 no parameter required
 
@@ -165,13 +164,12 @@ Example response
 ### deleteEmergency
 delete an active emergency
 
-
- verb: DELETE
- endPoint: /ManageEmergency/deleteEmergency
+  *  verb: DELETE
+   * endPoint: /ManageEmergency/deleteEmergency
 
  #### Parameters
-uid: server generated Unique Id of this emergency
-status: if the emergency is currently active or not (on/off)
+  * uid: server generated Unique Id of this emergency
+  * status: if the emergency is currently active or not (on/off)
 
 
 Example
@@ -183,10 +181,18 @@ Example
 ```
 
 ## ManagePresence
+manage team member position
 ### postPresence
- verb: POST
- endPoint: /ManagePresence/postPresence
+  * verb: POST
+  *  endPoint: /ManagePresence/postPresence
 
+
+  *  longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
+  * latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
+  * How: the way in which this geo information has been acquired. Please see API documentation for a list of valid entries.
+  * role: the given role within the team . Please see API documentation for a list of valid entries.
+  * name: a string to ID the GeoObject on a map.
+  * team: the color of the team 
 
 Example
 ```
