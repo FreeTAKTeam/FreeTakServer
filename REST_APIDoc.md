@@ -22,6 +22,7 @@ POST http://104.58.20.216:9999/manageGeoObject/postGeoObject
 ```
 
 ### Authorization
+ to use the API you need to have  a rest key .
 the authorization is placed in the header of the message.
 Authorization: [YOUR_API_KEY]
 
@@ -53,7 +54,6 @@ the message is placed in the body of the request as JSON formatted
   * name: a string to ID the GeoObject on a map.
   * timeout:the length, expressed in seconds  until the point will stale out. Default is 300 seconds or 5 minutes.
 
-  
   ##### Example body
 ```
 {
@@ -85,23 +85,23 @@ the message is placed in the body of the request as JSON formatted
   * "Gnd Combat Infantry anti Tank" 
   * "Gnd Combat Infantry air defense"
   * "Gnd Combat Infantry Engineer"
+  * "Ground"
   
    ##### List of supported Attitude
   * "friend"
   * "friendly"
   * "hostile"
-  *  "unknown"
-  *  "pending" 
+  * "unknown"
+  * "pending" 
   * "assumed"
-  *  "neutral" 
-  *  "suspect" 
+  * "neutral" 
+  * "suspect" 
   
   ## ManageChat
   ### SendGeoChatObject
-   verb: POST
+  verb: POST
  endPoint: /ManageChat/postChatToAll
- to send a GeoChat to all, you need to connect to the rest API using a rest key (we are going to explain later how that works).
-After you connect you simply send the text of the message and the sender
+
  #### Parameters
   * message: the text of the GeoChat message
   * Sender: the name of the chat's sender, changing this will also change the chat room for the client.
@@ -114,14 +114,16 @@ After you connect you simply send the text of the message and the sender
 ```
 ## ManageEmergency
 ### postEmergency
+create a emergency into the server
+
    verb: POST
  endPoint: /ManageEmergency/postEmergency
  
  #### Parameters
-Name: the name of the person that has an emergency.
-EmergencyType: the type of emergency to be displayed
-Status: if the emergency is currently active or not
-UID: server generated Unique Id of this emergency
+  * Name: the name of the person that has an emergency.
+  * EmergencyType: the type of emergency to be displayed
+  * Status: if the emergency is currently active or not
+ 
 
 
    #### List of supported Emergency Types
@@ -141,8 +143,12 @@ Example
 
 ```
 ### getEmergency
-  verb: GET
- endPoint: /ManageEmergency/getEmergency
+get a list of current active emergencies 
+
+verb: GET
+endPoint: /ManageEmergency/getEmergency
+
+no parameter required
 
 Example response
 ```
@@ -157,7 +163,10 @@ Example response
 ```
 
 ### deleteEmergency
-  verb: DELETE
+delete an active emergency
+
+
+ verb: DELETE
  endPoint: /ManageEmergency/deleteEmergency
 
  #### Parameters
@@ -172,7 +181,6 @@ Example
   "status": "off"
 }
 ```
-
 
 ## ManagePresence
 ### postPresence
