@@ -2,7 +2,7 @@ import multiprocessing
 import threading
 import argparse
 from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
-from FreeTAKServer.controllers.services.DataPackageServer import FlaskFunctions
+from FreeTAKServer.controllers.services.TCPDataPackageService import TCPDataPackageService as TCPFlaskFunctions
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -23,7 +23,7 @@ class FTS:
 
     def __init__(self):
         self.CoTService = None
-        self.DataPackageService = None
+        self.TCPDataPackageService = None
         self.UserCommand = None
         self.killSwitch = False
         self.ReceiveConnectionsReset = None
@@ -102,27 +102,27 @@ class FTS:
             return -1
         return 1
 
-    def start_data_package_service(self, FTSServiceStartupConfigObject):
+    def start_tcp_data_package_service(self, FTSServiceStartupConfigObject):
         try:
             print('start 213')
-            self.DataPackageService = multiprocessing.Process(target=FlaskFunctions().startup,
-                                                              args=(FTSServiceStartupConfigObject.DataPackageService.DataPackageServiceIP, FTSServiceStartupConfigObject.DataPackageService.DataPackageServicePort))
+            self.TCPDataPackageService = multiprocessing.Process(target=TCPFlaskFunctions().startup,
+                                                                 args=(FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP, FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort))
             print('starting now')
-            self.DataPackageService.start()
+            self.TCPDataPackageService.start()
             time.sleep(2)
             return 1
         except Exception as e:
             logger.error('there has been an exception in the individual starting of the Data Packages Service ' + str(e))
             return -1
 
-    def stop_data_package_service(self):
+    def stop_tcp_data_package_service(self):
         try:
-            self.DataPackageService.terminate()
+            self.TCPDataPackageService.terminate()
         except Exception as e:
             logger.error("there's been an exception in the termination of DataPackage Service " + str(e))
             return -1
         try:
-            self.DataPackageService.join()
+            self.TCPDataPackageService.join()
         except Exception as e:
             logger.error("there's been an exception in the joining of DataPackage Service " + str(e))
             return -1
@@ -132,11 +132,11 @@ class FTS:
     def start_all(self, FTSServiceStartupConfigObject):
         try:
             self.FTSServiceStartupConfigObject = FTSServiceStartupConfigObject
-            if FTSServiceStartupConfigObject.DataPackageService.DataPackageServiceStatus == 'start':
-                self.start_data_package_service(FTSServiceStartupConfigObject)
+            if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus == 'start':
+                self.start_tcp_data_package_service(FTSServiceStartupConfigObject)
 
-            elif FTSServiceStartupConfigObject.DataPackageService.DataPackageServiceStatus == 'stop':
-                self.stop_data_package_service()
+            elif FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus == 'stop':
+                self.stop_tcp_data_package_service()
             else:
                 pass
 
@@ -309,9 +309,9 @@ class FTS:
                 StartupObject.CoTService.CoTServicePort = CoTPort
                 StartupObject.CoTService.CoTServiceStatus = 'start'
 
-                StartupObject.DataPackageService.DataPackageServiceIP = DataPackageIP
-                StartupObject.DataPackageService.DataPackageServicePort = DataPackagePort
-                StartupObject.DataPackageService.DataPackageServiceStatus = 'start'
+                StartupObject.TCPDataPackageService.TCPDataPackageServiceIP = DataPackageIP
+                StartupObject.TCPDataPackageService.TCPDataPackageServicePort = DataPackagePort
+                StartupObject.TCPDataPackageService.TCPDataPackageServiceStatus = 'start'
 
                 StartupObject.RestAPIService.RestAPIServicePort = RestAPIPort
                 StartupObject.RestAPIService.RestAPIServiceIP = RestAPIIP
@@ -337,9 +337,9 @@ if __name__ == "__main__":
         parser.add_argument('-CoTIP', type=str, help=OrchestratorConstants().COTIPDESC,
                             default=FTSObj().CoTService.CoTServiceIP)
         parser.add_argument('-DataPackagePort', type=int, help=OrchestratorConstants().APIPORTDESC,
-                            default=FTSObj().DataPackageService.DataPackageServicePort)
+                            default=FTSObj().TCPDataPackageService.TCPDataPackageServicePort)
         parser.add_argument('-DataPackageIP', type=str, help=OrchestratorConstants().APIPORTDESC,
-                            default=FTSObj().DataPackageService.DataPackageServiceIP)
+                            default=FTSObj().TCPDataPackageService.TCPDataPackageServiceIP)
         parser.add_argument('-RestAPIPort', type=int, help=OrchestratorConstants().APIPORTDESC,
                             default=FTSObj().RestAPIService.RestAPIServicePort)
         parser.add_argument('-RestAPIIP', type=str, help=OrchestratorConstants().APIPORTDESC,

@@ -1,4 +1,8 @@
 class RestAPIVariables:
+
+    defaultGeoObjectTimeout = 300
+    defaultPresenceType = "a-f-G-U-C-I"
+
     def __init__(self):
         pass
 
@@ -9,7 +13,7 @@ class RestAPIVariables:
 
     def json_vars(self):
         self.COTSERVICE = 'CoTService'
-        self.DATAPACKAGESERVICE = 'DataPackageService'
+        self.DATAPACKAGESERVICE = 'TCPDataPackageService'
         self.IP = 'IP'
         self.PORT = 'PORT'
         self.STATUS = 'STATUS'
@@ -17,6 +21,7 @@ class RestAPIVariables:
     def rest_methods(self):
         self.POST = 'POST'
         self.GET = 'GET'
+        self.DELETE = 'DELETE'
 
     def default_values(self):
         self.defaultIP = "127.0.0.1"
@@ -31,12 +36,12 @@ class RestAPIVariables:
     def json_content(self):
         self.JsonStatusStartAll = {"CoTService":
                                    {"IP": self.getdefaultCoTIP(), "PORT": self.getdefaultCoTPort(), "STATUS": self.getdefaultCoTStatus()},
-                               "DataPackageService":
+                               "TCPDataPackageService":
                                    {"IP": self.getdefaultDataPackageIP(), "PORT": self.getdefaultDataPackagePort(), "STATUS": self.getdefaultDataPackageStatus()}}
 
         self.JsonStatusStopAll = {"CoTService":
                                       {"STATUS": "stop"},
-                                  "DataPackageService":
+                                  "TCPDataPackageService":
                                       {"STATUS": "stop"}}
         self.JsonStatusStartCoTService = {}
 

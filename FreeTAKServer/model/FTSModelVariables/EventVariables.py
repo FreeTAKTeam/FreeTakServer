@@ -47,9 +47,9 @@ class EventVariables:
     @classmethod
     def emergency_on(cls):
         cls.VERSIONNUM = '2.0'
-        cls.UID = 'RANDOM'
-        cls.TYPE = "DEFAULT"
-        cls.HOW = None
+        cls.UID = None
+        cls.TYPE = "b-a-o-tbl"
+        cls.HOW = 'm-g'
         cls.TIME = None
         cls.START = None
         cls.STALE = None
@@ -60,7 +60,7 @@ class EventVariables:
         cls.VERSIONNUM = '2.0'
         cls.UID = 'RANDOM'
         cls.TYPE = "DEFAULT"
-        cls.HOW = None
+        cls.HOW = 'h-e'
         cls.TIME = None
         cls.START = None
         cls.STALE = None
@@ -120,3 +120,37 @@ class EventVariables:
         cls.start = None
         cls.stale = None
         return cls
+
+    @classmethod
+    def SimpleCoT(cls):
+        cls.version = "2.0"
+        cls.uid = None
+        cls.type = None
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = None
+        return cls
+
+    @classmethod
+    def Presence(cls):
+        cls.version = "2.0"
+        cls.uid = None
+        cls.type = None
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = None
+        return cls
+
+    @classmethod
+    def CreateExCheckTemplate(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = None
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = None
+        return cls
+

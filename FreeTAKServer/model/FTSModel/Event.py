@@ -242,13 +242,62 @@ class Event:
         event.detail = Detail.UserUpdate()
         return event
 
+    @staticmethod
+    def SimpleCoT(VERSION=vars.SimpleCoT().version, UID=vars.SimpleCoT().uid, TYPE=vars.SimpleCoT().type,
+                  TIME=vars.SimpleCoT().time, START=vars.SimpleCoT().start, STALE=vars.SimpleCoT().stale,
+                  HOW=vars.SimpleCoT().how):
+        event = Event()
+        event.setversion(VERSION)
+        event.setuid(UID)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.detail = Detail.SimpleCoT()
+        event.point = Point()
+        return event
+
+    @staticmethod
+    def Presence(VERSION=vars.Presence().version, UID=vars.Presence().uid, TYPE=vars.Presence().type,
+                  TIME=vars.Presence().time, START=vars.Presence().start, STALE=vars.Presence().stale,
+                  HOW=vars.Presence().how):
+        event = Event()
+        event.setversion(VERSION)
+        event.setuid(UID)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.detail = Detail.Presence()
+        event.point = Point()
+        return event
+
+    @staticmethod
+    def CreateExCheckTemplate(VERSION=vars.CreateExCheckTemplate().version, UID=vars.CreateExCheckTemplate().uid,
+                              TYPE=vars.CreateExCheckTemplate().type, TIME=vars.CreateExCheckTemplate().time,
+                              START=vars.CreateExCheckTemplate().start, STALE=vars.CreateExCheckTemplate().stale,
+                              HOW=vars.CreateExCheckTemplate().how):
+        event = Event()
+        event.setversion(VERSION)
+        event.setuid(UID)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.point = Point()
+        event.detail = Detail.CreateExCheckTemplate()
+        return event
+
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
         self.how = how
 
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 1)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 2)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
         self.setstart(zulu)
@@ -263,7 +312,7 @@ class Event:
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 1)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 2)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
         self.setstart(zulu)
@@ -337,18 +386,18 @@ class Event:
         return self.stale 
     
         # stale setter
-    def setstale(self, stale=0):
-        DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+    def setstale(self, stale = None,staletime=60):
         if stale == None:
+            DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
-            add = dt.timedelta(minutes=1)
+            add = dt.timedelta(seconds=staletime)
             stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
             self.stale = stale_part.strftime(DATETIME_FMT)
         else:
             self.stale = stale
-    
+
             # type getter
     def gettype(self): 
         return self.type 
@@ -374,3 +423,4 @@ class Event:
         self.detail = detail
 if __name__ == "__main__":
     Event()
+

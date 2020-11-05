@@ -48,3 +48,13 @@ class ContactVariables:
         cls.phone = None
         cls.callsign = None
         return cls
+
+    @classmethod
+    def SimpleCoT(cls):
+        cls.callsign = None
+        return cls
+
+    @classmethod
+    def Presence(cls):
+        cls.callsign = None
+        return cls

@@ -270,6 +270,21 @@ class FlaskFunctions:
             raise RuntimeError('Not running with the Werkzeug Server')
         func()
 
+    def setIP(self, IP_to_be_set):
+        global IP
+        IP = IP_to_be_set
+
+    def getIP(self):
+        global IP
+        return IP
+
+    def setHTTPPORT(self, HTTPPORTToBeSet):
+        global HTTPPORT
+        HTTPPORT = HTTPPORTToBeSet
+
+    def getHTTPPort(self):
+        global HTTPPORT
+        return HTTPPORT
 
 if __name__ == "__main__":
     pass

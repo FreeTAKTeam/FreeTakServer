@@ -87,8 +87,8 @@ class RestCLIClient:
                 DataPackageServerConstants().IP) + ']: ')) or DataPackageServerConstants().IP
             #send start request
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
-            body = json.dumps({"DataPackageService":{"IP": str(self.APIIP), "PORT": int(self.APIPort)}})
-            conn.request("POST", "/DataPackageService", body, {"Content-type": "application/json", "Accept": "text/plain"})
+            body = json.dumps({"TCPDataPackageService":{"IP": str(self.APIIP), "PORT": int(self.APIPort)}})
+            conn.request("POST", "/TCPDataPackageService", body, {"Content-type": "application/json", "Accept": "text/plain"})
             response = conn.getresponse()
             if self.check_response(response):
                 print('data package service started')
@@ -102,7 +102,7 @@ class RestCLIClient:
     def stop_data_package_service(self):
         try:
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
-            conn.request("DELETE", "/DataPackageService")
+            conn.request("DELETE", "/TCPDataPackageService")
             response = conn.getresponse()
             if self.check_response(response):
                 print('data package service stoped')
@@ -137,7 +137,7 @@ class RestCLIClient:
         try:
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
             body = json.dumps({"CoTService": {"STATUS": "stop"},
-                               "DataPackageService": {"STATUS": "stop"}})
+                               "TCPDataPackageService": {"STATUS": "stop"}})
             conn.request("POST", "/changeStatus", body, {"Content-type": "application/json", "Accept": "text/plain"})
             response = conn.getresponse()
             if self.check_response(response):
@@ -147,6 +147,52 @@ class RestCLIClient:
             return 1
         except Exception as e:
             logger.error('there has been an exception in RestCLIClient stop_all ' + str(e))
+            return -1
+
+    def add_api_user(self):
+        import uuid
+        conn = http.client.HTTPConnection(connectionIP, connectionPort)
+        username = input('please enter the username for the new user: ')
+        token = input('please enter the token for the new user: ')
+        if token is None:
+            token = uuid.uuid4()
+        else:
+            pass
+        conn.request("POST", "/APIUser", body = json.dumps({'username': username, "token": token}), headers={"Content-type": "application/json", "Accept": "text/plain"})
+        response = conn.getresponse()
+        print('user created\n'
+              'username: ' + username + '\n'
+              'token: ' + token)
+        return response
+
+    def remove_api_user(self):
+        try:
+            conn = http.client.HTTPConnection(connectionIP, connectionPort)
+            username = input('please enter username of user to be deleted: ')
+            conn.request("DELETE", "/APIUser", body = json.dumps({'username': username}), headers={"Content-type": "application/json", "Accept": "text/plain"})
+            response = conn.getresponse()
+            print('user ' + username + ' has been deleted')
+            return response
+        except Exception as e:
+            logger.error('there has been an exception in RestCLI Client remove_api_user ' + str(e))
+            return -1
+
+    def show_api_users(self):
+        try:
+            conn = http.client.HTTPConnection(connectionIP, connectionPort)
+            conn.request("GET", "/APIUser")
+            response = conn.getresponse()
+            api_users = json.loads(response.read().decode("utf-8"))
+            DPArray = []
+            for dict in api_users['json_list']:
+                values = list(dict.values())
+                DPArray.append(values)
+            table = tabulate.tabulate(DPArray, headers = ["Token", "Username"], tablefmt='psql')
+            print(table)
+            return 1
+
+        except Exception as e:
+            logger.error('there has been an exception in RestCLI Client show_api_users ' + str(e))
             return -1
 
     def show_DP(self):
@@ -191,6 +237,9 @@ class RestCLIClient:
         print('kill: terminate all the services')
         print('show_DP: to show all DataPackages on the server')
         print('remove_DP: to remove a DataPackages on the server')
+        print('add_api_user: create a user for the api')
+        print('remove_api_user: delete an api user')
+        print('show_api_users: show a table of all api users and their associated tokens')
         return 1
 
     def check_service_status(self):
