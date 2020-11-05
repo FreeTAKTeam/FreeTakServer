@@ -24,14 +24,14 @@ POST http://104.58.20.216:9999/manageGeoObject/postGeoObject
 ### Authorization
  to use the API you need to have  a rest key .
 the authorization is placed in the header of the message.
-Authorization: [YOUR_API_KEY]
+Authorization: Bearer [YOUR_API_KEY]
 
-a valid key is generated from FTS' CLI and stored into the DB. see CLI help for details
-to consume the API you need to request a key to the FTS admin. 
+a valid key is generated from FTS' [CLI](https://github.com/FreeTAKTeam/FreeTAKServer-User-Docs/blob/main/docs/docs/CLI.md) and stored into the DB. see CLI help for details
+to consume the API you need to request a key to your FTS admin. 
 
 the following is a key non working example
 ```
-{“Authorization”: “K0rv0 meg@secre7apip@guesmeIfyouCan”}
+{“Authorization”: “Bearer meg@secre7apip@guesmeIfyouCan”}
 ```
 
 ### Message
@@ -122,7 +122,8 @@ create a emergency into the server
  #### Parameters
   * Name: the name of the person that has an emergency.
   * EmergencyType: the type of emergency to be displayed
-  * Status: if the emergency is currently active or not (on/off)
+  *  longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
+  * latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
  
 
    #### List of supported Emergency Types
@@ -137,7 +138,8 @@ Example
 {
   "name": "Corvo",
   "emergencyType": "In Contact",
-  "status": "on"
+ "longitude": -77.01395,
+"latitude": 38.889
 }
 
 ```
