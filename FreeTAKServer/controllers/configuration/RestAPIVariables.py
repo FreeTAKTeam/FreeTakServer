@@ -1,6 +1,7 @@
 class RestAPIVariables:
 
     defaultGeoObjectTimeout = 300
+    defaultPresenceTimeout = 500
     defaultPresenceType = "a-f-G-U-C-I"
 
     def __init__(self):

@@ -18,6 +18,14 @@ class RestEnumerations:
     used when creating a unit point on map
     '''
 
+    Teams = {
+        "Cyan": "Cyan",
+        'Red': 'Red',
+        'Yellow': 'Yellow',
+        'Green': 'Green',
+        'Blue': 'Blue'
+    }
+
     roles = {
         "Sniper": "Sniper",
         "Forward Observer": "Forward Observer",
@@ -1119,7 +1127,6 @@ class RestEnumerations:
         "DRUG VEHICLE": "b-r-.-O-I-D",
         "INTERNAL SECURITY FORCE": "b-r-.-O-I-F",
         "NON-COT OBJECT": "b-x.*"}
-    teams = ""  
 
     class geoObjectAttitude:
     # default constructor  def __init__(self):  

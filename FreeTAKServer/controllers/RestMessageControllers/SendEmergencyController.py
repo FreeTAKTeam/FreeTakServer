@@ -6,7 +6,7 @@ from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost
+from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost, RestEnumerations
 from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendGeoChatController").getLogger()
@@ -28,7 +28,7 @@ class SendEmergencyController:
     def _serializeJsonToModel(self, object, json):
         # runs if emergency is on
         if isinstance(json, EmergencyPost):
-            object.settype(json.getemergencyType())
+            object.settype(RestEnumerations.emergencyTypes[json.getemergencyType()])
             object.detail.contact.setcallsign(json.getname())
             object.detail.emergency.settype(json.getemergencyType())
             object.point.setlat(json.getlatitude())
@@ -40,7 +40,8 @@ class SendEmergencyController:
         elif isinstance(json, EmergencyDelete):
             object.setuid(json.getuid())
             DatabaseController().remove_ActiveEmergency(query=f'uid == "{object.uid}"')
-            object.settype('b-a-o-ctl')
+            object.settype('b-a-o-can')
+            object.detail.emergency.setcancel('true')
             return object
 
     def setCoTObject(self, CoTObject):

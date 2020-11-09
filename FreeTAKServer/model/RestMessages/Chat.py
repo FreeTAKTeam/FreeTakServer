@@ -11,9 +11,8 @@
 
 class Chat:
 # default constructor  def __init__(self):  
-    def __init__(self):
-        # the text of the GeoChat message
-        self.message = ""
-        # the name of the chat's sender, changing this will also change the chat room for
-        # the client.
-        self.sender = ""
+    # the text of the GeoChat message
+    message = ""
+    # the name of the chat's sender, changing this will also change the chat room for
+    # the client.
+    sender = ""

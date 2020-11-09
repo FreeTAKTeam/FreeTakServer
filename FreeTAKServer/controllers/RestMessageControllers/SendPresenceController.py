@@ -30,6 +30,10 @@ class SendPresenceController:
             object.detail.contact.setcallsign(json.getname())
             object.detail._group.setname(json.getteam())
             object.detail._group.setrole(json.getrole())
+            if json.gettimeout() != '':
+                object.setstale(staletime=int(json.gettimeout()))
+            else:
+                object.setstale(staletime=RestAPIVariables.defaultPresenceTimeout)
             return object
         except AttributeError as e:
             return Exception('a parameter has been passed which is not recognized with error: '+str(e))

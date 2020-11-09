@@ -29,14 +29,19 @@ class PresencePost(Presence):
         return self.name
     
     def setrole(self, role):
-        self.role = RestEnumerations.role[role]
+        self.role = RestEnumerations.roles[role]
 
     def getrole(self):
         return self.role
     
     def setteam(self, team):
-        self.team = RestEnumerations.team[team]
+        self.team = RestEnumerations.Teams[team]
 
     def getteam(self):
-        return self.team    
-    
+        return self.team
+
+    def settimeout(self, timeout):
+        self.timeout = timeout
+
+    def gettimeout(self):
+        return self.timeout

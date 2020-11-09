@@ -7,6 +7,7 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.model.ServiceObjects.RestAPIService import RestAPIService
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("CLI").getLogger()
@@ -14,7 +15,7 @@ logger = CreateLoggerController("CLI").getLogger()
 json_content = vars()
 json_content.default_values()
 json_content.json_content()
-connectionIP = str(RestAPIService().RestAPIServiceIP)
+connectionIP = MainConfig.CLIIP
 connectionPort = int(RestAPIService().RestAPIServicePort)
 
 #TODO: standardize and abstract this
@@ -149,6 +150,10 @@ class RestCLIClient:
             logger.error('there has been an exception in RestCLIClient stop_all ' + str(e))
             return -1
 
+    def exit(self):
+        self.killSwitch = True
+        return 1
+
     def add_api_user(self):
         import uuid
         conn = http.client.HTTPConnection(connectionIP, connectionPort)
@@ -240,6 +245,7 @@ class RestCLIClient:
         print('add_api_user: create a user for the api')
         print('remove_api_user: delete an api user')
         print('show_api_users: show a table of all api users and their associated tokens')
+        print('exit: exit the terminal')
         return 1
 
     def check_service_status(self):

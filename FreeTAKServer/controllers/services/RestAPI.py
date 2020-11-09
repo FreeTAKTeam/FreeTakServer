@@ -113,7 +113,7 @@ def postPresence():
         jsonobj = JsonController().serialize_presence_post(jsondata)
         Presence = SendPresenceController(jsonobj).getCoTObject()
         APIPipe.send(Presence)
-        return 'success', 200
+        return Presence.modelObject.getuid(), 200
     except Exception as e:
         return str(e), 500
 
@@ -132,7 +132,7 @@ def postGeoObject():
         jsonobj = JsonController().serialize_geoobject_post(jsondata)
         simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
         APIPipe.send(simpleCoTObject)
-        return 'success', 200
+        return simpleCoTObject.modelObject.getuid(), 200
     except Exception as e:
         return str(e), 500
 
@@ -178,7 +178,7 @@ def postEmergency():
         jsonobj = JsonController().serialize_emergency_post(jsondata)
         EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()
         APIPipe.send(EmergencyObject)
-        return 'success', 200
+        return EmergencyObject.modelObject.getuid(), 200
     except Exception as e:
         return str(e), 200
 
@@ -221,7 +221,7 @@ def ConnectionMessage():
 
 @app.route("/APIUser", methods=[restMethods.GET, restMethods.POST, restMethods.DELETE])
 def APIUser():
-    if request.remote_addr == 'localhost' or request.remote_addr == '127.0.0.1':
+    if request.remote_addr in MainConfig.AllowedCLIIPs:
         try:
             if request.method == restMethods.POST:
                 json = request.get_json()
@@ -246,7 +246,7 @@ def APIUser():
         except Exception as e:
             return str(e), 500
     else:
-        return 'endpoint can only be accessed by localhost', 401
+        return 'endpoint can only be accessed by approved IPs', 401
 @app.route("/RecentCoT", methods=[restMethods.GET])
 def RecentCoT():
     import time
@@ -262,7 +262,7 @@ def URLGET():
 @app.route("/Clients", methods=[restMethods.GET])
 def Clients():
     try:
-        if request.remote_addr == 'localhost' or request.remote_addr == '127.0.0.1':
+        if request.remote_addr in MainConfig.AllowedCLIIPs:
             CommandPipe.send([functionNames.Clients])
             out = CommandPipe.recv()
             returnValue = []
@@ -271,13 +271,13 @@ def Clients():
             dumps = json.dumps(returnValue)
             return dumps
         else:
-            return 'endpoint can only be accessed by localhost', 401
+            return 'endpoint can only be accessed by approved IPs', 401
     except Exception as e:
         return str(e), 500
 
-@app.route('/DataPackageTable', methods=[restMethods.GET, restMethods.POST, "DELETE"])
+@app.route('/DataPackageTable', methods=[restMethods.GET, restMethods.POST, restMethods.DELETE])
 def DataPackageTable():
-    if request.remote_addr == 'localhost' or request.remote_addr == '127.0.0.1':
+    if request.remote_addr in MainConfig.AllowedCLIIPs:
         if request.method == "GET":
             output = dbController.query_datapackage()
             for i in range(0, len(output)):
@@ -298,25 +298,25 @@ def DataPackageTable():
             shutil.rmtree(f'{str(currentPath)}/FreeTAKServerDataPackageFolder/{obj[0].Hash}')
             return '200', 200
     else:
-        return 'endpoint can only be accessed by localhost', 401
+        return 'endpoint can only be accessed by approved IPs', 401
 
 @app.route('/checkStatus', methods=[restMethods.GET])
 def check_status():
     try:
-        if request.remote_addr == 'localhost' or request.remote_addr == '127.0.0.1':
+        if request.remote_addr in MainConfig.AllowedCLIIPs:
             CommandPipe.send([functionNames.checkStatus])
             FTSServerStatusObject = CommandPipe.recv()
             out = ApplyFullJsonController().serialize_model_to_json(FTSServerStatusObject)
             return json.dumps(out), 200
         else:
-            return 'endpoint can only be accessed by localhost', 401
+            return 'endpoint can only be accessed by approved IPs', 401
     except Exception as e:
         return str(e), 500
 
 @app.route('/changeStatus', methods=[restMethods.POST])
 def All():
     try:
-        if request.remote_addr == 'localhost' or request.remote_addr == '127.0.0.1':
+        if request.remote_addr in MainConfig.AllowedCLIIPs:
             FTSObject = FTS()
             if request.method == restMethods.POST:
                 json = request.json
@@ -347,7 +347,7 @@ def All():
                 out = CommandPipe.recv()
                 return '200', 200
         else:
-            return 'endpoint can only be accessed by localhost', 401
+            return 'endpoint can only be accessed by approved IPs', 401
     except Exception as e:
         return '500', 500
 

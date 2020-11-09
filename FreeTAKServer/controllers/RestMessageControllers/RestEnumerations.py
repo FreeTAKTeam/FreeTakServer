@@ -6,6 +6,14 @@ class RestEnumerations:
     '''
     used when creating a unit point on map
     '''
+    teams = {
+        "Cyan": "Cyan",
+        'Red': 'Red',
+        'Yellow': 'Yellow',
+        'Green': 'Green',
+        'Blue': 'Blue'
+    }
+
     SquadTypes = {
         "Gnd Combat Infantry Rifleman": "a-.-G-U-C-I",
         "Gnd Combat Infantry grenadier": "a-.-G-E-W-Z",

@@ -5,7 +5,7 @@ class EmergencyPost(Emergency):
         pass
 
     def setemergencyType(self, emergencyType):
-        self.emergencyType = RestEnumerations.emergencyTypes[emergencyType]
+        self.emergencyType = emergencyType
 
     def getemergencyType(self):
         return self.emergencyType
@@ -20,13 +20,20 @@ class EmergencyPost(Emergency):
         self.latitude = str(latitude)
 
     def getlatitude(self):
-        return self.latitude
+        if self.latitude == '':
+            return '0'
+        else:
+
+            return self.latitude
 
     def setlongitude(self, longitude):
         self.longitude = str(longitude)
 
     def getlongitude(self):
-        return self.longitude
+        if self.longitude == '':
+            return '0'
+        else:
+            return self.longitude
 
 if __name__ == "__main__":
     x = EmergencyPost()

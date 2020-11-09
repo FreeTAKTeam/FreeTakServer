@@ -4,14 +4,14 @@ class ChatPost(Chat):
     def __init__(self):
         pass
 
-    def messagesetter(self, message):
+    def setmessage(self, message):
         self.message = message
 
-    def messagegetter(self):
+    def getmessage(self):
         return self.message
 
-    def sendersetter(self, sender):
+    def setsender(self, sender):
         self.sender = sender
 
-    def sendergetter(self):
+    def getsender(self):
         return self.sender

@@ -12,6 +12,18 @@ class MainConfig:
     # this needs to be changed for private data packages to work
     DataPackageServiceDefaultIP = str("0.0.0.0")
 
+    # api port
+    APIPort = 19023
+
+    # api IP
+    APIIP = '0.0.0.0'
+
+    # allowed ip's to access CLI commands
+    AllowedCLIIPs = ['127.0.0.1']
+
+    # IP for CLI to access
+    CLIIP = '127.0.0.1'
+
     # whether or not to save CoT's to the DB
     SaveCoTToDB = bool(False)
 

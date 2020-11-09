@@ -200,7 +200,14 @@ class DatabaseController:
         self.engine.dispose()
 
 if __name__ == "__main__":
-    contr = DatabaseController()
+    contr = DatabaseController().query_ActiveEmergency()
+    x = contr[0]
+    y = x.event
+    z = y.__dict__
+    b = y.detail
+    from sqlalchemy.inspection import inspect
+
+    g = y.__mapper__.relationships
     import datetime as dt
     #contr.create_datapackage(uid='9', CreatorUid='abc123', Hash='36e4506f4d6a9582fc60529525c55f3ebd42b887b5164d24e44b85d7ea686a3d', Keywords="foobar", MIMEType="aaa/bbb", Name="other", Privacy=1, Size=32, SubmissionDateTime=dt.datetime.utcnow(), SubmissionUser="blue")
     #contr.remove_APIUser(query='Username == "admin"')

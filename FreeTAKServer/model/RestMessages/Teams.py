@@ -11,8 +11,10 @@
 
 class Teams:
 # default constructor  def __init__(self):  
-    def __init__(self):
-        self.Yellow = ""
-        self.Red = ""
-        self.Green = ""
-        self.Blue = ""
+    # default constructor  def __init__(self):  
+
+
+    Yellow = "" 
+    Red = "" 
+    Green = "" 
+    Blue = "" 
