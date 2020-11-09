@@ -31,7 +31,7 @@ class MainConfig:
     DBFilePath = str(home + r'/FTSDataBase.db')
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.2 RC 2'
+    version = 'FreeTAKServer-1.2.5 RC 3'
 
     # set to None if you don't want a message sent
     ConnectionMessage = f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting'
