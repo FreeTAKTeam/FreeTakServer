@@ -1,5 +1,7 @@
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+
 class RestAPIServiceVariables:
     def __init__(self):
-        self.RestAPIServiceIP = "127.0.0.1"
-        self.RestAPIServicePort = 19023
+        self.RestAPIServiceIP = MainConfig.APIIP
+        self.RestAPIServicePort = MainConfig.APIPort
         self.RestAPIServiceStatus = ""

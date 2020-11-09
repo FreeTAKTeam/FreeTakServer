@@ -17,7 +17,6 @@ from sqlalchemy.orm import relationship
 class Emergency(Base):
     __tablename__ = "Emergency"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
-    Detail = relationship("Detail", back_populates="emergency")
     Alert = Column(String)
     # if true the emergency beacon is canceled
     cancel = Column(String)

@@ -69,6 +69,18 @@ class Contact:
         contact.setcallsign(CALLSIGN)
         return contact
 
+    @staticmethod
+    def SimpleCoT(CALLSIGN = vars.SimpleCoT().callsign):
+        contact = Contact()
+        contact.setcallsign(CALLSIGN)
+        return contact
+
+    @staticmethod
+    def Presence(CALLSIGN = vars.Presence().callsign):
+        contact = Contact()
+        contact.setcallsign(CALLSIGN)
+        return contact
+
     # iconsetpath getter 
     def geticonsetpath(self): 
         return self.iconsetpath 

@@ -19,6 +19,13 @@ class _Group:
         _group.setrole(ROLE)
         return _group
 
+    @staticmethod
+    def Presence(NAME=vars.Presence().name, ROLE=vars.Presence().role):
+        _group = _Group()
+        _group.setname(NAME)
+        _group.setrole(ROLE)
+        return _group
+
     def getrole(self):
         return self.role
 

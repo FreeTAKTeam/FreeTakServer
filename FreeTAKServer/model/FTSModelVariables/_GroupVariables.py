@@ -14,3 +14,9 @@ class _GroupVariables:
         cls.name = None
         cls.role = None
         return cls
+
+    @classmethod
+    def Presence(cls):
+        cls.name = None
+        cls.role = None
+        return cls

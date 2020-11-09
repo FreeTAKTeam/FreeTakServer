@@ -25,9 +25,9 @@ class LinkVariables:
 
     @classmethod
     def emergency_on(cls):
-        cls.UID = "DEFAULT"
+        cls.UID = "SERVER"
         cls.TYPE = "a-f-G-U-C"
-        cls.PARENTCALLSIGN = "DEFAULT"
+        cls.PARENTCALLSIGN = None
         cls.RELATION = "p-p"
         cls.PRODUCTIONTIME = None
         return cls

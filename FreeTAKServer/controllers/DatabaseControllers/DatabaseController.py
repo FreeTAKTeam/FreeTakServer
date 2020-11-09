@@ -1,10 +1,12 @@
 from FreeTAKServer.controllers.DatabaseControllers import UserTableController, DataPackageTableController
 from FreeTAKServer.controllers.DatabaseControllers import VideoStreamTableController
 from FreeTAKServer.controllers.DatabaseControllers import EventTableController
+from FreeTAKServer.controllers.DatabaseControllers import ActiveEmergencysController
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
+from FreeTAKServer.controllers.DatabaseControllers import APIUsersController
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
 import FreeTAKServer.model.SQLAlchemy.CoTTables._Group
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Chat
@@ -26,6 +28,8 @@ import FreeTAKServer.model.SQLAlchemy.CoTTables.Usericon
 import FreeTAKServer.model.SQLAlchemy.DataPackage
 import FreeTAKServer.model.SQLAlchemy.VideoStream
 import FreeTAKServer.model.SQLAlchemy.User
+import FreeTAKServer.model.SQLAlchemy.APIUsers
+import FreeTAKServer.model.SQLAlchemy.ActiveEmergencys
 
 
 class DatabaseController:
@@ -44,6 +48,8 @@ class DatabaseController:
         self.UserTableController = UserTableController.UserTableController()
         self.VideoStreamTableController = VideoStreamTableController.VideoStreamTableController()
         self.EventTableController = EventTableController.EventTableController()
+        self.APIUserController = APIUsersController.APIUsersController()
+        self.ActiveEmergencysController = ActiveEmergencysController.ActiveEmergencysController()
 
     def create_engine(self):
         """
@@ -53,7 +59,7 @@ class DatabaseController:
         TODO: move database path to constants
         :arg
         """
-        engine = create_engine(DatabaseConfiguration().DataBaseConnectionString)
+        engine = create_engine(DatabaseConfiguration().DataBaseConnectionString, echo=False)
         Base.metadata.create_all(engine)
         return engine
 
@@ -92,8 +98,7 @@ class DatabaseController:
         return 1
 
     def _remove(self, controller, query):
-        controller.delete(session=self.session, query=query)
-        return 1
+        return controller.delete(session=self.session, query=query)
 
     def _query(self, controller, query, columns):
         return controller.query(session=self.session, query=query, columns = columns)
@@ -158,14 +163,54 @@ class DatabaseController:
     def update_CoT(self, column_value=dict(), query="1 == 1"):
         return self._update(controller=self.EventTableController, query=query, column_value=column_value)
 
+    def create_APIUser(self, **args):
+        return self._create(self.APIUserController, **args)
+
+    def remove_APIUser(self, query="1 == 1"):
+        '''
+        :param query: this parameter will be used to select which datapackages are deleted
+        :return: 1 on success
+        '''
+        return self._remove(controller=self.APIUserController, query=query)
+
+    def query_APIUser(self, query="1 == 1", column=['*']):
+        return self._query(controller=self.APIUserController, query=query, columns=column)
+
+    def update_APIUser(self, column_value=None, query="1 == 1"):
+        return self._update(controller=self.APIUserController, query=query, column_value=column_value)
+
+    def create_ActiveEmergency(self, object):
+        try:
+            session = self.create_Session()
+            self.ActiveEmergencysController.create(session, object)
+        except Exception as e:
+            session.rollback()
+            session.close()
+    def remove_ActiveEmergency(self, query="1 == 1"):
+        return self._remove(controller=self.ActiveEmergencysController, query=query)
+
+    def query_ActiveEmergency(self, query="1 == 1", column=['*']):
+        return self._query(controller=self.ActiveEmergencysController, query=query, columns=column)
+
+    def update_ActiveEmergency(self, column_value=None, query="1 == 1"):
+        return self._update(controller=self.ActiveEmergencysController, query=query, column_value=column_value)
+
     def shutdown_Connection(self):
         self.session.close()
         self.engine.dispose()
 
 if __name__ == "__main__":
-    contr = DatabaseController()
+    contr = DatabaseController().query_ActiveEmergency()
+    x = contr[0]
+    y = x.event
+    z = y.__dict__
+    b = y.detail
+    from sqlalchemy.inspection import inspect
+
+    g = y.__mapper__.relationships
     import datetime as dt
-    contr.create_datapackage(uid='9', CreatorUid='abc123', Hash='36e4506f4d6a9582fc60529525c55f3ebd42b887b5164d24e44b85d7ea686a3d', Keywords="foobar", MIMEType="aaa/bbb", Name="other", Privacy=1, Size=32, SubmissionDateTime=dt.datetime.utcnow(), SubmissionUser="blue")
+    #contr.create_datapackage(uid='9', CreatorUid='abc123', Hash='36e4506f4d6a9582fc60529525c55f3ebd42b887b5164d24e44b85d7ea686a3d', Keywords="foobar", MIMEType="aaa/bbb", Name="other", Privacy=1, Size=32, SubmissionDateTime=dt.datetime.utcnow(), SubmissionUser="blue")
+    #contr.remove_APIUser(query='Username == "admin"')
     #contr.remove_datapackage('Hash == "36e4506f4d6a9582fc60529525c55f3ebd42b887b5164d24e44b85d7ea686a3d"')
     #UID = 123
     #callsign = contr.query_user(query=f'uid == "{UID}"', column=['callsign'])

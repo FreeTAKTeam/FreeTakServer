@@ -11,7 +11,7 @@ class TableController:
         # this function removes a row from the datapackages table based on the uid
         session.query(self.table).filter(text(query)).delete(synchronize_session='fetch')
         session.commit()
-
+        return 1
 
     def create(self, session, **args):
         # this function adds a new row to the datapackages table

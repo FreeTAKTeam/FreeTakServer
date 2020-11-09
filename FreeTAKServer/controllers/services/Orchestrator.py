@@ -25,6 +25,8 @@ from FreeTAKServer.controllers.configuration.DataPackageServerConstants import D
 from FreeTAKServer.model.RawCoT import RawCoT
 from FreeTAKServer.controllers.SpecificCoTControllers.SendDisconnectController import SendDisconnectController
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
+from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
+from FreeTAKServer.model.FTSModel.Event import Event
 
 ascii = AsciiController().ascii
 from logging.handlers import RotatingFileHandler
@@ -196,7 +198,7 @@ class Orchestrator:
             processedCoT = CoTSerializer(RawCoT).getObject()
             sender = processedCoT.clientInformation
             # this will send the processed object to a function which will send it to connected clients
-            try:
+            '''try:
                 # TODO: method of determining if CoT should be added to the internal array should
                 #  be improved
                 if processedCoT.type == "Emergency":
@@ -204,7 +206,7 @@ class Orchestrator:
                 else:
                     pass
             except Exception as e:
-                return -1
+                return -1'''
             return processedCoT
         except Exception as e:
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
@@ -217,10 +219,34 @@ class Orchestrator:
                     SendDataController().sendDataInQueue(processedCoT.clientInformation, processedCoT, [client])
             else:
                 pass
+            self.send_active_emergencys(client)
             return 1
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORINTERNALSCANERROR + str(e))
             return -1
+
+    def send_active_emergencys(self, client):
+        """
+        this function needs to be cleaned up however it's functionality is as follows
+        it query's the DB for active emergency's at which point it iterates over all
+        emergency objects, transforms them into model objects and then xmlStrings
+        finally the object is sent to the client.
+        """
+        try:
+
+            from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
+            emergencys = self.dbController.query_ActiveEmergency()
+            for emergency in emergencys:
+                emergencyobj = SendEmergency()
+                modelObject = Event.emergecyOn()
+
+                filledModelObject = SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(emergency.event, modelObject)
+                emergencyobj.setXmlString(XMLCoTController().serialize_model_to_CoT(filledModelObject))
+                emergencyobj.setModelObject(filledModelObject)
+                SendDataController().sendDataInQueue(None, emergencyobj, [client])
+
+        except Exception as e:
+            self.logger.error('an exception has been thrown in sending active emergencies ' + str(e))
 
     def clientDisconnected(self, clientInformation):
         if hasattr(clientInformation, 'clientInformation'):

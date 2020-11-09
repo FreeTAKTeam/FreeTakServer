@@ -24,6 +24,7 @@ from .Color import Color
 from FreeTAKServer.model.FTSModel.Usericon import Usericon
 from .Archive import Archive
 from FreeTAKServer.model.FTSModel.Summary import Summary
+from FreeTAKServer.model.FTSModel.Mission import Mission
 
 class Detail:
     """An optional element used to hold CoT sub-schema. empty element
@@ -116,6 +117,25 @@ class Detail:
         detail.contact = Contact.UserUpdate()
         detail.uid = Uid.UserUpdate()
         detail.precisionlocation = Precisionlocation.UserUpdate()
+        return detail
+
+    @staticmethod
+    def SimpleCoT():
+        detail = Detail()
+        detail.contact = Contact.SimpleCoT()
+        return detail
+
+    @staticmethod
+    def Presence():
+        detail = Detail()
+        detail.contact = Contact.Presence()
+        detail._group = _Group.Presence()
+        return detail
+
+    @staticmethod
+    def CreateExCheckTemplate():
+        detail = Detail()
+        detail.mission = Mission.CreateExCheckTemplate()
         return detail
 
     def setarchive(self, archive):
@@ -225,3 +245,6 @@ class Detail:
 
     def get__serverdestination(self):
         return self._serverdestination
+
+
+
