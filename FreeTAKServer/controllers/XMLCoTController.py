@@ -96,7 +96,11 @@ class XMLCoTController:
             elif str(event.attrib['type']) == "a-h-G" or str(event.attrib['type']) == "a-n-G" or str(event.attrib['type']) == "a-f-G" or str(event.attrib['type']) == "a-u-G":
                 RawCoT.CoTType = CoTTypes['point']
                 return RawCoT
-
+            
+            elif str(event.attrib['type']) == "t-x-m-c":
+                logger.debug('a txmc type xml has been received \n')
+                RawCoT.CoTType = CoTTypes['*']
+                return RawCoT 
             # TODO: this needs to be expanded for more use cases
             else:
                 RawCoT.CoTType = CoTTypes['*']

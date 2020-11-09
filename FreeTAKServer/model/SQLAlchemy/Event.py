@@ -19,7 +19,7 @@ class Event(Base, Root):
 # default constructor  def __init__(self):  
 
     __tablename__ = "Event"
-    uid = Column(String, primary_key=True)
+    uid = Column(String, primary_key=True, unique=True)
     how = Column(String)
     start = Column(String)
     type = Column(String)

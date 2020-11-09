@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
-    version='1.1',
+    version='1.1.2',
     license='MIT',
     description='An open source server for the TAK family of applications.',
 
@@ -26,7 +26,11 @@ setup(
         'tabulate',
         'sqlalchemy',
         'setuptools',
-        'Flask_SQLAlchemy'
+        'Flask_SQLAlchemy',
+        'flask-cors',
+        'flask-socketio',
+        'eventlet',
+        'gevent'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

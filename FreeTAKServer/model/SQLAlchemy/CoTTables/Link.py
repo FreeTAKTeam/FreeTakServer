@@ -17,7 +17,6 @@ class Link(Base):
 # default constructor  def __init__(self):  
     __tablename__ = "Link"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
-    Detail = relationship("Detail", back_populates="link")
     #PrimaryKey = Column(ForeignKey('detail.uid'), primary_key=True)
     # Internet Media type of the referenced object.  If the link is to a CoT event,
     # the mime attribute is optional and its type may be application/xml or text/xml
