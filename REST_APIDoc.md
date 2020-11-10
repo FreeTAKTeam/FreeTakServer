@@ -26,7 +26,12 @@ POST http://104.58.20.216:9999/manageGeoObject/postGeoObject
 the authorization is placed in the header of the message.
 Authorization: Bearer [YOUR_API_KEY]
 
-a valid key is generated from FTS' [CLI](https://github.com/FreeTAKTeam/FreeTAKServer-User-Docs/blob/main/docs/docs/CLI.md) and stored into the DB. see CLI help for details
+a valid key is generated from FTS' [CLI](https://github.com/FreeTAKTeam/FreeTAKServer-User-Docs/blob/main/docs/docs/CLI.md) and stored into the DB. 
+user 
+```
+add_api_user
+```
+see CLI help for details
 to consume the API you need to request a key to your FTS admin. 
 
 the following is a key non working example
@@ -44,6 +49,7 @@ the message is placed in the body of the request as JSON formatted
   
  verb: POST
  endPoint: /ManageGeoObject/postGeoObject
+ returns: UID
  
  #### Parameters
   * GeoObject: It's the information that will determine which type will be placed on the tak maps including his icon. Please see API documentation for a list of valid entries.
@@ -53,6 +59,7 @@ the message is placed in the body of the request as JSON formatted
   * attitude: the kind of expected behavior of the GeoObject (e.g friendly, hostile, unknown). Please see API documentation for a list of valid entries.
   * name: a string to ID the GeoObject on a map.
   * timeout:the length, expressed in seconds  until the point will stale out. Default is 300 seconds or 5 minutes.
+  *  UID: server generated Unique Id of this element
 
   ##### Example body
 ```
@@ -68,7 +75,7 @@ the message is placed in the body of the request as JSON formatted
 ```
 
  ##### Response
-   * 200 Success: you have create the geoObject
+   * 200 Success: uid you have create the geoObject
    * [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
    * server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
   *  server error 400: you have probably an error in the format of your JSON query
@@ -124,7 +131,8 @@ create a emergency into the server
   * EmergencyType: the type of emergency to be displayed
   *  longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
   * latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
- 
+  *  UID: server generated Unique Id of this element
+
 
    #### List of supported Emergency Types
 * "911 Alert"
@@ -165,7 +173,7 @@ Example response
 
 ### deleteEmergency
 delete an active emergency.
-delete of emergencies can be only done by the originator of it.
+(TODO: delete of emergencies can be only done by the originator of it.)
 
   *  verb: DELETE
    * endPoint: /ManageEmergency/deleteEmergency
@@ -188,7 +196,7 @@ manage team member position
 ### postPresence
   * verb: POST
   *  endPoint: /ManagePresence/postPresence
-
+  *  returns: UID
 
   *  longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
   * latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
@@ -196,6 +204,7 @@ manage team member position
   * role: the given role within the team . Please see API documentation for a list of valid entries.
   * name: a string to ID the GeoObject on a map.
   * team: the color of the team 
+  * UID: server generated Unique Id of this element
 
 Example
 ```
