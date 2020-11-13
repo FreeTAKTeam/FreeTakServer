@@ -14,7 +14,7 @@ In the current release (1.2), FTS supports following API:
 ### end Point
 the APi uses the following format
 
-VERB [Protocol]://IP:PORT/APIName/verb
+VERB [Protocol]://IP:PORT/APIName/action
 
 for example
 ```
@@ -26,8 +26,10 @@ POST http://104.58.20.216:9999/manageGeoObject/postGeoObject
 the authorization is placed in the header of the message.
 Authorization: Bearer [YOUR_API_KEY]
 
+> you need to use the string 'Bearer' before your API KEY
+
 a valid key is generated from FTS' [CLI](https://github.com/FreeTAKTeam/FreeTAKServer-User-Docs/blob/main/docs/docs/CLI.md) and stored into the DB. 
-user 
+to add an API user in the CLI type  
 ```
 add_api_user
 ```
@@ -40,16 +42,16 @@ the following is a key non working example
 ```
 
 ### Message
-the message is placed in the body of the request as JSON formatted
+the message is placed in the body of the request as JSON formatted. See below for detailed examples.
 
 ## API Details
   ### manageGeoObject 
    a GeoObject is an element place on a map. It has a name, characteristics and an attitude. 
   #### postGeoObject
   
- verb: POST
- endPoint: /ManageGeoObject/postGeoObject
- returns: UID
+ * verb: POST
+ * endPoint: /ManageGeoObject/postGeoObject
+ * returns: UID
  
  #### Parameters
   * GeoObject: It's the information that will determine which type will be placed on the tak maps including his icon. Please see API documentation for a list of valid entries.
@@ -75,7 +77,7 @@ the message is placed in the body of the request as JSON formatted
 ```
 
  ##### Response
-   * 200 Success: uid you have create the geoObject
+   * 200 Success: uid. you have create the geoObject
    * [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
    * server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
   *  server error 400: you have probably an error in the format of your JSON query
