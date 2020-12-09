@@ -8,13 +8,10 @@
 # 
 #######################################################
 import socket
-import time
-from logging.handlers import RotatingFileHandler
-import logging
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-import sys
-from FreeTAKServer.controllers.model.RawConnectionInformation import RawConnectionInformation
+from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("ReceiveConnections").getLogger()
 #TODO: move health check values to constants and create controller for HealthCheck data
@@ -32,20 +29,23 @@ class ReceiveConnections:
             #establish the socket variables
             client, address = sock.accept()
             #wait to receive client
+            client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
             data = client.recv(1024)
+            client.settimeout(0)
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
             #establish the socket array containing important information about the client
-            m_RawConnectionInformation = RawConnectionInformation()
-            m_RawConnectionInformation.ip = address
-            m_RawConnectionInformation.socket = client
-            m_RawConnectionInformation.xmlString = data.decode('utf-8')
+            RawConnectionInformation = sat()
+            RawConnectionInformation.ip = address[0]
+            RawConnectionInformation.socket = client
+            RawConnectionInformation.xmlString = data.decode('utf-8')
             try:
-                if socket != None:
-                    return m_RawConnectionInformation
+                if socket != None and data != b'':
+                    return RawConnectionInformation
                 else:
-                    pass
+                    return -1
             except Exception as e:
-                logger.error('')
+                logger.error('exception in returning data '+str(e))
+                return -1
 
         except Exception as e:
             logger.error(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))

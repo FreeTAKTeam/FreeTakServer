@@ -7,7 +7,7 @@
 # Original author: Corvo
 # 
 #######################################################
-
+from .PrecisionlocationVariables import PrecisionlocationVariables as vars
 
 class Precisionlocation:
     """some type of location?
@@ -17,10 +17,23 @@ class Precisionlocation:
  
 
     # default constructor       
-    def __init__(self):  
-        self.altsrc = "change" 
-        self.geopointsrc = "USER"
-        
+    def __init__(self):
+        self.altsrc = None
+        self.geopointsrc = None
+
+    @staticmethod
+    def drop_point(ALTSRC = vars.drop_point().ALTSRC):
+        precisionlocation = Precisionlocation()
+        precisionlocation.setaltsrc(altsrc=ALTSRC)
+        return precisionlocation
+
+    @staticmethod
+    def connection(ALTSRC = vars.connection().ALTSRC, GEOPOINTSRC = vars.connection().GEOPOINTSRC):
+        precisionlocation = Precisionlocation()
+        precisionlocation.setaltsrc(altsrc=ALTSRC)
+        precisionlocation.setgeopointsrc(geopointsrc=GEOPOINTSRC)
+        return precisionlocation
+
     # geopointsrc getter 
     def getgeopointsrc(self): 
       return self.geopointsrc 

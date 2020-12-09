@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+option objc_class_prefix = "TAK";
+
+service FederatedChannel {
+  	rpc SendOneEvent(FederatedEvent) returns (Empty) {}
+  	rpc BinaryMessageStream(stream BinaryBlob) returns (Empty) {}
+  	rpc SendOneBlob(BinaryBlob) returns (Empty) {}
+  	rpc getIdentity(Empty) returns (Identity) {}
+  	rpc ClientEventStream(Subscription) returns (stream FederatedEvent) {}
+  	rpc ServerEventStream(stream FederatedEvent) returns (Subscription) {}
+  	rpc HealthCheck(ClientHealth) returns (ServerHealth) {}
+  	
+  	rpc ClientROLStream(Subscription) returns (stream ROL) {}
+  	rpc ServerROLStream(stream ROL) returns (Subscription) {}
+}
+
+enum CRUD { INVALID = 0; CREATE = 1; READ = 2; UPDATE = 3; DELETE = 4; }
+enum BINARY_TYPES { EMPTY = 0; OTHER = 1; IMAGE = 2; }
+
+message FederatedEvent {
+	GeoEvent event = 1;
+	ContactListEntry contact = 2;
+	repeated string federateGroups = 3;
+}
+
+message GeoEvent {
+	 int64 sendTime = 1; 
+	 int64 startTime = 2;
+	 int64 staleTime = 3;
+	 double lat = 4;  // WSG-84
+	 double lon = 5;  // WSG-84
+	 double hae = 6;  // meters
+	 double ce = 7;   // meters
+	 double le = 8;   // meters
+	 string uid = 9;  // track-id
+	 string type= 10; // CoT type
+	 string coordSource = 11;  // CoT 'how'
+	string other = 12;  // CoT detail
+	int32 battery = 13;
+	string ploc = 14;
+	string palt = 15;
+	string screenName = 16;  // callsign
+ 	string groupName = 17;
+ 	string groupRole = 18;
+	string phone = 19;
+	double speed = 20;
+	double course = 21;
+	BinaryBlob binary = 22; //image
+	repeated string ptpUids  = 23;
+	repeated string ptpCallsigns = 24; // ugh...shouldn't need this
+}
+
+message BinaryBlob {
+	 BINARY_TYPES type = 1;
+	 bytes data = 2;
+	string filename = 3;
+	int64 timestamp = 4; 
+	string description = 5;
+}
+	
+message ContactListEntry {
+	 CRUD operation = 1;
+	 string uid = 2;
+	string callsign = 3;
+	string phone = 4;
+	string sip = 5;
+	string directConnect = 6;
+}
+
+message Empty { }
+
+message Identity {
+	 string name = 1;
+	 string uid = 2;
+	 string description = 3;
+}
+
+message Subscription {
+	Identity identity = 1;
+	string filter = 2;
+}
+
+message ClientHealth {
+    enum ServingStatus {
+        UNKNOWN = 0;
+        SERVING = 1;
+        NOT_SERVING = 2;
+    }
+    ServingStatus status = 1;
+}
+
+message ServerHealth {
+    enum ServingStatus {
+        UNKNOWN = 0;
+        SERVING = 1;
+        NOT_SERVING = 2;
+        NOT_CONNECTED = 3;
+    }
+    ServingStatus status = 1;
+}
+
+message ROL {
+    string program = 1;
+    repeated BinaryBlob payload = 2;
+}

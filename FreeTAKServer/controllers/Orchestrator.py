@@ -9,9 +9,6 @@
 #######################################################
 from importlib import import_module
 import os
-from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
-
-CreateStartupFilesController()
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.ClientInformationController import ClientInformationController
 from FreeTAKServer.controllers.ClientSendHandler import ClientSendHandler
@@ -31,6 +28,7 @@ from FreeTAKServer.controllers.configuration.DataPackageServerConstants import D
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.controllers.HealthCheckController import HealthCheckController
+from FreeTAKServer.controllers.model.RawCoT import RawCoT
 
 ascii = AsciiController().ascii
 import sys
@@ -45,6 +43,8 @@ import importlib
 import argparse
 import sqlite3
 import socket
+import atexit
+from signal import signal, SIGTERM
 
 loggingConstants = LoggingConstants()
 
@@ -60,10 +60,6 @@ class Orchestrator:
         self.logger.addHandler(self.newHandler(loggingConstants.DEBUGLOG, logging.DEBUG, log_format))
         self.logger.addHandler(self.newHandler(loggingConstants.WARNINGLOG, logging.WARNING, log_format))
         self.logger.addHandler(self.newHandler(loggingConstants.INFOLOG, logging.INFO, log_format))
-        console = logging.StreamHandler(sys.stdout)
-        console.setFormatter(log_format)
-        console.setLevel(logging.DEBUG)
-        self.logger.addHandler(console)
         # create necessary queues
         self.clientInformationQueue = []
         # this contains a list of all pipes which are transmitting CoT from clients
@@ -74,16 +70,19 @@ class Orchestrator:
         # health check events
         self.healthCheckEventArray = []
         # instantiate controllers
-        self.m_ActiveThreadsController = ActiveThreadsController()
-        self.m_ClientInformationController = ClientInformationController()
-        self.m_ClientInformationQueueController = ClientInformationQueueController()
-        self.m_ClientSendHandler = ClientSendHandler()
-        self.m_DataQueueController = DataQueueController()
-        self.m_ReceiveConnections = ReceiveConnections()
-        self.m_ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
-        self.m_MainSocketController = MainSocketController()
-        self.m_XMLCoTController = XMLCoTController()
-        self.m_SendClientData = SendClientData()
+        self.ActiveThreadsController = ActiveThreadsController()
+        self.ClientInformationController = ClientInformationController()
+        self.ClientInformationQueueController = ClientInformationQueueController()
+        self.ClientSendHandler = ClientSendHandler()
+        self.DataQueueController = DataQueueController()
+        self.ReceiveConnections = ReceiveConnections()
+        self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
+        self.MainSocketController = MainSocketController()
+        self.XMLCoTController = XMLCoTController()
+        self.SendClientData = SendClientData()
+        self.KillSwitch = 0
+        self.openSockets = {}
+        self.openSocketsArray = []
 
     def newHandler(self, filename, log_level, log_format):
         handler = RotatingFileHandler(
@@ -98,31 +97,45 @@ class Orchestrator:
     def clientConnected(self, rawConnectionInformation):
         #TODO: remove client pipe and requirements
         try:
+            self.check_for_dead_sockets()
             clientPipe = None
             self.logger.info(loggingConstants.CLIENTCONNECTED)
-            # instantiate model
-            clientInformation = self.m_ClientInformationController.intstantiateClientInformationModelFromConnection(
+            clientInformation = self.ClientInformationController.intstantiateClientInformationModelFromConnection(
                 rawConnectionInformation, clientPipe)
-            # add client information to queue
-            self.m_ClientInformationQueueController.addClientToQueue(clientInformation)
+            if self.checkOutput(clientInformation):
+                pass
+            else:
+                raise Exception('error in the creation of client information')
+            self.openSockets[clientInformation.ID] = clientInformation.socket
+            self.ClientInformationQueueController.addClientToQueue(clientInformation)
             self.clientInformationQueue.append(clientInformation)
-            # begin client reception handler
-            # add to active threads
-            # send all client data needs to be implemented
-            # add the callsign and UID to the DataPackageCallsignPipe
             try:
                 self.db.commit()
                 cursor = self.db.cursor()
                 cursor.execute(sql().ADDUSER, (
-                clientInformation.modelObject.uid, clientInformation.modelObject.m_detail.m_Contact.callsign))
+                clientInformation.modelObject.uid, clientInformation.modelObject.detail.contact.callsign))
                 self.db.commit()
             except Exception as e:
-                print(e)
-                self.logger.error('there has been an error in a clients connection while adding information to the database')
-            self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.m_detail.m_Contact.callsign))
+                self.logger.error(
+                    'there has been an error in a clients connection while adding information to the database ' +
+                    str(e))
+            self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.detail.contact.callsign))
+            self.clientDataPipe.send(['add', clientInformation, self.openSockets, self.clientInformationQueue])
             return clientInformation
         except Exception as e:
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
+            return -1
+
+    def check_for_dead_sockets(self):
+        try:
+            for sock in self.openSockets:
+                if sock.is_alive():
+                    pass
+                else:
+                    self.clientDisconnected(sock)
+            return 1
+        except Exception as e:
+            self.logger.error("there has been an exception in checking for dead sockets " + str(e))
             return -1
 
     def emergencyReceived(self, processedCoT):
@@ -142,7 +155,7 @@ class Orchestrator:
         # this will be executed in the event that the use case for the CoT isnt specified in the orchestrator
         try:
             # this will check if the CoT is applicable to any specific controllers
-            RawCoT = self.m_XMLCoTController.determineCoTType(RawCoT)
+            RawCoT = self.XMLCoTController.determineCoTType(RawCoT)
             # the following calls whatever controller was specified by the above function
             module = importlib.import_module('FreeTAKServer.controllers.' + RawCoT.CoTType)
             CoTSerializer = getattr(module, RawCoT.CoTType)
@@ -150,13 +163,10 @@ class Orchestrator:
             sender = processedCoT.clientInformation
             # this will send the processed object to a function which will send it to connected clients
             try:
-                if processedCoT.type != 'ping':
-                    self.logger.debug('data received from ' + str(
-                        processedCoT.clientInformation.modelObject.m_detail.m_Contact.callsign) + 'type is ' + processedCoT.type)
-                else:
-                    pass
                 if processedCoT.type == loggingConstants.EMERGENCY:
                     self.emergencyReceived(processedCoT)
+                else:
+                    pass
             except Exception as e:
                 return -1
             return processedCoT
@@ -175,48 +185,48 @@ class Orchestrator:
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORINTERNALSCANERROR + str(e))
             return -1
-    def clientDisconnected(self, clientInformation):
-        # print(self.clientInformationQueue[0])
-        # print(clientInformation)
-        try:
-            self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
-            try:
-                try:
-                    clientInformation.clientInformation.socket.shutdown(socket.SHUT_RDWR)
-                except OSError as e:
-                    pass
-                except Exception as e:
-                    self.logger.error('error in socket shutdown ' + str(e))
-                    return -1
-                try:
-                    clientInformation.clientInformation.socket.close()
-                except Exception as e:
-                    self.logger.error('error in socket close ' + str(e))
-                    return -1
-            except Exception as e:
-                self.logger.error('error closing socket in client disconnection ' + str(e))
-                return -1
 
+    def clientDisconnected(self, clientInformation):
+
+        if isinstance(clientInformation, RawCoT):
+            clientInformation = clientInformation.clientInformation
+        else:
+            pass
+        try:
+            del self.openSockets[clientInformation.ID]
+            self.clientDataPipe.send(['remove', clientInformation, self.openSockets, self.clientInformationQueue])
+            try:
+                clientInformation.socket.shutdown(socket.SHUT_RDWR)
+            except Exception as e:
+                self.logger.error('error shutting socket down in client disconnection')
+                pass
+            try:
+                clientInformation.socket.close()
+            except Exception as e:
+                self.logger.error('error closing socket in client disconnection')
+                pass
+
+            self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
             for client in self.clientInformationQueue:
-                if client.ID == clientInformation.clientInformation.ID:
+                if client.ID == clientInformation.ID:
                     self.clientInformationQueue.remove(client)
                 else:
                     pass
             try:
-                self.m_ActiveThreadsController.removeClientThread(clientInformation)
+                self.ActiveThreadsController.removeClientThread(clientInformation)
                 self.db.commit()
                 cursor = self.db.cursor()
-                cursor.execute(sql().REMOVEUSER, (clientInformation.clientInformation.modelObject.uid,))
+                cursor.execute(sql().REMOVEUSER, (clientInformation.modelObject.uid,))
                 cursor.close()
                 self.db.commit()
             except Exception as e:
-                self.logger.error('there has been an error in a clients disconnection while adding information to the database '+str(e))
-                return -1
-            self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.clientInformation.modelObject.m_detail.m_Contact.callsign))
+                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
+                pass
+            self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.modelObject.detail.contact.callsign))
             return 1
         except Exception as e:
-            self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + str(e))
-            return -1
+            self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + " " + str(e))
+            pass
 
     def monitorRawCoT(self,data):
         # this needs to be the most robust function as it is the keystone of the program
@@ -240,95 +250,149 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
-    def mainRunFunction(self, clientData, receiveConnection, sock, pool):
+    def mainRunFunction(self, clientData, receiveConnection, sock, pool, event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
+        print('server started')
         while True:
             try:
-                try:
-                    receiveConnectionOutput = receiveConnection.get(timeout=0.01)
-                    receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+                self.clientDataPipe = clientDataPipe
+                if event.is_set():
                     try:
-                        CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
-                        if CoTOutput != -1 and CoTOutput != None:
-                            output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
-                                                                 self.clientInformationQueue, self.internalCoTArray)
-                            if self.checkOutput(output):
-                                self.logger.debug('connection data from client ' + str(CoTOutput.modelObject.m_detail.m_Contact.callsign) + ' successfully processed')
-                            else:
-                                raise Exception('error in sending data')
+                        if ReceiveConnectionKillSwitch.is_set():
+                            try:
+                                receiveConnection.successful()
+                            except:
+                                pass
+                            ReceiveConnectionKillSwitch.clear()
+                            receiveConnection = pool.apply_async(ReceiveConnections().listen,
+                                                                 (sock,))
                         else:
-                            raise Exception('error in connection data processing')
-                    except Exception as e:
-                        self.logger.error('exception in receive connection data processing within main run function ' + str(e) + ' data is ' + str(CoTOutput))
-                        
-                except multiprocessing.TimeoutError:
-                    pass
-                except Exception as e:
-                    self.logger.info('exception in receive connection within main run function '+str(e))
+                            receiveConnectionOutput = receiveConnection.get(timeout=0.01)
+                            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+                            CoTOutput = self.handel_connection_data(receiveConnectionOutput)
 
-                try:
-                    clientDataOutput = clientData.get(timeout=0.01)
-                    clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
-                    for clientDataOutputSingle in clientDataOutput:
-                        try:
-                            CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
-                            if CoTOutput == 1:
-                                continue
-                            elif self.checkOutput(CoTOutput):
-                                output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
-                                                                     self.clientInformationQueue)
-                                if self.checkOutput(output):
-                                    pass
-                                else:
-                                    self.logger.error('send data failed in main run function with data '+str(CoTOutput.xmlString) + ' from client '+CoTOutput.clientInformation.modelObject.m_detail.m_Contact.callsign)
-                            else:
-                                raise Exception('error in general data processing')
-                        except Exception as e:
-                            self.logger.info(
-                                'exception in client data, data processing within main run function ' + str(
-                                    e) + ' data is ' + str(CoTOutput))
-                except multiprocessing.TimeoutError:
-                    pass
-                except Exception as e:
-                    self.logger.info('exception in receive client data within main run function ' + str(e))
+                    except multiprocessing.TimeoutError:
+                        pass
+                    except Exception as e:
+                        self.logger.error('exception in receive connection within main run function '+str(e))
+
+                    try:
+                        clientDataOutput = clientData.get(timeout=0.01)
+                        if self.checkOutput(clientDataOutput) and isinstance(clientDataOutput, list):
+                            CoTOutput = self.handel_regular_data(clientDataOutput)
+                        else:
+                            raise Exception('client reception handler has returned data which is not of type list data is ' + str(clientDataOutput))
+                        clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
+                    except multiprocessing.TimeoutError:
+                        pass
+                    except Exception as e:
+                        self.logger.info('exception in receive client data within main run function ' + str(e))
+                        pass
+                    try:
+                        if RestAPIPipe.poll(timeout=0.1):
+                            data = RestAPIPipe.recv()
+                            CoTOutput = self.handel_api_data(data)
+                        else:
+                            pass
+                    except Exception as e:
+                        self.logger.error('there has been an excepion in the handling of data supplied by the rest API '+str(e))
+                        pass
+                else:
+                    self.stop()
+                    break
             except Exception as e:
                 self.logger.info('there has been an uncaught error thrown in mainRunFunction' + str(e))
+                pass
 
-    def start(self, IP, CoTPort, APIPort):
+    def handel_api_data(self, modelData):
+        try:
+            output = SendDataController().sendDataInQueue(modelData.clientInformation, modelData,
+                                                          self.clientInformationQueue)
+        except:
+            pass
+    def handel_regular_data(self, clientDataOutput):
+        try:
+            for clientDataOutputSingle in clientDataOutput:
+                try:
+                    CoTOutput = self.monitorRawCoT(clientDataOutputSingle)
+                    if CoTOutput == 1:
+                        continue
+                    elif self.checkOutput(CoTOutput):
+                        output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
+                                                                      self.clientInformationQueue)
+                        if self.checkOutput(output) and isinstance(output, tuple) == False:
+                            pass
+                        elif isinstance(output, tuple):
+                            self.logger.error('issue sending data to client now disconnecting')
+                            self.clientDisconnected(output[1])
+
+                        else:
+                            self.logger.error('send data failed in main run function with data ' + str(
+                                CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.detail.contact.callsign)
+
+                    else:
+                        raise Exception('error in general data processing')
+                except Exception as e:
+                    self.logger.info(
+                        'exception in client data, data processing within main run function ' + str(
+                            e) + ' data is ' + str(CoTOutput))
+                    return -1
+                except Exception as e:
+                    self.logger.info(
+                        'exception in client data, data processing within main run function ' + str(
+                            e) + ' data is ' + str(clientDataOutput))
+        except Exception as e:
+            self.logger.info("there has been an error iterating client data output " + str(e))
+            return -1
+        self.sendInternalCoT()
+        return 1
+
+    def handel_connection_data(self, receiveConnectionOutput):
+        try:
+            CoTOutput = self.monitorRawCoT(receiveConnectionOutput)
+            if CoTOutput != -1 and CoTOutput != None:
+                output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
+                                                              self.clientInformationQueue)
+                if self.checkOutput(output):
+                    self.logger.debug('connection data from client ' + str(
+                        CoTOutput.modelObject.detail.contact.callsign) + ' successfully processed')
+                else:
+                    raise Exception('error in sending data')
+            else:
+                raise Exception('error in connection data processing')
+        except Exception as e:
+            self.logger.error('exception in receive connection data processing within main run function ' + str(
+                e) + ' data is ' + str(CoTOutput))
+            return -1
+        return 1
+
+    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         try:
             self.db = sqlite3.connect(DPConst().DATABASE)
             os.chdir('../../')
-            self.logger.propagate = False
             # create socket controller
-            self.m_MainSocketController.changeIP(OrchestratorConstants().IP)
-            self.m_MainSocketController.changePort(CoTPort)
-            sock = self.m_MainSocketController.createSocket()
-
-            # create Pipe for callsigns between orchestrator and DataPackagesServerProcess
-            orchestratorPipe, DataPackageServerPipe = multiprocessing.Pipe()
-            pipeTuple = (orchestratorPipe, DataPackageServerPipe)
-            self.CallSignsForDataPackagesPipe = pipeTuple
-
-            # begin DataPackageServer
-            dataPackageServerProcess = multiprocessing.Process(target=DataPackageServer.FlaskFunctions().startup,
-                                                               args=(IP, APIPort, DataPackageServerPipe,), daemon=True)
-            dataPackageServerProcess.start()
-            # establish client handeler
-            pool = multiprocessing.Pool(processes=3)
+            self.MainSocketController.changeIP(IP)
+            self.MainSocketController.changePort(CoTPort)
+            sock = self.MainSocketController.createSocket()
+            pool = multiprocessing.Pool(processes=2)
+            self.pool = pool
             clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
-            self.logger.propagate = False
-            self.logger.info('server has started')
-            self.mainRunFunction(clientData, receiveConnection, sock, pool)
+            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe)
 
         except Exception as e:
             self.logger.critical('there has been a critical error in the startup of FTS' + str(e))
+            return -1
 
     def stop(self):
-        pass
+        self.clientDataPipe.close()
+        self.pool.terminate()
+        self.pool.close()
+        self.pool.join()
 
 
-if __name__ == "__main__":
+
+"""if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=OrchestratorConstants().FULLDESC)
     parser.add_argument(OrchestratorConstants().COTPORTARG, type=int, help=OrchestratorConstants().COTPORTDESC,
@@ -339,4 +403,4 @@ if __name__ == "__main__":
                         default=DataPackageServerConstants().APIPORT)
     args = parser.parse_args()
     CreateStartupFilesController()
-    Orchestrator().start(args.IP, args.CoTPort, args.APIPort)
+    Orchestrator().start(args.IP, args.CoTPort, args.APIPort)"""

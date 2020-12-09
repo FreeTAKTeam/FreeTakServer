@@ -1,0 +1,11 @@
+flask
+lxml
+pathlib
+tabulate
+sqlalchemy
+setuptools
+Flask_SQLAlchemy
+flask-cors
+flask-socketio
+eventlet
+gevent

@@ -1,16 +1,28 @@
+from .Contact import Contact
+
 class Group:
-    def __init__(self):
-        self.name = ''
-        self.role = ''
+    def __init__(self, xml):
+        self.uid = None
+        self.name = None
+        self.setuid(xml.get('uid'))
+        self.setname(xml.get('name'))
+        try:
+            self.contact = Contact()
+        except:
+            pass
+        try:
+            self.Group = Group(xml.find('group'))
+        except:
+            pass
 
-    def getrole(self):
-        return self.role
+    def setuid(self, uid=None):
+        self.uid = uid
+        
+    def getuid(self):
+        return self.uid
 
-    def setrole(self, role):
-        self.role = role
+    def setname(self, name=None):
+        self.name = name
 
     def getname(self):
         return self.name
-
-    def setname(self, name):
-        self.name = name

@@ -7,21 +7,35 @@
 # Original author: Corvo
 # 
 #######################################################
-
+from .statusVariables import statusVariables as vars
 
 class Status:
-    def __init__(self):  
-        self.battery = "100" 
-        
+    def __init__(self):
+        self.battery = vars.drop_point().BATTERY
+        self.readiness = vars.READINESS
     # % of the battery on the phone
-    
+
+    @staticmethod
+    def drop_point(battery=vars.drop_point().BATTERY, readiness=vars.drop_point().READINESS):
+        status = Status()
+        status.setbattery(battery=battery)
+        status.setreadiness(readiness=readiness)
+        return status
+
+    @staticmethod
+    def connection(battery=vars.connection().BATTERY, readiness=vars.connection().READINESS):
+        status = Status()
+        status.setbattery(battery=battery)
+        status.setreadiness(readiness=readiness)
+        return status
+
     # battery getter 
     def getbattery(self): 
         return self.battery 
 
     # battery setter 
     def setbattery(self, battery=0):  
-        self.battery=battery 
+        self.battery = battery
 
     # probably boolean to determine if ready or not
      
@@ -31,4 +45,8 @@ class Status:
 
     # readiness setter 
     def setreadiness(self, readiness=0):  
-        self.readiness=readiness 
+        self.readiness = readiness
+
+
+if __name__ == "__main__":
+    Status()

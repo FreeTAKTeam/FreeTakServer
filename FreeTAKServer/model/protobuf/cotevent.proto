@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "detail.proto";
+// this seems to be used for all CoT sent from ATAK
+// A note about timestamps:
+// Uses "timeMs" units, which is number of milliseconds since
+// 1970-01-01 00:00:00 UTC
+//
+// All items are required unless otherwise noted!
+// "required" means if they are missing in the XML during outbound
+// conversion to protobuf, the message will be
+// rejected
+message CotEvent {
+    // <event>
+
+    string type = 1;               // <event type="x">
+
+    string access = 2;             // optional
+    string qos = 3;                // optional
+    string opex = 4;               // optional
+
+    string uid = 5;                // <event uid="x">
+    uint64 sendTime = 6;           // <event time="x"> converted to timeMs
+    uint64 startTime = 7;          // <event start="x"> converted to timeMs
+    uint64 staleTime = 8;          // <event stale="x"> converted to timeMs
+    string how = 9;                // <event how="x">
+
+    // <point>
+    double lat = 10;               // <point lat="x">
+    double lon = 11;               // <point lon="x">
+    double hae = 12;               // <point hae="x"> use 999999 for unknown
+    double ce = 13;                // <point ce="x"> use 999999 for unknown
+    double le = 14;                // <point ce="x"> use 999999 for unknown
+
+    // comprises children of <detail>
+    // This is optional - if omitted, then the cot message
+    // had no data under <detail>
+    Detail detail = 15;
+}
+

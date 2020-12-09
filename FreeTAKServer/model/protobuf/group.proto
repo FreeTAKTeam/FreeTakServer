@@ -1,0 +1,11 @@
+syntax = "proto3";
+//difference
+
+// All items are required unless otherwise noted!
+// "required" means if they are missing on send, the conversion
+// to the message format will be rejected and fall back to opaque
+// XML representation
+message Group {
+     string name = 1;           // name=
+     string role = 2;           // role=
+}

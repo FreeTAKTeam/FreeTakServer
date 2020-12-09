@@ -7,13 +7,21 @@
 # Original author: Corvo
 # 
 #######################################################
-
+from .TrackVariables import TrackVariables as vars
 
 class Track:
-    def __init__(self):  
-        self.course = "0.00000000"
-        self.speed = "0.00000000" 
-     # speed getter 
+    def __init__(self):
+        self.course = None
+        self.speed = None
+
+    @staticmethod
+    def connection(COURSE = vars.connection().COURSE, SPEED = vars.connection().SPEED):
+        track = Track()
+        track.setcourse(COURSE)
+        track.setspeed(SPEED)
+        return track
+
+     # speed getter
     def getspeed(self): 
         return self.speed 
  

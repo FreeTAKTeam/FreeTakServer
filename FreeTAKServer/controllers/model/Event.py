@@ -1,7 +1,13 @@
 import uuid
 import datetime as dt
+from .Detail import Detail
+from .Point import Point
+from .EventVariables import EventVariables as vars
+import uuid
+from lxml import etree
 
 class Event:
+    # TODO: fix emergency methods
     # Event.py
     # Python implementation of the Class Event
     # represents a TAK event: this class is instantiated with a standard set of
@@ -16,18 +22,17 @@ class Event:
         
         #default constructor
 
-    def __init__(self, CoTType):
-        from .Detail import Detail
-        from .Point import Point
+    def __init__(self):
         
-        self.version = "2.0"
-        self.uid = "change"
-        self.type = "change"
-        self.how = "change"
+        
+        self.version = None
+        self.uid = None
+        self.type = None
+        self.how = None
 
-        self.m_detail = Detail(CoTType = CoTType)
-        self.m_Point = Point()
-        self.Start = 0
+        self.detail = None
+        self.point = None
+        self.start = None
         case = {
 
             'default': self.defaultFunc,
@@ -36,7 +41,7 @@ class Event:
             
             }
 
-        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
         
@@ -63,11 +68,117 @@ class Event:
         
         # flag to determine if this event is a Ping, in this case append to the UID
         
-        
+    @staticmethod
+    def Connection(version=vars.connection().VERSIONNUM, uid=vars.connection().UID, type=vars.connection().TYPE,
+                  how=vars.connection().HOW, time=vars.connection().TIME, start=vars.connection().START,
+                  stale=vars.connection().STALE):
+        event = Event()
+        event.setdetail(Detail.Connection())
+        event.setpoint(Point())
+        event.setversion(version)
+        event.setuid(uid)
+        event.settype(type)
+        event.sethow(how)
+        event.settime(time)
+        event.setstart(start)
+        event.setstale(stale)
+        return event
 
-        #calls detail and point
-        
-        
+    @staticmethod
+    def GeoChat(version=vars.geochat().VERSIONNUM, uid=vars.geochat().UID, type=vars.geochat().TYPE,
+                how=vars.geochat().HOW, time=vars.geochat().TIME, start=vars.geochat().START,
+                stale=vars.geochat().STALE):
+        event = Event()
+        event.setdetail(Detail.GeoChat())
+        event.setpoint(Point())
+        event.setversion(version)
+        event.setuid(uid)
+        event.settype(type)
+        event.sethow(how)
+        event.settime(time)
+        event.setstart(start)
+        event.setstale(stale)
+        return event
+
+    @staticmethod
+    def Ping(version=vars.ping().VERSIONNUM, uid=vars.ping().UID, type=vars.ping().TYPE,
+             how=vars.ping().HOW, time=vars.ping().TIME, start=vars.ping().START,
+             stale=vars.ping().STALE):
+        event = Event()
+        event.setdetail(Detail.Ping())
+        event.setpoint(Point())
+        event.setversion(version)
+        event.setuid(uid)
+        event.settype(type)
+        event.sethow(how)
+        event.settime(time)
+        event.setstart(start)
+        event.setstale(stale)
+        return event
+
+    @staticmethod
+    def Other(version=vars.other().VERSIONNUM, uid=vars.other().UID, type=vars.other().TYPE,
+              how=vars.other().HOW, time=vars.other().TIME, start=vars.other().START,
+              stale=vars.other().STALE):
+        event = Event()
+        event.setdetail(Detail.Other())
+        event.setpoint(Point())
+        event.setversion(version)
+        event.setuid(uid)
+        event.settype(type)
+        event.sethow(how)
+        event.settime(time)
+        event.setstart(start)
+        event.setstale(stale)
+        return event
+
+    @staticmethod
+    def emergecyOn(version=vars.emergency_on().VERSIONNUM, uid=vars.emergency_on().UID, type=vars.emergency_on().TYPE,
+                   how=vars.emergency_on().HOW, time=vars.emergency_on().TIME, start=vars.emergency_on().START,
+                   stale=vars.emergency_on().STALE):
+        event = Event()
+        event.setdetail(Detail.Other())
+        event.setpoint(Point())
+        event.setversion(version)
+        event.setuid(uid)
+        event.settype(type)
+        event.sethow(how)
+        event.settime(time)
+        event.setstart(start)
+        event.setstale(stale)
+        return event
+
+    @staticmethod
+    def emergecyOff(version=vars.emergency_off().VERSIONNUM, uid=vars.emergency_off().UID, type=vars.emergency_off().TYPE,
+                    how=vars.emergency_off().HOW, time=vars.emergency_off().TIME, start=vars.emergency_off().START,
+                    stale=vars.emergency_off().STALE):
+        event = Event()
+        event.setdetail(Detail.Other())
+        event.setpoint(Point())
+        event.setversion(version)
+        event.setuid(uid)
+        event.settype(type)
+        event.sethow(how)
+        event.settime(time)
+        event.setstart(start)
+        event.setstale(stale)
+        return event
+
+    @staticmethod
+    def dropPoint(version=vars.drop_point().VERSIONNUM, uid=vars.drop_point().UID, type=vars.drop_point().TYPE,
+                  how=vars.drop_point().HOW, time=vars.drop_point().TIME, start=vars.drop_point().START,
+                  stale=vars.drop_point().STALE):
+        event = Event()
+        event.setdetail(Detail.dropPoint())
+        event.setpoint(Point())
+        event.setversion(version)
+        event.setuid(uid)
+        event.settype(type)
+        event.sethow(how)
+        event.settime(time)
+        event.setstart(start)
+        event.setstale(stale)
+        return event
 
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
         self.how = how
@@ -81,7 +192,7 @@ class Event:
         self.setstart(zulu)
         self.settime(zulu)
         self.type = type
-        self.setuid(isGeochat = isGeochat, isPing=isPing)
+        self.setuid(isGeochat=isGeochat, isPing=isPing)
         self.version = version
 
     def timeoutFunc(self, DATETIME_FMT, version, uid, type, how, isGeochat, isPing):
@@ -90,26 +201,30 @@ class Event:
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) - dt.timedelta(minutes = 1)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 1)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
         self.setstart(zulu)
         self.settime(zulu)
         self.type = type
-        self.setuid(isGeochat = isGeochat, isPing=isPing)
+        self.setuid(isGeochat=isGeochat, isPing=isPing)
         self.version = version
-        #Start getter
+        #start getter
 
     def getstart(self): 
-        return self.Start 
+        return self.start 
     
-        # Start setter
-    def setstart(self, Start=0):  
-        self.start = Start 
-    
-        # m_Point setter
-    def setpoint(self, m_Point=0):  
-        self.point = m_Point
+        # start setter
+    def setstart(self, start=0):
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        if start == None:
+            timer = dt.datetime
+            now = timer.utcnow()
+            zulu = now.strftime(DATETIME_FMT)
+            self.start = zulu
+        else:
+            self.start = start
+
     
         # how getter
     def gethow(self): 
@@ -125,17 +240,12 @@ class Event:
         return self.uid 
     
         # uid setter
-    def setuid(self, isGeochat, isPing):
-        GEOCHATPREFIX = "GeoChat."
-        PINGSUFFIX = "-ping"
-        a = uuid.uuid1()
-        self.uid = str(a)
-        if isGeochat == 1:
-                uid = GEOCHATPREFIX + uid
-                self.settype('h-g-i-g-o')
-        elif isPing == 1:
-                self.uid = self.uid + PINGSUFFIX
-                self.settype('t-x-c-t')
+    def setuid(self, uid):
+        if uid == None:
+            self.uid = str(uuid.uuid1())
+
+        else:
+            self.uid = uid
 
             # version getter
     def getversion(self): 
@@ -150,8 +260,15 @@ class Event:
         return self.time 
     
         # time setter
-    def settime(self, time=0):  
-        self.time = time
+    def settime(self, time=0):
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        if time == None:
+            timer = dt.datetime
+            now = timer.utcnow()
+            zulu = now.strftime(DATETIME_FMT)
+            self.time = zulu
+        else:
+            self.time = time
         
         # stale getter
     def getstale(self): 
@@ -159,7 +276,16 @@ class Event:
     
         # stale setter
     def setstale(self, stale=0):
-        self.stale = stale 
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
+        if stale == None:
+            timer = dt.datetime
+            now = timer.utcnow()
+            zulu = now.strftime(DATETIME_FMT)
+            add = dt.timedelta(minutes=1)
+            stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+            self.stale = stale_part.strftime(DATETIME_FMT)
+        else:
+            self.stale = stale
     
             # type getter
     def gettype(self): 
@@ -168,3 +294,21 @@ class Event:
         # type setter
     def settype(self, type=0):  
         self.type = type
+
+    def getpoint(self):
+        return self.point
+
+        # type setter
+
+    def setpoint(self, Point=None):
+        self.point = Point
+
+    def getdetail(self):
+        return self.detail
+
+        # type setter
+
+    def setdetail(self, detail=None):
+        self.detail = detail
+if __name__ == "__main__":
+    Event()

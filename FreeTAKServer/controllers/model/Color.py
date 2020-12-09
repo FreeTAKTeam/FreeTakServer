@@ -7,12 +7,18 @@
 # Original author: Corvo
 # 
 #######################################################
-
+from .ColorVariables import ColorVariables as vars
 
 class Color:
-# default constructor       def __init__(self):  
+    def __init__(self):
+        self.argb = None
 
-    argb = "-1" 
+    @staticmethod
+    def drop_point(ARGB = vars.drop_point().ARGB):
+        color = Color()
+        color.setargb(ARGB)
+        return color
+
     # argb getter 
     def getargb(self): 
         return self.argb 
