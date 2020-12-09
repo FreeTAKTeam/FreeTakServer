@@ -1,5 +1,5 @@
-from pathlib import Path
-home = str(Path.home())
+from os.path import expanduser
+home = expanduser('~')
 
 class MainConfig:
     """
