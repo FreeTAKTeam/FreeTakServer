@@ -23,12 +23,14 @@ as the body of the message ```{"Authorization": [YOUR WEBSOCKET KEY]}```
 
 ## authenticate
   ### description
-   event used to authenticate new clients in the websocket
-    
+   event used to authenticate new clients in the websocket<br />
+   Event: `authenticate` <br />
+   Subscription: `authentication`
   ### returns
    will call the event authentication on client with message body
   ```{'successful': 'True'/'False'}``` dependant on whether or not
   the authentication was accepted.
+  
   ### parameters
   a json body in the following format
   ```json
@@ -37,7 +39,9 @@ as the body of the message ```{"Authorization": [YOUR WEBSOCKET KEY]}```
 ## users
   ### description
    event used to access list of connected client aswell as data
-  relating to each client.
+  relating to each client.<br />
+   Event: `users` <br />
+   Subscription: `userUpdate`
   
   ### returns
    a json message containing connected clients
@@ -55,7 +59,9 @@ as the body of the message ```{"Authorization": [YOUR WEBSOCKET KEY]}```
  ## logs
  ### description
   event used to retrieve recent error log entries
-  from the server
+  from the server<br />
+   Event: `logs` <br />
+   Subscription: `logUpdate`
 ### returns
 recent error logs in JSON to the client event `logUpdate` with data in the following format
 ```json
@@ -71,7 +77,9 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
  ## serviceInfo
  ### description
   event used to retrieve information about all services including
-  their current status and port
+  their current status and port<br />
+   Event: `serviceInfo` <br />
+   Subscription: `serviceInfoUpdate`
  
  ### returns
  status and port of each service aswell as the server starttime to the client event `serviceInfoUpdate`
@@ -106,7 +114,9 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
  ### description
   event used to retrieve information regarding
   the status of the server hardware including
-  cpu, disk and memory usage.
+  cpu, disk and memory usage.<br />
+   Event: `serverHealth` <br />
+   Subscription: `serverHealthUpdate`
 ### returns
  current hardware usage to the client event `serverHealthUpdate` with body,
  ```json
@@ -123,7 +133,9 @@ None
  ## systemStatus
  ### description
   event used to execute test of all currently active
-  services and return their respective status.
+  services and return their respective status.<br />
+   Event: `systemStatus` <br />
+   Subscription: `systemStatusUpdate`
 ### returns
  current and expected status of all services on the server in JSON format 
  to the event `systemStatusUpdate` on the client with the body of the message 
@@ -222,8 +234,9 @@ the hash values are the hashes of DataPackages to be deleted
 ```
 
 `ip`: ip on which the service should be listening eg: `0.0.0.0`<br/>
-`status`(optional): whether the service is to be started or stopped eg: `start`, `stop` <br />
-`port`: the port on which the service should be listening eg: `8089`
+`status`: whether the service is to be started or stopped eg: `start`, `stop` <br />
+`port`(optional): the port on which the service should be listening eg: `8089` <br />
+not all services need to be in every message only those you would like to change
  
  ## MissionTable
  ### description 
