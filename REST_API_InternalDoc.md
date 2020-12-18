@@ -201,6 +201,30 @@ None
 ```
 the hash values are the hashes of DataPackages to be deleted
  
+ ## ChangeStatus
+ ### description
+ Endpoint used to change the status of each service running on the server
+ 
+ ### methods
+ * POST
+ 
+ ### POST
+ accepts json data containing information regarding the desired status of each service in the following format
+ ```json
+{
+  "TCPCoTService": {"ip": "", "status": "", "port": ""},
+  "SSLCoTService": {"ip": "", "status": "", "port": ""},
+  "SSLDataPackageService": {"ip": "", "status": "", "port": ""},
+  "TCPDataPackageService": {"ip": "", "status": "", "port": ""},
+  "RestAPIService": {"ip": "", "status": "", "port": ""},
+  "FederationService": {"ip": "", "status": "", "port": ""}
+}
+```
+
+`ip`: ip on which the service should be listening eg: `0.0.0.0`<br/>
+`status`(optional): whether the service is to be started or stopped eg: `start`, `stop` <br />
+`port`: the port on which the service should be listening eg: `8089`
+ 
  ## MissionTable
  ### description 
  Endpoint used to access data regarding mission packages
