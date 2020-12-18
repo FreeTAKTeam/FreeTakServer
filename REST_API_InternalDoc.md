@@ -108,7 +108,7 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
   the status of the server hardware including
   cpu, disk and memory usage.
 ### returns
- current hardware usage to the client event `systemStatusUpdate` with body,
+ current hardware usage to the client event `serverHealthUpdate` with body,
  ```json
 {
     "CPU": 56,
