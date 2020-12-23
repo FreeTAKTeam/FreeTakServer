@@ -21,6 +21,20 @@ Authorization: Bearer [YOUR_API_KEY]
 the event authenticate after connection and pass
 as the body of the message ```{"Authorization": [YOUR WEBSOCKET KEY]}```
 
+## connect
+### description
+event triggered on initial connection to server<br />
+Event: `connect` (this is a special event as it is called automatically on connection)<br />
+Subscription: `connectUpdate`
+
+### returns
+  ```json
+{
+"starttime": ""(time at which server was started),
+"version": ""(version of FTS currently running)
+}
+```
+
 ## authenticate
   ### description
    event used to authenticate new clients in the websocket<br />
@@ -304,4 +318,51 @@ not yet implemented
 not yet implemented
 
 ## ExCheck table
-not yet implemented.
+Endpoint used to access data regarding ExCheck items such as checklists and templates
+
+### POST
+Not yet implemented
+
+### DELETE
+accepts the following data
+  ```json
+{
+    "ExCheck": 
+    {
+      "Templates": [{"uid": "TemplateUID1"}, {"uid": "TemplateUID2"}],
+      "Checklists": [{"uid": "ChecklistUID1"}, {"uid": "ChecklistUID2"}]  
+    }
+}
+```
+`uid`: the uid of those Checklists and Templates to be deleted
+
+### GET
+return JSON data containing the following information about Checklists and Templates present on the server
+```json
+{
+  "ExCheck": {
+    "Templates": [
+      {
+        "filename": "cdd39d06-b43e-42f4-839d-32362febe9a1.xml", (name of file containing template xml)
+        "name": "test from atak", (name associated with template)
+        "submissionTime": "2020-12-22T22:07:31.749284Z", (time template was submitted to server)
+        "submitter": "[('NOVA',)]", (callsign of submitter)
+        "uid": "cdd39d06-b43e-42f4-839d-32362febe9a1", (uid of template)
+        "hash": "bfb97ed985f789b0c97cf3a93a4354e36eadadd0b6d156c4e4a5ad25330a8c45", (hash of template)
+        "size": 1735, (size of template in bytes)
+        "description": "test from atak desc" (description of template)
+      }
+    ],
+    "Checklists": [
+      {
+        "filename": "c5322e53-5b95-4def-953d-6be9e42e79fd.xml", (name of file containing checklist xml)
+        "name": "test from atak", (name associated with template)
+        "startTime": "2020-12-22T22:07:32.841000Z", (time checklist was created)
+        "submitter": "NOVA", (callsign of user to submit checklist)
+        "uid": "c5322e53-5b95-4def-953d-6be9e42e79fd", (uid of checklist)
+        "description": "test from atak desc", (description of checklist)
+        "template":"cdd39d06-b43e-42f4-839d-32362febe9a1" (uid of template of which the checklist is an instance)
+      }
+    ]
+  }
+}
