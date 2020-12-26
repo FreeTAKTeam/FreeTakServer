@@ -211,7 +211,6 @@ None
 
 ### POST
   accepts the zipped form of the file in the body of the message and the following arguments in the url
-  * hash: 16 bit hash of the file
   * filename: the name of the zipped file
   * creator uid: the uid of the user associated with the DataPackage defaults to ```server``` if none is provided
   
