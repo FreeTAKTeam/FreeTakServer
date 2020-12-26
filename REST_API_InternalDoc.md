@@ -212,7 +212,7 @@ None
 ### POST
   accepts the zipped form of the file in the body of the message and the following arguments in the url
   * filename: the name of the zipped file
-  * creator uid: the uid of the user associated with the DataPackage defaults to ```server``` if none is provided
+  * creatorUid(optional): the uid of the user associated with the DataPackage defaults to ```server``` if none is provided
   
 ### DELETE
  accepts the following json data
