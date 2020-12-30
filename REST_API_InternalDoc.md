@@ -320,7 +320,8 @@ not yet implemented
 Endpoint used to access data regarding ExCheck items such as checklists and templates
 
 ### POST
-Not yet implemented
+  creates a template on the server from a supplied xml file accepting the following URL encoded values:
+  *clientUid: the uid of the client to be recognized as the creator of the template
 
 ### DELETE
 accepts the following data
@@ -365,3 +366,27 @@ return JSON data containing the following information about Checklists and Templ
     ]
   }
 }
+```
+## FederationTable
+endpoint used to access federation objects
+
+### GET
+return JSON data containing the following information regarding current checklists and templates present on the server
+```json
+{
+	"Name": "federation 1",
+	"Address": "127.0.0.1",
+	"Port": "11111",
+	"FallBack": "federation 2",
+	"Status": "Disabled",
+	"ReconnectInterval": "32",
+	"MaxRetries": "15",
+	"LastError": "Timeout"
+}
+```
+
+### POST
+Not yet implemented
+
+### DELETE
+Not yet implemented
