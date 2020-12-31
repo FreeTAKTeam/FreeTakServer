@@ -70,7 +70,7 @@ Subscription: `connectUpdate`
   ### parameters
    None
    
- ##systemUser
+ ## systemUser
  retrieve all system users and their associated information<br />
    Event: `systemUser` <br />
    Subscription: `systemUserUpdate`
