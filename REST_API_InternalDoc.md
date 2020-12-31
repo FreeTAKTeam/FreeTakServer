@@ -63,13 +63,63 @@ Subscription: `connectUpdate`
    {
 	"Users":[
 		"user:"{"ip": "24.114.74.13", "callsign": "CorvoMobile", "team": "Yellow"},
-		"user:"{â€‹"ip": "24.144.79.13", "callsign": "Ghost", "team": "Blue"}â€‹
+		"user:"{"ip": "24.144.79.13", "callsign": "Ghost", "team": "Blue"}
 	]
   }
   ```
   ### parameters
    None
    
+ ##systemUser
+ retrieve all system users and their associated information<br />
+   Event: `systemUser` <br />
+   Subscription: `systemUserUpdate`
+ 
+ ### returns
+ system user information
+ ```json
+{
+	"SystemUsers": [
+		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "a.zip", "Uid": ""},
+		  {"Name": "Joe", "Group": "Yellow", "Token": "", "Password": "", "Certs": "b.zip", "Uid": ""},
+		  {"Name": "Bill", "Group": "Yellow", "Token": "", "Password": "", "Certs": "c.zip", "Uid": ""}
+	]
+}
+````
+ ### parameters
+ None
+ 
+ ## addSystemUser
+ ### description
+ add one or many system users to the server<br />
+   Event: `addSystemUser`
+ ### returns
+ None
+ ### parameters
+ ```json
+ {
+	"SystemUsers": [
+		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "true"},
+		  {"Name": "Joe", "Group": "Blue", "Token": "", "Password": "", "Certs": "true"},
+		  {"Name": "Bill", "Group": "Red", "Token": "", "Password": "", "Certs": "true"}
+	]
+}
+```
+## removeSystemUser
+### description
+remove a system user from the server
+### returns
+None
+### parameters
+```json
+{
+  "SystemUsers": [
+    {"Uid": "[uid of system user to be deleted]"},
+    {"Uid": "[uid of system user to be deleted]"},
+    {"Uid": "[uid of system user to be deleted]"}
+  ]
+}
+```
  ## logs
  ### description
   event used to retrieve recent error log entries
@@ -116,9 +166,17 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
         "TCP_DataPackage_service": {
                       "status": "on",
                       "port": 55235
+                  },
+        "Federation_server_service": {
+                      "status": "on",
+                      "port": 55235
+                  },
+        "Rest_API_service": {
+                      "status": "on",
+                      "port": 55235
                   }
     },
-    "starttime": "2020-12-16 19:51:13,278"
+    "IP": "127.0.0.1"
 }
 ```
  ### parameters
@@ -189,6 +247,105 @@ None
 ### parameters
 None
  
+ ## changeServiceInfo
+ ### description
+ Event used to change the status of each service running on the server<br />
+   Event: `changeServiceInfo` <br />
+   Subscription: `systemStatusUpdate`
+ 
+### returns
+```json
+ {
+    "services": {
+        "SSL_CoT_service": {
+                      "status": "on",
+                      "port": 11111
+                  },
+        "TCP_CoT_service": {
+                      "status": "off",
+                      "port": 55555
+                  },
+        "SSL_DataPackage_service": {
+                      "status": "on",
+                      "port": 52345
+                  },
+        "TCP_DataPackage_service": {
+                      "status": "on",
+                      "port": 55235
+                  }
+    },
+    "ip": "127.0.0.1"
+  }
+ ```
+
+ ### parameters
+ accepts json data containing information regarding the desired status of each service in the following format
+ ```json
+{
+    "services": {
+        "SSL_CoT_service": {
+                      "status": "on",
+                      "port": 11111
+                  },
+        "TCP_CoT_service": {
+                      "status": "off",
+                      "port": 55555
+                  },
+        "SSL_DataPackage_service": {
+                      "status": "on",
+                      "port": 52345
+                  },
+        "TCP_DataPackage_service": {
+                      "status": "on",
+                      "port": 55235
+                  }
+    },
+    "ip": "127.0.0.1"
+}
+```
+
+`ip`: ip on which the server should be listening eg: `0.0.0.0`<br/>
+`status`: whether the service is to be started or stopped eg: `on`, `off` <br />
+`port`(optional): the port on which the service should be listening eg: `8089` <br />
+not all services need to be in every message only those you would like to change
+ 
+ ## systemUsers
+  Event used to retrieve all system users<br />
+   Event: `systemUsers` <br />
+   Subscription: `systemUsersUpdate`
+ ### returns
+ the metadata of each user
+ ```json{
+	"SystemUsers":[
+		{"Name": "Dan", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
+		{"Name": "Joe", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
+		{"Name": "Bill", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"}
+	]
+}
+```
+##parameters
+None
+
+## addSystemUsers
+### returns
+None
+### parameters
+```json
+{
+  "systemUsers":
+	[
+	    {"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true" }
+	]
+}
+```
+ * Name: name of user
+ * Group: group of user
+ * Token: api token of user(optional)
+ * Password: password for user(optional)
+ * Certs: whether the user should have certs generated(should be true in ui)
+ ## removeSystemUsers
+ not yet implemented
+ 
  ## DataPackageTable
  ### description
   Endpoint used to access data regarding DataPackages
@@ -225,31 +382,6 @@ None
 }
 ```
 the hash values are the hashes of DataPackages to be deleted
- 
- ## ChangeStatus
- ### description
- Endpoint used to change the status of each service running on the server
- 
- ### methods
- * POST
- 
- ### POST
- accepts json data containing information regarding the desired status of each service in the following format
- ```json
-{
-  "TCPCoTService": {"ip": "", "status": "", "port": ""},
-  "SSLCoTService": {"ip": "", "status": "", "port": ""},
-  "SSLDataPackageService": {"ip": "", "status": "", "port": ""},
-  "TCPDataPackageService": {"ip": "", "status": "", "port": ""},
-  "RestAPIService": {"ip": "", "status": "", "port": ""},
-  "FederationService": {"ip": "", "status": "", "port": ""}
-}
-```
-
-`ip`: ip on which the service should be listening eg: `0.0.0.0`<br/>
-`status`: whether the service is to be started or stopped eg: `start`, `stop` <br />
-`port`(optional): the port on which the service should be listening eg: `8089` <br />
-not all services need to be in every message only those you would like to change
  
  ## MissionTable
  ### description 
