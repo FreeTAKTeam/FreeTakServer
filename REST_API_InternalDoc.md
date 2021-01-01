@@ -531,7 +531,19 @@ return JSON data containing the following information regarding current checklis
 ```
 
 ### POST
-Not yet implemented
+create a new outgoing federation
+```json
+{
+	"Name": "federation 1",
+	"Address": "127.0.0.1",
+	"Port": "11111",
+	"FallBack": "federation 2",
+	"Status": "Disabled",
+	"ReconnectInterval": "32",
+	"MaxRetries": "15",
+	"LastError": "Timeout"
+}
+```
 
 ### DELETE
 Not yet implemented
