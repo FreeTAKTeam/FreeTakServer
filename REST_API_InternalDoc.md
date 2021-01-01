@@ -98,7 +98,7 @@ Subscription: `connectUpdate`
  ### parameters
  ```json
  {
-	"SystemUsers": [
+	"systemUsers": [
 		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "true"},
 		  {"Name": "Joe", "Group": "Blue", "Token": "", "Password": "", "Certs": "true"},
 		  {"Name": "Bill", "Group": "Red", "Token": "", "Password": "", "Certs": "true"}
@@ -107,16 +107,17 @@ Subscription: `connectUpdate`
 ```
 ## removeSystemUser
 ### description
-remove a system user from the server
+remove a system user from the server<br />
+   Event: `removeSystemUser`
 ### returns
 None
 ### parameters
 ```json
 {
-  "SystemUsers": [
-    {"Uid": "[uid of system user to be deleted]"},
-    {"Uid": "[uid of system user to be deleted]"},
-    {"Uid": "[uid of system user to be deleted]"}
+  "systemUsers": [
+    {"uid": "[uid of system user to be deleted]"},
+    {"uid": "[uid of system user to be deleted]"},
+    {"uid": "[uid of system user to be deleted]"}
   ]
 }
 ```
