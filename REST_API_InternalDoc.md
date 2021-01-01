@@ -316,7 +316,7 @@ not all services need to be in every message only those you would like to change
  ### returns
  the metadata of each user
  ```json{
-	"SystemUsers":[
+	"systemUsers":[
 		{"Name": "Dan", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
 		{"Name": "Joe", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
 		{"Name": "Bill", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"}
@@ -327,6 +327,8 @@ not all services need to be in every message only those you would like to change
 None
 
 ## addSystemUsers
+used to create a new system user on the server<br />
+   Event: `addSystemUsers` <br />
 ### returns
 None
 ### parameters
@@ -344,8 +346,19 @@ None
  * Password: password for user(optional)
  * Certs: whether the user should have certs generated(should be true in ui)
  ## removeSystemUsers
- not yet implemented
- 
+used to remove a system user and their associated files from the server<br />
+   Event: `removeSystemUsers` <br />
+ ###returns
+ None
+ ### parameters
+ ```json
+{ "systemUsers": 
+  [ 
+    { "uid": "46b3de87-85f5-400d-a098-536f2e1421ce" } 
+  ] 
+}
+```
+ * uid: uid of user to remove
  ## DataPackageTable
  ### description
   Endpoint used to access data regarding DataPackages
