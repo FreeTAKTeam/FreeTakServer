@@ -520,7 +520,7 @@ endpoint used to access federation objects
 return JSON data containing the following information regarding current checklists and templates present on the server
 ```json
 {
-"federations":
+"outgoingFederations":
 	{
 		"Name": "federation 1",
 		"Address": "127.0.0.1",
@@ -538,7 +538,7 @@ return JSON data containing the following information regarding current checklis
 create a new outgoing federation
 ```json
 {
-"federations":{
+"outgoingFederations":{
 		"Name": "federation 1",
 		"Address": "127.0.0.1",
 		"Port": "11111",
