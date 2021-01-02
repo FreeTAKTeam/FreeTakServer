@@ -521,7 +521,7 @@ return JSON data containing the following information regarding current checklis
 ```json
 {
 "outgoingFederations":
-	{
+	[{
 		"Name": "federation 1",
 		"Address": "127.0.0.1",
 		"Port": "11111",
@@ -530,7 +530,7 @@ return JSON data containing the following information regarding current checklis
 		"ReconnectInterval": "32",
 		"MaxRetries": "15",
 		"LastError": "Timeout"
-	}
+	}]
 }
 ```
 
@@ -538,7 +538,7 @@ return JSON data containing the following information regarding current checklis
 create a new outgoing federation
 ```json
 {
-"outgoingFederations":{
+"outgoingFederations":[{
 		"Name": "federation 1",
 		"Address": "127.0.0.1",
 		"Port": "11111",
@@ -546,7 +546,7 @@ create a new outgoing federation
 		"Status": "Disabled",
 		"ReconnectInterval": "32",
 		"MaxRetries": "15",
-	}
+	}]
 }
 ```
 
