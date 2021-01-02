@@ -546,7 +546,6 @@ create a new outgoing federation
 		"Status": "Disabled",
 		"ReconnectInterval": "32",
 		"MaxRetries": "15",
-		"LastError": "Timeout"
 	}
 }
 ```
