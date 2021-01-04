@@ -46,7 +46,7 @@ Subscription: `connectUpdate`
   the authentication was accepted.
   
   ### parameters
-  a json body in the following format
+  a JSON body in the following format
   ```json
 {"Authorization": [YOUR WEBSOCKET KEY]}
 ```
@@ -58,7 +58,7 @@ Subscription: `connectUpdate`
    Subscription: `userUpdate`
   
   ### returns
-   a json message containing connected clients
+   a JSON message containing connected clients
    ```
    {
 	"Users":[
@@ -279,7 +279,7 @@ None
  ```
 
  ### parameters
- accepts json data containing information regarding the desired status of each service in the following format
+ accepts JSON data containing information regarding the desired status of each service in the following format
  ```json
 {
     "services": {
@@ -369,7 +369,7 @@ used to remove a system user and their associated files from the server<br />
    * DELETE   
  
  ### GET
-  returns json data containing information regarding all DataPackages currently on server
+  returns JSON data containing information regarding all DataPackages currently on server
   ```json
 {
 "DataPackages":[
@@ -385,7 +385,7 @@ used to remove a system user and their associated files from the server<br />
   * creatorUid(optional): the uid of the user associated with the DataPackage defaults to ```server``` if none is provided
   
 ### DELETE
- accepts the following json data
+ accepts the following JSON data
  ```json
 {
 "DataPackages":[
@@ -395,7 +395,21 @@ used to remove a system user and their associated files from the server<br />
 }
 ```
 the hash values are the hashes of DataPackages to be deleted
- 
+
+### PUT
+ accepts the following JSON data
+ ```json
+{
+  "DataPackages": [
+    {"PrimaryKey": "1", "Name": "new_name", "Keywords": "new keywords", "Privacy": "0"}
+  ]
+}
+```
+ * PrimaryKey: primary key of DataPackage to be modified
+ * Name: optional new name of DataPackage if not set name will not be changed
+ * Keywords: optional new keywords of DataPackage if not set keywords will not be changed
+ * Privacy: optional new privacy of DataPackage if not set privacy will not be changed must be 1(Private) or 0(Public)
+
  ## MissionTable
  ### description 
  Endpoint used to access data regarding mission packages
