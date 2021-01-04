@@ -79,7 +79,7 @@ Subscription: `connectUpdate`
  system user information
  ```json
 {
-	"SystemUsers": [
+	"systemUsers": [
 		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "a.zip", "Uid": ""},
 		  {"Name": "Joe", "Group": "Yellow", "Token": "", "Password": "", "Certs": "b.zip", "Uid": ""},
 		  {"Name": "Bill", "Group": "Yellow", "Token": "", "Password": "", "Certs": "c.zip", "Uid": ""}
@@ -98,7 +98,7 @@ Subscription: `connectUpdate`
  ### parameters
  ```json
  {
-	"SystemUsers": [
+	"systemUsers": [
 		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "true"},
 		  {"Name": "Joe", "Group": "Blue", "Token": "", "Password": "", "Certs": "true"},
 		  {"Name": "Bill", "Group": "Red", "Token": "", "Password": "", "Certs": "true"}
@@ -107,16 +107,17 @@ Subscription: `connectUpdate`
 ```
 ## removeSystemUser
 ### description
-remove a system user from the server
+remove a system user from the server<br />
+   Event: `removeSystemUser`
 ### returns
 None
 ### parameters
 ```json
 {
-  "SystemUsers": [
-    {"Uid": "[uid of system user to be deleted]"},
-    {"Uid": "[uid of system user to be deleted]"},
-    {"Uid": "[uid of system user to be deleted]"}
+  "systemUsers": [
+    {"uid": "[uid of system user to be deleted]"},
+    {"uid": "[uid of system user to be deleted]"},
+    {"uid": "[uid of system user to be deleted]"}
   ]
 }
 ```
@@ -533,14 +534,17 @@ endpoint used to access federation objects
 return JSON data containing the following information regarding current checklists and templates present on the server
 ```json
 {
-	"Name": "federation 1",
-	"Address": "127.0.0.1",
-	"Port": "11111",
-	"FallBack": "federation 2",
-	"Status": "Disabled",
-	"ReconnectInterval": "32",
-	"MaxRetries": "15",
-	"LastError": "Timeout"
+"outgoingFederations":
+	[{
+		"Name": "federation 1",
+		"Address": "127.0.0.1",
+		"Port": "11111",
+		"FallBack": "federation 2",
+		"Status": "Disabled",
+		"ReconnectInterval": "32",
+		"MaxRetries": "15",
+		"LastError": "Timeout"
+	}]
 }
 ```
 
@@ -548,14 +552,15 @@ return JSON data containing the following information regarding current checklis
 create a new outgoing federation
 ```json
 {
-	"Name": "federation 1",
-	"Address": "127.0.0.1",
-	"Port": "11111",
-	"FallBack": "federation 2",
-	"Status": "Disabled",
-	"ReconnectInterval": "32",
-	"MaxRetries": "15",
-	"LastError": "Timeout"
+"outgoingFederations":[{
+		"Name": "federation 1",
+		"Address": "127.0.0.1",
+		"Port": "11111",
+		"FallBack": "federation 2",
+		"Status": "Disabled",
+		"ReconnectInterval": "32",
+		"MaxRetries": "15",
+	}]
 }
 ```
 
