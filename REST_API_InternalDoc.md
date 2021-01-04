@@ -79,7 +79,7 @@ Subscription: `connectUpdate`
  system user information
  ```json
 {
-	"SystemUsers": [
+	"systemUsers": [
 		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "a.zip", "Uid": ""},
 		  {"Name": "Joe", "Group": "Yellow", "Token": "", "Password": "", "Certs": "b.zip", "Uid": ""},
 		  {"Name": "Bill", "Group": "Yellow", "Token": "", "Password": "", "Certs": "c.zip", "Uid": ""}
