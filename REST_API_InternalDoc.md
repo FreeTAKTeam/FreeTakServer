@@ -482,6 +482,8 @@ Endpoint used to access data regarding ExCheck items such as checklists and temp
 ### POST
   creates a template on the server from a supplied xml file accepting the following URL encoded values:
   * clientUid: the uid of the client to be recognized as the creator of the template
+  
+  body of the message should be the xml of the template
 
 ### DELETE
 accepts the following data
