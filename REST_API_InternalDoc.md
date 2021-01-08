@@ -139,6 +139,16 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
  ### parameters
  the timestamp on the most recent log entry in format `%Y-%m-%d %H:%M:%S,%f`
  
+ ## events
+ ### description
+ event used to retrieve last 5 events
+ ### returns
+ ```json
+ {
+   "events": ["server event 1", "server event 2", "server event 3", "server event 4", "server event 5"]
+ }
+ ```
+ 
  ## serviceInfo
  ### description
   event used to retrieve information about all services including
