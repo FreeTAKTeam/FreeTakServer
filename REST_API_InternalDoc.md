@@ -139,6 +139,23 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
  ### parameters
  the timestamp on the most recent log entry in format `%Y-%m-%d %H:%M:%S,%f`
  
+ ## events
+ ### description
+ event used to retrieve last 5 events<br />
+   Event: `events` <br />
+   Subscription: `eventsUpdate`
+ 
+ 
+ ### returns
+ ```json
+ {
+   "events": ["server event 1", "server event 2", "server event 3", "server event 4", "server event 5"]
+ }
+ ```
+ 
+ ### parameters
+ None
+ 
  ## serviceInfo
  ### description
   event used to retrieve information about all services including
@@ -482,6 +499,8 @@ Endpoint used to access data regarding ExCheck items such as checklists and temp
 ### POST
   creates a template on the server from a supplied xml file accepting the following URL encoded values:
   * clientUid: the uid of the client to be recognized as the creator of the template
+  
+  body of the message should be the xml of the template
 
 ### DELETE
 accepts the following data
