@@ -141,13 +141,20 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
  
  ## events
  ### description
- event used to retrieve last 5 events
+ event used to retrieve last 5 events<br />
+   Event: `events` <br />
+   Subscription: `eventsUpdate`
+ 
+ 
  ### returns
  ```json
  {
    "events": ["server event 1", "server event 2", "server event 3", "server event 4", "server event 5"]
  }
  ```
+ 
+ ### parameters
+ None
  
  ## serviceInfo
  ### description
