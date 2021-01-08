@@ -534,35 +534,94 @@ endpoint used to access federation objects
 return JSON data containing the following information regarding current checklists and templates present on the server
 ```json
 {
-"outgoingFederations":
-	[{
-		"Name": "federation 1",
-		"Address": "127.0.0.1",
-		"Port": "11111",
-		"FallBack": "federation 2",
-		"Status": "Disabled",
-		"ReconnectInterval": "32",
-		"MaxRetries": "15",
-		"LastError": "Timeout"
-	}]
+"activeFederations":
+	[
+        {
+            "id": "111-111-111",
+            "address": "127.0.0.1",
+            "port": "9000",
+            "initiator": "Self",
+            "readCount": "0",
+            "processedCount": "0"
+        }
+        {
+            "id": "111-111-112",
+            "address": "1.1.1.1",
+            "port": "11111",
+            "initiator": "Remote",
+            "readCount": "0",
+            "processedCount": "0"
+        }
+    ],
+"federations": 
+  [
+    {
+      	"name": "federation 1",
+		"id": "111-111-111",
+		"address": "127.0.0.1",
+		"port": "9000",
+		"fallback": "federation 2",
+		"status": "Disabled",
+		"reconnectInterval": "32",
+		"maxRetries": "15",
+		"lastError": "Timeout"
+    }
+  ]
 }
 ```
 
 ### POST
-create a new outgoing federation
+create a new federation configuration
 ```json
 {
-"outgoingFederations":[{
-		"Name": "federation 1",
-		"Address": "127.0.0.1",
-		"Port": "11111",
-		"FallBack": "federation 2",
-		"Status": "Disabled",
-		"ReconnectInterval": "32",
-		"MaxRetries": "15",
-	}]
+"outgoingFederations":
+    [
+      {
+      	"name": "federation 1",
+		"address": "127.0.0.1",
+		"port": "9000",
+		"fallback": "federation 2",
+		"status": "Disabled",
+		"reconnectInterval": "32",
+		"maxRetries": "15"
+	  }
+    ]
 }
 ```
 
 ### DELETE
-Not yet implemented
+delete an existing federation configuration
+```json
+{
+  "federations": 
+    [
+      {
+        "id": "111-111-111"
+      }
+    ]
+}
+```
+
+### PUT
+modify an existing federation configuration
+```json
+{
+  "federations": 
+    [
+      {
+        "id": "111-111-111",
+        "name": "new federation 1",
+        "fallback": "new fallback",
+        "status": "Enabled",
+        "reconnectInterval": "15",
+        "maxRetries": "10"
+      } 
+    ]
+}
+```
+* id: must be id of existing federation configuration
+* name(optional): new name of federation configuration
+* fallback(optional): name of new fallback
+* status(optional): new status of connection
+* reconnectInterval(optional): new reconnect interval
+* maxRetries(optional): new maximum number of retries
