@@ -579,7 +579,7 @@ return JSON data containing the following information regarding current checklis
 		"id": "111-111-111",
 		"address": "127.0.0.1",
 		"port": "9000",
-		"fallback": "federation 2",
+		"fallBack": "federation 2",
 		"status": "Disabled",
 		"reconnectInterval": "32",
 		"maxRetries": "15",
@@ -599,7 +599,7 @@ create a new federation configuration
       	"name": "federation 1",
 		"address": "127.0.0.1",
 		"port": "9000",
-		"fallback": "federation 2",
+		"fallBack": "federation 2",
 		"status": "Disabled",
 		"reconnectInterval": "32",
 		"maxRetries": "15"
@@ -630,7 +630,7 @@ modify an existing federation configuration
       {
         "id": "111-111-111",
         "name": "new federation 1",
-        "fallback": "new fallback",
+        "fallBack": "new fallback",
         "status": "Enabled",
         "reconnectInterval": "15",
         "maxRetries": "10"
