@@ -28,12 +28,14 @@ Authorization: Bearer [YOUR_API_KEY]
 
 > you need to use the string 'Bearer' before your API KEY
 
-a valid key is generated from FTS' [CLI](https://github.com/FreeTAKTeam/FreeTAKServer-User-Docs/blob/main/docs/docs/CLI.md) and stored into the DB. 
+a valid key is generated from FTS' [CLI](https://github.com/FreeTAKTeam/FreeTAKServer-User-Docs/blob/main/docs/docs/CLI.md) or, since 1.4 also from the Web UI, and stored into the DB. 
 to add an API user in the CLI type  
 ```
 add_api_user
 ```
-see CLI help for details
+see CLI help for details.
+To create a API TOKEN using the Web UI, go the User section.
+
 to consume the API you need to request a key to your FTS admin. 
 
 the following is a key non working example
