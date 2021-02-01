@@ -1,6 +1,6 @@
 import os
-from configuration.DataPackageServerConstants import DataPackageServerConstants
-from configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from pathlib import PurePath
 class CreateStartupFilesController:
     def __init__(self):
@@ -17,8 +17,8 @@ class CreateStartupFilesController:
             os.mkdir(self.logs_directory)
         except:
             pass
-        WARNINGLOG = open(LoggingConstants().WARNINGLOG, "w")
-        WARNINGLOG.close()
+        ERRORLOG = open(LoggingConstants().ERRORLOG, "w")
+        ERRORLOG.close()
         HTTPLOG = open(LoggingConstants().HTTPLOG, "w")
         HTTPLOG.close()
         DEBUGLOG = open(LoggingConstants().DEBUGLOG, "w")

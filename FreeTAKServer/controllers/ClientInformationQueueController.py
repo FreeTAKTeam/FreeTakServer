@@ -7,19 +7,19 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from model.ClientInformationQueue import ClientInformationQueue
+from FreeTAKServer.model.ClientInformationQueue import ClientInformationQueue
 from multiprocessing import Queue
 
 class ClientInformationQueueController:
     def __init__(self):  
-        self.m_ClientInformationQueue = ClientInformationQueue()
+        self.ClientInformationQueue = ClientInformationQueue()
 
     def addClientToQueue(self, clientInformation):
-        self.m_ClientInformationQueue.clientQueue.put(clientInformation)
+        self.ClientInformationQueue.clientQueue.put(clientInformation)
 
     def removeClientFromQueue(self, clientInformationToRemove):
         #create instance of old queue
-        oldQueue = self.m_ClientInformationQueue.clientQueue
+        oldQueue = self.ClientInformationQueue.clientQueue
         #create new queue
         newQueue = Queue()
         #iter through len of old queue
@@ -31,4 +31,4 @@ class ClientInformationQueueController:
                 pass
             else:
                 newQueue.put(clientInformation)
-        self.m_ClientInformationQueue.clientQueue = newQueue
+        self.ClientInformationQueue.clientQueue = newQueue

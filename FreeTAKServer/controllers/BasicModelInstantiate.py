@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as etree
-from model.Event import Event
+
 
 class BasicModelInstantiate:
     def __init__(self, root, modelObject):
@@ -39,71 +39,71 @@ class BasicModelInstantiate:
         self.modelObject.how = self.event.attrib['how']
 
     def pointAtrib(self):
-        self.modelObject.m_Point.lat = self.point.attrib['lat']
-        self.modelObject.m_Point.lat = self.point.attrib['lon']
-        self.modelObject.m_Point.lat = self.point.attrib['hae']
-        self.modelObject.m_Point.lat = self.point.attrib['ce']
-        self.modelObject.m_Point.lat = self.point.attrib['le']
+        self.modelObject.Point.lat = self.point.attrib['lat']
+        self.modelObject.Point.lat = self.point.attrib['lon']
+        self.modelObject.Point.lat = self.point.attrib['hae']
+        self.modelObject.Point.lat = self.point.attrib['ce']
+        self.modelObject.Point.lat = self.point.attrib['le']
 
     def takvAtrib(self):
-        self.modelObject.m_detail.m_Takv.os = self.takv.attrib['os']
-        self.modelObject.m_detail.m_Takv.device = self.takv.attrib['device']
-        self.modelObject.m_detail.m_Takv.platform = self.takv.attrib['platform']
-        self.modelObject.m_detail.m_Takv.version = self.takv.attrib['version']
+        self.modelObject.detail.Takv.os = self.takv.attrib['os']
+        self.modelObject.detail.Takv.device = self.takv.attrib['device']
+        self.modelObject.detail.Takv.platform = self.takv.attrib['platform']
+        self.modelObject.detail.Takv.version = self.takv.attrib['version']
 
     def contactAtrib(self):
         try:
-            self.modelObject.m_detail.m_Contact.endpoint = self.contact.attrib['endpoint']
+            self.modelObject.detail.Contact.endpoint = self.contact.attrib['endpoint']
         except:
             pass
         try:
-            self.modelObject.m_detail.m_Contact.callsign = self.contact.attrib['callsign']
+            self.modelObject.detail.Contact.callsign = self.contact.attrib['callsign']
         except:
             pass
     def uidAtrib(self):
-        self.modelObject.m_detail.m_Uid.Droid = self.uid.attrib['Droid']
+        self.modelObject.detail.Uid.Droid = self.uid.attrib['Droid']
     
     def precisionlocationAtrib(self):
         try:
-            self.modelObject.m_detail.m_precisionlocation.altsrc = self.precisionlocation.attrib['altsrc']
+            self.modelObject.detail.precisionlocation.altsrc = self.precisionlocation.attrib['altsrc']
         except:
             pass
         try:
-            self.modelObject.m_detail.m_precisionlocation.geopointsrc = self.precisionlocation.attrib['geopointsrc']
+            self.modelObject.detail.precisionlocation.geopointsrc = self.precisionlocation.attrib['geopointsrc']
         except:
             pass
     def groupAtrib(self):
-        self.modelObject.m_detail.m_Group.role = self.group.attrib['role']
-        self.modelObject.m_detail.m_Group.name = self.group.attrib['name']
+        self.modelObject.detail.Group.role = self.group.attrib['role']
+        self.modelObject.detail.Group.name = self.group.attrib['name']
 
     def statusAtrib(self):
-        self.modelObject.m_detail.m_Status.battery = self.status.attrib['battery']
+        self.modelObject.detail.Status.battery = self.status.attrib['battery']
     
     def trackAtrib(self):
-        self.modelObject.m_detail.m_Track.course = self.track.attrib['course']
-        self.modelObject.m_detail.m_Track.speed = self.track.attrib['speed']
+        self.modelObject.detail.Track.course = self.track.attrib['course']
+        self.modelObject.detail.Track.speed = self.track.attrib['speed']
     
     def linkAtrib(self):
         try:
-            self.modelObject.m_detail.m_link.uid = self.link.attrib['uid']
+            self.modelObject.detail.link.uid = self.link.attrib['uid']
         except:
             pass
         try:
-            self.modelObject.m_detail.m_link.type = self.link.attrib['type']
+            self.modelObject.detail.link.type = self.link.attrib['type']
         except:
             pass
         try:
-            self.modelObject.m_detail.m_link.relation = self.link.attrib['relation']
+            self.modelObject.detail.link.relation = self.link.attrib['relation']
         except:
             pass
     def emergencyAtrib(self):
         try:
-            self.modelObject.m_detail.m_emergency.type = self.emergency.attrib['type']
+            self.modelObject.detail.emergency.type = self.emergency.attrib['type']
         except:
             pass
         
         try:
-            self.modelObject.m_detail.m_emergency.cancel = self.emergency.attrib['cancel']
+            self.modelObject.detail.emergency.cancel = self.emergency.attrib['cancel']
         except:
             pass 
     

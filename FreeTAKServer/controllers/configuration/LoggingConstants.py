@@ -5,14 +5,14 @@ class LoggingConstants:
         #main logging config
         self.CURRENTPATH = os.path.dirname(os.path.realpath(__file__))
         self.CURRENTPATH = PurePath(self.CURRENTPATH)
-        self.PARENTPATH = self.CURRENTPATH.parents[0]
+        self.PARENTPATH = str(self.CURRENTPATH.parents[0])
         self.LOGFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
         self.LOGNAME = 'FTS'
         self.LOGDIRECTORY = 'logs'
-        self.WARNINGLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_warning.log")
-        self.DEBUGLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log")
-        self.INFOLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log")
-        self.HTTPLOG = PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log")
+        self.ERRORLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_error.log"))
+        self.DEBUGLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log"))
+        self.INFOLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log"))
+        self.HTTPLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log"))
         self.DELIMITER = ' ? '
         self.MAXFILESIZE = 100000
         self.BACKUPCOUNT = 5
@@ -40,7 +40,7 @@ class LoggingConstants:
         self.CLIENTDISCONNECTSTART = 'initiating client disconnection'
         self.REMOVE = "remove"
         self.DESTROY = 'destroy'
-        self.CLIENTDISCONNECTEND = 'there has been an error in the reception of generic data'
+        self.CLIENTDISCONNECTEND = 'client disconnection has concluded '
         self.CLIENTDISCONNECTERROR = 'there has been an error in the reception of generic data'
 
         #monitorRawCoT

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "cotevent.proto";
+import "takcontrol.proto";
+
+// Top level message sent for TAK Messaging Protocol Version 1.
+message TakMessage {
+    // Optional - if omitted, continue using last reported control
+    // information
+    TakControl takControl = 1;
+
+    // Optional - if omitted, no event data in this message
+    CotEvent cotEvent = 2;
+}
+

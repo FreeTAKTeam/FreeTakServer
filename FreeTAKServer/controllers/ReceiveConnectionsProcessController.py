@@ -7,12 +7,12 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from model.ReceiveConnectionsProcess import ReceiveConnectionsProcess
+from FreeTAKServer.model.ReceiveConnectionsProcess import ReceiveConnectionsProcess
 
 class ReceiveConnectionsProcessController:
     def __init__(self):  
-        self.m_ReceiveConnectionsProcess = ReceiveConnectionsProcess()
+        self.ReceiveConnectionsProcess = ReceiveConnectionsProcess()
 
     def InstantiateModel(self, ReceiveConnectionProcess):
-        self.m_ReceiveConnectionsProcess.receiveConnections = ReceiveConnectionProcess
-        return self.m_ReceiveConnectionsProcess.receiveConnections
+        self.ReceiveConnectionsProcess.receiveConnections = ReceiveConnectionProcess
+        return self.ReceiveConnectionsProcess.receiveConnections

@@ -7,21 +7,18 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from model.MainSocket import MainSocket
-import socket
+from FreeTAKServer.model.sockets.MainSocket import MainSocket
+
 
 class MainSocketController:
     def __init__(self):  
-        self.m_MainSocket = MainSocket()
+        self.MainSocket = MainSocket()
 
     def changeIP(self, IP):
-        self.m_MainSocket.ip = IP
+        self.MainSocket.ip = IP
 
     def changePort(self, port):
-        self.m_MainSocket.port = port
+        self.MainSocket.port = port
 
     def createSocket(self):
-        self.m_MainSocket.sock = socket.socket(self.m_MainSocket.socketAF, self.m_MainSocket.socketSTREAM)
-        self.m_MainSocket.sock.setsockopt(self.m_MainSocket.solSock, self.m_MainSocket.soReuseAddr, self.m_MainSocket.sockProto)
-        self.m_MainSocket.sock.bind((self.m_MainSocket.ip, self.m_MainSocket.port))
-        return self.m_MainSocket.sock
+        pass
