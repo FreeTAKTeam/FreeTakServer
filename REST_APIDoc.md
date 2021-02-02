@@ -98,6 +98,29 @@ the message is placed in the body of the request as JSON formatted. See below fo
   * "Gnd Combat Infantry Engineer"
   * "Ground"
   
+ #####   Extensions for EMS
+ planned extensions , not yet implemented in 1.5 
+ 
+  * "Gnd Equip Vehic Civilian", Nickname: Vehicle
+  * "Gnd Equip Vehic Ambulance": "a-.-G-E-V-m" , Nickname: Ambulance 
+  * "Gnd Structure IM Facilities Emergency Management": "a-.-G-I-i-e" Nickname: Emergency Station
+  * "Gnd Structure IM Facilities Law Enforcement": "a-.-G-I-i-l",  Nickname: Police Station
+  * "Gnd Structure petroleum gas oil": "a-.-G-I-R-P", Nickname: gas Station
+  * "Gnd Structure Utility Electric Power": "a-.-G-I-U-E", Nickname: Power Station
+  * Gnd Structure Utility Telecommunications": "a-.-G-I-U-T", Nickname: Telco Station
+  * "Gnd Structure Hospital": "a-.-G-I-X-H", Nickname: Hospital 
+  * "Gnd IM Resources": "a-.-G-U-i" Nickname: Resources
+  * "FOOD DISTRIBUTION": "b-r-.-O-O-O", Nickname: Hospital 
+  * "Gnd Crowd Control Team": "a-.-G-U-i-l-cct" Nickname: Police
+  * "Gnd Generators ": "a-.-G-U-i-p-gen" Nickname: Generator
+  * "Other incident other": "a-.-X-i-o" Nickname: incident 
+  * "Combat search &amp; rescue (CSAR)": "a-.-A-M-F-Q-H", Nickname: SAR
+  * "Medevac": "a-.-G-U-C-V-R-E",, Nickname: Medevac 
+  * "Alarm": "b-l",  Nickname: Alarm
+  * "Alarm/Security/Law Enforcement/Civil Disturbance or Disorder": "b-l-l-l-cd", Nickname: Disorder
+  * "REFUGEES": "b-r-.-O-I-R" Nickname: Refugees
+  * "VANDALISM/RAPE/LOOT/RANSACK/PLUNDER/SACK": "b-r-.-O-I-V" Nickname: Riot
+
    ##### List of supported Attitude
   * "friend"
   * "friendly"
