@@ -62,6 +62,8 @@ the message is placed in the body of the request as JSON formatted. See below fo
   * How: the way in which this geo information has been acquired. Please see API documentation for a list of valid entries.
   * attitude: the kind of expected behavior of the GeoObject (e.g friendly, hostile, unknown). Please see API documentation for a list of valid entries.
   * name: a string to ID the GeoObject on a map.
+  * bearing: FUTURE DEVELOPMENT, the direction expressed in degrees (1-360)   
+  * distance": FUTURE DEVELOPMENT, the distance in meters from the Lat/long 
   * timeout:the length, expressed in seconds  until the point will stale out. Default is 300 seconds or 5 minutes.
   *  UID: server generated Unique Id of this element
 
@@ -71,6 +73,8 @@ the message is placed in the body of the request as JSON formatted. See below fo
 "longitude": -77.0104,
 "latitude": 38.889,
 "attitude": "hostile",
+ "bearing": 132, 
+ "distance": 1,
 "geoObject": "Gnd Combat Infantry Sniper",
 "how": "nonCoT",
 "name": "Putin",
@@ -100,22 +104,34 @@ the message is placed in the body of the request as JSON formatted. See below fo
   
  #####   Extensions for EMS
  planned extensions , not yet implemented in 1.5 
- 
-  * "Gnd Equip Vehic Civilian", Nickname: Vehicle
-  * "Gnd Equip Vehic Ambulance": "a-.-G-E-V-m" , Nickname: Ambulance 
-  * "Gnd Structure IM Facilities Emergency Management": "a-.-G-I-i-e" Nickname: Emergency Station
-  * "Gnd Structure IM Facilities Law Enforcement": "a-.-G-I-i-l",  Nickname: Police Station
-  * "Gnd Structure petroleum gas oil": "a-.-G-I-R-P", Nickname: gas Station
-  * "Gnd Structure Utility Electric Power": "a-.-G-I-U-E", Nickname: Power Station
-  * Gnd Structure Utility Telecommunications": "a-.-G-I-U-T", Nickname: Telco Station
-  * "Gnd Structure Hospital": "a-.-G-I-X-H", Nickname: Hospital 
-  * "Gnd IM Resources": "a-.-G-U-i" Nickname: Resources
-  * "FOOD DISTRIBUTION": "b-r-.-O-O-O", Nickname: Hospital 
-  * "Gnd Crowd Control Team": "a-.-G-U-i-l-cct" Nickname: Police
-  * "Gnd Generators ": "a-.-G-U-i-p-gen" Nickname: Generator
-  * "Other incident other": "a-.-X-i-o" Nickname: incident 
-  * "Combat search &amp; rescue (CSAR)": "a-.-A-M-F-Q-H", Nickname: SAR
-  * "Medevac": "a-.-G-U-C-V-R-E",, Nickname: Medevac 
+```
+{
+"longitude": -77.0104,
+"latitude": 38.889,
+"attitude": "hostile",
+ "bearing": 132, 
+ "distance": 1,
+"geoObject": "Medevac",
+"how": "nonCoT",
+"name": "Medevac",
+"timeout": 600  
+}
+```
+  * "Gnd Equip Vehic Civilian", Nickname: Vehicle (OK)
+  * "Gnd Equip Vehic Ambulance": "a-.-G-E-V-m" , Nickname: Ambulance (OK)
+  * "Gnd Structure IM Facilities Emergency Management": "a-.-G-I-i-e" Nickname: Emergency Station (empty shape)
+  * "Gnd Structure IM Facilities Law Enforcement": "a-.-G-I-i-l",  Nickname: Police Station (empty shape)
+  * "Gnd Structure petroleum gas oil": "a-.-G-I-R-P", Nickname: gas Station (empty shape)
+  * "Gnd Structure Utility Electric Power": "a-.-G-I-U-E", Nickname: Power Station (empty shape)
+  * Gnd Structure Utility Telecommunications": "a-.-G-I-U-T", Nickname: Telco Station (empty shape)
+  * "Gnd Structure Hospital": "a-.-G-I-X-H", Nickname: Hospital (empty shape)
+  * "Gnd IM Resources": "a-.-G-U-i" Nickname: Resources (empty shape)
+  * "FOOD DISTRIBUTION": "b-r-.-O-O-O", Nickname: Food (OK, only label, need to implement nick) 
+  * "Gnd Crowd Control Team": "a-.-G-U-i-l-cct" Nickname: Police (OK)
+  * "Gnd Generators ": "a-.-G-U-i-p-gen" Nickname: Generator (empty shape)
+  * "Other incident other": "a-.-X-i-o" Nickname: incident (OK, missing nich name?) 
+  * "Combat search &amp; rescue (CSAR)": "a-.-A-M-F-Q-H", Nickname: SAR (OK)
+  * "Medevac": "a-.-G-U-C-V-R-E",, Nickname: Medevac  (OK)
   * "Alarm": "b-l",  Nickname: Alarm
   * "Alarm/Security/Law Enforcement/Civil Disturbance or Disorder": "b-l-l-l-cd", Nickname: Disorder
   * "REFUGEES": "b-r-.-O-I-R" Nickname: Refugees
