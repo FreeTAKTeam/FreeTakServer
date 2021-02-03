@@ -9,6 +9,7 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("FederationServer").getLogger()
 
+
 class FederationServerServiceController(FederationServiceAbstract):
 
     """this service acts as both an orchestrator for the connection of new clients and
@@ -85,7 +86,7 @@ class FederationServerServiceController(FederationServiceAbstract):
         '''
         while True:
             try:
-                self.pipe.poll(timeout = 0.01)
+                self.pipe.poll(timeout=0.01)
                 success = self.send_data_to_clients(self.pipe.get(), self.federateClients.get_all_clients())
             except multiprocessing.TimeoutError:
                 pass

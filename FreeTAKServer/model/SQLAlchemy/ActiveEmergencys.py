@@ -10,10 +10,11 @@ from sqlalchemy.orm import relationship
 from FreeTAKServer.model.SQLAlchemy.Event import Event
 from sqlalchemy import ForeignKey
 
+
 class ActiveEmergencys(Base):
     __tablename__ = 'ActiveEmergencys'
 
-    PrimaryKey = Column(Integer, primary_key = True, autoincrement=True)
+    PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
 
     event = relationship("Event")
 

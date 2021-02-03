@@ -6,8 +6,10 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendInvalidCoTController").getLogger()
+
+
 class SendPingController(SendCoTAbstractController):
-    def __init__(self, RawCoT = None):
+    def __init__(self, RawCoT=None):
         try:
             RawCoT.xmlString = b'<event/>'
             tempObject = super().Event.takPong()

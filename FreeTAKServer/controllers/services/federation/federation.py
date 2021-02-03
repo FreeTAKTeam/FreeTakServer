@@ -45,17 +45,17 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
                 proto_obj.contact.operation = 1
                 proto_str = proto_obj.SerializeToString()
                 header = self._generate_header(len(proto_str))
-                connection.send(header+proto_str)
+                connection.send(header + proto_str)
             except Exception as e:
                 logger.warning("error thrown sending federate data to newly connected federate " + str(e))
                 continue
 
-    def _create_context(self) ->None:
+    def _create_context(self) -> None:
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         self.context.load_cert_chain(MainConfig.federationCert, MainConfig.federationKey,
                                      password=MainConfig.federationKeyPassword)
 
-    def _create_listener(self, ip: str, port: int)->None:
+    def _create_listener(self, ip: str, port: int) -> None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         sock.bind((ip, port))
         sock.listen()
@@ -164,9 +164,9 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
         except OSError:
             return None
         except Exception as e:
-            logger.warning("exception in receiving data from federate "+str(e))
+            logger.warning("exception in receiving data from federate " + str(e))
             self.disconnect_client(key.data.uid)
-    
+
     def _accept_connection(self, sock) -> None:
         try:
             import uuid
@@ -185,7 +185,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
             self.sel.register(conn, events, data=data)
             self.federates[data.uid] = data
 
-            self.db.create_ActiveFederation(id = data.uid, federate = "unknown", address = addr[0], port = addr[1], initiator = "Remote")
+            self.db.create_ActiveFederation(id=data.uid, federate="unknown", address=addr[0], port=addr[1], initiator="Remote")
             return None
         except Exception as e:
             print(e)
@@ -214,7 +214,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
             else:
                 return None
         except Exception as e:
-            logger.warning("send data to clients failed with exception "+str(e))
+            logger.warning("send data to clients failed with exception " + str(e))
 
     def disconnect_client(self, id: str) -> None:
         try:
@@ -276,6 +276,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
 
     def stop(self):
         pass
+
 
 if __name__ == "__main__":
 

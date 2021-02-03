@@ -1,6 +1,7 @@
 from FreeTAKServer.model.ExCheck.templateInstanceContents import templateInstanceContents
 import datetime as dt
 
+
 class templateInstance:
     def __init__(self):
         self.name = "exchecktemplates"
@@ -35,7 +36,7 @@ class templateInstance:
 
     def setcreateTime(self, createTime=None):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-        if createTime == None:
+        if createTime is None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)

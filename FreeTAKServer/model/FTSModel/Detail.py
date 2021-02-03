@@ -27,9 +27,11 @@ from .Archive import Archive
 from FreeTAKServer.model.FTSModel.Summary import Summary
 from FreeTAKServer.model.FTSModel.Mission import Mission
 
+
 class Detail(FTSProtocolObject):
     """An optional element used to hold CoT sub-schema. empty element
     """
+
     def __init__(self):
         pass
 
@@ -266,6 +268,3 @@ class Detail(FTSProtocolObject):
 
     def get__serverdestination(self):
         return self._serverdestination
-
-
-

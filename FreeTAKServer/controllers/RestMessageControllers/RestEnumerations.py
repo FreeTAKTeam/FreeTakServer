@@ -35,7 +35,7 @@ class RestEnumerations:
     }
 
     supportedTypeEnumerations = {}
-    
+
     supportedTypeEnumerations.update(otherTypes)
     supportedTypeEnumerations.update(SquadTypes)
 

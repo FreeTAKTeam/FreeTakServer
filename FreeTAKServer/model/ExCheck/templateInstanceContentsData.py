@@ -1,5 +1,6 @@
 import datetime as dt
 
+
 class templateInstanceContentsData:
     def __init__(self):
         self.uid = ""
@@ -14,16 +15,16 @@ class templateInstanceContentsData:
         self.tool = ""
         self.creatorCallsign = ""
 
-    def setfilename(self, filename = None):
+    def setfilename(self, filename=None):
         if filename is None:
-            self.filename = self.uid+'.xml'
+            self.filename = self.uid + '.xml'
         else:
             self.filename = filename
 
     def getfilename(self):
         return self.filename
 
-    def setname(self, name = None):
+    def setname(self, name=None):
         if name is None:
             self.name = self.uid
         else:
@@ -56,20 +57,20 @@ class templateInstanceContentsData:
     def getmimeType(self):
         return self.mimeType
 
-    def setkeywords(self, name = None, description = None, callsign = None):
+    def setkeywords(self, name=None, description=None, callsign=None):
         self.keywords[0] = name
         self.keywords[1] = description
         self.keywords[2] = callsign
 
-    def settool(self,tool):
+    def settool(self, tool):
         self.tool = tool
 
     def setuid(self, uid):
         self.uid = uid
 
-    def setsubmissionTime(self, timestamp = None):
+    def setsubmissionTime(self, timestamp=None):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-        if timestamp == None:
+        if timestamp is None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)

@@ -1,5 +1,6 @@
 from FreeTAKServer.model.RestMessages.Emergency import Emergency, RestEnumerations
 
+
 class EmergencyDelete(Emergency):
     def __init__(self):
         pass

@@ -1,6 +1,7 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.FilenameVariables import FilenameVariables as vars
 
+
 class Filename(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None

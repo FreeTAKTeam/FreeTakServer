@@ -4,6 +4,7 @@ from sqlalchemy import String
 from sqlalchemy import Boolean
 from flask_login import UserMixin
 
+
 class SystemUser(Base, UserMixin):
 
     __tablename__ = 'SystemUser'

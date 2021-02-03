@@ -2,6 +2,7 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.TimestampVariables import TimestampVariables as vars
 import datetime as dt
 
+
 class Timestamp(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None
@@ -16,7 +17,7 @@ class Timestamp(FTSProtocolObject):
 
     def setINTAG(self, INTAG=None):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-        if INTAG == None:
+        if INTAG is None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)

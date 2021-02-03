@@ -1,6 +1,7 @@
 
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+
 class OrchestratorConstants:
     def __init__(self):
         self.CoTIP = "0.0.0.0"

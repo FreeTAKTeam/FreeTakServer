@@ -7,7 +7,7 @@ class checklistDetails:
         self.creatorUid = ''
         self.creatorCallsign = ''
 
-    def setname(self, name = None):
+    def setname(self, name=None):
         self.name = name
 
     def getname(self):

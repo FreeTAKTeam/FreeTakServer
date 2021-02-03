@@ -1,3 +1,7 @@
 {
-    "python.pythonPath": "C:\\Users\\natha\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+    "python.pythonPath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python37_64\\python.exe",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.analysis.memory.keepLibraryAst": true
 }

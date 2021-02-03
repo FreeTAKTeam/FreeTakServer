@@ -6,6 +6,7 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendDisconnectController").getLogger()
 
+
 class SendDisconnectController(SendCoTAbstractController):
     def __init__(self, RawCoT):
         try:

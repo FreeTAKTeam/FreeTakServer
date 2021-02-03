@@ -1,15 +1,17 @@
 import sys
 import time
 
+
 class AsciiController:
-  def slowprint(self, s):
-      for c in s + '\n' :
-          sys.stdout.write(c)
-          sys.stdout.flush()
-          time.sleep(1. / 400)
-  def ascii(self):
-      self.slowprint(r'''\
-      *** ***       FREE TAK SERVER        *** ***       
+    def slowprint(self, s):
+        for c in s + '\n':
+            sys.stdout.write(c)
+            sys.stdout.flush()
+            time.sleep(1. / 400)
+
+    def ascii(self):
+        self.slowprint(r'''\
+      *** ***       FREE TAK SERVER        *** ***
                   .------.
                 /  ~ ~   \,------.      ______
               ,'  ~ ~ ~  /  (@)   \   ,'      \
@@ -30,5 +32,5 @@ class AsciiController:
                                           / /  / \  \
                                           `.     |   \
                                             `--------'
-          - The parrot's not dead! It's just resting!- 
+          - The parrot's not dead! It's just resting!-
       ''')

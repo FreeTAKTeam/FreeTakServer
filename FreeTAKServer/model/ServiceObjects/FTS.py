@@ -7,6 +7,7 @@ from .SSLCoTService import SSLCoTService
 from .FederationClientService import FederationClientService
 from .FederationServerService import FederationServerService
 
+
 class FTS:
     def __init__(self):
         self.CoTService = CoTService()

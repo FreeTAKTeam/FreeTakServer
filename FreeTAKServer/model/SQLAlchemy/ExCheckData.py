@@ -5,9 +5,10 @@ from sqlalchemy import Integer
 from FreeTAKServer.model.SQLAlchemy.ExCheckKeywords import ExCheckKeywords
 from sqlalchemy.orm import relationship
 
+
 class ExCheckData(Base):
     __tablename__ = 'ExCheckData'
-    PrimaryKey = Column(ForeignKey("ExCheck.PrimaryKey"), primary_key = True, autoincrement=True)
+    PrimaryKey = Column(ForeignKey("ExCheck.PrimaryKey"), primary_key=True, autoincrement=True)
     filename = Column(String)
     mimeType = Column(String)
     name = Column(String)

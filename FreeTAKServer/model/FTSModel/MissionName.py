@@ -1,6 +1,7 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.MissionNameVariables import MissionNameVariables as vars
 
+
 class MissionName(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None
@@ -18,4 +19,3 @@ class MissionName(FTSProtocolObject):
 
     def getINTAG(self):
         return self.INTAG
-

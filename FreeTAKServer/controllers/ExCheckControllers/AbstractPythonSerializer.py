@@ -26,6 +26,7 @@ class AbstractPythonSerializer:
     def other(self, obj):
         pass
 
+
 if __name__ == "__main__":
     from FreeTAKServer.model.ExCheck.Checklists.Checklist import Checklist
     AbstractPythonSerializer(Checklist()).serializeObject()

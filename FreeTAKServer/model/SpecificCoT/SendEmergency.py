@@ -1,5 +1,6 @@
 from .SpecificCoTAbstract import SpecificCoTAbstract
 
+
 class SendEmergency(SpecificCoTAbstract):
     def __init__(self):
         self.define_variables()

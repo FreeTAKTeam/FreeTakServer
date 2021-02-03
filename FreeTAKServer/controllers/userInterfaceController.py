@@ -1,8 +1,8 @@
 class userInterfaceController:
     def __init__(self):
         self.commandDict = {
-            "1" : "checkAliveProcesses",
-            "2" : "getSocketInformation"
+            "1": "checkAliveProcesses",
+            "2": "getSocketInformation"
         }
 
     def userInput(self):
@@ -12,5 +12,3 @@ class userInterfaceController:
 
     def checkAliveProcesses(self):
         pass
-
-

@@ -11,6 +11,7 @@ from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendGeoChatController").getLogger()
 
+
 class SendEmergencyController:
     def __init__(self, json):
         if isinstance(json, EmergencyPost):
@@ -49,6 +50,7 @@ class SendEmergencyController:
 
     def getCoTObject(self):
         return self.CoTObject
+
 
 if __name__ == "__main__":
     SendEmergencyController('{"name": "test", "emergencyType": "911 Alert", "status": "on"}')

@@ -5,6 +5,8 @@ from FreeTAKServer.model.FTSModel.Description import Description
 from FreeTAKServer.model.FTSModel.StartTime import StartTime
 from FreeTAKServer.model.FTSModel.CreatorUid import CreatorUid
 from FreeTAKServer.model.FTSModel.CreatorCallsign import CreatorCallsign
+
+
 class ChecklistDetails(FTSProtocolObject):
     @staticmethod
     def Checklist():
@@ -16,4 +18,3 @@ class ChecklistDetails(FTSProtocolObject):
         checklistdetails.creatoruid = CreatorUid.Checklist()
         checklistdetails.creatorcallsign = CreatorCallsign.Checklist()
         return checklistdetails
-

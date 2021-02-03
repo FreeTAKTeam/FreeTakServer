@@ -2,6 +2,7 @@
 from FreeTAKServer.model.FTSModel.Event import Event
 from lxml import etree
 
+
 class ApplyFullJsonController:
     def __init__(self):
         self.typeDict = {
@@ -34,17 +35,17 @@ class ApplyFullJsonController:
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():
             if isinstance(value, dict):
-                submodel = getattr(model, 'get'+key)
+                submodel = getattr(model, 'get' + key)
                 submodel = submodel()
                 out = self.serializeJsonToModel(submodel, value)
-                setter = getattr(model, 'set'+key)
+                setter = getattr(model, 'set' + key)
                 setter(out)
             else:
                 setter = getattr(model, 'set' + key)
                 setter(value)
         return model
 
-    def serialize_model_to_json(self, modelObject, level = 0):
+    def serialize_model_to_json(self, modelObject, level=0):
         json = {}
         for attribName, value in modelObject.__dict__.items():
             if hasattr(value, '__dict__'):
@@ -56,7 +57,7 @@ class ApplyFullJsonController:
                 else:
                     json[attribName] = tagElement
 
-            elif value == None:
+            elif value is None:
                 continue
 
             elif isinstance(value, list):
@@ -84,6 +85,7 @@ class ApplyFullJsonController:
             return json
         else:
             return json
+
 
 if __name__ == "__main__":
     ApplyFullJsonController('dwa', 'dwa', 'dwa').determine_function()

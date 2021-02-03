@@ -6,6 +6,7 @@ import codecs
 import socket
 from FreeTAKServer.model.ServiceObjects.Federate import Federate
 
+
 class FederationServiceController:
     def __init__(self, ip, port, connection):
         self.ip = ip
@@ -15,7 +16,6 @@ class FederationServiceController:
         self.excessData = None
         self.killSwitch = False
         self.connection = connection
-
 
     def start(self):
 
@@ -35,7 +35,7 @@ class FederationServiceController:
             self.connection.shutdown(socket.SHUT_RDWR)
             self.connection.close()
             return 1
-        except:
+        except BaseException:
             self.connection.close()
             return 1
 
@@ -50,7 +50,7 @@ class FederationServiceController:
             filteredhex = codecs.escape_decode(filteredhex)[0]
             return filteredhex
         else:
-            tempHex = '0'+tempHex
+            tempHex = '0' + tempHex
             filteredhex = [(tempHex[i:i + 2]) for i in range(0, len(tempHex), 2)]
             while len(filteredhex) < 4:
                 filteredhex.insert(0, '00')
@@ -67,7 +67,7 @@ class FederationServiceController:
                 headerInHex[-1][2] = hexlify(headerInHex[-1][2])
             headerInHex = b''.join(headerInHex)
             return int(headerInHex, 16)
-        except:
+        except BaseException:
             return -1
 
     def receive_data_from_federates(self):
@@ -117,7 +117,7 @@ class FederationServiceController:
             protostring = ProtoObj.SerializeToString()
             header = self.generate_header(len(protostring))
             protostring = header + protostring
-            print(b'sent '+protostring+b' to federate')
+            print(b'sent ' + protostring + b' to federate')
             self.connection.send(protostring)
             return 1
 
@@ -129,8 +129,10 @@ class FederationServiceController:
 
     def send_in_data_pipe(self, pipe, data):
         pass
+
+
 if __name__ == '__main__':
     FederationServiceController
     content = b'\n\xb1\x06\x08\xd8\x81\xa6\xa1\xec.\x10\x84\xf0\xa5\xa1\xec.\x18\x84\xa8\xbf\xca\xec.1\x00\x00\x00\xe0\xcf\x12cA9\x00\x00\x00\xe0\xcf\x12cAA\x00\x00\x00\xe0\xcf\x12cAJjGeoChat.S-1-5-21-2720623347-3037847324-4167270909-1002.All Chat Rooms.673a0aa4-c8eb-4bb5-aa7e-abab7d8d89a0R\x05b-t-fZ\th-g-i-g-ob\x80\x05<detail><__chat id="All Chat Rooms" chatroom="All Chat Rooms" senderCallsign="FEATHER" groupOwner="false"><chatgrp id="All Chat Rooms" uid0="S-1-5-21-2720623347-3037847324-4167270909-1002" uid1="All Chat Rooms"/></__chat><link uid="S-1-5-21-2720623347-3037847324-4167270909-1002" type="a-f-G-U-C-I" relation="p-p"/><remarks source="BAO.F.WinTAK.S-1-5-21-2720623347-3037847324-4167270909-1002" sourceID="S-1-5-21-2720623347-3037847324-4167270909-1002" to="All Chat Rooms" time="2021-01-02T17:33:40.74Z">aa</remarks><_flow-tags_ TAK-Server-c0581fed97ff4cb89eb8666a8794670cc9f77ddb-badf-48da-abe7-84545ecda69d="2021-01-02T17:33:43Z"/></detail>'
     y = FederatedEvent().FromString(content)
-    1==1
+    1 == 1

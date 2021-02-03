@@ -1,6 +1,7 @@
 from .SendCoTAbstractController import SendCoTAbstractController
 from FreeTAKServer.model.SpecificCoT.SendUserUpdate import SendUserUpdate
 
+
 class SendUserUpdateController(SendCoTAbstractController):
     def __init__(self, RawCoT=None):
         try:

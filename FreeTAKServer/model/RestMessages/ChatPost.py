@@ -1,5 +1,6 @@
 from FreeTAKServer.model.RestMessages.Chat import Chat
 
+
 class ChatPost(Chat):
     def __init__(self):
         pass

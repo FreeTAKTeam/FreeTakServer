@@ -10,6 +10,7 @@ from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import Dat
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("FTS").getLogger()
 
+
 class TCPCoTServiceController(Orchestrator):
     def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         try:

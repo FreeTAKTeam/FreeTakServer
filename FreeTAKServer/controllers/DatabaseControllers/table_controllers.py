@@ -5,6 +5,7 @@ from FreeTAKServer.model.SQLAlchemy.User import User
 from FreeTAKServer.model.SQLAlchemy.federations import ActiveFederations
 from FreeTAKServer.model.SQLAlchemy.federations import Federations
 
+
 class TableController:
     # default constructor  def __init__(self):
     table = None
@@ -26,13 +27,11 @@ class TableController:
         session.add(newobj)
         session.commit()
 
-
     def query(self, session, query, columns):
         # query needs to be applicable to datapackage object tuple(['DataPackage.'+x for x in columns])
         output = session.query(*tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(
             text(query)).all()
         return output
-
 
     def update(self, session, query, column_value):
         DataPackages = session.query(self.table).filter(
@@ -42,13 +41,16 @@ class TableController:
                 setattr(dp, column, value)
         session.commit()
 
+
 class ActiveFederationsController(TableController):
     def __init__(self):
         self.table = ActiveFederations
 
+
 class FederationsController(TableController):
     def __init__(self):
         self.table = Federations
+
 
 class UserTableController(TableController):
     def __init__(self):

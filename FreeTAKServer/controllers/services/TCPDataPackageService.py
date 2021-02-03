@@ -6,6 +6,7 @@ from FreeTAKServer.controllers.configuration.DataPackageServerConstants import D
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("TCPDataPackageServer").getLogger()
 
+
 class TCPDataPackageService(FlaskFunctions):
     def startup(self, ip, port, pipe):
         try:
@@ -25,7 +26,6 @@ class TCPDataPackageService(FlaskFunctions):
             super().setIP(IP)
             super().setPIPE(PIPE)
             wsgi.server(eventlet.listen((DataPackageServerConstants().IP, HTTPPORT)), app)
-
 
         except Exception as e:
             logger.error('there has been an exception in Data Package service startup ' + str(e))

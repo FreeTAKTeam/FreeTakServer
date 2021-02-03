@@ -7,9 +7,10 @@ from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
 
+
 class ExCheckChecklist(Base):
     __tablename__ = "ExCheckChecklist"
-    PrimaryKey = Column(Integer, primary_key = True, autoincrement=True)
+    PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
     startTime = Column(DateTime)
     creatorUid = Column(String)
     description = Column(String)

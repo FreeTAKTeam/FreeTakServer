@@ -1,6 +1,7 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.CreatorUidVariables import CreatorUidVariables as vars
 
+
 class CreatorUid(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None
@@ -24,4 +25,3 @@ class CreatorUid(FTSProtocolObject):
         creatorUid = CreatorUid()
         creatorUid.setINTAG(INTAG)
         return creatorUid
-

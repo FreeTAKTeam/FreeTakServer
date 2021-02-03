@@ -1,5 +1,6 @@
 from lxml import etree
 
+
 class AbstractXMLSerializer:
     def __init__(self, xml):
         self.xml = xml

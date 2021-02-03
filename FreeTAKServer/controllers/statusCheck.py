@@ -1,8 +1,10 @@
 import socket
 from time import sleep, gmtime, strftime
 import uuid
-import smtplib, ssl
+import smtplib
+import ssl
 import time
+
 
 class statusCheck:
     def __init__(self):
@@ -16,9 +18,6 @@ class statusCheck:
         # tune your params below, then execute. It will run until interupted.
         # prints "+" each time it checks a server.
         # Will only work with self.servers not using secure connections
-
-
-
 
         # --------------------------------------------------------------------------------------------------
         # Setup our test params
@@ -90,7 +89,7 @@ class statusCheck:
                 # print(response)
                 pass
 
-            except:
+            except BaseException:
                 # print("flushit read empty")
                 # Flushed, now return
                 break
@@ -196,7 +195,7 @@ class statusCheck:
                     self.notify(testserver + ": Connect failed socket error-" + str(e))
                     continue
 
-                except:
+                except BaseException:
                     # return 'connection failed'
                     # print(testserver + 'connection failed')
                     # No need to close, not open
@@ -210,7 +209,7 @@ class statusCheck:
                 # print("Now Connect string")
                 try:
                     sent = self.sock.send(self.connectionString)
-                except:
+                except BaseException:
                     print(testserver + ": Connection send failed")
                     self.closeit()
                     self.notify(testserver + ": Connection send Failed")
@@ -253,7 +252,7 @@ class statusCheck:
                 # Cleanup and notify failed check
                 try:
                     self.closeit()
-                except:
+                except BaseException:
                     pass
                 # Now send the response
                 if response:
@@ -267,5 +266,7 @@ class statusCheck:
             # print("+")
             # print("sleeping " + str(self.sleeptime))
             sleep(self.sleeptime)
+
+
 if __name__ == "__main__":
     statusCheck().start()

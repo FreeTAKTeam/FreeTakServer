@@ -9,12 +9,14 @@ from FreeTAKServer.controllers.serializers import xml_serializer
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendCoTAbstract").getLogger()
 
+
 class SendCoTAbstractController(ABC):
     Event = event
+
     def __init__(self, object):
         pass
 
-    def fill_object(self, object, tempObject, RawCoT, addToDB = MainConfig.SaveCoTToDB):
+    def fill_object(self, object, tempObject, RawCoT, addToDB=MainConfig.SaveCoTToDB):
         try:
             object.modelObject = self.create_model_object(tempObject, RawCoT.xmlString)
 
@@ -32,7 +34,7 @@ class SendCoTAbstractController(ABC):
         except Exception as e:
             logger.warning('there has been an exception in the creation of a xmlString ' + str(e))
         try:
-            if addToDB == True:
+            if addToDB:
                 RawCoT.dbController.create_CoT(object.modelObject)
             else:
                 pass
@@ -50,6 +52,7 @@ class SendCoTAbstractController(ABC):
 
         modelInstance = xml_serializer.XmlSerializer().from_format_to_fts_object(xmlString, tempObject)
         return modelInstance
+
     def create_xml_string(self, modelObject):
         """
         this function calls the model to xml serializer within XMLCoTController
@@ -60,7 +63,7 @@ class SendCoTAbstractController(ABC):
             xml = XMLCoTController().serialize_model_to_CoT(modelObject, 'event')
             return xml
         except Exception as e:
-            logger.error('there has been an exception in the creation of the xml string ' +str(e))
+            logger.error('there has been an exception in the creation of the xml string ' + str(e))
             return -1
 
     def handel_serialization_exception(self, object, RawCoT):
@@ -72,7 +75,6 @@ class SendCoTAbstractController(ABC):
         object = SendOtherController(RawCoT).getObject()
         object.clientInformation = RawCoT.clientInformation
         self.setObject(object)
-
 
     def setObject(self, object):
         self.Object = object

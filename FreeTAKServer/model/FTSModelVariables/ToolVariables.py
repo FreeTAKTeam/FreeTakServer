@@ -3,4 +3,3 @@ class ToolVariables:
     def ExcheckUpdate(cls):
         cls.INTAG = "ExCheck"
         return cls
-

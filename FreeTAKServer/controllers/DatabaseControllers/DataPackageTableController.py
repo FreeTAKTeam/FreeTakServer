@@ -3,6 +3,6 @@ from FreeTAKServer.model.SQLAlchemy.DataPackage import DataPackage
 
 
 class DataPackageTableController(TableController):
-		
-	def __init__(self):
-		self.table = DataPackage
+
+    def __init__(self):
+        self.table = DataPackage

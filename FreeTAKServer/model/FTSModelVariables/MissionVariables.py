@@ -7,4 +7,3 @@ class MissionVariables:
         cls.NAME = None
         cls.AUTHORUID = None
         return cls
-

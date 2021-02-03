@@ -12,4 +12,6 @@ class ClientInterfaceController:
     def helpCommand(self):
         output = "this is currently just astetic"
         return output
+
+
 ClientInterfaceController().commandInput()

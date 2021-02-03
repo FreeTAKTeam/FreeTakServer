@@ -1,6 +1,7 @@
 from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
 from sqlalchemy import Column, String, Integer, UniqueConstraint, Boolean
 
+
 class Federations(Base):
     __tablename__ = "Federations"
     id = Column(String, primary_key=True)
@@ -15,6 +16,7 @@ class Federations(Base):
     connectionStatus = Column(String, default="DISABLED")
     lastError = Column(String, nullable=True)
     fallBack = Column(String, nullable=True)
+
 
 class ActiveFederations(Base):
     __tablename__ = "ActiveFederations"

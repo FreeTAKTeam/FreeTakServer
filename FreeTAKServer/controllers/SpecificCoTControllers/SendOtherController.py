@@ -6,6 +6,8 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendOtherController").getLogger()
+
+
 class SendOtherController(SendCoTAbstractController):
     def __init__(self, RawCoT=None):
         if type(RawCoT != bytes):
@@ -30,7 +32,8 @@ class SendOtherController(SendCoTAbstractController):
         except Exception as e:
             logger.error("there has been an exception in the creation of an"
                          "Other object " + str(e))
-    #this function modifies the CoT so only the marti and point tags are present
+    # this function modifies the CoT so only the marti and point tags are present
+
     def filter_CoT(self, event):
         try:
             outputEvent = etree.fromstring(event)
@@ -43,7 +46,7 @@ class SendOtherController(SendCoTAbstractController):
                 outputDetail.append(marti)
                 print('dest client found')
                 self.object.martiPresent = True
-            except:
+            except BaseException:
                 etree.SubElement(outputEvent, 'detail')
                 print('no dest client found')
 

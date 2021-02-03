@@ -1,5 +1,6 @@
 from FreeTAKServer.model.SpecificCoT.SendHealthCheck import SendHealthCheck
 
+
 class SendHealthCheckController:
     # TODO: deprecate this function
     def __init__(self, RawCoT):

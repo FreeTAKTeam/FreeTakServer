@@ -1,6 +1,7 @@
 from FreeTAKServer.controllers.MainSocketController import MainSocketController
 import socket
 
+
 class TCPSocketController(MainSocketController):
     def createSocket(self):
         self.MainSocket.sock = socket.socket(self.MainSocket.socketAF, self.MainSocket.socketSTREAM)

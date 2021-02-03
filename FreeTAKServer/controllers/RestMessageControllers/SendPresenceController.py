@@ -36,7 +36,7 @@ class SendPresenceController:
                 object.setstale(staletime=RestAPIVariables.defaultPresenceTimeout)
             return object
         except AttributeError as e:
-            return Exception('a parameter has been passed which is not recognized with error: '+str(e))
+            return Exception('a parameter has been passed which is not recognized with error: ' + str(e))
 
     def setCoTObject(self, CoTObject):
         self.CoTObject = CoTObject

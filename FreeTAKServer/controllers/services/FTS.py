@@ -60,7 +60,7 @@ class FTS:
             self.FilterGroup.sources.append(self.RestAPIPipe)
             return 1
         except Exception as e:
-            logger.error('There has been an exception thrown in the startup of the restAPI service '+str(e))
+            logger.error('There has been an exception thrown in the startup of the restAPI service ' + str(e))
             return -1
 
     def stop_RestAPI_service(self):
@@ -147,7 +147,7 @@ class FTS:
             print('start 213')
             ssl_data_package_service, self.ssl_data_package_service = multiprocessing.Pipe(duplex=True)
             self.SSLDataPackageService = multiprocessing.Process(target=SSLFlaskFunctions().startup,
-                                                              args=(FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceIP, FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort, ssl_data_package_service))
+                                                                 args=(FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceIP, FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort, ssl_data_package_service))
             print('starting SSL now')
             self.SSLDataPackageService.start()
             self.pipeList['ssl_data_package_service'] = self.ssl_data_package_service
@@ -235,23 +235,23 @@ class FTS:
             self.FilterGroup.sources.remove(self.FederationClientServicePipeFTS)
             self.FilterGroup.receivers.remove(self.FederationClientServicePipeFTS)
             return 1
-        except:
+        except BaseException:
             return -1
-        
+
     def start_federation_server_service(self, FTSServiceStartupConfigObject):
-            try:
-                ip = FTSServiceStartupConfigObject.FederationServerService.FederationServerServiceIP
-                port = FTSServiceStartupConfigObject.FederationServerService.FederationServerServicePort
-                FederationServerServicePipe, self.FederationServerServicePipeFTS = multiprocessing.Pipe()
-                self.FederationServerService = multiprocessing.Process(
-                    target=FederationServerService().start, args=(FederationServerServicePipe, ip, port))
-                self.FederationServerService.start()
-                self.pipeList['FederationServerServiceFTSPipe'] = self.FederationServerServicePipeFTS
-                self.FilterGroup.sources.append(self.FederationServerServicePipeFTS)
-                self.FilterGroup.receivers.append(self.FederationServerServicePipeFTS)
-                return 1
-            except:
-                return -1
+        try:
+            ip = FTSServiceStartupConfigObject.FederationServerService.FederationServerServiceIP
+            port = FTSServiceStartupConfigObject.FederationServerService.FederationServerServicePort
+            FederationServerServicePipe, self.FederationServerServicePipeFTS = multiprocessing.Pipe()
+            self.FederationServerService = multiprocessing.Process(
+                target=FederationServerService().start, args=(FederationServerServicePipe, ip, port))
+            self.FederationServerService.start()
+            self.pipeList['FederationServerServiceFTSPipe'] = self.FederationServerServicePipeFTS
+            self.FilterGroup.sources.append(self.FederationServerServicePipeFTS)
+            self.FilterGroup.receivers.append(self.FederationServerServicePipeFTS)
+            return 1
+        except BaseException:
+            return -1
 
     def stop_federation_server_service(self):
         try:
@@ -264,10 +264,10 @@ class FTS:
             self.FilterGroup.sources.remove(self.FederationServerServicePipeFTS)
             self.FilterGroup.receivers.remove(self.FederationServerServicePipeFTS)
             return 1
-        except:
+        except BaseException:
             return -1
 
-    #change object name to FTSServiceStartupConfigObject
+    # change object name to FTSServiceStartupConfigObject
     def start_all(self, FTSServiceStartupConfigObject):
         import copy
         try:
@@ -278,7 +278,7 @@ class FTS:
                     self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort
                 if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP != "":
                     self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP
-                
+
             elif FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus == 'stop':
                 self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus
                 self.stop_tcp_data_package_service()
@@ -335,7 +335,7 @@ class FTS:
                     self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort
                 if FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceIP != "":
                     self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceIP = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceIP
-                    
+
             elif FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus == 'stop':
                 self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus
                 self.stop_SSL_CoT_service()
@@ -350,7 +350,6 @@ class FTS:
                     self.FTSServiceStartupConfigObject.FederationClientService.FederationClientServicePort = FTSServiceStartupConfigObject.FederationClientService.FederationClientServicePort
                 if FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceIP != "":
                     self.FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceIP = FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceIP
-
 
             elif FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceStatus == 'stop':
                 self.FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceStatus = FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceStatus
@@ -466,14 +465,14 @@ class FTS:
             simpleClient.ip = client[0]
             objects.append(simpleClient)
 
-        output.append('total sockets: '+str(self.socketCount))
+        output.append('total sockets: ' + str(self.socketCount))
         print(output)
         return objects
 
     def verify_output(self, input, example=None):
         try:
-            if example == None:
-                if input == None or input == -1:
+            if example is None:
+                if input is None or input == -1:
                     return False
                 else:
                     return True
@@ -509,7 +508,7 @@ class FTS:
             self.killSwitch = True
             return 1
         except Exception as e:
-            logger.error('error in kill function '+str(e))
+            logger.error('error in kill function ' + str(e))
 
     def checkPipes(self):
         try:
@@ -517,9 +516,9 @@ class FTS:
                 try:
                     data = AddDataToCoTList().recv(pipe)
                 except Exception as e:
-                    logger.error('get pipe data failed '+str(e))
+                    logger.error('get pipe data failed ' + str(e))
                     continue
-                #this runs in the event a new client has connected
+                # this runs in the event a new client has connected
                 try:
                     if isinstance(data, list):
                         AddDataToCoTList().send(self.FilterGroup.receivers, data[0])
@@ -529,18 +528,18 @@ class FTS:
                     elif data != 0 and data is not None:
                         try:
                             print('data received in FTS ' + str(data.xmlString))
-                        except:
+                        except BaseException:
                             pass
                         AddDataToCoTList().send(self.FilterGroup.receivers, data)
                     # this runs when a timeout is triggered
                     else:
                         pass
                 except Exception as e:
-                    logger.error('processing received connection data failed '+ str(e))
+                    logger.error('processing received connection data failed ' + str(e))
         except Exception as e:
             pass
 
-    def startup(self, CoTPort, CoTIP, DataPackagePort, DataPackageIP, SSLDataPackagePort, SSLDataPackageIP, RestAPIPort, RestAPIIP, SSLCoTPort, SSLCoTIP, AutoStart, firstStart = False, UI="False"):
+    def startup(self, CoTPort, CoTIP, DataPackagePort, DataPackageIP, SSLDataPackagePort, SSLDataPackageIP, RestAPIPort, RestAPIIP, SSLCoTPort, SSLCoTIP, AutoStart, firstStart=False, UI="False"):
         try:
             self.dbController.remove_user()
             self.FTSServiceStartupConfigObject.RestAPIService.RestAPIServiceStatus = 'start'
@@ -602,6 +601,7 @@ class FTS:
                     logger.error("error thrown receiving clients from SSL CoT pipe " + str(e))
         except Exception as e:
             logger.error('exception in the startup of FTS ' + str(e))
+
 
 if __name__ == "__main__":
     """import importlib

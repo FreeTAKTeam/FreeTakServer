@@ -4,6 +4,8 @@ from typing import NewType, List
 from lxml import etree
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 import time
+
+
 class XmlSerializer(SerializerAbstract):
 
     __exception_mapping_dict = {'_group': '__group', '_serverdestination': '__serverdestination', '__group': "_group", '__serverdestination': "_serverdestination", "chat": "__chat", "__chat": "chat"}
@@ -35,7 +37,7 @@ class XmlSerializer(SerializerAbstract):
                 getters = self._get_fts_object_var_getter(FTSObject, key)
                 getter = self._get_method_in_method_list(getters, element.tag)
                 tempvar = getter()
-                if tempvar != None:
+                if tempvar is not None:
                     element.attrib[key] = str(tempvar)
         y = etree.tostring(root)
         return root
@@ -74,7 +76,7 @@ class XmlSerializer(SerializerAbstract):
         variables = vars(FTSObject)
         # iterate variables and create attributes
         for key, value in variables.items():
-            if '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
+            if '_' + FTSObject.__class__.__name__.lower() + '__' in key.lower():
                 continue
             if issubclass(type(value), FTSProtocolObject):
                 try:

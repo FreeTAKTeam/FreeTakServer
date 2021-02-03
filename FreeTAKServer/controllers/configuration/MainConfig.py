@@ -1,6 +1,6 @@
+from pathlib import Path
 import os
 currentPath = os.path.dirname(os.path.abspath(__file__))
-from pathlib import Path
 
 
 class MainConfig:
@@ -68,7 +68,7 @@ class MainConfig:
 
     keyDir = str(Path(fr'{MainPath}/certs/pubserver.key'))
 
-    pemDir = str(Path(fr'{MainPath}/certs/pubserver.pem')) # or crt
+    pemDir = str(Path(fr'{MainPath}/certs/pubserver.pem'))  # or crt
 
     unencryptedKey = str(Path(fr'{MainPath}/certs/pubserver.key.unencrypted'))
 
@@ -80,7 +80,7 @@ class MainConfig:
     federationCert = str(Path(fr'{MainPath}/certs/pubserver.pem'))
     federationKey = str(Path(fr'{MainPath}/certs/pubserver.key'))
     federationKeyPassword = str('defaultpass')
-    
+
     # location to backup client packages
     clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
 

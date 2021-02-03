@@ -10,6 +10,7 @@ from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import Dat
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("FTS").getLogger()
 
+
 class SSLCoTServiceController(Orchestrator):
     def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         try:
@@ -21,7 +22,7 @@ class SSLCoTServiceController(Orchestrator):
             self.SSLSocketController.changeIP(IP)
             self.SSLSocketController.changePort(CoTPort)
             sock = self.SSLSocketController.createSocket()
-            #threadpool is used as it allows the transfer of SSL socket unlike processes
+            # threadpool is used as it allows the transfer of SSL socket unlike processes
             pool = ThreadPool(processes=2)
             self.pool = pool
             clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))

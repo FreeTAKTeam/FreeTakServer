@@ -10,7 +10,7 @@ from sqlalchemy import ForeignKey
 
 class ExCheck(Base):
     __tablename__ = 'ExCheck'
-    PrimaryKey = Column(Integer, primary_key = True, autoincrement=True)
+    PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
     creatorUid = Column(String)
     checklist = relationship("ExCheckChecklist", backref='template')

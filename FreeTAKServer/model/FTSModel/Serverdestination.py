@@ -10,6 +10,7 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 #######################################################
 from FreeTAKServer.model.FTSModelVariables.ServerdestinationVariables import ServerdestionationVariables as vars
 
+
 class _Serverdestination(FTSProtocolObject):
     def __init__(self):
         # string composed by IP:port: protocol:machineID. e.g. 192.168.0.103:4242:tcp:
@@ -18,7 +19,7 @@ class _Serverdestination(FTSProtocolObject):
         # destinations getter
 
     @staticmethod
-    def geochat(DESTINATIONS = vars.geochat().DESTINATIONS):
+    def geochat(DESTINATIONS=vars.geochat().DESTINATIONS):
         serverdestinations = _Serverdestination()
         serverdestinations.setdestinations(DESTINATIONS)
         return serverdestinations

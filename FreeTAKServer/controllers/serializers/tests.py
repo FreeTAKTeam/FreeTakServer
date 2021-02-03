@@ -10,6 +10,7 @@ from FreeTAKServer.controllers.RestMessageControllers.SendChatController import 
 #from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
 from lxml import etree
 
+
 class TestSerializers(unittest.TestCase):
 
     def test_json_serializer_with_geoobject_adapter(self):
@@ -19,14 +20,14 @@ class TestSerializers(unittest.TestCase):
         from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import GeoObjectAdapter
         basejson = {
-                        "attitude": "friendly",
+            "attitude": "friendly",
                         "how": "nonCoT",
                         "name": "testing",
                         "latitude": "37.5677889",
                         "longitude": "12.345678",
                         "geoObject": "Ground",
                         "timeout": "120"
-                    }
+        }
         jsonobj = JsonController().serialize_geoobject_post(basejson)
         simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
         xml_legacy = etree.fromstring(simpleCoTObject.xmlString)
@@ -48,9 +49,9 @@ class TestSerializers(unittest.TestCase):
         from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import ChatAdapter
         basejson = {
-                        "message": "testing",
-                        "sender": "apiuser"
-                    }
+            "message": "testing",
+            "sender": "apiuser"
+        }
         jsonobj = JsonController().serialize_chat_post(basejson)
         simpleCoTObject = SendChatController(jsonobj).getCoTObject()
         xml_legacy = etree.fromstring(simpleCoTObject.xmlString)
@@ -73,13 +74,13 @@ class TestSerializers(unittest.TestCase):
         from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import PresenceAdapter
         basejson = {
-                        "how": "nonCoT",
-                        "name": "testing",
-                        "latitude": "34.5677889",
+            "how": "nonCoT",
+            "name": "testing",
+            "latitude": "34.5677889",
                         "longitude": "12.345678",
                         "role": "Team Member",
                         "team": "Cyan"
-                    }
+        }
         jsonobj = JsonController().serialize_presence_post(basejson)
         simpleCoTObject = SendPresenceController(jsonobj).getCoTObject()
         xml_legacy = etree.fromstring(simpleCoTObject.xmlString)
@@ -102,9 +103,9 @@ class TestSerializers(unittest.TestCase):
         from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import EmergencyOnAdapter
         basejson = {
-                        "emergencyType": "911 Alert",
-                        "name": "test"
-                    }
+            "emergencyType": "911 Alert",
+            "name": "test"
+        }
         jsonobj = JsonController().serialize_emergency_post(basejson)
         EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()
         xml_legacy = etree.fromstring(EmergencyObject.xmlString)

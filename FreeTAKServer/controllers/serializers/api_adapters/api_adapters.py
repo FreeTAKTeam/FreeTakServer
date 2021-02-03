@@ -26,6 +26,7 @@ class AbstractApiAdapter(JsonSerializer):
         CoTObject.setXmlString(etree.tostring(XmlSerializer().from_fts_object_to_format(fts_object)))
         return CoTObject
 
+
 class GeoObjectAdapter(AbstractApiAdapter):
 
     def from_api_to_fts_object(self, api_json: dict) -> Types.specific_cot:
@@ -63,6 +64,7 @@ class GeoObjectAdapter(AbstractApiAdapter):
         api_json['stale'] = stale_part.strftime(DATETIME_FMT)
         return api_json
 
+
 class ChatAdapter(AbstractApiAdapter):
 
     def from_api_to_fts_object(self, api_json: dict) -> Types.specific_cot:
@@ -78,6 +80,7 @@ class ChatAdapter(AbstractApiAdapter):
         api_json['link'] = {"uid": api_json['source']}
         del(api_json['message'])
         return api_json
+
 
 class PresenceAdapter(AbstractApiAdapter):
 
@@ -114,6 +117,7 @@ class PresenceAdapter(AbstractApiAdapter):
         api_json['stale'] = stale_part.strftime(DATETIME_FMT)
         return api_json
 
+
 class EmergencyOnAdapter(AbstractApiAdapter):
 
     def from_api_to_fts_object(self, api_json: dict) -> Types.specific_cot:
@@ -136,6 +140,7 @@ class EmergencyOnAdapter(AbstractApiAdapter):
         del(api_json['emergencyType'])
         return api_json
 
+
 class EmergencyOffAdapter(AbstractApiAdapter):
 
     def from_api_to_fts_object(self, api_json: dict) -> Types.specific_cot:
@@ -143,4 +148,3 @@ class EmergencyOffAdapter(AbstractApiAdapter):
         serialized_json = self.serialize_initial_json(api_json)
         CoTObject = self._create_cot_object(serialized_json, Event.Presence(), SendPresence())
         return CoTObject
-

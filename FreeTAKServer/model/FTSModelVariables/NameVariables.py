@@ -8,4 +8,3 @@ class NameVariables:
     def Checklist(cls):
         cls.INTAG = None
         return cls
-

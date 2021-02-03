@@ -1,5 +1,6 @@
 from FreeTAKServer.model.RestMessages.Emergency import Emergency, RestEnumerations
 
+
 class EmergencyPost(Emergency):
     def __init__(self):
         pass
@@ -34,6 +35,7 @@ class EmergencyPost(Emergency):
             return '0'
         else:
             return self.longitude
+
 
 if __name__ == "__main__":
     x = EmergencyPost()

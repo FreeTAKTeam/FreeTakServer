@@ -4,6 +4,7 @@ from FreeTAKServer.model.RestMessages.PresencePost import PresencePost
 from FreeTAKServer.model.RestMessages.ChatPost import ChatPost
 from FreeTAKServer.model.RestMessages.GeoObjectPost import GeoObjectPost
 
+
 class JsonController:
     def __init__(self):
         pass
@@ -36,7 +37,7 @@ class JsonController:
             s = dir(object)
             if key in dir(object):
 
-                setter = getattr(object, 'set'+str(key))
+                setter = getattr(object, 'set' + str(key))
                 setter(json[key])
 
             else:

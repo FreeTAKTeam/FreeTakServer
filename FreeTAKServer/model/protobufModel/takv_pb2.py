@@ -11,80 +11,76 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-
-
 DESCRIPTOR = _descriptor.FileDescriptor(
-  name='takv.proto',
-  package='',
-  syntax='proto3',
-  serialized_options=None,
-  create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\ntakv.proto\"E\n\x04Takv\x12\x0e\n\x06\x64\x65vice\x18\x01 \x01(\t\x12\x10\n\x08platform\x18\x02 \x01(\t\x12\n\n\x02os\x18\x03 \x01(\t\x12\x0f\n\x07version\x18\x04 \x01(\tb\x06proto3'
+    name='takv.proto',
+    package='',
+    syntax='proto3',
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+    serialized_pb=b'\n\ntakv.proto\"E\n\x04Takv\x12\x0e\n\x06\x64\x65vice\x18\x01 \x01(\t\x12\x10\n\x08platform\x18\x02 \x01(\t\x12\n\n\x02os\x18\x03 \x01(\t\x12\x0f\n\x07version\x18\x04 \x01(\tb\x06proto3'
 )
 
 
-
-
 _TAKV = _descriptor.Descriptor(
-  name='Takv',
-  full_name='Takv',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='device', full_name='Takv.device', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='platform', full_name='Takv.platform', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='os', full_name='Takv.os', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='version', full_name='Takv.version', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=14,
-  serialized_end=83,
+    name='Takv',
+    full_name='Takv',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name='device', full_name='Takv.device', index=0,
+            number=1, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='platform', full_name='Takv.platform', index=1,
+            number=2, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='os', full_name='Takv.os', index=2,
+            number=3, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='version', full_name='Takv.version', index=3,
+            number=4, type=9, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"".decode('utf-8'),
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+    ],
+    extensions=[
+    ],
+    nested_types=[],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=14,
+    serialized_end=83,
 )
 
 DESCRIPTOR.message_types_by_name['Takv'] = _TAKV
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Takv = _reflection.GeneratedProtocolMessageType('Takv', (_message.Message,), {
-  'DESCRIPTOR' : _TAKV,
-  '__module__' : 'takv_pb2'
-  # @@protoc_insertion_point(class_scope:Takv)
-  })
+    'DESCRIPTOR': _TAKV,
+    '__module__': 'takv_pb2'
+    # @@protoc_insertion_point(class_scope:Takv)
+})
 _sym_db.RegisterMessage(Takv)
 
 

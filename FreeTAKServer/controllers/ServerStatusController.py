@@ -2,6 +2,7 @@ from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 import typing
 
+
 def modifyDefaultIP(func):
     def changeDefaultIP(instance, port, ip):
         import socket
@@ -14,6 +15,7 @@ def modifyDefaultIP(func):
         else:
             func(instance, port, ip)
     return changeDefaultIP
+
 
 class ServerStatusController:
 
@@ -115,7 +117,7 @@ class ServerStatusController:
                 return "on"
             else:
                 return "off"
-        except:
+        except BaseException:
             return "off"
 
     def SSLCoTStatusCheck(self, SSLCoTPort, IP):
@@ -156,7 +158,7 @@ class ServerStatusController:
                 return "on"
             else:
                 return "off"
-        except:
+        except BaseException:
             return "off"
 
 

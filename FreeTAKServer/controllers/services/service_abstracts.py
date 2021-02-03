@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import multiprocessing
 
+
 class ServiceInterface(ABC):
 
     @abstractmethod
@@ -11,8 +12,10 @@ class ServiceInterface(ABC):
     def stop(self):
         raise NotImplementedError
 
+
 class ServerServiceInterface(ServiceInterface):
     from FreeTAKServer.controllers.configuration.types import Types
+
     @abstractmethod
     def send_data_to_clients(self, data: Types.fts_object):
         raise NotImplementedError
@@ -20,6 +23,7 @@ class ServerServiceInterface(ServiceInterface):
     @abstractmethod
     def disconnect_client(self, client):
         raise NotImplementedError
+
 
 class ServiceBase(ServiceInterface):
 

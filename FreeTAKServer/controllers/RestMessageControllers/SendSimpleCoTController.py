@@ -10,6 +10,7 @@ from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVari
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendSimpleCoTController").getLogger()
 
+
 class SendSimpleCoTController:
     def __init__(self, json):
         tempObject = event.SimpleCoT()
@@ -40,7 +41,7 @@ class SendSimpleCoTController:
                 object.setstale(staletime=RestAPIVariables.defaultGeoObjectTimeout)
             return object
         except AttributeError as e:
-            raise Exception('a parameter has been passed which is not recognized with error: '+str(e))
+            raise Exception('a parameter has been passed which is not recognized with error: ' + str(e))
 
     def setCoTObject(self, CoTObject):
         self.CoTObject = CoTObject

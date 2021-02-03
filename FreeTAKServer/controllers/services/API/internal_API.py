@@ -16,6 +16,7 @@ socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
 socketio.init_app(app, cors_allowed_origins="*")
 dbController = DatabaseController()
 
+
 def startup(self, APIPipea, CommandPipea, IP, Port, starttime):
     global APIPipe, CommandPipe, StartTime
     StartTime = starttime
@@ -23,7 +24,8 @@ def startup(self, APIPipea, CommandPipea, IP, Port, starttime):
     CommandPipe = CommandPipea
     socketio.run(app, host=IP, port=Port)
 
-def socket_auth(session = None):
+
+def socket_auth(session=None):
     def innerfunc(x):
         def wrapper(*args, **kwargs):
             if hasattr(session, 'authenticated') and session.authenticated:
@@ -35,9 +37,10 @@ def socket_auth(session = None):
 
     return innerfunc
 
+
 @socketio.on('connect')
 def connection():
-    emit('connectUpdate', jsonify(starttime=str(StartTime), version= str(MainConfig.version)))
+    emit('connectUpdate', jsonify(starttime=str(StartTime), version=str(MainConfig.version)))
 
 
 @socketio.on('authenticate')
@@ -50,7 +53,7 @@ def authenticate(token):
 
 
 @socketio.on('users')
-@socket_auth(session = session)
+@socket_auth(session=session)
 def show_users(empty=None):
     output = dbController.query_user()
     for i in range(0, len(output)):
@@ -61,7 +64,7 @@ def show_users(empty=None):
             try:
                 output[i]['callsign'] = original.CoT.detail.contact.callsign
                 output[i]['team'] = original.CoT.detail._group.name
-            except:
+            except BaseException:
                 output[i]['callsign'] = "undefined"
                 output[i]['team'] = "undefined"
             del (output[i]['_sa_instance_state'])
@@ -71,8 +74,9 @@ def show_users(empty=None):
             print(e)
     socketio.emit('userUpdate', json.dumps({"Users": output}))
 
+
 @socketio.on('logs')
-@socket_auth(session = session)
+@socket_auth(session=session)
 def return_logs(time):
     from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
     import datetime
@@ -94,9 +98,9 @@ def return_logs(time):
 
 
 @socketio.on('serviceInfo')
-@socket_auth(session = session)
+@socket_auth(session=session)
 def show_service_info(empty=None):
-    mapping = {"start": "on", "stop": "off", "":""}
+    mapping = {"start": "on", "stop": "off", "": ""}
     FTSServerStatusObject = getStatus()
     tcpcot = FTSServerStatusObject.CoTService
     sslcot = FTSServerStatusObject.SSLCoTService
@@ -105,37 +109,40 @@ def show_service_info(empty=None):
     ssldp = FTSServerStatusObject.SSLDataPackageService
     fedserver = FTSServerStatusObject.FederationServerService
     jsonObject = {"services":
-                      {"TCP_CoT_service": {"status": mapping[tcpcot.CoTServiceStatus], "port": tcpcot.CoTServicePort},
-                       "SSL_CoT_service": {"status": mapping[sslcot.SSLCoTServiceStatus],
-                                           "port": sslcot.SSLCoTServicePort},
-                       "TCP_DataPackage_service": {"status": mapping[tcpdp.TCPDataPackageServiceStatus],
-                                                   "port": tcpdp.TCPDataPackageServicePort},
-                       "SSL_DataPackage_service": {"status": mapping[ssldp.SSLDataPackageServiceStatus],
-                                                   "port": ssldp.SSLDataPackageServicePort},
-                       "Federation_server_service": {"status": mapping[fedserver.FederationServerServiceStatus],
-                                                     "port": fedserver.FederationServerServicePort},
-                       "Rest_API_service": {"status": mapping[restapi.RestAPIServiceStatus],
-                                            "port": restapi.RestAPIServicePort}},
+                  {"TCP_CoT_service": {"status": mapping[tcpcot.CoTServiceStatus], "port": tcpcot.CoTServicePort},
+                   "SSL_CoT_service": {"status": mapping[sslcot.SSLCoTServiceStatus],
+                                       "port": sslcot.SSLCoTServicePort},
+                   "TCP_DataPackage_service": {"status": mapping[tcpdp.TCPDataPackageServiceStatus],
+                                               "port": tcpdp.TCPDataPackageServicePort},
+                   "SSL_DataPackage_service": {"status": mapping[ssldp.SSLDataPackageServiceStatus],
+                                               "port": ssldp.SSLDataPackageServicePort},
+                   "Federation_server_service": {"status": mapping[fedserver.FederationServerServiceStatus],
+                                                 "port": fedserver.FederationServerServicePort},
+                   "Rest_API_service": {"status": mapping[restapi.RestAPIServiceStatus],
+                                        "port": restapi.RestAPIServicePort}},
                   "ip": tcpdp.TCPDataPackageServiceIP
-                }
+                  }
     emit('serviceInfoUpdate', json.dumps(jsonObject))
+
 
 def getStatus():
     CommandPipe.send([functionNames.checkStatus])
     return CommandPipe.recv()
 
+
 @socketio.on("serverHealth")
-@socket_auth(session = session)
+@socket_auth(session=session)
 def serverHealth(empty=None):
     import psutil
     import pathlib
     import os
     jsondata = {
-                "CPU": int(psutil.cpu_percent(interval=0.1)),
-                "memory": int(psutil.virtual_memory().percent),
-                "disk": int(psutil.disk_usage(str(pathlib.Path(os.getcwd()).anchor)).percent)
-                }
+        "CPU": int(psutil.cpu_percent(interval=0.1)),
+        "memory": int(psutil.virtual_memory().percent),
+        "disk": int(psutil.disk_usage(str(pathlib.Path(os.getcwd()).anchor)).percent)
+    }
     emit('serverHealthUpdate', json.dumps(jsondata))
+
 
 @socketio.on('systemStatus')
 @socket_auth(session=session)
@@ -147,12 +154,14 @@ def systemStatus(update=None):
     jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
     emit('systemStatusUpdate', json.dumps(jsondata))
 
+
 @socketio.on('changeServiceInfo')
 # @socket_auth(session=session)
 def updateSystemStatus(update):
     # TODO: add documentation
     changeStatus(json.loads(update))
     show_service_info()
+
 
 @socketio.on('systemUsers')
 @socket_auth(session=session)
@@ -170,6 +179,7 @@ def systemUsers(empty=None):
         jsondata["SystemUsers"].append(userjson)
 
     emit('systemUsersUpdate', json.dumps(jsondata))
+
 
 @socketio.on('addSystemUser')
 @socket_auth(session=session)
@@ -204,7 +214,7 @@ def addSystemUser(jsondata):
                                             CreatorUid='server-uid', Size=fileSize, Privacy=1)
             DatabaseController().create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
                                                    token=systemuser["Token"], password=systemuser["Password"],
-                                                   uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"]+'.zip')
+                                                   uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"] + '.zip')
             import datetime as dt
             DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt.datetime
@@ -245,6 +255,7 @@ def removeSystemUser(jsondata):
         currentPath = MainConfig.DataPackageFilePath
         shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
         dbController.remove_datapackage(f'Hash == "{obj[0].Hash}"')
+
 
 @socketio.on("events")
 @socket_auth(session=session)

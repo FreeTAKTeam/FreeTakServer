@@ -3,4 +3,3 @@ class TimestampVariables:
     def ExcheckUpdate(cls):
         cls.INTAG = None
         return cls
-

@@ -5,7 +5,8 @@ from FreeTAKServer.controllers.DatabaseControllers.table_controllers import Tabl
 from FreeTAKServer.model.SQLAlchemy.ExCheckKeywords import ExCheckKeywords
 from sqlalchemy.sql import text
 unsuportedAttribs = ['_sa_instance_state']
-#TODO: move out all serializers into a serializers controller
+# TODO: move out all serializers into a serializers controller
+
 
 class ExCheckController(TableController):
 

@@ -2,6 +2,7 @@ from FreeTAKServer.controllers.DatabaseControllers.table_controllers import Tabl
 from FreeTAKServer.model.SQLAlchemy.Event import Event
 import importlib
 
+
 class EventTableController(TableController):
     def __init__(self):
         self.table = Event
@@ -12,9 +13,9 @@ class EventTableController(TableController):
         session.commit()
         return row
 
-    def convert_model_to_row(self, modelObject, rowObject = None, parentRowObject = None):
+    def convert_model_to_row(self, modelObject, rowObject=None, parentRowObject=None):
         # TODO: find a more elegant way of doing this
-        if rowObject == None:
+        if rowObject is None:
             rowObject = Event()
         else:
             pass
@@ -23,7 +24,7 @@ class EventTableController(TableController):
                 if attribName[0].isalpha():
                     attribName = attribName.capitalize()
                 else:
-                    attribName = '_'+attribName[1:].capitalize()
+                    attribName = '_' + attribName[1:].capitalize()
                 subRowObjectImport = importlib.import_module(
                     f'FreeTAKServer.model.SQLAlchemy.CoTTables.{attribName}')
 
@@ -45,6 +46,6 @@ class EventTableController(TableController):
 
             else:
                 setattr(rowObject, attribName, attribValue)
-        if parentRowObject != None:
+        if parentRowObject is not None:
             setattr(rowObject, parentRowObject.__class__.__name__, parentRowObject)
         return rowObject

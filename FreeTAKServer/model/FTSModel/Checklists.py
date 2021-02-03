@@ -1,10 +1,12 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModel.Checklist import Checklist
 
+
 class Checklists(FTSProtocolObject):
     def __init__(self):
         self.checklist = []
         self.__index = 0
+
     @staticmethod
     def Checklist():
         checklists = Checklists()

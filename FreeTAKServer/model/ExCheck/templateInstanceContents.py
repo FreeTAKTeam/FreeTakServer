@@ -1,15 +1,17 @@
 from FreeTAKServer.model.ExCheck.templateInstanceContentsData import templateInstanceContentsData
 import datetime as dt
 
+
 class templateInstanceContents:
     def __init__(self):
         self.data = templateInstanceContentsData()
         self.timestamp = ""
         self.creatorUid = ""
         self.settimestamp()
-    def settimestamp(self, timestamp = None):
+
+    def settimestamp(self, timestamp=None):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-        if timestamp == None:
+        if timestamp is None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)

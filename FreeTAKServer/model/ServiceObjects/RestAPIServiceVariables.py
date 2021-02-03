@@ -1,5 +1,6 @@
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+
 class RestAPIServiceVariables:
     def __init__(self):
         self.RestAPIServiceIP = MainConfig.APIIP

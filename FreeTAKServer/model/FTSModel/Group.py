@@ -1,6 +1,7 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModel.Contact import Contact
 
+
 class Group(FTSProtocolObject):
     def __init__(self, xml):
         self.uid = None
@@ -9,16 +10,16 @@ class Group(FTSProtocolObject):
         self.setname(xml.get('name'))
         try:
             self.contact = Contact()
-        except:
+        except BaseException:
             pass
         try:
             self.Group = Group(xml.find('group'))
-        except:
+        except BaseException:
             pass
 
     def setuid(self, uid=None):
         self.uid = uid
-        
+
     def getuid(self):
         return self.uid
 

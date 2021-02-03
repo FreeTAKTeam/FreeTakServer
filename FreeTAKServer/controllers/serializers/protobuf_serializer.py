@@ -40,7 +40,7 @@ class ProtobufSerializer(SerializerAbstract):
                             datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(attribute) / 1000.0)),
                                                        "%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%dT%H:%M:%S.%fZ"))
                         continue
-                    except:
+                    except BaseException:
                         setter(datetime.datetime.strftime(
                             datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(attribute) / 1000.0)),
                                                        "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT%H:%M:%S.%fZ"))
@@ -103,6 +103,7 @@ class ProtobufSerializer(SerializerAbstract):
             return obj
         except Exception as e:
             raise e
+
     def _get_method_in_method_list(self, method_list: List[callable], expected_class_name: str) -> callable:
         if len(method_list) == 1:
             return method_list[0]

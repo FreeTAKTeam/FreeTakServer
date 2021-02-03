@@ -5,9 +5,11 @@ from FreeTAKServer.model.FTSModel.MissionName import MissionName
 from FreeTAKServer.model.FTSModel.Timestamp import Timestamp
 from FreeTAKServer.model.FTSModel.Type import Type
 
+
 class MissionChange(FTSProtocolObject):
     def __init__(self):
         pass
+
     @staticmethod
     def ExcheckUpdate():
         missionchange = MissionChange()
@@ -17,4 +19,3 @@ class MissionChange(FTSProtocolObject):
         missionchange.timestamp = Timestamp.ExcheckUpdate()
         missionchange.type = Type.ExcheckUpdate()
         return missionchange
-

@@ -1,25 +1,27 @@
 # !/usr/bin/python
-import subprocess
-try:
-    from OpenSSL import crypto
-except ImportError:
-    subprocess.run(["pip3", "install", "pyopenssl"], capture_output=True)
-from OpenSSL import crypto
 import os
-import getopt
 import sys
+import getopt
 import random
-from shutil import copyfile
 import uuid
-from jinja2 import Template
 import socket
 import zipfile
 import shutil
 import pathlib
+
+from shutil import copyfile
+from jinja2 import Template
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+try:
+    from OpenSSL import crypto
+except ImportError:
+    print("Failed to load OpenSSL. (hint: install pyopenssl, `python -m pip install pyopenssl`)")
+    sys.exit(2)
+
+
 def generate_zip(server_address: str = None, server_filename: str = "pubserver.p12",
-                     user_filename: str = "user.p12", cert_password: str = MainConfig.password) -> None:
+                 user_filename: str = "user.p12", cert_password: str = MainConfig.password) -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
     working directory.
@@ -56,7 +58,7 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
        <Contents>
           <Content ignore="false" zipEntry="{{ folder }}/fts.pref"/>
           <Content ignore="false" zipEntry="{{ folder }}/{{ server_filename }}"/>
-          <Content ignore="false" zipEntry="{{ folder }}/{{ user_filename }}"/>	  
+          <Content ignore="false" zipEntry="{{ folder }}/{{ user_filename }}"/>
        </Contents>
     </MissionPackageManifest>
     """)
@@ -303,6 +305,7 @@ class AtakOfTheCerts:
         if copy is True:
             self.copy_server_certs()
         generate_zip(server_address=ip)
+
 
 if __name__ == '__main__':
     """if True:

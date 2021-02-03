@@ -4,6 +4,6 @@ class SummaryVariables:
 
     @classmethod
     def drop_point(cls):
-        #appears to be present on points shared over gottena
+        # appears to be present on points shared over gottena
         cls.INTAG = None
         return cls

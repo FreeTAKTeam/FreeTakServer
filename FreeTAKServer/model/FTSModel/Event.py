@@ -5,6 +5,7 @@ from .Point import Point
 from FreeTAKServer.model.FTSModelVariables.EventVariables import EventVariables as vars
 import uuid
 
+
 class Event(FTSProtocolObject):
     # TODO: fix emergency methods
     # Event.py
@@ -17,13 +18,12 @@ class Event(FTSProtocolObject):
     #
 
     # event as an XML
-    #<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o"> 
-        
-        #default constructor
+    # <?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="Linux-ABC.server-ping" type="b-t-f" time="2020-02-14T20:32:31.444Z" start="2020-02-14T20:32:31.444Z" stale="2020-02-15T20:32:31.444Z" how="h-g-i-g-o">
+
+    # default constructor
 
     def __init__(self):
-        
-        
+
         self.version = None
         self.uid = None
         self.type = None
@@ -37,40 +37,38 @@ class Event(FTSProtocolObject):
             'default': self.defaultFunc,
 
             'timeout': self.timeoutFunc
-            
-            }
 
+        }
 
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
-        
+
         # starting time when an event should be considered valid
         start = "%Y-%m-%dT%H:%M:%SZ"
         # basic event
         # Gives a hint about how the coordinates were generated
-        
 
         # Schema version of this event instance (e.g.  2.0)
-            
+
         # time stamp: when the event was generated
-        time = "%Y-%m-%dT%H:%M:%SZ" 
-        
+        time = "%Y-%m-%dT%H:%M:%SZ"
+
         # Hierarchically organized hint about event type (defaultis is 'a-f-G-I'
         # for infrastructure)
-        
-            # ending time when an event should no longer be considered valid
-        stale = "%Y-%m-%dT%H:%M:%SZ" 
-        
-            # Globally unique name for this information on this event can have
-            # additional information attached.
+
+        # ending time when an event should no longer be considered valid
+        stale = "%Y-%m-%dT%H:%M:%SZ"
+
+        # Globally unique name for this information on this event can have
+        # additional information attached.
         # e.g.  -ping means that this request is a ping
-        
+
         # flag to determine if this event is a Ping, in this case append to the UID
-        
+
     @staticmethod
     def Connection(version=vars.connection().VERSIONNUM, uid=vars.connection().UID, type=vars.connection().TYPE,
-                  how=vars.connection().HOW, time=vars.connection().TIME, start=vars.connection().START,
-                  stale=vars.connection().STALE):
+                   how=vars.connection().HOW, time=vars.connection().TIME, start=vars.connection().START,
+                   stale=vars.connection().STALE):
         event = Event()
         event.setdetail(Detail.Connection())
         event.setpoint(Point())
@@ -130,13 +128,13 @@ class Event(FTSProtocolObject):
         event.setstart(start)
         event.setstale(stale)
         return event
-               
+
     @staticmethod
     # this is the only constructor which doesn't instantiate detail as detail is a required protobuf
     # attribute and will therefore be in the message regardless
     def FederatedCoT(version=vars.FederatedCoT().VERSIONNUM, uid=vars.FederatedCoT().UID, type=vars.FederatedCoT().TYPE,
-              how=vars.FederatedCoT().HOW, time=vars.FederatedCoT().TIME, start=vars.FederatedCoT().START,
-              stale=vars.FederatedCoT().STALE):
+                     how=vars.FederatedCoT().HOW, time=vars.FederatedCoT().TIME, start=vars.FederatedCoT().START,
+                     stale=vars.FederatedCoT().STALE):
         event = Event()
         event.setpoint(Point())
         event.setdetail(Detail.FederatedCoT())
@@ -262,8 +260,8 @@ class Event(FTSProtocolObject):
 
     @staticmethod
     def Presence(VERSION=vars.Presence().version, UID=vars.Presence().uid, TYPE=vars.Presence().type,
-                  TIME=vars.Presence().time, START=vars.Presence().start, STALE=vars.Presence().stale,
-                  HOW=vars.Presence().how):
+                 TIME=vars.Presence().time, START=vars.Presence().start, STALE=vars.Presence().stale,
+                 HOW=vars.Presence().how):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -278,9 +276,9 @@ class Event(FTSProtocolObject):
 
     @staticmethod
     def ExcheckUpdate(VERSION=vars.ExcheckUpdate().version, UID=vars.ExcheckUpdate().uid,
-                              TYPE=vars.ExcheckUpdate().type, TIME=vars.ExcheckUpdate().time,
-                              START=vars.ExcheckUpdate().start, STALE=vars.ExcheckUpdate().stale,
-                              HOW=vars.ExcheckUpdate().how):
+                      TYPE=vars.ExcheckUpdate().type, TIME=vars.ExcheckUpdate().time,
+                      START=vars.ExcheckUpdate().start, STALE=vars.ExcheckUpdate().stale,
+                      HOW=vars.ExcheckUpdate().how):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
@@ -293,13 +291,13 @@ class Event(FTSProtocolObject):
         event.detail = Detail.ExcheckUpdate()
         return event
 
-    def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
+    def defaultFunc(self, DATETIME_FMT, version, uid, type, how, isGeochat, isPing):
         self.how = how
 
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 2)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes=2)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
         self.setstart(zulu)
@@ -314,7 +312,7 @@ class Event(FTSProtocolObject):
         timer = dt.datetime
         now = timer.utcnow()
         zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 2)
+        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes=2)
         stale_part = stale_part.strftime(DATETIME_FMT)
         self.setstale(str(stale_part))
         self.setstart(zulu)
@@ -322,15 +320,15 @@ class Event(FTSProtocolObject):
         self.type = type
         self.setuid(isGeochat=isGeochat, isPing=isPing)
         self.version = version
-        #start getter
+        # start getter
 
-    def getstart(self): 
-        return self.start 
-    
+    def getstart(self):
+        return self.start
+
         # start setter
     def setstart(self, start=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-        if start == None:
+        if start is None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
@@ -338,58 +336,56 @@ class Event(FTSProtocolObject):
         else:
             self.start = start
 
-    
         # how getter
-    def gethow(self): 
-        return self.how 
-    
-        
+    def gethow(self):
+        return self.how
+
     # how setter
-    def sethow(self, how=0):  
-        self.how = how 
+    def sethow(self, how=0):
+        self.how = how
 
         # uid getter
-    def getuid(self): 
-        return self.uid 
-    
+    def getuid(self):
+        return self.uid
+
         # uid setter
     def setuid(self, uid):
-        if uid == None:
+        if uid is None:
             self.uid = str(uuid.uuid1())
 
         else:
             self.uid = uid
 
             # version getter
-    def getversion(self): 
-        return self.version 
-    
-        # version setter
-    def setversion(self, version):  
-        self.version = version 
+    def getversion(self):
+        return self.version
 
-            # time getter
-    def gettime(self): 
-        return self.time 
-    
+        # version setter
+    def setversion(self, version):
+        self.version = version
+
+        # time getter
+    def gettime(self):
+        return self.time
+
         # time setter
     def settime(self, time=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-        if time == None:
+        if time is None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
             self.time = zulu
         else:
             self.time = time
-        
+
         # stale getter
-    def getstale(self): 
-        return self.stale 
-    
+    def getstale(self):
+        return self.stale
+
         # stale setter
-    def setstale(self, stale = None,staletime=60):
-        if stale == None:
+    def setstale(self, stale=None, staletime=60):
+        if stale is None:
             DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt.datetime
             now = timer.utcnow()
@@ -401,11 +397,11 @@ class Event(FTSProtocolObject):
             self.stale = stale
 
             # type getter
-    def gettype(self): 
-        return self.type 
-    
+    def gettype(self):
+        return self.type
+
         # type setter
-    def settype(self, type=0):  
+    def settype(self, type=0):
         self.type = type
 
     def getpoint(self):
@@ -423,6 +419,7 @@ class Event(FTSProtocolObject):
 
     def setdetail(self, detail=None):
         self.detail = detail
+
+
 if __name__ == "__main__":
     Event()
-

@@ -18,7 +18,8 @@ json_content.json_content()
 connectionIP = MainConfig.CLIIP
 connectionPort = int(RestAPIService().RestAPIServicePort)
 
-#TODO: standardize and abstract this
+
+# TODO: standardize and abstract this
 class RestCLIClient:
 
     def __init__(self):
@@ -30,6 +31,7 @@ class RestCLIClient:
             return True
         else:
             return False
+
     def change_connection_info(self):
         global connectionIP, connectionPort
         ip = str(input('please enter desired IP for connection[' + str(connectionIP) + ']') or connectionIP)
@@ -38,6 +40,7 @@ class RestCLIClient:
         connectionPort = port
         print('connection information changed')
         return 1
+
     def start_CoT_service(self):
         try:
             self.CoTIP = str(
@@ -45,13 +48,13 @@ class RestCLIClient:
             self.CoTPort = input('enter CoT_service Port[' + str(FTS().CoTService.CoTServicePort) + ']: ') or int(
                 FTS().CoTService.CoTServicePort)
             self.CoTPort = int(self.CoTPort)
-            #send start COT
+            # send start COT
             json_content.setdefaultCoTPort(self.CoTPort)
             json_content.setdefaultCoTIP(self.CoTIP)
             json_content.setdefaultCoTStatus('start')
             body = json.dumps(json_content.getJsonStatusStartAll())
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
-            conn.request("POST", "/changeStatus",  body, {"Content-type": "application/json", "Accept": "text/plain"})
+            conn.request("POST", "/changeStatus", body, {"Content-type": "application/json", "Accept": "text/plain"})
             response = conn.getresponse()
             if self.check_response(response):
                 print('CoT service started')
@@ -126,9 +129,9 @@ class RestCLIClient:
             self.APIPort = int(self.APIPort)
             self.APIIP = str(input('enter DataPackage_Service IP[' + str(
                 DataPackageServerConstants().IP) + ']: ')) or DataPackageServerConstants().IP
-            #send start request
+            # send start request
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
-            body = json.dumps({"TCPDataPackageService":{"IP": str(self.APIIP), "PORT": int(self.APIPort)}})
+            body = json.dumps({"TCPDataPackageService": {"IP": str(self.APIIP), "PORT": int(self.APIPort)}})
             conn.request("POST", "/TCPDataPackageService", body, {"Content-type": "application/json", "Accept": "text/plain"})
             response = conn.getresponse()
             if self.check_response(response):
@@ -159,7 +162,6 @@ class RestCLIClient:
             json_content = vars()
             json_content.default_values()
             json_content.json_content()
-
 
             json_content.setdefaultFederationClientIP(input('enter FederationClientService IP[' + str(
                 FTS().FederationClientService.FederationClientServiceIP) + ']: ') or FTS().FederationClientService.FederationClientServiceIP)
@@ -201,12 +203,12 @@ class RestCLIClient:
             return 1
         except Exception as e:
             return -1
+
     def start_federation_server_service(self):
         try:
             json_content = vars()
             json_content.default_values()
             json_content.json_content()
-
 
             json_content.setdefaultFederationServerIP(input('enter FederationServerService IP[' + str(
                 FTS().FederationServerService.FederationServerServiceIP) + ']: ') or FTS().FederationServerService.FederationServerServiceIP)
@@ -270,7 +272,7 @@ class RestCLIClient:
         except Exception as e:
             logger.error('there has been an exception in RestCLIClient start_all ' + str(e))
             return -1
-    
+
     def stop_all(self):
         try:
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
@@ -300,7 +302,7 @@ class RestCLIClient:
             token = uuid.uuid4()
         else:
             pass
-        conn.request("POST", "/APIUser", body = json.dumps({'username': username, "token": token}), headers={"Content-type": "application/json", "Accept": "text/plain"})
+        conn.request("POST", "/APIUser", body=json.dumps({'username': username, "token": token}), headers={"Content-type": "application/json", "Accept": "text/plain"})
         response = conn.getresponse()
         print('user created\n'
               'username: ' + username + '\n'
@@ -311,7 +313,7 @@ class RestCLIClient:
         try:
             conn = http.client.HTTPConnection(connectionIP, connectionPort)
             username = input('please enter username of user to be deleted: ')
-            conn.request("DELETE", "/APIUser", body = json.dumps({'username': username}), headers={"Content-type": "application/json", "Accept": "text/plain"})
+            conn.request("DELETE", "/APIUser", body=json.dumps({'username': username}), headers={"Content-type": "application/json", "Accept": "text/plain"})
             response = conn.getresponse()
             print('user ' + username + ' has been deleted')
             return response
@@ -329,7 +331,7 @@ class RestCLIClient:
             for dict in api_users['json_list']:
                 values = list(dict.values())
                 DPArray.append(values)
-            table = tabulate.tabulate(DPArray, headers = ["Token", "Username"], tablefmt='psql')
+            table = tabulate.tabulate(DPArray, headers=["Token", "Username"], tablefmt='psql')
             print(table)
             return 1
 
@@ -347,7 +349,7 @@ class RestCLIClient:
             for dict in DataPackages['json_list']:
                 values = list(dict.values())
                 DPArray.append(values)
-            table = tabulate.tabulate(DPArray, headers = ["Keywords", "Name", "Index", "Privacy", "Size", "SubmissionDataTime", "SubmissionUser"], tablefmt='psql')
+            table = tabulate.tabulate(DPArray, headers=["Keywords", "Name", "Index", "Privacy", "Size", "SubmissionDataTime", "SubmissionUser"], tablefmt='psql')
             print(table)
             return 1
 
@@ -360,7 +362,6 @@ class RestCLIClient:
         conn = http.client.HTTPConnection(connectionIP, connectionPort)
         conn.request("DELETE", f"/DataPackageTable?Hash={hash}")
         response = conn.getresponse()
-        DataPackages = json.loads(response.read().decode("utf-8"))
         if self.check_response(response):
             print('DP removed succesfully')
         else:
@@ -445,8 +446,8 @@ class RestCLIClient:
 
     def verify_output(self, input, example=None):
         try:
-            if example == None:
-                if input == None or input == -1:
+            if example is None:
+                if input is None or input == -1:
                     return False
                 else:
                     return True
@@ -465,19 +466,18 @@ class RestCLIClient:
             self.killSwitch = True
             return 1
         except Exception as e:
-            logger.error('error in kill function '+str(e))
+            logger.error('error in kill function ' + str(e))
 
     def empty(self):
         return 1
 
     def receive_input(self):
-        conn = http.client.HTTPConnection(connectionIP, connectionPort)
-        while self.killSwitch == False:
+        while self.killSwitch is False:
             try:
                 self.UserCommand = str(input('FTS$ ')) or 'empty'
                 try:
                     function = getattr(self, self.UserCommand)
-                except:
+                except Exception as e:
                     logger.error('this is not a valid command')
                 functionOutput = function()
                 if self.verify_output(functionOutput):

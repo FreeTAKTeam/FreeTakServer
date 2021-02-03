@@ -1,17 +1,19 @@
+from queue import Queue
+import socket
+import ssl
 from FreeTAKServer.controllers.services.FederationServiceAbstract import FederationServiceAbstract
 from FreeTAKServer.controllers.services.FederationServiceController import FederationServiceController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("FederationClient").getLogger()
-import ssl
-import socket
-from queue import Queue
+
 
 class FederationClientServiceController(FederationServiceAbstract):
     """this controller is instantiated upon the startup of FTS and is used to
     establish and control federations. this is NOT always running and has no while loops
     """
+
     def __init__(self, pipe):
         super().__init__(pipe)
         self.dataQueue = Queue()
@@ -67,6 +69,7 @@ class FederationClientServiceController(FederationServiceAbstract):
             logger.error('there has been an exception throw in the sending '
                          'of data to a server this instance is federated to ' + str(e))
             raise e
+
     def recv(self):
         try:
             """
@@ -79,6 +82,7 @@ class FederationClientServiceController(FederationServiceAbstract):
             logger.error('there has been an exception thrown in the reception '
                          'of data to a server this instance is federated to ' + str(e))
             raise e
+
     def poll(self):
         try:
             """
@@ -130,9 +134,9 @@ if __name__ == "__main__":
     temp.protocol = None
     temp.xmlString = b'<event version="2.0" uid="123e915c-7b9a-44ed-91e7-5165e384b213" type="a-h-G" time="2020-09-02T00:15:50.504Z" start="2020-09-02T00:15:50.504Z" stale="2020-09-02T00:20:50.504Z" how="h-g-i-g-o"><point lat="28.31507" lon="-81.34564" hae="-5.185734847652469" ce="6.0" le="9999999.0"/><detail><contact callsign="2340 Cordova Ct, Kissimmee, FL 34743, USA"/><status readiness="true"/><archive/><link uid="ANDROID-863134036519299" production_time="2020-07-19T18:32:31.535Z" type="a-f-G-E-V-C" parent_callsign="WP4JMV" relation="p-p"/><remarks/><archive/><ce_human_input>true</ce_human_input><color argb="-1"/><_flow-tags_ TAK-Server-c0a2d13e="2020-09-01T12:32:01Z"/></detail></event>'
     a, b = multiprocessing.Pipe()
-    #multiprocessing.Process(target=).start()
+    # multiprocessing.Process(target=).start()
     FtsObject = SendOtherController(temp).getObject()
-    #b.send(FtsObject)
+    # b.send(FtsObject)
     FederationClientServiceController(a, '192.168.2.105', 9000).start()
     time.sleep(1000)
     x = 1

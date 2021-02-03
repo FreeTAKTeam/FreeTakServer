@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from typing import NewType, List
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
+
+
 class SerializerAbstract(ABC):
     """ logic for interacting with FTSObjects and methods which should be available in all serializers"""
 
@@ -32,10 +34,10 @@ class SerializerAbstract(ABC):
             setterlist = []
         variables = vars(FTSObject)
         for key, value in variables.items():
-            if '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
+            if '_' + FTSObject.__class__.__name__.lower() + '__' in key.lower():
                 continue
             elif issubclass(type(value), FTSProtocolObject):
-                getter = getattr(FTSObject, "get"+key)
+                getter = getattr(FTSObject, "get" + key)
                 setterlist.extend(self._get_fts_object_var_setter(getter(), variable_name))
             elif isinstance(value, list):
                 getter = getattr(FTSObject, "get" + key)
@@ -47,7 +49,7 @@ class SerializerAbstract(ABC):
 
         return setterlist
 
-    def _get_fts_object_var_getter(self, FTSObject: __ftsObjectType, variable_name: str, getterlist = None) -> list:
+    def _get_fts_object_var_getter(self, FTSObject: __ftsObjectType, variable_name: str, getterlist=None) -> list:
         """ return variable getter from object
 
             recursively search the provided FTSObject instance for
@@ -60,12 +62,12 @@ class SerializerAbstract(ABC):
 
         variables = vars(FTSObject)
         for key, value in variables.items():
-            if '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
+            if '_' + FTSObject.__class__.__name__.lower() + '__' in key.lower():
                 continue
             elif issubclass(type(value), FTSProtocolObject):
                 getterlist.extend(self._get_fts_object_var_getter(value, variable_name))
             elif isinstance(value, list):
-                getter = getattr(FTSObject, 'get'+key)
+                getter = getattr(FTSObject, 'get' + key)
                 getterlist.extend(self._get_fts_object_var_getter(getter(), variable_name))
             elif variable_name == key:
                 getterlist.append(getattr(FTSObject, 'get' + variable_name))

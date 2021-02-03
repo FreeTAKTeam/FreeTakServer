@@ -1,13 +1,17 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModel.Dest import Dest as DestObject
 
-#TODO: modify to call dest with static method
+# TODO: modify to call dest with static method
+
+
 class counter:
     count = 0
     getter_called = False
 
+
 class Marti(FTSProtocolObject):
     __counter = counter()
+
     def __init__(self):
         # self.__dest = [DestObject(self.__counter)]
         # self.__tempdest = self.__dest
@@ -46,11 +50,11 @@ class Marti(FTSProtocolObject):
             if returnvalue._gettercalled() == False and returnvalue._settercalled() == False and self.__index == 0:
                 # only when no changes have been made
                 return returnvalue
-            elif returnvalue._gettercalled() == True and returnvalue._settercalled() == False and self.__index != 0:
+            elif returnvalue._gettercalled() and returnvalue._settercalled() == False and self.__index != 0:
                 returnvalue = self.dest[self.__index]
                 self.__index += 1
                 return returnvalue
-            elif returnvalue._gettercalled() == True and returnvalue._settercalled() == True:
+            elif returnvalue._gettercalled() and returnvalue._settercalled():
                 self.__index += 1
                 returnvalue = self.dest[self.__index]
                 return returnvalue
@@ -59,9 +63,9 @@ class Marti(FTSProtocolObject):
                 self.setdest()
                 returnvalue = self.dest[self.__index]
                 return returnvalue
-            elif not returnvalue._settercalled() and not returnvalue._gettercalled() and returnvalue.callsign == None and self.__index == 0:
+            elif not returnvalue._settercalled() and not returnvalue._gettercalled() and returnvalue.callsign is None and self.__index == 0:
                 return returnvalue
-            elif not returnvalue._settercalled() and not returnvalue._gettercalled() and returnvalue.callsign == None:
+            elif not returnvalue._settercalled() and not returnvalue._gettercalled() and returnvalue.callsign is None:
                 self.__index = 0
                 self.__firstrun = False
                 returnvalue = self.dest[self.__index]
@@ -77,9 +81,10 @@ class Marti(FTSProtocolObject):
                     self.__index = 0
                     return self.dest[self.__index]
             except IndexError:
-                self.__index= 0
+                self.__index = 0
                 return self.dest[self.__index]
-    def setdest(self, Dest = None):
+
+    def setdest(self, Dest=None):
         if not Dest:
             Dest = DestObject(self.__index)
         self.dest.append(Dest)

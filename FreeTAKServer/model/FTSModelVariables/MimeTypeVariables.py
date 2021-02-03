@@ -3,4 +3,3 @@ class MimeTypeVariables:
     def ExcheckUpdate(cls):
         cls.INTAG = "application/xml"
         return cls
-

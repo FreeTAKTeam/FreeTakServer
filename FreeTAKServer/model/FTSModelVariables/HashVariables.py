@@ -3,4 +3,3 @@ class HashVariables:
     def ExcheckUpdate(cls):
         cls.INTAG = None
         return cls
-

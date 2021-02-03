@@ -1,9 +1,10 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.DescriptionVariables import DescriptionVariables as vars
 
+
 class Description(FTSProtocolObject):
     @staticmethod
-    def Checklist(INTAG = vars.Checklist().INTAG):
+    def Checklist(INTAG=vars.Checklist().INTAG):
         description = Description()
         description.setINTAG(INTAG)
         return description

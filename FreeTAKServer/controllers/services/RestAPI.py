@@ -81,7 +81,8 @@ def verify_token(token):
 def load_user(user_id):
     return User.get(user_id)
 
-def socket_auth(session = None):
+
+def socket_auth(session=None):
     def innerfunc(x):
         def wrapper(*args, **kwargs):
             if hasattr(session, 'authenticated') and session.authenticated:
@@ -114,7 +115,7 @@ def authenticate(token):
 
 
 @socketio.on('users')
-@socket_auth(session = session)
+@socket_auth(session=session)
 def show_users(empty=None):
     output = dbController.query_user()
     for i in range(0, len(output)):
@@ -125,7 +126,7 @@ def show_users(empty=None):
             try:
                 output[i]['callsign'] = original.CoT.detail.contact.callsign
                 output[i]['team'] = original.CoT.detail._group.name
-            except:
+            except BaseException:
                 output[i]['callsign'] = "undefined"
                 output[i]['team'] = "undefined"
             del (output[i]['_sa_instance_state'])
@@ -135,8 +136,9 @@ def show_users(empty=None):
             print(e)
     socketio.emit('userUpdate', json.dumps({"Users": output}))
 
+
 @socketio.on('logs')
-@socket_auth(session = session)
+@socket_auth(session=session)
 def return_logs(time):
     from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
     import datetime
@@ -155,11 +157,11 @@ def return_logs(time):
                 log_data['log_data'].append(outline)
             else:
                 break
-        except:
+        except BaseException:
             pass
     for num in range(1, 6):
         try:
-            for line in reversed(open(LoggingConstants().ERRORLOG+'.'+str(num), "r").readlines()):
+            for line in reversed(open(LoggingConstants().ERRORLOG + '.' + str(num), "r").readlines()):
                 try:
                     timeoflog = line.split(" : ")[1]
                     if datetime.datetime.strptime(timeoflog, '%Y-%m-%d %H:%M:%S,%f') > datetime.datetime.strptime(
@@ -173,17 +175,17 @@ def return_logs(time):
                         log_data['log_data'].append(outline)
                     else:
                         break
-                except:
+                except BaseException:
                     pass
-        except:
+        except BaseException:
             pass
     emit("logUpdate", json.dumps(log_data))
 
 
 @socketio.on('serviceInfo')
-@socket_auth(session = session)
+@socket_auth(session=session)
 def show_service_info(empty=None):
-    mapping = {"start": "on", "stop": "off", "":""}
+    mapping = {"start": "on", "stop": "off", "": ""}
     FTSServerStatusObject = getStatus()
     tcpcot = FTSServerStatusObject.CoTService
     sslcot = FTSServerStatusObject.SSLCoTService
@@ -192,20 +194,21 @@ def show_service_info(empty=None):
     ssldp = FTSServerStatusObject.SSLDataPackageService
     fedserver = FTSServerStatusObject.FederationServerService
     jsonObject = {"services":
-                      {"TCP_CoT_service": {"status": mapping[tcpcot.CoTServiceStatus], "port": tcpcot.CoTServicePort},
-                       "SSL_CoT_service": {"status": mapping[sslcot.SSLCoTServiceStatus],
-                                           "port": sslcot.SSLCoTServicePort},
-                       "TCP_DataPackage_service": {"status": mapping[tcpdp.TCPDataPackageServiceStatus],
-                                                   "port": tcpdp.TCPDataPackageServicePort},
-                       "SSL_DataPackage_service": {"status": mapping[ssldp.SSLDataPackageServiceStatus],
-                                                   "port": ssldp.SSLDataPackageServicePort},
-                       "Federation_server_service": {"status": mapping[fedserver.FederationServerServiceStatus],
-                                                     "port": fedserver.FederationServerServicePort},
-                       "Rest_API_service": {"status": mapping[restapi.RestAPIServiceStatus],
-                                            "port": restapi.RestAPIServicePort}},
+                  {"TCP_CoT_service": {"status": mapping[tcpcot.CoTServiceStatus], "port": tcpcot.CoTServicePort},
+                   "SSL_CoT_service": {"status": mapping[sslcot.SSLCoTServiceStatus],
+                                       "port": sslcot.SSLCoTServicePort},
+                   "TCP_DataPackage_service": {"status": mapping[tcpdp.TCPDataPackageServiceStatus],
+                                               "port": tcpdp.TCPDataPackageServicePort},
+                   "SSL_DataPackage_service": {"status": mapping[ssldp.SSLDataPackageServiceStatus],
+                                               "port": ssldp.SSLDataPackageServicePort},
+                   "Federation_server_service": {"status": mapping[fedserver.FederationServerServiceStatus],
+                                                 "port": fedserver.FederationServerServicePort},
+                   "Rest_API_service": {"status": mapping[restapi.RestAPIServiceStatus],
+                                        "port": restapi.RestAPIServicePort}},
                   "ip": tcpdp.TCPDataPackageServiceIP
-                }
+                  }
     emit('serviceInfoUpdate', json.dumps(jsonObject))
+
 
 def getStatus():
     CommandPipe.send([functionNames.checkStatus])
@@ -213,18 +216,21 @@ def getStatus():
     while hasattr(out, "CoTService") == False:
         out = CommandPipe.recv()
     return out
+
+
 @socketio.on("serverHealth")
-@socket_auth(session = session)
+@socket_auth(session=session)
 def serverHealth(empty=None):
     import psutil
     import pathlib
     import os
     jsondata = {
-                "CPU": int(psutil.cpu_percent(interval=0.1)),
-                "memory": int(psutil.virtual_memory().percent),
-                "disk": int(psutil.disk_usage(str(pathlib.Path(os.getcwd()).anchor)).percent)
-                }
+        "CPU": int(psutil.cpu_percent(interval=0.1)),
+        "memory": int(psutil.virtual_memory().percent),
+        "disk": int(psutil.disk_usage(str(pathlib.Path(os.getcwd()).anchor)).percent)
+    }
     emit('serverHealthUpdate', json.dumps(jsondata))
+
 
 @socketio.on('systemStatus')
 @socket_auth(session=session)
@@ -236,12 +242,14 @@ def systemStatus(update=None):
     jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
     emit('systemStatusUpdate', json.dumps(jsondata))
 
+
 @socketio.on('changeServiceInfo')
 # @socket_auth(session=session)
 def updateSystemStatus(update):
     # TODO: add documentation
     changeStatus(json.loads(update))
     show_service_info()
+
 
 @socketio.on('systemUsers')
 @socket_auth(session=session)
@@ -259,6 +267,7 @@ def systemUsers(empty=None):
         jsondata["SystemUsers"].append(userjson)
 
     emit('systemUsersUpdate', json.dumps(jsondata))
+
 
 @socketio.on('addSystemUser')
 @socket_auth(session=session)
@@ -292,7 +301,7 @@ def addSystemUser(jsondata):
                                             CreatorUid='server-uid', Size=fileSize, Privacy=1)
             DatabaseController().create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
                                                    token=systemuser["Token"], password=systemuser["Password"],
-                                                   uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"]+'.zip')
+                                                   uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"] + '.zip')
             import datetime as dt
             DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt.datetime
@@ -335,10 +344,12 @@ def removeSystemUser(jsondata):
         shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
         dbController.remove_datapackage(f'Hash == "{obj[0].Hash}"')
 
+
 @socketio.on("events")
 @socket_auth(session=session)
 def events(empty=None):
     return socketio.emit("eventsUpdate", {"events": ["system user ALPHA created", "SSL DataPackage Service turned off", "TCP CoT Service port changed to 8086", "Outgoing Federation created to 1.1.1.1", "Federate connected from 0.0.0.0"]})
+
 
 @app.route("/SendGeoChat", methods=[restMethods.POST])
 @auth.login_required()
@@ -359,11 +370,11 @@ def SendGeoChat():
         print(e)
 
 
-
 @app.route("/ManagePresence")
 @auth.login_required()
 def ManagePresence():
     pass
+
 
 @app.route("/ManagePresence/postPresence", methods=[restMethods.POST])
 @auth.login_required
@@ -379,10 +390,12 @@ def postPresence():
     except Exception as e:
         return str(e), 500
 
+
 @app.route("/ManageGeoObject")
 @auth.login_required()
 def ManageGeoObject():
     pass
+
 
 @app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
 @auth.login_required
@@ -398,10 +411,12 @@ def postGeoObject():
     except Exception as e:
         return str(e), 500
 
+
 @app.route("/ManageChat")
 @auth.login_required()
 def ManageChat():
     pass
+
 
 @app.route("/ManageChat/postChatToAll", methods=[restMethods.POST])
 @auth.login_required
@@ -416,6 +431,7 @@ def postChatToAll():
         return 'success', 200
     except Exception as e:
         return str(e), 500
+
 
 @app.route("/ManageEmergency/getEmergency", methods=[restMethods.GET])
 @auth.login_required
@@ -436,6 +452,7 @@ def getEmergency():
     except Exception as e:
         return str(e), 200
 
+
 @app.route("/ManageEmergency/postEmergency", methods=[restMethods.POST])
 @auth.login_required
 def postEmergency():
@@ -450,6 +467,7 @@ def postEmergency():
     except Exception as e:
         return str(e), 200
 
+
 @app.route("/ManageEmergency/deleteEmergency", methods=[restMethods.DELETE])
 @auth.login_required
 def deleteEmergency():
@@ -463,12 +481,15 @@ def deleteEmergency():
     except Exception as e:
         return str(e), 500
 
+
 @app.route("/ManageEmergency")
 @auth.login_required
 def Emergency():
     pass
 
-#@app.route("/ConnectionMessage", methods=[restMethods.POST])
+# @app.route("/ConnectionMessage", methods=[restMethods.POST])
+
+
 def ConnectionMessage():
 
     try:
@@ -486,6 +507,7 @@ def ConnectionMessage():
         return '200', 200
     except Exception as e:
         print(e)
+
 
 @app.route("/APIUser", methods=[restMethods.GET, restMethods.POST, restMethods.DELETE])
 def APIUser():
@@ -515,17 +537,21 @@ def APIUser():
             return str(e), 500
     else:
         return 'endpoint can only be accessed by approved IPs', 401
+
+
 @app.route("/RecentCoT", methods=[restMethods.GET])
 def RecentCoT():
     import time
     time.sleep(10)
     return b'1234'
 
+
 @app.route("/URL", methods=[restMethods.GET])
 def URLGET():
     data = request.args
     print(data)
     return 'completed', 200
+
 
 @app.route("/Clients", methods=[restMethods.GET])
 def Clients():
@@ -542,6 +568,7 @@ def Clients():
             return 'endpoint can only be accessed by approved IPs', 401
     except Exception as e:
         return str(e), 500
+
 
 @app.route('/FederationTable', methods=[restMethods.GET, restMethods.POST, "PUT", restMethods.DELETE])
 @auth.login_required()
@@ -566,7 +593,7 @@ def FederationTable():
             new_outgoing_federations = jsondata["outgoingFederations"]
             for new_fed in new_outgoing_federations:
                 id = str(uuid.uuid4())
-                dbController.create_Federation(**new_fed, id = id)
+                dbController.create_Federation(**new_fed, id=id)
                 if new_fed["status"] == "Enabled":
                     CommandPipe.send((id, "CREATE"))
                 else:
@@ -611,6 +638,7 @@ def FederationTable():
 
     except Exception as e:
         return str(e), 500
+
 
 @app.route('/DataPackageTable', methods=[restMethods.GET, restMethods.POST, restMethods.DELETE, "PUT"])
 @auth.login_required()
@@ -689,7 +717,7 @@ def DataPackageTable():
         newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
         os.rename(str(PurePath(Path(directory))), newDirectory)
         fileSize = Path(str(newDirectory), filename).stat().st_size
-        if creatorUid == None:
+        if creatorUid is None:
             callsign = str(dbController.query_user(query=f'uid == "server-uid"', column=[
                 'callsign']))  # fetchone() gives a tuple, so only grab the first element
             dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser='server',
@@ -714,6 +742,8 @@ def DataPackageTable():
                 updateDict["Name"] = dp["Name"]
             dbController.update_datapackage(query=f'PrimaryKey == {dp["PrimaryKey"]}', column_value=updateDict)
         return "success", 200
+
+
 def getMission():
     import uuid
     import random
@@ -781,6 +811,7 @@ def mission_table():
     except Exception as e:
         return e, 500
 
+
 @app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
 @auth.login_required()
 def excheck_table():
@@ -790,21 +821,21 @@ def excheck_table():
         from datetime import datetime
         from flask import request
         if request.method == "GET":
-            jsondata = {"ExCheck":{'Templates': [], 'Checklists': []}}
+            jsondata = {"ExCheck": {'Templates': [], 'Checklists': []}}
             from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
             excheckTemplates = DatabaseController().query_ExCheck()
             for template in excheckTemplates:
                 templateData = template.data
-                templatejson = 	{
-                                    "filename": templateData.filename,
-                                    "name": templateData.keywords.name,
-                                    "submissionTime": templateData.submissionTime,
-                                    "submitter": str(dbController.query_user(query=f'uid == "{template.creatorUid}"', column=['callsign'])),
-                                    "uid": templateData.uid,
-                                    "hash": templateData.hash,
-                                    "size": templateData.size,
-                                    "description": templateData.keywords.description
-                                }
+                templatejson = {
+                    "filename": templateData.filename,
+                    "name": templateData.keywords.name,
+                    "submissionTime": templateData.submissionTime,
+                    "submitter": str(dbController.query_user(query=f'uid == "{template.creatorUid}"', column=['callsign'])),
+                    "uid": templateData.uid,
+                    "hash": templateData.hash,
+                    "size": templateData.size,
+                    "description": templateData.keywords.description
+                }
                 jsondata["ExCheck"]['Templates'].append(templatejson)
             excheckChecklists = DatabaseController().query_ExCheckChecklist()
             for checklist in excheckChecklists:
@@ -813,14 +844,14 @@ def excheck_table():
                 except AttributeError:
                     templatename = "template removed"
                 checklistjson = {
-                                    "filename": checklist.filename,
-                                    "name": checklist.name,
-                                    "startTime": datetime.strftime(checklist.startTime, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                                    "submitter": checklist.callsign,
-                                    "uid": checklist.uid,
-                                    "description": checklist.description,
-                                    "template": templatename
-                                }
+                    "filename": checklist.filename,
+                    "name": checklist.name,
+                    "startTime": datetime.strftime(checklist.startTime, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                    "submitter": checklist.callsign,
+                    "uid": checklist.uid,
+                    "description": checklist.description,
+                    "template": templatename
+                }
                 jsondata["ExCheck"]['Checklists'].append(checklistjson)
             return json.dumps(jsondata), 200
 
@@ -884,6 +915,8 @@ def excheck_table():
                 print(str(e))
     except Exception as e:
         return str(e), 500
+
+
 @app.route('/checkStatus', methods=[restMethods.GET])
 @auth.login_required()
 def check_status():
@@ -898,8 +931,10 @@ def check_status():
     except Exception as e:
         return str(e), 500
 
-#@app.route('/changeStatus', methods=[restMethods.POST])
-#@auth.login_required()
+# @app.route('/changeStatus', methods=[restMethods.POST])
+# @auth.login_required()
+
+
 def changeStatus(jsonmessage):
     # TODO: modify to better support format
     mappings = {"on": "start", "off": "stop", "": ""}
@@ -914,7 +949,7 @@ def changeStatus(jsonmessage):
             CoTService = json[jsonVars.COTSERVICE]
             try:
                 FTSObject.CoTService.CoTServicePort = int(CoTService.get(jsonVars.PORT))
-            except:
+            except BaseException:
                 FTSObject.CoTService.CoTServicePort = ''
             FTSObject.CoTService.CoTServiceStatus = mappings[CoTService.get("status")]
         else:
@@ -925,7 +960,7 @@ def changeStatus(jsonmessage):
             DPService = json.get(jsonVars.DATAPACKAGESERVICE)
             try:
                 FTSObject.TCPDataPackageService.TCPDataPackageServicePort = int(DPService.get(jsonVars.PORT))
-            except:
+            except BaseException:
                 FTSObject.TCPDataPackageService.TCPDataPackageServicePort = ''
             FTSObject.TCPDataPackageService.TCPDataPackageServiceStatus = mappings[DPService.get("status")]
 
@@ -937,7 +972,7 @@ def changeStatus(jsonmessage):
             DPService = json.get(jsonVars.SSLDATAPACKAGESERVICE)
             try:
                 FTSObject.SSLDataPackageService.SSLDataPackageServicePort = int(DPService.get(jsonVars.PORT))
-            except:
+            except BaseException:
                 FTSObject.SSLDataPackageService.SSLDataPackageServicePort = ''
             FTSObject.SSLDataPackageService.SSLDataPackageServiceStatus = mappings[DPService.get("status")]
 
@@ -949,7 +984,7 @@ def changeStatus(jsonmessage):
             SSLCoTservice = json[jsonVars.SSLCOTSERVICE]
             try:
                 FTSObject.SSLCoTService.SSLCoTServicePort = int(SSLCoTservice.get(jsonVars.PORT))
-            except:
+            except BaseException:
                 FTSObject.SSLCoTService.SSLCoTServicePort = ''
             FTSObject.SSLCoTService.SSLCoTServiceStatus = mappings[SSLCoTservice.get("status")]
 
@@ -961,7 +996,7 @@ def changeStatus(jsonmessage):
             FederationServerService = json.get(jsonVars.FEDERATIONSERVERSERVICE)
             try:
                 FTSObject.FederationServerService.FederationServerServicePort = int(FederationServerService.get(jsonVars.PORT))
-            except:
+            except BaseException:
                 FTSObject.FederationServerService.FederationServerServicePort = ''
             FTSObject.FederationServerService.FederationServerServiceStatus = mappings[FederationServerService.get('status')]
 
@@ -973,7 +1008,7 @@ def changeStatus(jsonmessage):
             RESTAPISERVICE = json.get(jsonVars.RESTAPISERVICE)
             try:
                 FTSObject.RestAPIService.RestAPIServicePort = int(RESTAPISERVICE.get(jsonVars.PORT))
-            except:
+            except BaseException:
                 FTSObject.RestAPIService.RestAPIServicePort = ''
             FTSObject.RestAPIService.RestAPIServiceStatus = mappings[RESTAPISERVICE.get("status")]
 
@@ -988,6 +1023,7 @@ def changeStatus(jsonmessage):
     except Exception as e:
         return '500', 500
 
+
 def receiveUpdates():
     while True:
         try:
@@ -997,6 +1033,7 @@ def receiveUpdates():
         except Exception as e:
             print(e)
 
+
 def submitData(dataRaw):
     global APIPipe
     print(APIPipe)
@@ -1004,6 +1041,7 @@ def submitData(dataRaw):
     data.clientInformation = "SERVER"
     data.xmlString = dataRaw.encode()
     APIPipe.send([data])
+
 
 def emitUpdates(Updates):
     data = [SimpleClient()]
@@ -1013,12 +1051,13 @@ def emitUpdates(Updates):
     returnValue = []
     for client in data:
         returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
-    socketio.emit('up', json.dumps(returnValue), broadcast = True)
+    socketio.emit('up', json.dumps(returnValue), broadcast=True)
     data = Updates
     for client in data:
         returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
-    socketio.emit('up', json.dumps(returnValue), broadcast = True)
+    socketio.emit('up', json.dumps(returnValue), broadcast=True)
     return 1
+
 
 def test(json):
     modelObject = Event.dropPoint()
@@ -1029,13 +1068,12 @@ def test(json):
     rawcot.xmlString = xml
     rawcot.clientInformation = None
     object = SendDropPointController(rawcot)
-    print(etree.tostring(object.sendDropPoint.xmlString,pretty_print=True).decode())
+    print(etree.tostring(object.sendDropPoint.xmlString, pretty_print=True).decode())
     '''EventObject = json
     modelObject = ApplyFullJsonController(json, 'Point', modelObject).determine_function()
     out = XMLCoTController().serialize_model_to_CoT(modelObject, 'event')
     print(etree.tostring(out))
     print(RestAPI().serializeJsonToModel(modelObject, EventObject))'''
-
 
 
 class RestAPI:
@@ -1053,7 +1091,6 @@ class RestAPI:
         # try below if something breaks
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
 
-
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():
             if isinstance(value, dict):
@@ -1063,6 +1100,7 @@ class RestAPI:
             else:
                 setattr(model, key, value)
         return model
+
 
 if __name__ == '__main__':
     excheck_table()

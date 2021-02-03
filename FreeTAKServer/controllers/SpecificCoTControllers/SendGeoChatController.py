@@ -6,6 +6,7 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendGeoChatController").getLogger()
 
+
 class SendGeoChatController(SendCoTAbstractController):
     def __init__(self, RawCoT=None):
         try:

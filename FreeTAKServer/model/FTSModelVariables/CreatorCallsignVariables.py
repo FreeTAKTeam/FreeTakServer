@@ -3,4 +3,3 @@ class CreatorCallsignVariables:
     def Checklist(cls):
         cls.INTAG = None
         return cls
-

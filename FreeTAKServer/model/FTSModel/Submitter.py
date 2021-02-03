@@ -1,6 +1,7 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.SubmitterVariables import SubmitterVariables as vars
 
+
 class Submitter(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None

@@ -9,6 +9,7 @@ from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.configuration.types import Types
 from lxml import etree
 
+
 class GeoObjectAdapter(AbstractApiAdapter, JsonSerializer):
 
     def from_api_to_fts_object(self, api_json: dict) -> Types.specific_cot:

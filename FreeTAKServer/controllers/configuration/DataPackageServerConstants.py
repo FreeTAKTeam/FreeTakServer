@@ -2,6 +2,7 @@ import os
 import pathlib
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+
 class DataPackageServerConstants:
     def __init__(self):
         # http server config

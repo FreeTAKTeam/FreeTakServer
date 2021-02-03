@@ -42,6 +42,7 @@ import FreeTAKServer.model.SQLAlchemy.ExCheckData
 import FreeTAKServer.model.SQLAlchemy.ExCheck
 import FreeTAKServer.model.SQLAlchemy.ExCheckChecklist
 
+
 class DatabaseController:
     """
     this controller should only be instantiated once for
@@ -84,6 +85,7 @@ class DatabaseController:
         else:
             Base.metadata.create_all(engine)
             return engine
+
     def create_Sessionmaker(self):
         SessionMaker = sessionmaker(bind=self.engine)
         return SessionMaker
@@ -122,10 +124,10 @@ class DatabaseController:
         return controller.delete(session=self.session, query=query)
 
     def _query(self, controller, query, columns):
-        return controller.query(session=self.session, query=query, columns = columns)
+        return controller.query(session=self.session, query=query, columns=columns)
 
     def _update(self, controller, column_value, query):
-        return controller.update(session = self.session, column_value=column_value, query=query)
+        return controller.update(session=self.session, column_value=column_value, query=query)
 
     def create_user(self, **args):
         try:
@@ -178,6 +180,7 @@ class DatabaseController:
                 self.session.rollback()
                 self.session.close()
                 self.session = self.create_Session()
+
     def remove_user(self, query="1 == 1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
@@ -197,6 +200,7 @@ class DatabaseController:
         except Exception as e:
             self.session.rollback()
             self.session.commit()
+
     def remove_systemUser(self, query="1 == 1"):
         return self._remove(controller=self.SystemUserTableController, query=query)
 
@@ -245,6 +249,7 @@ class DatabaseController:
                 raise e
         except Exception as e:
             self.session.rollback()
+
     def remove_CoT(self, query="1 == 1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
@@ -281,6 +286,7 @@ class DatabaseController:
         except Exception as e:
             session.rollback()
             session.close()
+
     def remove_ActiveEmergency(self, query="1 == 1"):
         return self._remove(controller=self.ActiveEmergencysController, query=query)
 
@@ -289,7 +295,6 @@ class DatabaseController:
 
     def update_ActiveEmergency(self, column_value=None, query="1 == 1"):
         return self._update(controller=self.ActiveEmergencysController, query=query, column_value=column_value)
-
 
     def create_ExCheck(self, object):
         try:
@@ -304,11 +309,12 @@ class DatabaseController:
     def remove_ExCheck(self, query="1 == 1"):
         return self._remove(controller=self.ExCheckController, query=query)
 
-    def query_ExCheck(self, query = "1==1", column=["*"], verbose = False):
-        if verbose == False:
+    def query_ExCheck(self, query="1==1", column=["*"], verbose=False):
+        if not verbose:
             return self._query(controller=self.ExCheckController, query=query, columns=column)
         else:
             return self.ExCheckController.queryChildren(query, column, self.session)
+
     def update_ExCheck(self, query="1==1", column_value=None):
         return self._update(controller=self.ExCheckController, query=query, column_value=column_value)
 
@@ -363,6 +369,7 @@ class DatabaseController:
     def shutdown_Connection(self):
         self.session.close()
         self.engine.dispose()
+
 
 if __name__ == "__main__":
     contr = DatabaseController()

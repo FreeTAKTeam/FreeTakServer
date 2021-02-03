@@ -1,8 +1,11 @@
 from FreeTAKServer.model.ExCheck.Checklists.checklistTask import checklistTask
+
+
 class checklistTasks:
     def __init__(self):
         self.checklistTask = []
         self.__count = 0
+
     def setchecklistTask(self, checklistTaskobj):
         if isinstance(checklistTaskobj, checklistTask):
             self.checklistTask.append(checklistTaskobj)

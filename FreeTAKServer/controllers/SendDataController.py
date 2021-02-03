@@ -1,15 +1,17 @@
+import copy
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendDataController").getLogger()
-import copy
-#TODO: the part handling new connection from seperate process needs to be cleaned up
+# TODO: the part handling new connection from seperate process needs to be cleaned up
+
 
 class SendDataController:
 
     def __init__(self):
         pass
-    def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, shareDataPipe = None):
+
+    def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, shareDataPipe=None):
         try:
             print('sending data to fts client' + str(processedCoT.xmlString))
         except Exception as e:
@@ -41,12 +43,12 @@ class SendDataController:
                 self.returnData = self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return self.returnData
         except Exception as e:
-            logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR+str(e))
+            logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR + str(e))
             return -1
 
     def send_to_specific_client(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
-            if processedCoT.martiPresent == False:
+            if not processedCoT.martiPresent:
                 print('marti not present')
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
 
@@ -70,7 +72,7 @@ class SendDataController:
                         logger.error('error sending data with marti to client within if data is ' + str(
                             processedCoT.xmlString) + 'error is ' + str(e))
                         return -1
-                if shareDataPipe != None:
+                if shareDataPipe is not None:
                     processedCoT.clientInformation = None
                     shareDataPipe.send(processedCoT)
                 else:
@@ -79,10 +81,11 @@ class SendDataController:
         except Exception as e:
             logger.error('error in send data to specific client ' + str(e))
             return -1
+
     def send_to_all(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             for client in clientInformationQueue:
-    
+
                 sock = client.socket
                 try:
                     if hasattr(processedCoT, 'xmlString'):
@@ -94,7 +97,7 @@ class SendDataController:
                     print(e)
                     logger.error('error in sending of data ' + str(processedCoT.xmlString))
                     return (-1, client)
-            if shareDataPipe != None:
+            if shareDataPipe is not None:
                 processedCoT.clientInformation = None
                 shareDataPipe.send(processedCoT)
             else:
@@ -102,11 +105,12 @@ class SendDataController:
             return 1
         except Exception as e:
             logger.error('error in send to all ' + str(e))
+
     def geochat_sending(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             if processedCoT.modelObject.detail._chat.chatgrp.uid1 == 'All Chat Rooms':
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
-    
+
             else:
                 for client in clientInformationQueue:
                     try:
@@ -124,7 +128,7 @@ class SendDataController:
                         logger.error('error sending data with marti to client within if data is ' + str(
                             processedCoT.xmlString) + 'error is ' + str(e))
                         return -1
-                if shareDataPipe != None:
+                if shareDataPipe is not None:
                     processedCoT.clientInformation = None
                     shareDataPipe.send(processedCoT)
                 else:

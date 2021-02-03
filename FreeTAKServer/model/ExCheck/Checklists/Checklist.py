@@ -2,6 +2,7 @@ from FreeTAKServer.model.ExCheck.Checklists.checklistDetails import checklistDet
 from FreeTAKServer.model.ExCheck.Checklists.checklistColumns import checklistColumns
 from FreeTAKServer.model.ExCheck.Checklists.checklistTasks import checklistTasks
 
+
 class Checklist:
     def __init__(self):
         self.checklistDetails = checklistDetails()

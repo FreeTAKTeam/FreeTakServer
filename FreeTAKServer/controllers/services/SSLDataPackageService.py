@@ -9,6 +9,7 @@ from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SSLDataPackageServer").getLogger()
 
+
 class SSLDataPackageService(FlaskFunctions):
     def startup(self, ip, port, pipe):
         try:
@@ -32,17 +33,18 @@ class SSLDataPackageService(FlaskFunctions):
             super().setIP(IP)
             super().setHTTPPORT(HTTPPORT)
             super().setPIPE(PIPE)
-            #wsgi.server(eventlet.listen(('', 14533)), app)  keyfile=MainConfig.keyDir,
+            # wsgi.server(eventlet.listen(('', 14533)), app)  keyfile=MainConfig.keyDir,
             self.SSLSocketController = SSLSocketController()
             self.SSLSocketController.changeIP(IP)
             self.SSLSocketController.changePort(HTTPPORT)
 
             wsgi.server(sock=wrap_ssl(listen((DataPackageServerConstants().IP, int(HTTPPORT))), keyfile=MainConfig.unencryptedKey,
                                       certfile=MainConfig.pemDir,
-                                      server_side=True,ca_certs=MainConfig.CA), site=app)
+                                      server_side=True, ca_certs=MainConfig.CA), site=app)
         except Exception as e:
             logger.error('there has been an exception in Data Package service startup ' + str(e))
             return -1
-        
+
+
 if __name__ == "__main__":
     SSLDataPackageService().startup('0.0.0.0', 8443)

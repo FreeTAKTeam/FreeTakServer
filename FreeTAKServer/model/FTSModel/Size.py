@@ -1,6 +1,7 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.SizeVariables import SizeVariables as vars
 
+
 class Size(FTSProtocolObject):
     def __init__(self):
         self.INTAG = None

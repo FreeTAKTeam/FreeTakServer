@@ -14,22 +14,22 @@ class FilterGroup:
 
     def add_source(self, source):
         self.sources.append(source)
-    
+
     def remove_source(self, source):
         self.sources.remove(source)
-        
+
     def get_sources(self):
         return self.receivers
 
     def add_receiver(self, source):
         self.receivers.append(source)
-    
+
     def remove_receiver(self, source):
         self.receivers.remove(source)
-        
+
     def get_receivers(self):
         return self.receivers
-    
+
     def add_allowed_type(self, type):
         self.allowedType.append(type)
 

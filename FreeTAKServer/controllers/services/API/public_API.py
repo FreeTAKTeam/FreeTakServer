@@ -1,3 +1,4 @@
+from FreeTAKServer.model.RestMessages.Emergency import Emergency as Obj
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
@@ -15,6 +16,7 @@ restMethods.rest_methods()
 app = Flask(__name__)
 auth = HTTPTokenAuth(scheme='Bearer')
 
+
 class GeoObject:
 
     @staticmethod
@@ -28,6 +30,7 @@ class GeoObject:
         jsonobj = JsonController().serialize_geoobject_post(json_data)
         simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
         return simpleCoTObject
+
 
 class Presence:
 
@@ -49,7 +52,7 @@ class Presence:
         except Exception as e:
             raise e
 
-from FreeTAKServer.model.RestMessages.Emergency import Emergency as Obj
+
 class Emergency:
 
     @staticmethod
@@ -68,7 +71,7 @@ class Emergency:
     def create_emergency(json_data: dict) -> object:
         """
 
-        @rtype: Event 
+        @rtype: Event
         @param json_data:
         @type json_data: dict
         @return emergency_object:
@@ -80,7 +83,7 @@ class Emergency:
     @staticmethod
     def get_emergency() -> any:
         """
-        
+
         @return: a json representation of active emergencies
         """
         output = dbController.query_ActiveEmergency()
@@ -95,6 +98,7 @@ class Emergency:
             del (output[i]['event'])
         return jsonify(json_list=output), 200
 
+
 class Chat:
 
     @staticmethod
@@ -105,9 +109,11 @@ class Chat:
         chat_object = SendChatController(json_obj).getCoTObject()
         return chat_object
 
+
 @app.route('/Alive')
 def sessions():
     return b'API is running', 200
+
 
 @auth.verify_token
 def verify_token(token):
@@ -120,10 +126,12 @@ def verify_token(token):
             if output:
                 return output[0].name
 
+
 @app.route("/ManagePresence")
 @auth.login_required()
 def ManagePresence():
     pass
+
 
 @app.route("/ManagePresence/postPresence", methods=[restMethods.POST])
 @auth.login_required
@@ -138,10 +146,12 @@ def postPresence():
     except Exception as e:
         return str(e), 500
 
+
 @app.route("/ManageGeoObject")
 @auth.login_required()
 def ManageGeoObject():
     pass
+
 
 @app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
 @auth.login_required
@@ -156,10 +166,12 @@ def postGeoObject():
     except Exception as e:
         return str(e), 500
 
+
 @app.route("/ManageChat")
 @auth.login_required()
 def ManageChat():
     pass
+
 
 @app.route("/ManageChat/postChatToAll", methods=[restMethods.POST])
 @auth.login_required
@@ -168,11 +180,12 @@ def postChatToAll():
         from json import dumps
         #jsondata = {'message': 'test abc', 'sender': 'natha'}
         jsondata = request.get_json(force=True)
-        ChatObject = Chat.create_chat_to_all(jsondata)        
+        ChatObject = Chat.create_chat_to_all(jsondata)
         APIPipe.send(ChatObject)
         return 'success', 200
     except Exception as e:
         return str(e), 500
+
 
 @app.route("/ManageEmergency/getEmergency", methods=[restMethods.GET])
 @auth.login_required
@@ -181,6 +194,7 @@ def getEmergency():
         return Emergency.get_emergency()
     except Exception as e:
         return str(e), 200
+
 
 @app.route("/ManageEmergency/postEmergency", methods=[restMethods.POST])
 @auth.login_required
@@ -195,6 +209,7 @@ def postEmergency():
     except Exception as e:
         return str(e), 200
 
+
 @app.route("/ManageEmergency/deleteEmergency", methods=[restMethods.DELETE])
 @auth.login_required
 def deleteEmergency():
@@ -207,10 +222,12 @@ def deleteEmergency():
     except Exception as e:
         return str(e), 500
 
+
 @app.route("/ManageEmergency")
 @auth.login_required
 def Emergency():
     pass
+
 
 def serialize_json_to_object(object, json):
     """
@@ -223,6 +240,7 @@ def serialize_json_to_object(object, json):
         else:
             raise Exception(f'attribute {key} not supported by this endpoint')
     return object
+
 
 if __name__ == "__main__":
     Emergency().delete_emergency({"uid": "123"})

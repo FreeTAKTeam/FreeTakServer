@@ -3,6 +3,7 @@ from FreeTAKServer.model.FTSModel.ChecklistColumns import ChecklistColumns
 from FreeTAKServer.model.FTSModel.ChecklistDetails import ChecklistDetails
 from FreeTAKServer.model.FTSModel.ChecklistTasks import ChecklistTasks
 
+
 class Checklist(FTSProtocolObject):
     @staticmethod
     def Checklist():

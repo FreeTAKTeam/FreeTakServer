@@ -153,4 +153,3 @@ class EventVariables:
         cls.stale = None
         cls.how = "h-g-i-g-o"
         return cls
-

@@ -54,58 +54,61 @@ class BasicModelInstantiate:
     def contactAtrib(self):
         try:
             self.modelObject.detail.Contact.endpoint = self.contact.attrib['endpoint']
-        except:
+        except BaseException:
             pass
         try:
             self.modelObject.detail.Contact.callsign = self.contact.attrib['callsign']
-        except:
+        except BaseException:
             pass
+
     def uidAtrib(self):
         self.modelObject.detail.Uid.Droid = self.uid.attrib['Droid']
-    
+
     def precisionlocationAtrib(self):
         try:
             self.modelObject.detail.precisionlocation.altsrc = self.precisionlocation.attrib['altsrc']
-        except:
+        except BaseException:
             pass
         try:
             self.modelObject.detail.precisionlocation.geopointsrc = self.precisionlocation.attrib['geopointsrc']
-        except:
+        except BaseException:
             pass
+
     def groupAtrib(self):
         self.modelObject.detail.Group.role = self.group.attrib['role']
         self.modelObject.detail.Group.name = self.group.attrib['name']
 
     def statusAtrib(self):
         self.modelObject.detail.Status.battery = self.status.attrib['battery']
-    
+
     def trackAtrib(self):
         self.modelObject.detail.Track.course = self.track.attrib['course']
         self.modelObject.detail.Track.speed = self.track.attrib['speed']
-    
+
     def linkAtrib(self):
         try:
             self.modelObject.detail.link.uid = self.link.attrib['uid']
-        except:
+        except BaseException:
             pass
         try:
             self.modelObject.detail.link.type = self.link.attrib['type']
-        except:
+        except BaseException:
             pass
         try:
             self.modelObject.detail.link.relation = self.link.attrib['relation']
-        except:
+        except BaseException:
             pass
+
     def emergencyAtrib(self):
         try:
             self.modelObject.detail.emergency.type = self.emergency.attrib['type']
-        except:
+        except BaseException:
             pass
-        
+
         try:
             self.modelObject.detail.emergency.cancel = self.emergency.attrib['cancel']
-        except:
-            pass 
-    
+        except BaseException:
+            pass
+
     def returnModelObject(self):
         return self.modelObject
