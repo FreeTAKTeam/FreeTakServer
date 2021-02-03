@@ -1,4 +1,4 @@
-from FreeTAKServer.model.RestMessages.Emergency import Emergency, RestEnumerations
+from FreeTAKServer.model.RestMessages.Emergency import Emergency
 
 
 class EmergencyPost(Emergency):

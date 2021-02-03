@@ -48,6 +48,7 @@ class JsonSerializer(SerializerAbstract):
             raise AttributeError('invalid json')
 
     def from_fts_object_to_format(self, FTSObject: Event) -> dict:
+        # TODO: This is broken
         for key, value in object.items():
             getters = self._get_fts_object_var_getter(FTSObject, key)
             getter = self._get_method_in_method_list(getters, key)

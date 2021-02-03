@@ -7,12 +7,9 @@
 # Original author: natha
 #
 #######################################################
-from sqlalchemy import Column
-from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
-from FreeTAKServer.model.SQLAlchemy.CoTTables.Detail import Detail
-from FreeTAKServer.model.SQLAlchemy.CoTTables.Point import Point
-from sqlalchemy import String
+from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
+from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
 
 
 class Event(Base, Root):

@@ -3,8 +3,7 @@ from FreeTAKServer.controllers.RestMessageControllers.SendChatController import 
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
-from FreeTAKServer.model.FTSModel.Event import Event
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from FreeTAKServer.controllers.JsonController import JsonController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
@@ -137,8 +136,7 @@ def ManagePresence():
 @auth.login_required
 def postPresence():
     try:
-        from json import dumps
-        #jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'how': 'nonCoT', 'name': 'testing123'}
+        global APIPipe
         jsondata = request.get_json(force=True)
         presence = Presence.create_presence(jsondata)
         APIPipe.send(presence)
@@ -157,8 +155,7 @@ def ManageGeoObject():
 @auth.login_required
 def postGeoObject():
     try:
-        from json import dumps
-        #jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
+        global APIPipe
         jsondata = request.get_json(force=True)
         simpleCoTObject = GeoObject.create_geoobject(jsondata)
         APIPipe.send(simpleCoTObject)
@@ -177,8 +174,7 @@ def ManageChat():
 @auth.login_required
 def postChatToAll():
     try:
-        from json import dumps
-        #jsondata = {'message': 'test abc', 'sender': 'natha'}
+        global APIPipe
         jsondata = request.get_json(force=True)
         ChatObject = Chat.create_chat_to_all(jsondata)
         APIPipe.send(ChatObject)
@@ -200,8 +196,7 @@ def getEmergency():
 @auth.login_required
 def postEmergency():
     try:
-        from json import dumps
-
+        global APIPipe
         jsondata = request.get_json(force=True)
         EmergencyObject = Emergency.create_emergency(jsondata)
         APIPipe.send(EmergencyObject)
@@ -214,7 +209,7 @@ def postEmergency():
 @auth.login_required
 def deleteEmergency():
     try:
-        from json import dumps
+        global APIPipe
         jsondata = request.get_json(force=True)
         EmergencyObject = Emergency.delete_emergency(jsondata)
         APIPipe.send(EmergencyObject)
@@ -225,7 +220,7 @@ def deleteEmergency():
 
 @app.route("/ManageEmergency")
 @auth.login_required
-def Emergency():
+def listEmergency():
     pass
 
 

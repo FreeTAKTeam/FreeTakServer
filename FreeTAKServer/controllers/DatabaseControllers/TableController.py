@@ -1,4 +1,3 @@
-import shutil
 from sqlalchemy.sql import text
 
 

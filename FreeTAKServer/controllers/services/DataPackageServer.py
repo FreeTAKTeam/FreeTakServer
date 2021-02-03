@@ -1,5 +1,4 @@
 from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
-from flask import Flask, request
 from flask.logging import default_handler
 from flask import Flask, request, send_file
 from flask_sqlalchemy import SQLAlchemy
@@ -20,6 +19,13 @@ from FreeTAKServer.controllers.configuration.DatabaseConfiguration import Databa
 import eventlet
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
+from lxml import etree
+from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.model.FTSModel.Event import Event
+from FreeTAKServer.model.RawCoT import RawCoT
+import uuid
+import hashlib
+
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("DataPackageServer").getLogger()
@@ -186,7 +192,6 @@ def putDataPackageTool(hash):
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.GET])
 @cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
-    from flask import make_response
     file_list = os.listdir(str(dp_directory) + '/' + str(hash))
     path = PurePath(dp_directory, str(hash), file_list[0])
     app.logger.info(f"Sending data package from {str(path)}")
@@ -227,7 +232,6 @@ def specificPackage():
 
     else:
         hash = request.args.get('hash')
-        import hashlib
         if os.path.exists(str(PurePath(Path(dp_directory), Path(hash)))):
             logger.info('marti sync content triggerd')
             app.logger.debug(str(PurePath(Path(dp_directory), Path(hash))))
@@ -436,15 +440,6 @@ def accesschecklist(checklistid):
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
-    from flask import request
-    from lxml import etree
-    from FreeTAKServer.controllers.SpecificCoTControllers.SendExcheckUpdateController import SendExcheckUpdateController
-    from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
-    from FreeTAKServer.model.FTSModel.Event import Event
-    from FreeTAKServer.model.RawCoT import RawCoT
-    import uuid
-    import hashlib
-
     data = request.data
 
     xml = etree.parse(
@@ -521,7 +516,6 @@ def sync():
 def activechecklists():
     from os import listdir
     from FreeTAKServer.model.FTSModel.Checklists import Checklists
-    from FreeTAKServer.model.FTSModel.Checklist import Checklist
     from lxml import etree
     checklists = Checklists.Checklist()
     rootxml = etree.Element('checklists')

@@ -7,7 +7,6 @@
 # Original author: natha
 #
 #######################################################
-from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 
 
 def requesttype(currenttype, supportedtype):

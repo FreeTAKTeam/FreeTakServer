@@ -1,5 +1,5 @@
-from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
-from sqlalchemy import Column, String, Integer, UniqueConstraint, Boolean
+from FreeTAKServer.model.SQLAlchemy.Root import Base
+from sqlalchemy import Column, String, Integer
 
 
 class Federations(Base):

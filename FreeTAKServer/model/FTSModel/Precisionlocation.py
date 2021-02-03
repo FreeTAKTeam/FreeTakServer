@@ -46,14 +46,14 @@ class Precisionlocation(FTSProtocolObject):
     def getgeopointsrc(self):
         return self.geopointsrc
 
-       # geopointsrc setter
+    # geopointsrc setter
     def setgeopointsrc(self, geopointsrc=0):
         self.geopointsrc = geopointsrc
 
-        # altsrc getter
+    # altsrc getter
     def getaltsrc(self):
         return self.altsrc
 
-       # altsrc setter
+    # altsrc setter
     def setaltsrc(self, altsrc=0):
         self.altsrc = altsrc

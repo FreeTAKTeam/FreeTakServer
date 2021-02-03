@@ -47,10 +47,10 @@ class Marti(FTSProtocolObject):
         # TODO: clean up this implementation and eliminate need for __firstrun
         try:
             returnvalue = self.dest[self.__index]
-            if returnvalue._gettercalled() == False and returnvalue._settercalled() == False and self.__index == 0:
+            if returnvalue._gettercalled() is False and returnvalue._settercalled() is False and self.__index == 0:
                 # only when no changes have been made
                 return returnvalue
-            elif returnvalue._gettercalled() and returnvalue._settercalled() == False and self.__index != 0:
+            elif returnvalue._gettercalled() and returnvalue._settercalled() is False and self.__index != 0:
                 returnvalue = self.dest[self.__index]
                 self.__index += 1
                 return returnvalue
@@ -58,7 +58,7 @@ class Marti(FTSProtocolObject):
                 self.__index += 1
                 returnvalue = self.dest[self.__index]
                 return returnvalue
-            elif returnvalue._settercalled() and returnvalue._gettercalled() == False and returnvalue.callsign != None and self.__firstrun:
+            elif returnvalue._settercalled() and returnvalue._gettercalled() is False and returnvalue.callsign is not None and self.__firstrun:
                 # value has already been set and therefore new instance of dest must be returned
                 self.setdest()
                 returnvalue = self.dest[self.__index]

@@ -157,9 +157,7 @@ class Orchestrator:
                 self.dbController.create_user(uid=clientInformation.modelObject.uid, callsign=clientInformation.modelObject.detail.contact.callsign, IP=clientInformation.IP, CoT=CoTRow, CN=cn)
             except Exception as e:
                 print(e)
-                self.logger.error(
-                    'there has been an error in a clients connection while adding information to the database ' +
-                    str(e))
+                self.logger.error(f"there has been an error in a clients connection while adding information to the database { str(e) }")
             self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.detail.contact.callsign))
             sock = clientInformation.socket
             clientInformation.socket = None
@@ -448,7 +446,7 @@ class Orchestrator:
                     elif self.checkOutput(CoTOutput):
                         output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
                                                                       self.clientInformationQueue, self.CoTSharePipe)
-                        if self.checkOutput(output) and isinstance(output, tuple) == False:
+                        if self.checkOutput(output) and isinstance(output, tuple) is False:
                             pass
                         elif isinstance(output, tuple):
                             self.logger.error('issue sending data to client now disconnecting')

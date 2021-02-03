@@ -16,9 +16,9 @@ class ActiveEmergencysController(TableController):
 
 
 if __name__ == "__main__":
-    from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+    # TODO: This is broken. SimulateSentCOT() does not exist.
     modelObject = SimulateSentCoT().createFullObj()
     # DatabaseController().create_engine()
-    #session = DatabaseController().create_Session()
-    #row = ActiveEmergencysController().create(session, modelObject)
-    #ActiveEmergencysController().delete(session, row)
+    # session = DatabaseController().create_Session()
+    # row = ActiveEmergencysController().create(session, modelObject)
+    # ActiveEmergencysController().delete(session, row)

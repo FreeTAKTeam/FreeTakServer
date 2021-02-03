@@ -75,7 +75,7 @@ class DatabaseController:
         :arg
         """
         engine = create_engine(DatabaseConfiguration().DataBaseConnectionString, echo=False)
-        if engine.dialect.has_table(engine, 'SystemUser') == False:
+        if engine.dialect.has_table(engine, 'SystemUser') is False:
             Base.metadata.create_all(engine)
             tempsession = sessionmaker(bind=engine)()
             tempsession.add(FreeTAKServer.model.SQLAlchemy.system_user.SystemUser(uid="1", name="admin", password="password", token="token"))
@@ -373,13 +373,6 @@ class DatabaseController:
 
 if __name__ == "__main__":
     contr = DatabaseController()
-    import datetime as dt
-    #contr.create_datapackage(uid='9', CreatorUid='abc123', Hash='36e4506f4d6a9582fc60529525c55f3ebd42b887b5164d24e44b85d7ea686a3d', Keywords="foobar", MIMEType="aaa/bbb", Name="other", Privacy=1, Size=32, SubmissionDateTime=dt.datetime.utcnow(), SubmissionUser="blue")
-    #contr.remove_APIUser(query='Username == "admin"')
-    #contr.remove_datapackage('Hash == "36e4506f4d6a9582fc60529525c55f3ebd42b887b5164d24e44b85d7ea686a3d"')
-    #UID = 123
-    #callsign = contr.query_user(query=f'uid == "{UID}"', column=['callsign'])
-    # contr.(uid='9', CreatorUid='abc123', Hash='1bc21o', Keywords="foobar", MIMEType="aaa/bbb", Name="other", Privacy=1, Size=32, SubmissionDateTime=dt.datetime.utcnow(), SubmissionUser="blue")
     y = contr.query_user()
 
     from FreeTAKServer.controllers.SpecificCoTControllers.SendDropPointController import SendDropPointController
@@ -394,7 +387,6 @@ if __name__ == "__main__":
     contr.session.add(e1)
     contr.session.commit()
     m.xmlString = "<event version='2.0' uid='4oh2-4265fe-83hb-9bd3442e6de0' type='a-h-G' time='2020-05-06T13:29:25.146Z' start='2020-05-06T13:29:25.146Z' stale='2020-05-06T13:34:25.146Z' how='h-g-i-g-o'><point lat='44.22054348420014' lon='-66.14146066424053' hae='9999999.0' ce='9999999.0' le='9999999.0' /><detail><status readiness='true'/><archive/><precisionlocation altsrc='???'/><archive/><usericon iconsetpath='COT_MAPPING_2525B/a-h/a-h-G'/><contact callsign='Bob'/><color argb='-1'/><link uid='ANDROID-352614100054990' production_time='2020-01-20T00:15:03.281Z' type='a-f-G-U-C' parent_callsign='Peregrin' relation='p-p'/><marti><dest callsign = 'abc'/></marti></detail></event>"
-    # m.xmlString = "<event version='2.0' uid='87f64797-4ae2-42ce-83cb-9bd3442e6dd0' type='a-h-G' time='2020-05-06T13:29:25.146Z' start='2020-05-06T13:29:25.146Z' stale='2020-05-06T13:34:25.146Z' how='h-g-i-g-o'><point lat='44.22054348420014' lon='-66.14146066424053' hae='9999999.0' ce='9999999.0' le='9999999.0' /><detail/></event>"
     x = SendDropPointController(m)
     b = RawCoT()
     b.dbController = contr
@@ -403,6 +395,3 @@ if __name__ == "__main__":
     y = x.getObject()
     contr.create_CoT(y.modelObject)
     x = contr.session.query(Event).all()[-1]
-    #contr.create_user(callsign = 'abc')
-    #import operator
-    #a = contr.query_datapackage("uid == 423")

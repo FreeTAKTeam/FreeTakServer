@@ -11,24 +11,6 @@ from sqlalchemy import Column, ForeignKey
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
-import FreeTAKServer.model.SQLAlchemy.CoTTables._Group
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Chat
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Color
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Contact
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Dest
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Emergency
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Link
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Marti
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Precisionlocation
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Remarks
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Serverdestination
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Status
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Summary
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Takv
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Track
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Uid
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Usericon
 
 
 class Detail(Base):

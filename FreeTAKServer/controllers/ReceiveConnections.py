@@ -9,8 +9,6 @@
 #######################################################
 import time
 import ssl
-import logging.handlers
-import logging
 import socket
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
@@ -26,7 +24,6 @@ class ReceiveConnections:
         pass
 
     def listen(self, sock, sslstatus=False):
-        #logger = CreateLoggerController("ReceiveConnections").getLogger()
         # listen for client connections
         sock.listen(0)
         try:

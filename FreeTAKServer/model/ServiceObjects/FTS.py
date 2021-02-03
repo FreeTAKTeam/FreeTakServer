@@ -1,4 +1,3 @@
-from .FTSVariables import FTSVariables as vars
 from .CoTService import CoTService
 from .TCPDataPackageService import TCPDataPackageService
 from .SSLDataPackageService import SSLDataPackageService

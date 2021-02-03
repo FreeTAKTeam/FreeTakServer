@@ -1,7 +1,6 @@
 from FreeTAKServer.model.SpecificCoT.SendGeoChat import SendGeoChat
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 

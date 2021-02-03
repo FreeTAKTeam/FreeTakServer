@@ -13,27 +13,7 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 class _medevac_(FTSProtocolObject):
     """the medevac class is used to describe a case of someone in need to be evacuated
     """
-# default constructor  def __init__(self):
-
-    __litter = "1"
-    __freq = "0.0"
-    __terrain_none = "true"
-    __zone_prot_selection = "0"
-    __Title = ""
-    __Priority = "1"
-    __medline_remarks = ""
-    __Security = ""
-    __routine = ""
-    __equipment_none = ""
-    __hlz_marking = ""
-    __casevac = ""
-    __urgent = ""
-
-
-class _medevac_:
-    """the medevac class is used to describe a case of someone in need to be evacuated
-    """
-# default constructor  def __init__(self):
+    # default constructor  def __init__(self):
 
     __litter = "1"
     __freq = "0.0"

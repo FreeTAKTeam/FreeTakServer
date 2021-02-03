@@ -30,7 +30,6 @@ class EventTableController(TableController):
 
                 subRowObject = getattr(subRowObjectImport, attribName)()
                 subTableRowObject = self.convert_model_to_row(attribValue, subRowObject, rowObject)
-                #setattr(rowObject, attribName, subTableRowObject)
 
             elif isinstance(attribValue, list):
                 if attribName[0].isalpha():

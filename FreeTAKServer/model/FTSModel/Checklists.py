@@ -1,5 +1,4 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-from FreeTAKServer.model.FTSModel.Checklist import Checklist
 
 
 class Checklists(FTSProtocolObject):

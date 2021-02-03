@@ -269,7 +269,6 @@ class FTS:
 
     # change object name to FTSServiceStartupConfigObject
     def start_all(self, FTSServiceStartupConfigObject):
-        import copy
         try:
             if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus
@@ -416,7 +415,7 @@ class FTS:
             return self.clientArray
 
     def receive_Rest_commands(self, kill):
-        while kill.is_set() == False:
+        while kill.is_set() is False:
             try:
                 command = self.RestAPICommandsFTS.recv()
                 if isinstance(command, tuple):
@@ -577,7 +576,7 @@ class FTS:
 
                 StartupObject.FederationClientService.FederationClientServiceStatus = 'start'
 
-                #StartupObject.FederationServerService.FederationServerServiceStatus = ''
+                # StartupObject.FederationServerService.FederationServerServiceStatus = ''
 
                 StartupObject.SSLCoTService.SSLCoTServiceStatus = 'start'
                 StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP

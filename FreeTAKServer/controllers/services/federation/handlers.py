@@ -1,11 +1,6 @@
 from abc import ABC
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceInterface
-from FreeTAKServer.model.federate import Federate
-from FreeTAKServer.model.clients import ClientAbstract
-from FreeTAKServer.controllers.configuration.types import Types
-from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
-from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 
 
 class HandlerInterface(ABC):

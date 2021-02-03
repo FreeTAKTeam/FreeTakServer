@@ -7,8 +7,6 @@
 # Original author: natha
 #
 #######################################################
-from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
-
 
 class Presence:
     # default constructor  def __init__(self):

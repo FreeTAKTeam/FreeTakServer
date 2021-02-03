@@ -1,9 +1,12 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, jsonify, session
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 
 import json
+import shutil
 
+from FreeTAKServer.controllers import ApplyFullJsonController
+from FreeTAKServer.controllers.services.RestAPI import changeStatus
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
@@ -193,10 +196,8 @@ def addSystemUser(jsondata):
             certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
             # add DP
             import string
-            import random
             from pathlib import PurePath, Path
             import hashlib
-            from lxml import etree
             import shutil
             import os
             dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))

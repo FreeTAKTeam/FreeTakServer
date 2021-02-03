@@ -21,10 +21,10 @@ class Usericon(FTSProtocolObject):
         usericon.seticonsetpath(iconsetpath=iconsetpath)
         return usericon
 
-     # iconsetpath getter
+    # iconsetpath getter
     def geticonsetpath(self):
         return self.iconsetpath
 
-     # iconsetpath setter
+    # iconsetpath setter
     def seticonsetpath(self, iconsetpath=0):
         self.iconsetpath = iconsetpath

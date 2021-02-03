@@ -25,8 +25,8 @@ class SendClientData:
         while True:
             tempQueue = clientQueue
             tempArray = []
-            if dataQueue.empty() == False:
-                while tempQueue.empty() == False:
+            if dataQueue.empty() is False:
+                while tempQueue.empty() is False:
                     tempArray.append(tempQueue.get())
                 data = dataQueue.get()
                 sender = data.clientInformation

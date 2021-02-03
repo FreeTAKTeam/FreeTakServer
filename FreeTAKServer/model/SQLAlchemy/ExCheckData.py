@@ -1,8 +1,5 @@
-from sqlalchemy import Column, ForeignKey
-from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
-from sqlalchemy import String
-from sqlalchemy import Integer
-from FreeTAKServer.model.SQLAlchemy.ExCheckKeywords import ExCheckKeywords
+from sqlalchemy import Column, ForeignKey, String, Integer
+from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy.orm import relationship
 
 

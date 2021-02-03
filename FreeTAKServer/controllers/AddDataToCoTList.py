@@ -1,4 +1,3 @@
-import multiprocessing
 
 
 class AddDataToCoTList:

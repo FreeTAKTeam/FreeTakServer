@@ -1,13 +1,11 @@
 import unittest
-
-from FreeTAKServer.controllers.serializers.json_serializer import JsonSerializer
+from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.JsonController import JsonController
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
-#from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
 from lxml import etree
 
 
@@ -17,7 +15,6 @@ class TestSerializers(unittest.TestCase):
         """
         test new serialization in contrast with legacy serializer to ensure compatibility
         """
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import GeoObjectAdapter
         basejson = {
             "attitude": "friendly",
@@ -46,7 +43,6 @@ class TestSerializers(unittest.TestCase):
         self.assertEqual(xml_legacy, xml_updated)
 
     def test_json_serializer_with_chat_adapter(self):
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import ChatAdapter
         basejson = {
             "message": "testing",
@@ -70,7 +66,6 @@ class TestSerializers(unittest.TestCase):
         self.assertEqual(xml_legacy, xml_updated)
 
     def test_json_serializer_with_presence_adapter(self):
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import PresenceAdapter
         basejson = {
@@ -99,7 +94,6 @@ class TestSerializers(unittest.TestCase):
         self.assertEqual(xml_legacy, xml_updated)
 
     def test_json_serializer_with_emergency_adapter(self):
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import EmergencyOnAdapter
         basejson = {
@@ -145,13 +139,12 @@ class TestSerializers(unittest.TestCase):
         protobufObj = FederatedEvent()
         protobufObj.ParseFromString(protobufString)
         # protobufObj.ParseFromString(protobufString2)
-        #y = [name.name for name in protobufObj.event.DESCRIPTOR.fields]
+        # y = [name.name for name in protobufObj.event.DESCRIPTOR.fields]
         fts_obj = ProtobufSerializer().from_format_to_fts_object(protobufObj, Event.Connection())
         z = lxml.etree.tostring(XmlSerializer().from_fts_object_to_format(fts_obj))
         1 == 1
 
     def test_to_protobuf_serialization(self):
-        from FreeTAKServer.model.FTSModel.Event import Event
         xmlstring = '<event version="2.0" uid="ANDROID-R5CN70EYKQH" type="a-f-G-U-C" how="h-e" start="2020-12-24T18:16:22.325Z" time="2020-12-24T18:16:22.325Z" stale="2020-12-24T18:22:37.325Z"><detail><__group name="Teal" role="Team Member"/><status battery="76"/><takv version="4.2.0.4 (47e136dd).1607456856-CIV" platform="ATAK-CIV" device="SAMSUNG SM-N986U" os="29"/><track course="159.1462509079387" speed="0.0"/><contact callsign="SPAC3SLOTH" endpoint="*:-1:stcp" /><uid Droid="SPAC3SLOTH"/><precisionlocation altsrc="GPS" geopointsrc="GPS"/></detail><point le="9999999.0" ce="11.0" hae="178.84407323983876" lon="-76.675505" lat="39.664392"/></event>'
         fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.Connection())
         y = ProtobufSerializer().from_fts_object_to_format(fts_obj)

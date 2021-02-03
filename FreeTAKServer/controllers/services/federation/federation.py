@@ -1,19 +1,14 @@
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.configuration.types import Types
-from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, ConnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler
+from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
-from multiprocessing import Pipe as multiprocessingPipe
 from FreeTAKServer.model.federate import Federate
 import selectors
 import socket
-from typing import Tuple
 import ssl
 import time
-import codecs
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController

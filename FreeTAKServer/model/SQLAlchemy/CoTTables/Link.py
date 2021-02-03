@@ -9,7 +9,7 @@
 #######################################################
 from sqlalchemy import Column, ForeignKey
 from FreeTAKServer.model.SQLAlchemy.Root import Base
-from sqlalchemy import String, Integer
+from sqlalchemy import String
 from sqlalchemy.orm import relationship
 
 
@@ -18,13 +18,14 @@ class Link(Base):
     __tablename__ = "Link"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="link")
-    #PrimaryKey = Column(ForeignKey('detail.uid'), primary_key=True)
+    # PrimaryKey = Column(ForeignKey('detail.uid'), primary_key=True)
+
     # Internet Media type of the referenced object.  If the link is to a CoT event,
     # the mime attribute is optional and its type may be application/xml or text/xml
     # as described in RFC 3023, "XML Media Types", or the unregistered type,
     # application/cot+xml.  If the link is to an arbitrary resource, the mime
     # attribute is required and and appropriate Internet media type must be specified.
-    #  Registered media types are managed by the IANA and are listed at http://www.
+    # Registered media types are managed by the IANA and are listed at http://www.
     # iana.org/assignments/media-types/.
     mime = Column(String)
     parent_callsign = Column(String)

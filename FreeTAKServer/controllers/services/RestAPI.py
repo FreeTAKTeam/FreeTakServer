@@ -1,31 +1,37 @@
-import eventlet
-from flask import Flask, request, jsonify, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO, emit
-from flask_httpauth import HTTPTokenAuth
-from flask_login import current_user, LoginManager
+import uuid
 import threading
-from functools import wraps
-from lxml import etree
-from FreeTAKServer.model.FTSModel.Event import Event
-from FreeTAKServer.model.RawCoT import RawCoT
-from FreeTAKServer.controllers.ApplyFullJsonController import ApplyFullJsonController
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
-from FreeTAKServer.model.ServiceObjects.FTS import FTS
-from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
-from FreeTAKServer.model.SimpleClient import SimpleClient
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
-from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
-import os
+import string
 import shutil
+import random
+import os
 import json
+import hashlib
+from zipfile import ZipFile
+from pathlib import PurePath, Path
+from lxml import etree
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS
+from flask_httpauth import HTTPTokenAuth
+from flask_login import LoginManager
+from flask_socketio import SocketIO, emit
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from FreeTAKServer.model.SimpleClient import SimpleClient
+from FreeTAKServer.model.ServiceObjects.FTS import FTS
+from FreeTAKServer.model.RawCoT import RawCoT
+from FreeTAKServer.model.FTSModel.Event import Event
+from FreeTAKServer.model.SQLAlchemy.User import User
+from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.controllers.JsonController import JsonController
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
+from FreeTAKServer.controllers.ApplyFullJsonController import ApplyFullJsonController
 
 dbController = DatabaseController()
 
@@ -213,7 +219,7 @@ def show_service_info(empty=None):
 def getStatus():
     CommandPipe.send([functionNames.checkStatus])
     out = CommandPipe.recv()
-    while hasattr(out, "CoTService") == False:
+    while hasattr(out, "CoTService") is False:
         out = CommandPipe.recv()
     return out
 
@@ -280,13 +286,6 @@ def addSystemUser(jsondata):
             certificate_generation.AtakOfTheCerts().bake(cn=systemuser["Name"])
             certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
             # add DP
-            import string
-            import random
-            from pathlib import PurePath, Path
-            import hashlib
-            from lxml import etree
-            import shutil
-            import os
             dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
             openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))), mode='rb')
             file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
@@ -380,8 +379,6 @@ def ManagePresence():
 @auth.login_required
 def postPresence():
     try:
-        from json import dumps
-        #jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_presence_post(jsondata)
         Presence = SendPresenceController(jsonobj).getCoTObject()
@@ -401,8 +398,6 @@ def ManageGeoObject():
 @auth.login_required
 def postGeoObject():
     try:
-        from json import dumps
-        #jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_geoobject_post(jsondata)
         simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
@@ -422,8 +417,6 @@ def ManageChat():
 @auth.login_required
 def postChatToAll():
     try:
-        from json import dumps
-        #jsondata = {'message': 'test abc', 'sender': 'natha'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_chat_post(jsondata)
         ChatObject = SendChatController(jsonobj).getCoTObject()
@@ -437,7 +430,6 @@ def postChatToAll():
 @auth.login_required
 def getEmergency():
     try:
-        from json import dumps
         output = dbController.query_ActiveEmergency()
         for i in range(0, len(output)):
             original = output[i]
@@ -457,8 +449,6 @@ def getEmergency():
 @auth.login_required
 def postEmergency():
     try:
-        from json import dumps
-
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_emergency_post(jsondata)
         EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()
@@ -472,7 +462,6 @@ def postEmergency():
 @auth.login_required
 def deleteEmergency():
     try:
-        from json import dumps
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_emergency_delete(jsondata)
         EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()
@@ -574,7 +563,6 @@ def Clients():
 @auth.login_required()
 def FederationTable():
     try:
-        import random
         if request.method == restMethods.GET:
             output = dbController.query_ActiveFederation()
             for i in range(0, len(output)):
@@ -669,19 +657,8 @@ def DataPackageTable():
         return '200', 200
 
     elif request.method == "POST":
-        import string
-        import random
-        from pathlib import PurePath, Path
-        import hashlib
-        from zipfile import ZipFile, ZIP_DEFLATED
-        import tempfile
-        from lxml import etree
-        import uuid
-        from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
         dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
         letters = string.ascii_letters
-        #uid = ''.join(random.choice(letters) for i in range(4))
-        #uid = 'uid-' + str(uid)
         uid = str(uuid.uuid4())
         filename = request.args.get('filename')
         creatorUid = request.args.get('creatorUid')
@@ -718,7 +695,7 @@ def DataPackageTable():
         os.rename(str(PurePath(Path(directory))), newDirectory)
         fileSize = Path(str(newDirectory), filename).stat().st_size
         if creatorUid is None:
-            callsign = str(dbController.query_user(query=f'uid == "server-uid"', column=[
+            callsign = str(dbController.query_user(query='uid == "server-uid"', column=[
                 'callsign']))  # fetchone() gives a tuple, so only grab the first element
             dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser='server',
                                             CreatorUid='server-uid', Size=fileSize)
@@ -745,8 +722,6 @@ def DataPackageTable():
 
 
 def getMission():
-    import uuid
-    import random
     creator_uid = str(uuid.uuid4())
     maincontent = {
         "name": "some name",
@@ -795,8 +770,6 @@ def getMission():
 def mission_table():
     try:
         if request.method == "GET":
-            import random
-
             jsondata = {
                 "version": "3",
                 "type": "Mission",
@@ -816,10 +789,6 @@ def mission_table():
 @auth.login_required()
 def excheck_table():
     try:
-        from os import listdir
-        from pathlib import PurePath, Path
-        from datetime import datetime
-        from flask import request
         if request.method == "GET":
             jsondata = {"ExCheck": {'Templates': [], 'Checklists': []}}
             from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer

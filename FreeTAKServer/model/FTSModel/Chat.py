@@ -37,7 +37,7 @@ class Chat(FTSProtocolObject):
     def getparent(self):
         return self.parent
 
-     # parent setter
+    # parent setter
     def setparent(self, parent=0):
         self.parent = parent
 
@@ -50,7 +50,7 @@ class Chat(FTSProtocolObject):
         global senderCallsign
         senderCallsign = senderCallsignn
 
-      # chatroom getter
+    # chatroom getter
     def getchatroom(self):
         return self.chatroom
 
@@ -66,7 +66,7 @@ class Chat(FTSProtocolObject):
     def setgroupOwner(self, groupOwner=0):
         self.groupOwner = groupOwner
 
-      # id getter
+    # id getter
     def getid(self):
         return self.id
 

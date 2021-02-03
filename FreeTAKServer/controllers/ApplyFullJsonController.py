@@ -12,7 +12,6 @@ class ApplyFullJsonController:
     def determine_function(self):
         function = self.typeDict[self.type]
         model = function(self.json)
-        #model = self.serializeJsonToModel(self.model, json)
         return model
 
     def point_controller(self, Json):

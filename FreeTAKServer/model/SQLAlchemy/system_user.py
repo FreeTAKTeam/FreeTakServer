@@ -1,8 +1,6 @@
-from sqlalchemy import Column
-from FreeTAKServer.model.SQLAlchemy.Root import Base
-from sqlalchemy import String
-from sqlalchemy import Boolean
+from sqlalchemy import Column, String
 from flask_login import UserMixin
+from FreeTAKServer.model.SQLAlchemy.Root import Base
 
 
 class SystemUser(Base, UserMixin):

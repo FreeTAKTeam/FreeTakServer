@@ -1,5 +1,3 @@
-import os
-import pathlib
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 

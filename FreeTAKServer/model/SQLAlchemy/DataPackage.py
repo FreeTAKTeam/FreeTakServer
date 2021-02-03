@@ -7,14 +7,9 @@
 # Original author: natha
 #
 #######################################################
-from sqlalchemy import Column
-from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import VARCHAR
-from sqlalchemy import CHAR
-from sqlalchemy import DateTime
 from datetime import datetime as dt
+from sqlalchemy import Column, Integer, String, VARCHAR, CHAR, DateTime
+from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
 
 
 class DataPackage(Base, Root):

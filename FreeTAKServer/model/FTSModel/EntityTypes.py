@@ -16,19 +16,19 @@ class EntityTypes(FTSProtocolObject):
     military = ""
 
     civilian = ""
-    # civilian getter
 
+    # civilian getter
     def getcivilian(self):
         return self.civilian
 
-       # civilian setter
+    # civilian setter
     def setcivilian(self, civilian=0):
         self.civilian = civilian
 
-        # military getter
+    # military getter
     def getmilitary(self):
         return self.military
 
-      # military setter
+    # military setter
     def setmilitary(self, military=0):
         self.military = military

@@ -24,8 +24,7 @@ class FederationClientServiceController(FederationServiceAbstract):
             federate = FederationServiceController(ip, port, sock).start()
             self.federateClients.add_client(federate)
         except Exception as e:
-            logger.error('exception has been thrown in the creation of client federation '
-                         + str(e))
+            logger.error(f"exception has been thrown in the creation of client federation { str(e) }")
 
     def remove_client_federation(self, Federate):
         pass

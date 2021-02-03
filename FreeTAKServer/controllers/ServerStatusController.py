@@ -1,6 +1,8 @@
-from FreeTAKServer.model.ServiceObjects.FTS import FTS
+import socket
+import requests
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-import typing
+from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
+from FreeTAKServer.model.ServiceObjects.FTS import FTS
 
 
 def modifyDefaultIP(func):
@@ -40,9 +42,6 @@ class ServerStatusController:
         self.FederationServerExpected = mapping[ServerStatusObject.FederationServerService.FederationServerServiceStatus]
 
     def FederationServerStatusCheck(self, FederationPort, IP):
-        import ssl
-        from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
-        import socket
         try:
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -102,8 +101,6 @@ class ServerStatusController:
             return "off"
 
     def SSLDataPackageStatusCheck(self, SSLDataPackagePort, IP):
-        import requests
-        from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
         try:
             import socket
             if IP == "0.0.0.0":

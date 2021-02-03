@@ -30,18 +30,18 @@ class Track(FTSProtocolObject):
         track.setcourse(COURSE)
         return track
 
-     # speed getter
+    # speed getter
     def getspeed(self):
         return self.speed
 
-     # speed setter
+    # speed setter
     def setspeed(self, speed=0):
         self.speed = speed
 
-     # course getter
+    # course getter
     def getcourse(self):
         return self.course
 
-     # course setter
+    # course setter
     def setcourse(self, course=0):
         self.course = course

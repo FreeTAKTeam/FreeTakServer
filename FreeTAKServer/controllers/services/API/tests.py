@@ -1,5 +1,4 @@
 import unittest
-import threading
 
 
 class Tests(unittest.TestCase):

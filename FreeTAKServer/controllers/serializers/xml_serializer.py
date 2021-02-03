@@ -3,7 +3,6 @@ from FreeTAKServer.model.FTSModel.Event import Event
 from typing import NewType, List
 from lxml import etree
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-import time
 
 
 class XmlSerializer(SerializerAbstract):

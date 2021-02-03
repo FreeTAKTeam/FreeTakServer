@@ -7,15 +7,10 @@
 # Original author: natha
 #
 #######################################################
-from sqlalchemy import Column
-from FreeTAKServer.model.SQLAlchemy.Root import Base
-from sqlalchemy import String
-from sqlalchemy import Integer
-from sqlalchemy import ForeignKey
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import backref
+from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.model.SQLAlchemy.Event import Event
-from FreeTAKServer.model.SQLAlchemy.system_user import SystemUser
 
 
 class User(Base):

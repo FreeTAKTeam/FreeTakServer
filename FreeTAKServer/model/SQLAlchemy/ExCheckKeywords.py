@@ -1,7 +1,6 @@
 from sqlalchemy import Column, ForeignKey
-from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
+from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy import String
-from sqlalchemy import Integer
 
 
 class ExCheckKeywords(Base):

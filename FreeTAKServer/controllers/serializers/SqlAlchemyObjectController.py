@@ -1,5 +1,3 @@
-from sqlalchemy.inspection import inspect
-
 
 class SqlAlchemyObjectController:
     def __init__(self):

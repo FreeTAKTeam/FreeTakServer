@@ -7,7 +7,7 @@
 # Original author: natha
 #
 #######################################################
-from PSM.Column import Column
+
 from PSM.Root import Root
 
 

@@ -7,14 +7,13 @@
 # Original author: natha
 #
 #######################################################
-from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 
 
 class GeoObject:
     """a GeoObject is an element place on a map. It has a name, characteristics and an
     attitude.
     """
-# default constructor  def __init__(self):
+    # default constructor  def __init__(self):
     # the kind of expected behavior of the GeoObject (e.g friendly, hostile, unknown).
     # Please see API documentation for a list of valid entries.
     attitude = ""

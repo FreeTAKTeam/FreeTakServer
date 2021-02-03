@@ -1,10 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
-from typing import NewType
 from typing import NewType
 from FreeTAKServer.controllers.serializers.json_serializer import JsonSerializer
 from FreeTAKServer.model.FTSModel.Event import Event
-from FreeTAKServer.model.RestMessages.GeoObject import GeoObject, RestEnumerations
+from FreeTAKServer.model.RestMessages.GeoObject import RestEnumerations
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables
 from FreeTAKServer.model.SpecificCoT.SendSimpleCoT import SendSimpleCoT
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
