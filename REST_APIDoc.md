@@ -90,16 +90,16 @@ the message is placed in the body of the request as JSON formatted. See below fo
    * server error 404: you have an error in the end point definition
  
  ##### List of supported Geo Objects
-  * "Gnd Combat Infantry Rifleman"
-  * "Gnd Combat Infantry grenadier" 
-  * "Gnd Combat Infantry Mortar" 
-  * "Gnd Combat Infantry MachineGunner (LMG)" 
-  * "Gnd Combat Infantry Medic" 
-  * "Gnd Combat Infantry Sniper"
-  * "Gnd Combat Infantry Recon" 
-  * "Gnd Combat Infantry anti Tank" 
-  * "Gnd Combat Infantry air defense"
-  * "Gnd Combat Infantry Engineer"
+  * "Gnd Combat Infantry Rifleman",  Nickname: "Rifleman"
+  * "Gnd Combat Infantry grenadier", Nickname: "Grenadier"
+  * "Gnd Combat Infantry Mortar" , Nickname: "Mortar" 
+  * "Gnd Combat Infantry MachineGunner (LMG)",  Nickname: "LMG" 
+  * "Gnd Combat Infantry Medic" ,  Nickname: "Medic"
+  * "Gnd Combat Infantry Sniper",  Nickname: "Sniper"
+  * "Gnd Combat Infantry Recon" ,  Nickname: "Recon"
+  * "Gnd Combat Infantry anti Tank" ,  Nickname: "anti Tank"
+  * "Gnd Combat Infantry air defense",  Nickname: "AA"
+  * "Gnd Combat Infantry Engineer",  Nickname: "Engineer"
   * "Ground"
   
  #####   Extensions for EMS
