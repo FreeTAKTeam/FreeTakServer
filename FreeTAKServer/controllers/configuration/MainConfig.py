@@ -9,28 +9,28 @@ class MainConfig:
     should need to be changed
     """
     # this is the port to which clients will connect
-    CoTServicePort = int(8087)
+    CoTServicePort = int(os.env.get('FTS_COT_PORT', 8087))
 
-    SSLCoTServicePort = int(8089)
+    SSLCoTServicePort = int(os.env.get('FTS_SSLCOT_PORT', 8089))
 
     # this needs to be changed for private data packages to work
-    DataPackageServiceDefaultIP = str("0.0.0.0")
+    DataPackageServiceDefaultIP = str(os.env.get('FTS_DP_ADDRESS', "0.0.0.0"))
 
     # User Connection package IP needs to be set to the IP which is used when creating the connection in your tak device
-    UserConnectionIP = str("0.0.0.0")
+    UserConnectionIP = str(os.env.get('FTS_USER_ADDRESS', "0.0.0.0"))
 
     python_version = 'python3.8'
 
     userpath = '/usr/local/lib/'
 
     # api port
-    APIPort = 19023
+    APIPort = os.env.get('FTS_API_PORT', 19023)
 
     # Federation port
-    FederationPort = 9000
+    FederationPort = os.env.get('FTS_FED_PORT', 9000)
 
     # api IP
-    APIIP = '0.0.0.0'
+    APIIP = os.env.get('FTS_API_ADDRESS', '0.0.0.0')
 
     # allowed ip's to access CLI commands
     AllowedCLIIPs = ['127.0.0.1']
@@ -39,10 +39,10 @@ class MainConfig:
     CLIIP = '127.0.0.1'
 
     # whether or not to save CoT's to the DB
-    SaveCoTToDB = bool(True)
+    SaveCoTToDB = bool(os.env.get('FTS_COT_TO_DB', True))
 
     # this should be set before startup
-    DBFilePath = str(r'/root/FTSDataBase.db')
+    DBFilePath = str(os.env.get('FTS_DB_PATH', r'/root/FTSDataBase.db'))
 
     # the version information of the server (recommended to leave as default)
     version = 'FreeTAKServer-1.5.10 RC 1'
@@ -61,29 +61,31 @@ class MainConfig:
     from uuid import uuid4
     id = str(uuid4())
 
-    nodeID = f"FreeTAKServer-{id}"
+    nodeID = os.env.get('FTS_NODE_ID', f"FreeTAKServer-{id}")
 
     # set to None if you don't want a message sent
     ConnectionMessage = f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting'
 
-    keyDir = str(Path(fr'{MainPath}/certs/pubserver.key'))
+    certsPath = os.env.get('FTS_CERTS_PATH', fr'{MainPath}/certs')
 
-    pemDir = str(Path(fr'{MainPath}/certs/pubserver.pem')) # or crt
+    keyDir = str(Path(fr'{certsPath}/pubserver.key'))
 
-    unencryptedKey = str(Path(fr'{MainPath}/certs/pubserver.key.unencrypted'))
+    pemDir = str(Path(fr'{certsPath}/pubserver.pem')) # or crt
 
-    p12Dir = str(Path(fr'{MainPath}/certs/pubserver.p12'))
+    unencryptedKey = str(Path(fr'{certsPath}/pubserver.key.unencrypted'))
 
-    CA = str(Path(fr'{MainPath}/certs/ca.pem'))
-    CAkey = str(Path(fr'{MainPath}/certs/ca.key'))
+    p12Dir = str(Path(fr'{certsPath}/pubserver.p12'))
 
-    federationCert = str(Path(fr'{MainPath}/certs/pubserver.pem'))
-    federationKey = str(Path(fr'{MainPath}/certs/pubserver.key'))
-    federationKeyPassword = str('defaultpass')
+    CA = str(Path(fr'{certsPath}/ca.pem'))
+    CAkey = str(Path(fr'{certsPath}/ca.key'))
+
+    federationCert = str(Path(fr'{certsPath}/pubserver.pem'))
+    federationKey = str(Path(fr'{certsPath}/pubserver.key'))
+    federationKeyPassword = str(os.env.get('FTS_FED_PASSWORD','defaultpass'))
     
     # location to backup client packages
     clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
 
-    password = str('defaultpass')
+    password = str(os.env.get('FTS_PASSWORD', 'defaultpass')
 
-    websocketkey = "YourWebsocketKey"
+    websocketkey = os.env.get('FTS_WEBSOCKET_KEY', "YourWebsocketKey")
