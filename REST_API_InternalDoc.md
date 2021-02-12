@@ -1,5 +1,5 @@
 ## List of supported API
-In the current release (1.3 internal), FTS supports following API:
+In the current release (1.5.12), FTS supports following API:
   * authenticate
   * users
   * logs
