@@ -114,6 +114,6 @@ If you run it at home and port forward on router doesn't work, check if you rece
   - **Models**: Contains all the COT object model
   - **TAKLinuxService**:   a demon for linux OS
   -  **TakWinService**: a service for the windows OS
-- Docs: Usefull documentation regarding COTS and different logs to understand how those are implemented
+- Docs: Useful documentation regarding COTS and different logs to understand how those are implemented
 - Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html).
 - Old: Legacy versions
