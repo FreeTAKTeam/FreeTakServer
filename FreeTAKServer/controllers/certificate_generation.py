@@ -154,6 +154,9 @@ class AtakOfTheCerts:
         """
         if not os.path.exists(self.cakeypath):
             print("Cannot find CA locally so generating one")
+            if not os.path.exists(os.path.dirname(self.cakeypath)):
+                print("the directory for storing certificates doesn't exist. Creating on at " + os.path.dirname(self.cakeypath))
+                os.makedirs(os.path.dirname(self.cakeypath))
             ca_key = crypto.PKey()
             ca_key.generate_key(crypto.TYPE_RSA, 2048)
             cert = crypto.X509()
