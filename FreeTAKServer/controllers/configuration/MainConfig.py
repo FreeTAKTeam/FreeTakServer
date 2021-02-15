@@ -47,7 +47,7 @@ class MainConfig:
     # the version information of the server (recommended to leave as default)
     version = 'FreeTAKServer-1.5.10 RC 1'
 
-    MainPath = str(os.environ.get('FTS_DATA_PATH', 
+    MainPath = str(os.environ.get('FTS_DATA_PATH',
         Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')))
 
     ExCheckMainPath = str(Path(fr'{MainPath}/ExCheck'))
