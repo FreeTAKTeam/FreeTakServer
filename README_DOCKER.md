@@ -1,4 +1,7 @@
 # Docker Quickstart
+
+:warning: **THIS IS NOT WELL SUPPORTED BY THE FTS TEAM RIGHT NOW, YOU ARE IN UNCHARTED TERRITORY** :warning:
+
 I'd like to set this repo up to use github actions to push to pip and docker hub at the same time. Until that happens, here's how you can build and use this repo to build a docker image and run a container from it. It assumes you've already cloned it where you plan to use it. It _also_ means you'll be running whatever's in development, _not_ what's been released / in Pypi. 
 
 :warning: **That means you might be running unreleased code with this method**
