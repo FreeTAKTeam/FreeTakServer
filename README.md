@@ -4,8 +4,8 @@
 
 Welcome to the FreeTakServer (FTS) git repository.
 
-FTS is a Python3 implementation of the TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), WinTAK, and ITAK, it is cross-platform. We use the Flask framework for web services. 
-It's free and open source (released under the Eclipse Public License).
+FTS is a Python3 implementation of the TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), [WinTAK](https://1drv.ms/u/s!AtMVrrXVTu4YgSanKtSHIslxfRu5?e=ftVio7 ), and ITAK, it is cross-platform and runs from a multi node installation on AWS down to the Android edition. 
+It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/)).
 
 ## User Documentation
 For documentation on installation and usage visit https://freetakteam.github.io/FreeTAKServer-User-Docs/
@@ -52,6 +52,23 @@ https://discordapp.com/invite/XEPyhHA
 TAKFreeServer uses a MVC pattern, the concept of a COT (Cursor On Target) is described in a set of Domain classes, generated from the UML model using a Model Driven Architecture approach.
 ![the domain model with all the known objects used by CIVTAK/wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png) [Live version](http://pldemo.sparxsystems.us/Ldsd4T)
 [generated documentation of the COT description](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
+
+### OPEN SOURCE NOTICES
+FTS was made possible by the following Open Source projects.
+We like to thank the following individuals and organization for providing crucial support and making FTS possible.
+- flask
+- lxml
+- pathlib
+- tabulate
+- sqlalchemy
+- setuptools
+- eventlet
+- random_word
+- Pip
+- Bootstrap4
+- pyopenssl
+- Flask Dashboard Black by AppSeed
+
 
 ## Documentation
 under /docs, you can find various documents including an UML model of the Domain classes involved in a COT event.
