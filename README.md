@@ -4,7 +4,7 @@
 
 Welcome to the FreeTakServer (FTS) git repository.
 
-FTS is a Python3 implementation of the TAK Server for devices like CivTAK, WinTAK, and ITAK, it is cross-platform. We use the Flask framework for web services. 
+FTS is a Python3 implementation of the TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), WinTAK, and ITAK, it is cross-platform. We use the Flask framework for web services. 
 It's free and open source (released under the Eclipse Public License).
 
 ## User Documentation
@@ -90,7 +90,9 @@ if you already installed FTS with pip you can use
 ```
 pip install FreeTAKServer --upgrade
 ```
-subscribe to this feed to be automatically informed about new versions:
+this is not warranted to work, often the best way is to delete the installation and start from zero.
+
+subscribe to this feed to be automatically informed about PIP new versions:
 https://pypi.org/rss/project/freetakserver/releases.xml
 
 ### client2client datapackages
@@ -106,7 +108,7 @@ Assuming you want to run open-to-everyone FTS instance, and you have server host
 If you run it at home and port forward on router doesn't work, check if you receive actual IP address and not being NATed and ports 8080 and 8087 are not filtered - you can ask your ISP about that.
 
 ## Additional Documentation
-  * Since version 1.2 FTS supports a[REST API](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/REST_APIDoc.md)
+  * Since version 1.2 FTS supports a [REST API](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/REST_APIDoc.md) and an [Internal REST API](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/REST_API_InternalDoc.md)
 
 ##  Project Structure
 - TakFreeServer
