@@ -1,26 +1,24 @@
-import multiprocessing
 import threading
 import argparse
 from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
-from FreeTAKServer.controllers.services.TCPDataPackageService import TCPDataPackageService as TCPFlaskFunctions
-from FreeTAKServer.controllers.services.SSLDataPackageService import SSLDataPackageService as SSLFlaskFunctions
+CreateStartupFilesController()
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.services.RestAPI import RestAPI
 from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSObj
 from FreeTAKServer.model.SimpleClient import SimpleClient
 import time
 from FreeTAKServer.controllers.AddDataToCoTList import AddDataToCoTList
 from FreeTAKServer.model.FilterGroup import FilterGroup
-from FreeTAKServer.controllers.services.SSLCoTServiceController import SSLCoTServiceController
 from FreeTAKServer.controllers.services.TCPCoTServiceController import TCPCoTServiceController
-from FreeTAKServer.controllers.services.federation.FederationClientService import FederationClientServiceController
-from FreeTAKServer.controllers.services.federation.federation import FederationServerService
-from FreeTAKServer.controllers.services.FederationServerServiceController import FederationServerServiceController
+from FreeTAKServer.controllers.services.TCPDataPackageService import TCPDataPackageService as TCPFlaskFunctions
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.services.SSLCoTServiceController import SSLCoTServiceController
 from FreeTAKServer.controllers.certificate_generation import AtakOfTheCerts
-
+from FreeTAKServer.controllers.services.SSLDataPackageService import SSLDataPackageService as SSLFlaskFunctions
+from FreeTAKServer.controllers.services.RestAPI import RestAPI
+from FreeTAKServer.controllers.services.federation.FederationClientService import FederationClientServiceController
+from queue import Queue
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("FTS").getLogger()
 
@@ -48,12 +46,15 @@ class FTS:
 
     def start_restAPI_service(self, StartupObjects):
         try:
-            RestAPIPipe, self.RestAPIPipe = multiprocessing.Pipe(duplex=True)
-            self.RestAPICommands, self.RestAPICommandsFTS = multiprocessing.Pipe()
+            self.RestAPIPipe = Queue()
+            restapicommandsthread = Queue()
+            restapicommandsmain = Queue()
+            self.RestAPICommandsFTS = QueueManager(restapicommandsmain, restapicommandsthread)
+            RestAPICommandsFTS = QueueManager(restapicommandsthread, restapicommandsmain)
             self.receive_Rest_stopper = threading.Event()
             self.receive_Rest_stopper.clear()
             self.receive_Rest = threading.Thread(target=self.receive_Rest_commands, args=(self.receive_Rest_stopper,))
-            self.RestAPIProcess = multiprocessing.Process(target=RestAPI().startup, args=(RestAPIPipe, self.RestAPICommands, StartupObjects.RestAPIService.RestAPIServiceIP, StartupObjects.RestAPIService.RestAPIServicePort, self.StartupTime))
+            self.RestAPIProcess = threading.Thread(target=RestAPI().startup, args=(self.RestAPIPipe, RestAPICommandsFTS, StartupObjects.RestAPIService.RestAPIServiceIP, StartupObjects.RestAPIService.RestAPIServicePort, self.StartupTime, self.startuplock))
             self.receive_Rest.start()
             self.RestAPIProcess.start()
             self.pipeList['restAPI'] = self.RestAPIPipe
@@ -74,25 +75,33 @@ class FTS:
 
     def start_CoT_service(self, FTSServiceStartupConfigObject):
         try:
-            self.ClientDataPipe, ClientDataPipeParentChild = multiprocessing.Pipe()
-            self.TCPCoTService, self.TCPCoTServiceFTSPipe = multiprocessing.Pipe(duplex=True)
-            self.CoTPoisonPill = multiprocessing.Event()
+            print('starting CoT service')
+            self.ClientDataPipe = Queue()
+            TCPCoTServiceThread = Queue()
+            TCPCoTServiceFTS = Queue()
+            self.TCPCoTService = QueueManager(TCPCoTServiceThread, TCPCoTServiceFTS)
+            TCPCoTService = QueueManager(TCPCoTServiceFTS, TCPCoTServiceThread)
+            print('event event about to be created')
+            self.CoTPoisonPill = threading.Event()
+            print('event created')
             self.CoTPoisonPill.set()
-            self.ReceiveConnectionsReset = multiprocessing.Event()
-            self.CoTService = multiprocessing.Process(target=TCPCoTServiceController().start, args=(FTSServiceStartupConfigObject.CoTService.CoTServiceIP, FTSServiceStartupConfigObject.CoTService.CoTServicePort, self.CoTPoisonPill, ClientDataPipeParentChild, self.ReceiveConnectionsReset, self.TCPCoTService))
+            self.ReceiveConnectionsReset = threading.Event()
+            self.CoTService = threading.Thread(target=TCPCoTServiceController().start, args=(FTSServiceStartupConfigObject.CoTService.CoTServiceIP, FTSServiceStartupConfigObject.CoTService.CoTServicePort, self.CoTPoisonPill, self.ClientDataPipe, self.ReceiveConnectionsReset, TCPCoTService))
+            print("thread created")
             self.CoTService.start()
-            self.pipeList['TCPCoTServiceFTSPipe'] = self.TCPCoTServiceFTSPipe
-            self.FilterGroup.receivers.append(self.TCPCoTServiceFTSPipe)
-            self.FilterGroup.sources.append(self.TCPCoTServiceFTSPipe)
+            self.pipeList['TCPCoTServiceFTSPipe'] = self.TCPCoTService
+            self.FilterGroup.receivers.append(self.TCPCoTService)
+            self.FilterGroup.sources.append(self.TCPCoTService)
             print('CoTService started')
             return 1
         except Exception as e:
+            print(e)
             logger.error('an exception has been thrown in CoT service startup ' + str(e))
             return -1
 
     def stop_CoT_service(self):
         try:
-            self.ClientDataPipe.close()
+            # self.ClientDataPipe.close()
             self.CoTPoisonPill.clear()
 
             time.sleep(1)
@@ -102,8 +111,8 @@ class FTS:
             else:
                 self.CoTService.join()
 
-            self.FilterGroup.sources.remove(self.TCPCoTServiceFTSPipe)
-            self.FilterGroup.receivers.remove(self.TCPCoTServiceFTSPipe)
+            self.FilterGroup.sources.remove(self.TCPCoTService)
+            self.FilterGroup.receivers.remove(self.TCPCoTService)
 
         except Exception as e:
             logger.error("there's been an exception in the stopping of CoT Service " + str(e))
@@ -112,12 +121,17 @@ class FTS:
 
     def start_tcp_data_package_service(self, FTSServiceStartupConfigObject):
         try:
-            tcp_data_package_service_pipe, self.tcp_data_package_service_pipe = multiprocessing.Pipe(duplex=True)
             print('start 213')
-            self.TCPDataPackageService = multiprocessing.Process(target=TCPFlaskFunctions().startup,
-                                                                 args=(FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP, FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort, tcp_data_package_service_pipe))
+            from os import environ
+            argument = environ.get('PYTHON_SERVICE_ARGUMENT', '')
+            if argument:
+                FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP = argument
+            self.tcp_data_package_service_pipe = Queue()
+            self.TCPDataPackageService = TCPFlaskFunctions()
+            self.TCPDataPackageServiceThread = threading.Thread(target=self.TCPDataPackageService.startup,
+                                                                 args=(FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP, FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort, self.tcp_data_package_service_pipe, self.startuplock))
+            self.TCPDataPackageServiceThread.start()
             print('starting now')
-            self.TCPDataPackageService.start()
             self.pipeList['tcp_data_package_service_pipe'] = self.tcp_data_package_service_pipe
             self.FilterGroup.sources.append(self.tcp_data_package_service_pipe)
             time.sleep(2)
@@ -130,26 +144,29 @@ class FTS:
         del self.pipeList['tcp_data_package_service_pipe']
         self.FilterGroup.sources.remove(self.tcp_data_package_service_pipe)
         try:
-            self.TCPDataPackageService.terminate()
-        except Exception as e:
-            logger.error("there's been an exception in the termination of DataPackage Service " + str(e))
-            return -1
+            self.TCPDataPackageService.stop()
+        except RuntimeError as e:
+            #logger.error("there's been an exception in the termination of DataPackage Service " + str(e))
+            #return -1
+            pass
         try:
-            self.TCPDataPackageService.join()
+            self.TCPDataPackageServiceThread.join()
         except Exception as e:
             logger.error("there's been an exception in the joining of DataPackage Service " + str(e))
             return -1
-        self.tcp_data_package_service_pipe.close()
+        # self.tcp_data_package_service_pipe.close()
         return 1
 
     def start_ssl_data_package_service(self, FTSServiceStartupConfigObject):
         try:
+            y = SSLFlaskFunctions
             print('start 213')
-            ssl_data_package_service, self.ssl_data_package_service = multiprocessing.Pipe(duplex=True)
-            self.SSLDataPackageService = multiprocessing.Process(target=SSLFlaskFunctions().startup,
-                                                              args=(FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceIP, FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort, ssl_data_package_service))
-            print('starting SSL now')
-            self.SSLDataPackageService.start()
+            self.ssl_data_package_service = Queue()
+            self.SSLDataPackageService = SSLFlaskFunctions()
+            self.SSLDataPackageServiceThread = threading.Thread(target=self.SSLDataPackageService.startup,
+                                                              args=(FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceIP, FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort, self.ssl_data_package_service, self.startuplock))
+            print('starting SSL DP service now')
+            self.SSLDataPackageServiceThread.start()
             self.pipeList['ssl_data_package_service'] = self.ssl_data_package_service
             self.FilterGroup.sources.append(self.ssl_data_package_service)
             time.sleep(2)
@@ -162,30 +179,34 @@ class FTS:
         del(self.pipeList['ssl_data_package_service'])
         self.FilterGroup.sources.remove(self.ssl_data_package_service)
         try:
-            self.SSLDataPackageService.terminate()
+            self.SSLDataPackageService.stop()
         except Exception as e:
             logger.error("there's been an exception in the termination of DataPackage Service " + str(e))
             return -1
         try:
-            self.SSLDataPackageService.join()
+            self.SSLDataPackageServiceThread.join()
         except Exception as e:
             logger.error("there's been an exception in the joining of DataPackage Service " + str(e))
             return -1
-        self.ssl_data_package_service.close()
+        # self.ssl_data_package_service.close()
         return 1
 
     def start_SSL_CoT_service(self, FTSServiceStartupConfigObject):
         try:
-            self.SSLClientDataPipe, SSLClientDataPipeParentChild = multiprocessing.Pipe()
-            self.SSLCoTServicePipe, self.SSLCoTServiceFTSPipe = multiprocessing.Pipe()
-            self.SSLCoTPoisonPill = multiprocessing.Event()
+            print('starting SSL CoT service')
+            self.SSLClientDataPipe = Queue()
+            SSLCoTServicePipeFTS = Queue()
+            SSLCoTServicePipeController = Queue()
+            self.SSLCoTServicePipe = QueueManager(SSLCoTServicePipeController, SSLCoTServicePipeFTS)
+            SSLCoTServicePipe = QueueManager(SSLCoTServicePipeFTS, SSLCoTServicePipeController)
+            self.SSLCoTPoisonPill = threading.Event()
             self.SSLCoTPoisonPill.set()
-            self.ReceiveConnectionsReset = multiprocessing.Event()
-            self.SSLCoTService = multiprocessing.Process(target=SSLCoTServiceController().start, args=(FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceIP, FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort, self.SSLCoTPoisonPill, SSLClientDataPipeParentChild, self.ReceiveConnectionsReset, self.SSLCoTServicePipe))
+            self.ReceiveConnectionsReset = threading.Event()
+            self.SSLCoTService = threading.Thread(target=SSLCoTServiceController().start, args=(FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceIP, FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort, self.SSLCoTPoisonPill, self.SSLClientDataPipe, self.ReceiveConnectionsReset, SSLCoTServicePipe))
             self.SSLCoTService.start()
-            self.pipeList['SSLCoTServiceFTSPipe'] = self.SSLCoTServiceFTSPipe
-            self.FilterGroup.sources.append(self.SSLCoTServiceFTSPipe)
-            self.FilterGroup.receivers.append(self.SSLCoTServiceFTSPipe)
+            self.pipeList['SSLCoTServiceFTSPipe'] = self.SSLCoTServicePipe
+            self.FilterGroup.sources.append(self.SSLCoTServicePipe)
+            self.FilterGroup.receivers.append(self.SSLCoTServicePipe)
             print('SSL CoTService started')
             return 1
         except Exception as e:
@@ -194,7 +215,7 @@ class FTS:
 
     def stop_SSL_CoT_service(self):
         try:
-            self.SSLClientDataPipe.close()
+            # self.SSLClientDataPipe.close()
             self.SSLCoTPoisonPill.clear()
 
             time.sleep(0.1)
@@ -213,8 +234,11 @@ class FTS:
         return 1
 
     def start_federation_client_service(self, FTSServiceStartupConfigObject):
-        FederationClientServicePipe, self.FederationClientServicePipeFTS = multiprocessing.Pipe(True)
-        self.FederationClientService = multiprocessing.Process(target=FederationClientServiceController().start, args=(FederationClientServicePipe,))
+        FederationClientServicePipeFTS = Queue()
+        FederationClientServicePipe = Queue()
+        self.FederationClientServicePipeFTS = QueueManager(FederationClientServicePipeFTS, FederationClientServicePipe)
+        FederationClientServicePipeThread = QueueManager(FederationClientServicePipe, FederationClientServicePipeFTS)
+        self.FederationClientService = threading.Thread(target=FederationClientServiceController().start, args=(FederationClientServicePipeThread,))
         self.FederationClientService.start()
         self.pipeList['FederationClientServiceFTSPipe'] = self.FederationClientServicePipeFTS
         self.FilterGroup.sources.append(self.FederationClientServicePipeFTS)
@@ -260,7 +284,7 @@ class FTS:
                 self.FederationServerService.join()
             else:
                 self.FederationServerService.join()
-            self.FederationServerServicePipeFTS.close()
+            # self.FederationServerServicePipeFTS.close()
             self.FilterGroup.sources.remove(self.FederationServerServicePipeFTS)
             self.FilterGroup.receivers.remove(self.FederationServerServicePipeFTS)
             return 1
@@ -283,11 +307,10 @@ class FTS:
                 self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus
                 self.stop_tcp_data_package_service()
             else:
-                if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort != "":
-                    self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort
-                if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP != self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP:
-                    if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus or self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus:
+                if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP != self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP or self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort != FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort:
+                    if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus == "start" or self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus == "start":
                         self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP
+                        self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort
                         self.stop_tcp_data_package_service()
                         self.start_tcp_data_package_service(FTSServiceStartupConfigObject)
                     else:
@@ -387,8 +410,8 @@ class FTS:
     def receive_data_froCoT_service_thread(self, pipe, clientArray):
         found = 0
         try:
-            if pipe.poll(timeout=0.01):
-                data = pipe.recv()
+            if not pipe.empty():
+                data = pipe.get()
                 self.socketCount = data[2]
                 if data[0] == 'add':
                     clientArray.append(data[1])
@@ -419,20 +442,20 @@ class FTS:
     def receive_Rest_commands(self, kill):
         while kill.is_set() == False:
             try:
-                command = self.RestAPICommandsFTS.recv()
+                command = self.RestAPICommandsFTS.get()
                 if isinstance(command, tuple):
-                    self.FederationClientServicePipeFTS.send(command)
+                    self.FederationClientServicePipeFTS.put(command)
                 else:
                     function = getattr(self, command[0])
                     if len(command) >= 2:
                         output = function(command[1])
                     else:
                         output = function()
-                    self.RestAPICommandsFTS.send(output)
+                    self.RestAPICommandsFTS.put(output)
 
             except Exception as e:
                 logger.error('there has been an exception thrown in processing rest command ' + str(e))
-                self.RestAPICommandsFTS.send('500')
+                self.RestAPICommandsFTS.put('500')
 
     def check_server_status(self):
         return self.FTSServiceStartupConfigObject
@@ -489,12 +512,23 @@ class FTS:
 
     def stop_all(self):
         try:
-            DataPackageServiceOutput = self.stop_data_package_service()
+            DataPackageServiceOutput = self.stop_tcp_data_package_service()
+            if self.verify_output(DataPackageServiceOutput):
+                pass
+            else:
+                raise Exception('error stopping DataPackage Service')
+
+            DataPackageServiceOutput = self.stop_ssl_data_package_service()
             if self.verify_output(DataPackageServiceOutput):
                 pass
             else:
                 raise Exception('error stopping DataPackage Service')
             CoTServiceOutput = self.stop_CoT_service()
+            if self.verify_output(CoTServiceOutput):
+                pass
+            else:
+                raise Exception('error stopping CoT Service')
+            CoTServiceOutput = self.stop_SSL_CoT_service()
             if self.verify_output(CoTServiceOutput):
                 pass
             else:
@@ -513,7 +547,9 @@ class FTS:
 
     def checkPipes(self):
         try:
+            time.sleep(0.1)
             for pipe in self.FilterGroup.sources:
+
                 try:
                     data = AddDataToCoTList().recv(pipe)
                 except Exception as e:
@@ -540,54 +576,43 @@ class FTS:
         except Exception as e:
             pass
 
-    def startup(self, CoTPort, CoTIP, DataPackagePort, DataPackageIP, SSLDataPackagePort, SSLDataPackageIP, RestAPIPort, RestAPIIP, SSLCoTPort, SSLCoTIP, AutoStart, firstStart = False, UI="False"):
+    def startup(self, CoTPort, CoTIP, DataPackagePort, DataPackageIP, SSLDataPackagePort, SSLDataPackageIP, RestAPIPort, RestAPIIP, SSLCoTPort, SSLCoTIP, AutoStart, killSwitch, firstStart = False, UI="False"):
         try:
-            self.dbController.remove_user()
-            self.FTSServiceStartupConfigObject.RestAPIService.RestAPIServiceStatus = 'start'
-            self.FTSServiceStartupConfigObject.RestAPIService.RestAPIServicePort = RestAPIPort
-            self.FTSServiceStartupConfigObject.RestAPIServiceIP = RestAPIIP
+            self.startuplock = threading.Lock()
+            self.killSwitch = killSwitch
             if firstStart:
                 from datetime import datetime as dt
                 self.StartupTime = dt.now()
             else:
                 pass
-            if AutoStart == 'False':
-                StartupObject = FTSObj()
-                StartupObject.RestAPIService.RestAPIServicePort = RestAPIPort
-                StartupObject.RestAPIService.RestAPIServiceIP = RestAPIIP
-                StartupObject.RestAPIService.RestAPIServiceStatus = 'start'
-                self.start_restAPI_service(StartupObject)
+            self.dbController.remove_user()
+            StartupObject = FTSObj()
+            StartupObject.CoTService.CoTServiceIP = CoTIP
+            StartupObject.CoTService.CoTServicePort = CoTPort
+            StartupObject.CoTService.CoTServiceStatus = 'start'
 
-            else:
-                StartupObject = FTSObj()
-                StartupObject.CoTService.CoTServiceIP = CoTIP
-                StartupObject.CoTService.CoTServicePort = CoTPort
-                StartupObject.CoTService.CoTServiceStatus = 'start'
+            StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
+            StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
+            StartupObject.SSLCoTService.SSLCoTServiceStatus = 'start'
 
-                StartupObject.TCPDataPackageService.TCPDataPackageServiceIP = DataPackageIP
-                StartupObject.TCPDataPackageService.TCPDataPackageServicePort = DataPackagePort
-                StartupObject.TCPDataPackageService.TCPDataPackageServiceStatus = 'start'
+            StartupObject.TCPDataPackageService.TCPDataPackageServiceIP = DataPackageIP
+            StartupObject.TCPDataPackageService.TCPDataPackageServicePort = DataPackagePort
+            StartupObject.TCPDataPackageService.TCPDataPackageServiceStatus = 'start'
 
-                StartupObject.SSLDataPackageService.SSLDataPackageServiceIP = SSLDataPackageIP
-                StartupObject.SSLDataPackageService.SSLDataPackageServicePort = SSLDataPackagePort
-                StartupObject.SSLDataPackageService.SSLDataPackageServiceStatus = 'start'
+            StartupObject.SSLDataPackageService.SSLDataPackageServiceIP = SSLDataPackageIP
+            StartupObject.SSLDataPackageService.SSLDataPackageServicePort = SSLDataPackagePort
+            StartupObject.SSLDataPackageService.SSLDataPackageServiceStatus = 'start'
 
-                StartupObject.RestAPIService.RestAPIServicePort = RestAPIPort
-                StartupObject.RestAPIService.RestAPIServiceIP = RestAPIIP
-                StartupObject.RestAPIService.RestAPIServiceStatus = 'start'
+            StartupObject.RestAPIService.RestAPIServiceIP = RestAPIIP
+            StartupObject.RestAPIService.RestAPIServicePort = RestAPIPort
+            StartupObject.RestAPIService.RestAPIServiceStatus = 'start'
 
-                StartupObject.FederationClientService.FederationClientServiceStatus = 'start'
+            StartupObject.FederationClientService.FederationClientServiceStatus = 'start'
 
-                #StartupObject.FederationServerService.FederationServerServiceStatus = ''
+            self.start_restAPI_service(StartupObject)
+            self.start_all(StartupObject)
 
-                StartupObject.SSLCoTService.SSLCoTServiceStatus = 'start'
-                StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
-                StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
-                self.start_restAPI_service(StartupObject)
-
-                self.start_all(StartupObject)
-
-            while True:
+            while not self.killSwitch.is_set():
                 try:
                     self.checkPipes()
                 except Exception as e:
@@ -596,14 +621,11 @@ class FTS:
                     self.clientArray = self.receive_data_froCoT_service_thread(self.ClientDataPipe, self.clientArray)
                 except Exception as e:
                     logger.error("error thrown receiving clients from tcp CoT pipe " + str(e))
-                try:
-                    self.clientArray = self.receive_data_froCoT_service_thread(self.SSLClientDataPipe, self.clientArray)
-                except Exception as e:
-                    logger.error("error thrown receiving clients from SSL CoT pipe " + str(e))
+            self.stop_all()
         except Exception as e:
             logger.error('exception in the startup of FTS ' + str(e))
 
-if __name__ == "__main__":
+def start(killSwitch):
     """import importlib
     conf = importlib.import_module("FreeTAKServer-UI")
     FreeTAKServerUI = importlib.import_module("FreeTAKServer-UI.app", "run")
@@ -636,7 +658,32 @@ if __name__ == "__main__":
         parser.add_argument('-UI', type=str, help="set to true if you would like to start UI on server startup")
         args = parser.parse_args()
         AtakOfTheCerts().bake_startup()
-        CreateStartupFilesController()
-        FTS().startup(args.CoTPort, args.CoTIP, args.DataPackagePort, args.DataPackageIP, args.SSLDataPackagePort, args.SSLDataPackageIP, args.RestAPIPort, args.RestAPIIP, args.SSLCoTPort, args.SSLCoTIP, args.AutoStart, True, args.UI)
+        FTS().startup(args.CoTPort, args.CoTIP, args.DataPackagePort, args.DataPackageIP, args.SSLDataPackagePort, args.SSLDataPackageIP, args.RestAPIPort, args.RestAPIIP, args.SSLCoTPort, args.SSLCoTIP, args.AutoStart, killSwitch, True, args.UI)
     except Exception as e:
         print(e)
+
+import time
+class QueueManager:
+    def __init__(self, sender_queue: Queue, listener_queue: Queue):
+        self.lock = threading.Event()
+        self.lock.set()
+        # queue too send data too
+        self.sender_queue = sender_queue
+        # queue too receive data from
+        self.listener_queue = listener_queue
+
+    def put(self, data):
+        self.sender_queue.put(data)
+        self.sender_queue.task_done()
+
+    def get(self, **args):
+        gotten_data = self.listener_queue.get(**args)
+        return gotten_data
+
+    def empty(self):
+        empty = self.listener_queue.empty()
+        return empty
+
+if __name__ == '__main__':
+    ex = threading.Event()
+    start(ex)

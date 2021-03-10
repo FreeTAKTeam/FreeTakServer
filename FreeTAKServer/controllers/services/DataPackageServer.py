@@ -12,35 +12,32 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
-import eventlet
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from flask_cors import CORS, cross_origin
+#from flask_cors import CORS, cross_origin
+from sqlalchemy.orm import scoped_session
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("DataPackageServer").getLogger()
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, send_file
-from flask.logging import default_handler
-
+#from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, send_file, _app_ctx_stack
 dbController = DatabaseController()
-
+dbController.session = scoped_session(dbController.SessionMaker, scopefunc=_app_ctx_stack.__ident_func__)
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
-
+log.setLevel(logging.WARNING)
 sql = SQLcommands()
 const = DataPackageServerConstants()
 log = LoggingConstants()
 
 app = Flask(__name__)  # create the Flask app
-app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
+#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SECRET_KEY"] = 'vnkdjnfjknfl1232#'
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
-app.config['CORS_HEADERS'] = 'Content-Type'
+#cors = CORS(app, resources={r"/*": {"origins": "*"}})
+#app.config['CORS_HEADERS'] = 'Content-Type'
 
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 # TODO: verify session life cycle in dbController doesnt break this logic
-dbController.session = db.session
+#dbController.session = db.session
 file_dir = os.path.dirname(os.path.realpath(__file__))
 dp_directory = MainConfig.DataPackageFilePath
 
@@ -56,7 +53,6 @@ if not os.path.exists(MainConfig.ExCheckFilePath):
 if not Path(log.LOGDIRECTORY).exists():
     print(f"Creating directory at {log.LOGDIRECTORY}")
     os.makedirs(log.LOGDIRECTORY)
-app.logger.removeHandler(default_handler)
 formatter = logging.Formatter(log.LOGFORMAT)
 file_handler = RotatingFileHandler(
     log.HTTPLOG,
@@ -66,13 +62,13 @@ file_handler = RotatingFileHandler(
 file_handler.setFormatter(formatter)
 file_handler.setLevel(logging.ERROR)
 
-
-# app.logger.addHandler(file_handler)
-# console_handler = logging.StreamHandler(sys.stdout)
-# console_handler.setFormatter(formatter)
-# console_handler.setLevel(logging.DEBUG)
-# app.logger.addHandler(console_handler)
-# app.logger.setLevel(logging.DEBUG)
+import sys
+app.logger.addHandler(file_handler)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setFormatter(formatter)
+console_handler.setLevel(logging.DEBUG)
+app.logger.addHandler(console_handler)
+app.logger.setLevel(logging.DEBUG)
 
 @app.route('/')
 def hello():
@@ -181,10 +177,11 @@ def putDataPackageTool(hash):
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.GET])
-@cross_origin(send_wildcard = True)
+#@cross_origin(send_wildcard = True)
 def getDataPackageTool(hash):
     from flask import make_response
-    file_list = os.listdir(str(dp_directory) + '/' + str(hash))
+    from pathlib import Path
+    file_list = os.listdir(str(Path(str(dp_directory), str(hash))))
     path = PurePath(dp_directory, str(hash), file_list[0])
     app.logger.info(f"Sending data package from {str(path)}")
     resp = send_file(str(path))
@@ -361,7 +358,7 @@ def template():
         from FreeTAKServer.model.testobj import testobj
         object = testobj()
         object.xmlString = z
-        PIPE.send(object)
+        PIPE.put(object)
         return str(uid), 200
     except Exception as e:
         print(str(e))
@@ -497,7 +494,7 @@ def updatetemplate(checklistid, taskid):
     xml = XMLCoTController().serialize_model_to_CoT(object)
     rawcot.xmlString = xml
 
-    PIPE.send(rawcot)
+    PIPE.put(rawcot)
     #PIPE.send()
 
     return '', 200
@@ -530,6 +527,11 @@ def activechecklists():
 
     xml = etree.tostring(rootxml, pretty_print=False)
     return xml
+
+@app.teardown_appcontext
+def close_db(exception=None):
+    dbController.session.remove()
+
 class FlaskFunctions:
 
     def __init__(self):
@@ -547,7 +549,7 @@ class FlaskFunctions:
         return callsign
 
     def getAllPackages(self):
-        data = DatabaseController().query_datapackage("Privacy == 0")
+        data = dbController.query_datapackage("Privacy == 0")
         package_dict = {
             "resultCount": len(data),
             "results": []
@@ -567,32 +569,12 @@ class FlaskFunctions:
             })
         return package_dict
 
-    def startup(self, ip, port, pipe):
-        try:
-            from eventlet import wsgi
-
-            global IP, HTTPPORT
-            IP = ip
-            HTTPPORT = port
-            # Make sure the data package directory exists
-            if not Path(dp_directory).exists():
-                app.logger.info(f"Creating directory at {str(dp_directory)}")
-                os.makedirs(str(dp_directory))
-            # Create the relevant database tables
-            print(const.IP)
-            print(HTTPPORT)
-            # app.run(host='0.0.0.0', port=8080)
-            wsgi.server(eventlet.listen((DataPackageServerConstants().IP, int(HTTPPORT))), app)
-
-        except Exception as e:
-            logger.error('there has been an exception in Data Package service startup ' + str(e))
-            return -1
-
     def stop(self):
-        func = request.environ.get('werkzeug.server.shutdown')
-        if func is None:
-            raise RuntimeError('Not running with the Werkzeug Server')
-        func()
+        #raise RuntimeError("shutting down server")
+        try:
+            self.server.shutdown()
+        except Exception as e:
+            print(e)
 
     def setIP(self, IP_to_be_set):
         global IP

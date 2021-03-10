@@ -19,20 +19,7 @@ class SendDataController:
                 self.returnData = self.geochat_sending(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return self.returnData
             elif sender == processedCoT:
-                for client in clientInformationQueue:
-                    try:
-                        sock = client.socket
-                        sock.send(processedCoT.idData.encode())
-                        sender.socket.send(client.idData.encode())
-                        # this is a special case which is identified
-                        # by the server due to the list contents
-                        # being within a list
-                    except Exception as e:
-                        logger.error('error in sending connection data ' + str(processedCoT.idData))
-                        pass
-                copiedProcessedCoTObject = copy.deepcopy(processedCoT)
-                copiedProcessedCoTObject.idData = copiedProcessedCoTObject.idData.encode()
-                shareDataPipe.send([copiedProcessedCoTObject])
+                self.send_connection_data(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return 1
             elif processedCoT.type == 'other':
                 self.returnData = self.send_to_specific_client(clientInformationQueue, processedCoT, sender, shareDataPipe)
@@ -43,6 +30,22 @@ class SendDataController:
         except Exception as e:
             logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR+str(e))
             return -1
+
+    def send_connection_data(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
+        for client in clientInformationQueue:
+            try:
+                sock = client.socket
+                sock.send(processedCoT.idData.encode())
+                sender.socket.send(client.idData.encode())
+                # this is a special case which is identified
+                # by the server due to the list contents
+                # being within a list
+            except Exception as e:
+                logger.error('error in sending connection data ' + str(processedCoT.idData))
+                pass
+        copiedProcessedCoTObject = copy.deepcopy(processedCoT)
+        copiedProcessedCoTObject.idData = copiedProcessedCoTObject.idData.encode()
+        shareDataPipe.put([copiedProcessedCoTObject])
 
     def send_to_specific_client(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
@@ -72,13 +75,13 @@ class SendDataController:
                         return -1
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
-                    shareDataPipe.send(processedCoT)
                 else:
                     pass
                 return 1
         except Exception as e:
             logger.error('error in send data to specific client ' + str(e))
             return -1
+
     def send_to_all(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             for client in clientInformationQueue:
@@ -96,7 +99,7 @@ class SendDataController:
                     return (-1, client)
             if shareDataPipe != None:
                 processedCoT.clientInformation = None
-                shareDataPipe.send(processedCoT)
+                shareDataPipe.put(processedCoT)
             else:
                 pass
             return 1
@@ -126,7 +129,6 @@ class SendDataController:
                         return -1
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
-                    shareDataPipe.send(processedCoT)
                 else:
                     pass
                 return 1

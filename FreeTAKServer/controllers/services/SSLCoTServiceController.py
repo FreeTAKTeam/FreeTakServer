@@ -13,6 +13,7 @@ logger = CreateLoggerController("FTS").getLogger()
 class SSLCoTServiceController(Orchestrator):
     def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         try:
+            import selectors
             self.dbController = DatabaseController()
             print('ssl cot service starting')
             os.chdir('../../')
@@ -21,13 +22,11 @@ class SSLCoTServiceController(Orchestrator):
             self.SSLSocketController.changeIP(IP)
             self.SSLSocketController.changePort(CoTPort)
             sock = self.SSLSocketController.createSocket()
-            #threadpool is used as it allows the transfer of SSL socket unlike processes
-            pool = ThreadPool(processes=2)
-            self.pool = pool
-            clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
-            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+            sock.listen()
+            self.sel = self._create_selector()
+            self.sel.register(sock, selectors.EVENT_READ, data=None)
             # instantiate domain model and save process as object
-            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe,
+            self.mainRunFunction(None, None, sock, None, Event, clientDataPipe,
                                  ReceiveConnectionKillSwitch, RestAPIPipe, True)
         except Exception as e:
             logger.error("there has been an exception thrown in"

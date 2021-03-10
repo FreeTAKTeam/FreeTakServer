@@ -20,6 +20,7 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 def generate_zip(server_address: str = None, server_filename: str = "pubserver.p12",
                      user_filename: str = "user.p12", cert_password: str = MainConfig.password) -> None:
+    certPath = MainConfig.MainPath + '/certs/'
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
     working directory.
@@ -88,48 +89,48 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
     man_parent = manifest_file_parent_template.render(uid=new_uid, server=server_address,
                                                       folder=parentfolder,
                                                       internal_dp_name=f"{username.replace('./', '')}")
-    if not os.path.exists("./" + folder):
-        os.makedirs("./" + folder)
-    if not os.path.exists("./MANIFEST"):
-        os.makedirs("./MANIFEST")
-    with open('./' + folder + '/fts.pref', 'w') as pref_file:
+    if not os.path.exists(certPath + folder):
+        os.makedirs(certPath + folder)
+    if not os.path.exists(certPath+"MANIFEST"):
+        os.makedirs(certPath + "MANIFEST")
+    with open(certPath + folder + '/fts.pref', 'w') as pref_file:
         pref_file.write(pref)
-    with open('./MANIFEST/manifest.xml', 'w') as manifest_file:
+    with open(certPath+'MANIFEST/manifest.xml', 'w') as manifest_file:
         manifest_file.write(man)
     print("Generating Data Package: " + username + ".zip")
-    copyfile(MainConfig.p12Dir, "./" + folder + "/" + server_filename)
-    copyfile("./" + user_filename, "./" + folder + "/" + user_filename)
-    zipf = zipfile.ZipFile(f"{username}.zip", 'w', zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk('./' + folder):
+    copyfile(MainConfig.p12Dir, certPath + folder + "/" + server_filename)
+    copyfile(certPath + user_filename, certPath + folder + "/" + user_filename)
+    zipf = zipfile.ZipFile(f"{certPath}{username}.zip", 'w', zipfile.ZIP_DEFLATED)
+    for root, dirs, files in os.walk(certPath + folder):
         for file in files:
             zipf.write(os.path.join(root, file))
-    for root, dirs, files in os.walk('./MANIFEST'):
+    for root, dirs, files in os.walk(certPath+'MANIFEST'):
         for file in files:
             zipf.write(os.path.join(root, file))
     zipf.close()
-    shutil.rmtree("./MANIFEST")
-    shutil.rmtree("./" + folder)
+    shutil.rmtree(certPath+"MANIFEST")
+    shutil.rmtree(certPath + folder)
     # Create outer DP...because WinTAK
-    if not os.path.exists("./" + parentfolder):
-        os.makedirs("./" + parentfolder)
-    if not os.path.exists("./MANIFEST"):
-        os.makedirs("./MANIFEST")
-    with open('./MANIFEST/manifest.xml', 'w') as manifest_parent:
+    if not os.path.exists(certPath + parentfolder):
+        os.makedirs(certPath + parentfolder)
+    if not os.path.exists(certPath+"MANIFEST"):
+        os.makedirs(certPath+"MANIFEST")
+    with open(certPath+'MANIFEST/manifest.xml', 'w') as manifest_parent:
         manifest_parent.write(man_parent)
     print(f"Generating Main Data Package: {username}_DP.zip")
-    copyfile(f"./{username}.zip", f"./{parentfolder}/{username}.zip")
+    copyfile(f"{certPath}{username}.zip", f"{certPath}{parentfolder}/{username}.zip")
     zipp = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(MainConfig.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk('./' + parentfolder):
+    for root, dirs, files in os.walk(certPath + parentfolder):
         for file in files:
             name = str(pathlib.PurePath(pathlib.Path(root), pathlib.Path(file)))
             zipp.write(name)
-    for root, dirs, files in os.walk('./MANIFEST'):
+    for root, dirs, files in os.walk(certPath+ 'MANIFEST'):
         for file in files:
             zipp.write(os.path.join(root, file))
     zipp.close()
-    shutil.rmtree("./MANIFEST")
-    shutil.rmtree("./" + parentfolder)
-    os.remove(f"./{username}.zip")
+    shutil.rmtree(certPath+"MANIFEST")
+    shutil.rmtree(certPath + parentfolder)
+    os.remove(f"{certPath}{username}.zip")
 
 
 class AtakOfTheCerts:
@@ -246,9 +247,10 @@ class AtakOfTheCerts:
         :param cert: Type of cert being created "user" or "server"
         """
         import os
-        keypath = f"./{cn}.key"
-        pempath = f"./{cn}.pem"
-        p12path = f"./{cn}.p12"
+        certPath = MainConfig.MainPath + '/certs/'
+        keypath = f"{certPath}{cn}.key"
+        pempath = f"{certPath}{cn}.pem"
+        p12path = f"{certPath}{cn}.p12"
         self._generate_key(keypath)
         self._generate_certificate(cn, pempath, p12path)
         os.remove(keypath)

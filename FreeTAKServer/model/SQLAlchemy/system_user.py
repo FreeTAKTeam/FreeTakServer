@@ -2,9 +2,8 @@ from sqlalchemy import Column
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy import String
 from sqlalchemy import Boolean
-from flask_login import UserMixin
 
-class SystemUser(Base, UserMixin):
+class SystemUser(Base):
 
     __tablename__ = 'SystemUser'
     uid = Column(String(25), primary_key=True)

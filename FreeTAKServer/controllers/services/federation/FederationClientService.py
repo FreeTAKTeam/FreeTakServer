@@ -113,7 +113,7 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
                         # specific_obj.xmlString = etree.tostring(xmlstring)
                         print(etree.tostring(xmlstring))
                         specific_obj.xmlString = etree.tostring(xmlstring)
-                        self.pipe.send(specific_obj)
+                        self.pipe.put(specific_obj)
                     except Exception as e:
                         pass
                     """if isinstance(SpecificCoTObj, SendOtherController):
@@ -151,6 +151,7 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
             self.db.update_Federation({"lastError": None}, query=f'id == "{federate_db_obj.id}"')
             return None
         except Exception as e:
+            print(e)
             try:
                 self.db.remove_ActiveFederation(f'id == "{server_vars[0]}"')
             except Exception as e:
@@ -246,6 +247,11 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
             logger.warning("sending data to federates failed "+str(e))
 
     def send_connection_data(self, CoT: ClientInformation) -> None:
+        """
+        send data to federate required for the client to be added to the federates client list
+        :param CoT:
+        :return:
+        """
         try:
             if self.federates:
                 logger.debug("connection data received in send_connection_data")
@@ -267,6 +273,11 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
             return None
 
     def send_disconnection_data(self, CoT: SendDisconnect):
+        """
+        send data to federate required for the client to be removed from the federates client list
+        :param CoT:
+        :return:
+        """
         if self.federates:
             proto_obj = FederatedEvent()
             proto_obj.contact.uid = str(CoT.modelObject.detail.link.uid)
@@ -280,6 +291,11 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
             return None
 
     def start(self, pipe):
+        """
+        entry point used to start the Federation Client Service
+        :param pipe:
+        :return None: no return
+        """
         self.db = DatabaseController()
         self.pipe = pipe
         self._create_context()
@@ -287,7 +303,14 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
         self.main()
 
     def stop(self):
+        """
+        currently no reason this should be stopped
+        :return:
+        """
         pass
+
+from queue import Queue
+
 
 if __name__ == "__main__":
     #FederationClientServiceController()._get_header_length(b'\x00\x00\x03>')

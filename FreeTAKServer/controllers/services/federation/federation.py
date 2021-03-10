@@ -24,9 +24,9 @@ logger = CreateLoggerController("FederationServer").getLogger()
 
 
 class FederationServerService(ServerServiceInterface, ServiceBase):
-
+    # TODO implement as child of ServerServiceAbstract
     def __init__(self):
-        self._define_responsibility_chain()
+        self.__define_responsibility_chain()
         self.pipe = None
         self.federates: {str: Federate} = {}
         self.sel = selectors.DefaultSelector()
@@ -63,7 +63,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
         ssock.setblocking(False)
         self.sel.register(ssock, selectors.EVENT_READ, data=None)
 
-    def _define_responsibility_chain(self):
+    def __define_responsibility_chain(self):
         self.m_StopHandler = StopHandler()
 
         self.m_DisconnectHandler = DisconnectHandler()
@@ -137,8 +137,10 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
         events = self.sel.select(timeout)
         for key, mask in events:
             if key.data is None:
-                self._accept_connection(key.fileobj)
+                # client is connecting
+                self.__accept_connection(key.fileobj)
             else:
+                # client is sending data
                 federate_data = self._receive_new_data(key)
                 if federate_data:
                     dataarray.append(federate_data)
@@ -167,7 +169,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
             logger.warning("exception in receiving data from federate "+str(e))
             self.disconnect_client(key.data.uid)
     
-    def _accept_connection(self, sock) -> None:
+    def __accept_connection(self, sock) -> None:
         try:
             import uuid
             conn, addr = sock.accept()  # Should be ready to read
@@ -197,7 +199,13 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
     def _generate_header(self, contentlength):
         return contentlength.to_bytes(4, byteorder="big")
 
-    def send_data_to_clients(self, data):
+    def send_data_to_clients(self, data, sender=None):
+        """ called to send data to all clients
+
+        @todo : consider the application of the sender
+        @todo: update to send via a send data controller
+
+        """
         from lxml import etree
         try:
             if self.federates:

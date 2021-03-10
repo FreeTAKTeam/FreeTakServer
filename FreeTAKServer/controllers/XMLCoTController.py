@@ -9,10 +9,16 @@
 #######################################################
 from lxml import etree
 
-
+from FreeTAKServer.controllers.SpecificCoTControllers import SendDropPointController
+from FreeTAKServer.controllers.SpecificCoTControllers import SendEmergencyController
+from FreeTAKServer.controllers.SpecificCoTControllers import SendGeoChatController
+from FreeTAKServer.controllers.SpecificCoTControllers import SendHealthCheckController
+from FreeTAKServer.controllers.SpecificCoTControllers import SendInvalidCoTController
+from FreeTAKServer.controllers.SpecificCoTControllers import SendOtherController
+from FreeTAKServer.controllers.SpecificCoTControllers import SendPingController
+from FreeTAKServer.controllers.SpecificCoTControllers import SendUserUpdateController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.SpecificCoTControllers import *
 
 logger = CreateLoggerController("XMLCoTController").getLogger()
 loggingConstants = LoggingConstants()
@@ -53,6 +59,14 @@ class XMLCoTController:
 
     def determineCoTType(self, RawCoT):
         # this function is to establish which specific controller applys to the CoT if any
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendDropPointController import SendDropPointController
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendEmergencyController import SendEmergencyController
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendGeoChatController import SendGeoChatController
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendHealthCheckController import SendHealthCheckController
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendInvalidCoTController import SendInvalidCoTController
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendPingController import SendPingController
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendUserUpdateController import SendUserUpdateController
         try:
             xml = RawCoT.xmlString
             if type(xml) != type(b''):
@@ -83,27 +97,27 @@ class XMLCoTController:
                         RawCoT.status = 'off'
                 except:
                     RawCoT.status = 'on'
-
+                return SendEmergencyController
             elif str(event.attrib['type']) == "t-x-c-t":
                 RawCoT.CoTType = CoTTypes['ping']
-                return RawCoT
+                return SendPingController
 
             elif str(event.attrib['type']) == "b-t-f":
                 RawCoT.CoTType = CoTTypes['geochat']
-                return RawCoT
+                return SendGeoChatController
 
             elif str(event.attrib['type']) in ["a-f-G-U-C", "a-f-G-E-V-A", "a-f-G-U-C-I", "a-f-G-E-V-C", "a-f-G-U", "a-f-G-E-V-A"]:
                 RawCoT.CoTType = CoTTypes['userupdate']
-                return RawCoT
+                return SendUserUpdateController
 
             elif str(event.attrib['type']) == "a-h-G" or str(event.attrib['type']) == "a-n-G" or str(event.attrib['type']) == "a-f-G" or str(event.attrib['type']) == "a-u-G":
                 RawCoT.CoTType = CoTTypes['point']
-                return RawCoT
+                return SendDropPointController
             
             elif str(event.attrib['type']) == "t-x-m-c":
                 logger.debug('a txmc type xml has been received \n')
                 RawCoT.CoTType = CoTTypes['*']
-                return RawCoT 
+                return SendOtherController
             # TODO: this needs to be expanded for more use cases
             else:
                 RawCoT.CoTType = CoTTypes['*']
@@ -111,7 +125,7 @@ class XMLCoTController:
             return RawCoT
         except Exception as e:
             RawCoT.CoTType = "SendInvalidCoTController"
-            return RawCoT
+            return SendInvalidCoTController
 
     def categorize_type(self, type):
         from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController

@@ -1,11 +1,7 @@
-import eventlet
-from flask import Flask, request, jsonify, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO, emit
+from flask import Flask, request, jsonify, session, _app_ctx_stack, Response, make_response
+import socketio_module as socketio
 from flask_httpauth import HTTPTokenAuth
 from flask_login import current_user, LoginManager
-import threading
-from functools import wraps
 from lxml import etree
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
@@ -17,17 +13,17 @@ from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
+from FreeTAKServer.controllers.ServerStatusController import ServerStatusController
 import os
 import shutil
 import json
-from flask_cors import CORS
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.JsonController import JsonController
-
-dbController = DatabaseController()
+from sqlalchemy.orm import scoped_session
+#from flask_cors import CORS
 
 UpdateArray = []
 StartTime = None
@@ -45,20 +41,30 @@ defaultValues = vars()
 defaultValues.default_values()
 
 app = Flask(__name__)
+#CORS(app, origins = "*")
 login_manager = LoginManager()
 login_manager.init_app(app)
 auth = HTTPTokenAuth(scheme='Bearer')
-app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-dbController.session = db.session
-CORS(app)
-socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
-socketio.init_app(app, cors_allowed_origins="*")
+# app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# db = SQLAlchemy(app)
+dbController = DatabaseController()
+dbController.session = scoped_session(dbController.SessionMaker, scopefunc=_app_ctx_stack.__ident_func__)
+sio = socketio.Server(async_mode='threading', cors_allowed_origins="*")
+app.wsgi_app = socketio.WSGIApp(sio, app.wsgi_app)
 APIPipe = None
 CommandPipe = None
 app.config["SECRET_KEY"] = 'vnkdjnfjknfl1232#'
 
+def build_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add('Access-Control-Allow-Headers', "*")
+    response.headers.add('Access-Control-Allow-Methods', "*")
+    return response
+def build_actual_response(response):
+    # response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -81,13 +87,29 @@ def verify_token(token):
 def load_user(user_id):
     return User.get(user_id)
 
-def socket_auth(session = None):
+def socket_auth(sid = None):
+    print("authenticated")
     def innerfunc(x):
         def wrapper(*args, **kwargs):
-            if hasattr(session, 'authenticated') and session.authenticated:
+            authenticated = sio.get_session(args[0])
+            if args[0] and authenticated['authenticated']:
                 x(*args, **kwargs)
             else:
                 pass
+
+        return wrapper
+
+    return innerfunc
+def socket_auth_other(other = None):
+    print(other)
+
+    def innerfunc(x):
+        def wrapper(*args, **kwargs):
+            with app.test_request_context('/'):
+                if hasattr(session, 'authenticated') and session.authenticated:
+                    x(*args, **kwargs)
+                else:
+                    pass
 
         return wrapper
 
@@ -99,22 +121,30 @@ def sessions():
     return b'API is running', 200
 
 
-@socketio.on('connect')
-def connection():
-    emit('connectUpdate', json.dumps({"starttime": str(StartTime), "version": str(MainConfig.version)}))
+@sio.on('connect')
+def connection(sid, environ):
+    sio.emit('connectUpdate', json.dumps({"starttime": str(StartTime), "version": str(MainConfig.version)}))
+    print(environ)
 
-
-@socketio.on('authenticate')
-def authenticate(token):
+@sio.on('authenticate')
+def authenticate(sid, token):
     if json.loads(token)["Authenticate"] == MainConfig.websocketkey:
-        emit('authentication', json.dumps({'successful': 'True'}))
-        session.authenticated = True
+        try:
+            with app.test_request_context('/'):
+                sio.emit('testabc', json.dumps({'successful': 'True'}))
+                print('test 1')
+                sio.emit('authentication', json.dumps({'successful': 'True'}), namespace='/')
+                sio.save_session(sid, {"authenticated": True})
+                print('test 2')
+        except Exception as e:
+            print(e)
+
     else:
-        emit('authentication', json.dumps({'successful': 'False'}))
+        sio.emit('authentication', json.dumps({'successful': 'False'}))
 
 
-@socketio.on('users')
-@socket_auth(session = session)
+@sio.on('users')
+@socket_auth()
 def show_users(empty=None):
     output = dbController.query_user()
     for i in range(0, len(output)):
@@ -133,11 +163,11 @@ def show_users(empty=None):
             del (output[i]['CoT'])
         except Exception as e:
             print(e)
-    socketio.emit('userUpdate', json.dumps({"Users": output}))
+    sio.emit('userUpdate', json.dumps({"Users": output}))
 
-@socketio.on('logs')
-@socket_auth(session = session)
-def return_logs(time):
+@sio.on('logs')
+@socket_auth()
+def return_logs(sid, time):
     from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
     import datetime
     log_data = {'log_data': []}
@@ -177,12 +207,12 @@ def return_logs(time):
                     pass
         except:
             pass
-    emit("logUpdate", json.dumps(log_data))
+    sio.emit("logUpdate", json.dumps(log_data))
 
 
-@socketio.on('serviceInfo')
-@socket_auth(session = session)
-def show_service_info(empty=None):
+@sio.on('serviceInfo')
+@socket_auth()
+def show_service_info(sid, empty=None):
     mapping = {"start": "on", "stop": "off", "":""}
     FTSServerStatusObject = getStatus()
     tcpcot = FTSServerStatusObject.CoTService
@@ -205,46 +235,53 @@ def show_service_info(empty=None):
                                             "port": restapi.RestAPIServicePort}},
                   "ip": tcpdp.TCPDataPackageServiceIP
                 }
-    emit('serviceInfoUpdate', json.dumps(jsonObject))
+    sio.emit('serviceInfoUpdate', json.dumps(jsonObject))
 
 def getStatus():
-    CommandPipe.send([functionNames.checkStatus])
-    out = CommandPipe.recv()
+    CommandPipe.put([functionNames.checkStatus])
+    out = CommandPipe.get()
     while hasattr(out, "CoTService") == False:
-        out = CommandPipe.recv()
+        out = CommandPipe.get()
     return out
-@socketio.on("serverHealth")
-@socket_auth(session = session)
+
+@sio.on("serverHealth")
+@socket_auth()
 def serverHealth(empty=None):
-    import psutil
+    # import psutil
     import pathlib
     import os
+    # todo remove hardcoding
+    # int(psutil.cpu_percent(interval=0.1))
+    # int(psutil.virtual_memory().percent)
+    # int(psutil.disk_usage(str(pathlib.Path(os.getcwd()).anchor)).percent)
     jsondata = {
-                "CPU": int(psutil.cpu_percent(interval=0.1)),
-                "memory": int(psutil.virtual_memory().percent),
-                "disk": int(psutil.disk_usage(str(pathlib.Path(os.getcwd()).anchor)).percent)
+                "CPU": 10,
+                "memory": 43,
+                "disk": 94
                 }
-    emit('serverHealthUpdate', json.dumps(jsondata))
+    sio.emit('serverHealthUpdate', json.dumps(jsondata))
 
-@socketio.on('systemStatus')
-@socket_auth(session=session)
-def systemStatus(update=None):
+@sio.on('systemStatus')
+@socket_auth()
+def systemStatus(sid=None, update=None):
     print('system status running')
-    from FreeTAKServer.controllers.ServerStatusController import ServerStatusController
-    currentStatus = getStatus()
-    statusObject = ServerStatusController(currentStatus)
-    jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
-    emit('systemStatusUpdate', json.dumps(jsondata))
+    try:
+        currentStatus = getStatus()
+        statusObject = ServerStatusController(currentStatus)
+        jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
+        sio.emit('systemStatusUpdate', json.dumps(jsondata))
+    except Exception as e:
+        print(e)
 
-@socketio.on('changeServiceInfo')
-# @socket_auth(session=session)
-def updateSystemStatus(update):
+@sio.on('changeServiceInfo')
+@socket_auth()
+def updateSystemStatus(sid, update):
     # TODO: add documentation
     changeStatus(json.loads(update))
-    show_service_info()
+    show_service_info(sid)
 
-@socketio.on('systemUsers')
-@socket_auth(session=session)
+@sio.on('systemUsers')
+@socket_auth()
 def systemUsers(empty=None):
     systemUserArray = DatabaseController().query_systemUser()
     jsondata = {"SystemUsers": []}
@@ -258,11 +295,11 @@ def systemUsers(empty=None):
         userjson["Uid"] = user.uid
         jsondata["SystemUsers"].append(userjson)
 
-    emit('systemUsersUpdate', json.dumps(jsondata))
+    sio.emit('systemUsersUpdate', json.dumps(jsondata))
 
-@socketio.on('addSystemUser')
-@socket_auth(session=session)
-def addSystemUser(jsondata):
+@sio.on('addSystemUser')
+@socket_auth()
+def addSystemUser(sid, jsondata):
     from FreeTAKServer.controllers import certificate_generation
     import uuid
     for systemuser in json.loads(jsondata)['systemUsers']:
@@ -312,7 +349,7 @@ def addSystemUser(jsondata):
             clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{systemuser["Name"]}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{systemuser["Name"]+".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{systemuser["Name"]+".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
             cot.xmlString = clientXML.encode()
             newCoT = SendOtherController(cot)
-            APIPipe.send(newCoT.getObject())
+            APIPipe.put(newCoT.getObject())
 
         else:
             DatabaseController().create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
@@ -320,10 +357,11 @@ def addSystemUser(jsondata):
                                                    uid=str(uuid.uuid4()))
 
 
-@socketio.on("removeSystemUser")
-@socket_auth(session=session)
-def removeSystemUser(jsondata):
+@sio.on("removeSystemUser")
+@socket_auth()
+def removeSystemUser(sid, jsondata):
     jsondata = json.loads(jsondata)
+    from pathlib import Path
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid == "{uid}"')[0]
@@ -332,13 +370,13 @@ def removeSystemUser(jsondata):
         obj = dbController.query_datapackage(f'Name == "{certificate_package_name}"')
         # TODO: make this coherent with constants
         currentPath = MainConfig.DataPackageFilePath
-        shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
+        shutil.rmtree(str(Path(f'{str(currentPath)}', f'{obj[0].Hash}')))
         dbController.remove_datapackage(f'Hash == "{obj[0].Hash}"')
 
-@socketio.on("events")
-@socket_auth(session=session)
+@sio.on("events")
+@socket_auth()
 def events(empty=None):
-    return socketio.emit("eventsUpdate", {"events": ["system user ALPHA created", "SSL DataPackage Service turned off", "TCP CoT Service port changed to 8086", "Outgoing Federation created to 1.1.1.1", "Federate connected from 0.0.0.0"]})
+    return sio.emit("eventsUpdate", {"events": ["system user ALPHA created", "SSL DataPackage Service turned off", "TCP CoT Service port changed to 8086", "Outgoing Federation created to 1.1.1.1", "Federate connected from 0.0.0.0"]})
 
 @app.route("/SendGeoChat", methods=[restMethods.POST])
 @auth.login_required()
@@ -432,7 +470,7 @@ def getEmergency():
             output[i]["name"] = original.event.detail.contact.callsign
             del (output[i]['_sa_instance_state'])
             del(output[i]['event'])
-        return jsonify(json_list=output), 200
+        return json.dumps({'json_list': output}), 200
     except Exception as e:
         return str(e), 200
 
@@ -463,6 +501,41 @@ def deleteEmergency():
     except Exception as e:
         return str(e), 500
 
+@app.route("/AuthenticateUser", methods=["GET"])
+@auth.login_required
+def authenticate_user():
+    try:
+        print('request made')
+        username = request.args.get("username")
+        password = request.args.get("password")
+        try:
+            user = dbController.query_systemUser(query=(f'name == "{username}" and password == "{password}"'))[0]
+        except Exception as e:
+            print(e)
+            return None
+        print("query made")
+        user.metadata = None
+        user.query = None
+        user.query_class = None
+        user._decl_class_registry = None
+        user._sa_class_manager = None
+        user._sa_instance_state = None
+        user._modified_event = None
+        print("done setting to none")
+        json_user = user.__dict__
+        print(json_user)
+        del (json_user["_sa_class_manager"])
+        del (json_user["_sa_instance_state"])
+        del (json_user["_modified_event"])
+        del (json_user["_decl_class_registry"])
+        print('done defining dict')
+        return_data = json.dumps({"uid": json_user["uid"]})
+        print('returning data '+str(return_data))
+        return return_data
+    except Exception as e:
+        print(e)
+        return e, 500
+
 @app.route("/ManageEmergency")
 @auth.login_required
 def Emergency():
@@ -489,6 +562,7 @@ def ConnectionMessage():
 
 @app.route("/APIUser", methods=[restMethods.GET, restMethods.POST, restMethods.DELETE])
 def APIUser():
+    import json
     if request.remote_addr in MainConfig.AllowedCLIIPs:
         try:
             if request.method == restMethods.POST:
@@ -509,12 +583,14 @@ def APIUser():
                     del (output[i]['_sa_instance_state'])
                     del (output[i]['PrimaryKey'])
                     del (output[i]['uid'])
-                return jsonify(json_list=output), 200
+                return json.dumps({'json_list': output}), 200
 
         except Exception as e:
             return str(e), 500
     else:
         return 'endpoint can only be accessed by approved IPs', 401
+
+
 @app.route("/RecentCoT", methods=[restMethods.GET])
 def RecentCoT():
     import time
@@ -531,8 +607,8 @@ def URLGET():
 def Clients():
     try:
         if request.remote_addr in MainConfig.AllowedCLIIPs:
-            CommandPipe.send([functionNames.Clients])
-            out = CommandPipe.recv()
+            CommandPipe.put([functionNames.Clients])
+            out = CommandPipe.get()
             returnValue = []
             for client in out:
                 returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
@@ -543,11 +619,13 @@ def Clients():
     except Exception as e:
         return str(e), 500
 
-@app.route('/FederationTable', methods=[restMethods.GET, restMethods.POST, "PUT", restMethods.DELETE])
+@app.route('/FederationTable', methods=[restMethods.GET, restMethods.POST, "PUT", restMethods.DELETE, 'OPTIONS'])
 @auth.login_required()
 def FederationTable():
     try:
         import random
+        if request.method == 'OPTIONS':
+            return build_preflight_response()
         if request.method == restMethods.GET:
             output = dbController.query_ActiveFederation()
             for i in range(0, len(output)):
@@ -557,8 +635,9 @@ def FederationTable():
             for i in range(0, len(output2)):
                 output2[i] = output2[i].__dict__
                 del (output2[i]['_sa_instance_state'])
-
-            return jsonify(activeFederations=output, federations=output2), 200
+            resp = Response(json.dumps({"activeFederations": output, "federations": output2}))
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return build_actual_response(resp), 200
 
         elif request.method == restMethods.POST:
             import uuid
@@ -568,10 +647,12 @@ def FederationTable():
                 id = str(uuid.uuid4())
                 dbController.create_Federation(**new_fed, id = id)
                 if new_fed["status"] == "Enabled":
-                    CommandPipe.send((id, "CREATE"))
+                    CommandPipe.put((id, "CREATE"))
                 else:
                     pass
-            return '', 200
+            resp = Response('')
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return build_actual_response(resp)
 
         elif request.method == "PUT":
             jsondata = json.loads(request.data)
@@ -585,17 +666,19 @@ def FederationTable():
                     if fed["status"] == "Enabled":
 
                         if old_status != "Enabled":
-                            CommandPipe.send((old_id, "CREATE"))
+                            CommandPipe.put((old_id, "CREATE"))
                         else:
                             pass
                     elif fed["status"] == "Disabled":
                         if old_status != "Disabled":
-                            CommandPipe.send((old_id, "DELETE"))
+                            CommandPipe.put((old_id, "DELETE"))
                         else:
                             pass
                     else:
                         pass
-            return '', 200
+            resp = make_response('')
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return build_actual_response(resp)
 
         elif request.method == "DELETE":
             jsondata = json.loads(request.data)
@@ -603,11 +686,13 @@ def FederationTable():
             for fed in federations:
                 fedInstance = dbController.query_Federation(f'id == "{fed["id"]}"')[0]
                 if fedInstance.status == "Enabled":
-                    CommandPipe.send((fedInstance.id, "DELETE"))
+                    CommandPipe.put((fedInstance.id, "DELETE"))
                 else:
                     pass
                 dbController.remove_Federation(f'id == "{fed["id"]}"')
-            return '', 200
+            resp = Response('')
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return build_actual_response(resp), 200
 
     except Exception as e:
         return str(e), 500
@@ -624,7 +709,8 @@ def DataPackageTable():
             del (output[i]['CreatorUid'])
             del (output[i]['MIMEType'])
             del (output[i]['uid'])
-        return jsonify(json_list=output), 200
+            output[i]["SubmissionDateTime"] = output[i]["SubmissionDateTime"].strftime("%m/%d/%Y, %H:%M:%S")
+        return json.dumps({'json_list': output}), 200
 
     elif request.method == "DELETE":
         jsondata = json.loads(request.data)
@@ -714,6 +800,9 @@ def DataPackageTable():
                 updateDict["Name"] = dp["Name"]
             dbController.update_datapackage(query=f'PrimaryKey == {dp["PrimaryKey"]}', column_value=updateDict)
         return "success", 200
+
+
+
 def getMission():
     import uuid
     import random
@@ -822,7 +911,9 @@ def excheck_table():
                                     "template": templatename
                                 }
                 jsondata["ExCheck"]['Checklists'].append(checklistjson)
-            return json.dumps(jsondata), 200
+            resp = Response(json.dumps(jsondata))
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
 
         elif request.method == "DELETE":
             jsondata = request.data
@@ -889,14 +980,18 @@ def excheck_table():
 def check_status():
     try:
         if request.remote_addr in MainConfig.AllowedCLIIPs:
-            CommandPipe.send([functionNames.checkStatus])
-            FTSServerStatusObject = CommandPipe.recv()
+            CommandPipe.put([functionNames.checkStatus])
+            FTSServerStatusObject = CommandPipe.get()
             out = ApplyFullJsonController().serialize_model_to_json(FTSServerStatusObject)
             return json.dumps(out), 200
         else:
             return 'endpoint can only be accessed by approved IPs', 401
     except Exception as e:
         return str(e), 500
+
+@app.teardown_appcontext
+def close_db(exception=None):
+    dbController.session.remove()
 
 #@app.route('/changeStatus', methods=[restMethods.POST])
 #@auth.login_required()
@@ -981,9 +1076,9 @@ def changeStatus(jsonmessage):
             pass
         FTSObject.SSLDataPackageService.SSLDataPackageServiceIP = ip
         FTSObject.TCPDataPackageService.TCPDataPackageServiceIP = ip
-        CommandPipe.send([functionNames.Status, FTSObject])
-        out = CommandPipe.recv()
-        return '200', 200
+        CommandPipe.put([functionNames.Status, FTSObject])
+        out = CommandPipe.get()
+        # return '200', 200
 
     except Exception as e:
         return '500', 500
@@ -1013,11 +1108,11 @@ def emitUpdates(Updates):
     returnValue = []
     for client in data:
         returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
-    socketio.emit('up', json.dumps(returnValue), broadcast = True)
+    sio.emit('up', json.dumps(returnValue), broadcast = True)
     data = Updates
     for client in data:
         returnValue.append(ApplyFullJsonController().serialize_model_to_json(client))
-    socketio.emit('up', json.dumps(returnValue), broadcast = True)
+    sio.emit('up', json.dumps(returnValue), broadcast = True)
     return 1
 
 def test(json):
@@ -1035,21 +1130,24 @@ def test(json):
     out = XMLCoTController().serialize_model_to_CoT(modelObject, 'event')
     print(etree.tostring(out))
     print(RestAPI().serializeJsonToModel(modelObject, EventObject))'''
-
-
+import logging
+log = logging.getLogger('werkzeug')
+log.disabled = True
+app.logger.disabled = True
 
 class RestAPI:
     def __init__(self):
         pass
 
-    def startup(self, APIPipea, CommandPipea, IP, Port, starttime):
+    def startup(self, APIPipea, CommandPipea, IP, Port, starttime, startuplock):
         print('running api')
+        startuplock.acquire(blocking=False)
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime
         APIPipe = APIPipea
         CommandPipe = CommandPipea
-        threading.Thread(target=receiveUpdates, daemon=True, args=()).start()
-        socketio.run(app, host=IP, port=Port)
+        startuplock.release()
+        app.run(host=IP, port=Port, threaded=True, debug=False)
         # try below if something breaks
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
 

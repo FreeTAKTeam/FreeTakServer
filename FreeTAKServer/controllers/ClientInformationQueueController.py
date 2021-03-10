@@ -8,7 +8,7 @@
 # 
 #######################################################
 from FreeTAKServer.model.ClientInformationQueue import ClientInformationQueue
-from multiprocessing import Queue
+from queue import Queue
 
 class ClientInformationQueueController:
     def __init__(self):  

@@ -34,3 +34,13 @@ class SSLSocketController(MainSocketController):
         self.MainSocket.sock = socket.socket(self.MainSocket.socketAF, self.MainSocket.socketSTREAM)
         self.MainSocket.sock = context.wrap_socket(self.MainSocket.sock)
         return self.MainSocket.sock
+
+    def create_context(self):
+        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
+        context.load_verify_locations(cafile=self.MainSocket.CA)
+        context.load_cert_chain(certfile=self.MainSocket.pemDir, keyfile=self.MainSocket.keyDir,
+                                password=self.MainSocket.password, )
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.check_hostname = False
+        context.set_ciphers('DEFAULT@SECLEVEL=1')
+        return context

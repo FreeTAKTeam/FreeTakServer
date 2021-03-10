@@ -1,4 +1,5 @@
 import os
+
 currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
 
@@ -9,7 +10,7 @@ class MainConfig:
     should need to be changed
     """
     # this is the port to which clients will connect
-    CoTServicePort = int(8087)
+    CoTServicePort = int(15777)
 
     SSLCoTServicePort = int(8089)
 
@@ -17,7 +18,7 @@ class MainConfig:
     DataPackageServiceDefaultIP = str("0.0.0.0")
 
     # User Connection package IP needs to be set to the IP which is used when creating the connection in your tak device
-    UserConnectionIP = str("0.0.0.0")
+    UserConnectionIP = str("127.0.0.1")
 
     python_version = 'python3.8'
 
@@ -42,12 +43,12 @@ class MainConfig:
     SaveCoTToDB = bool(True)
 
     # this should be set before startup
-    DBFilePath = str(r'/root/FTSDataBase.db')
+    DBFilePath = str(r'C:\Users\natha\PycharmProjects\InDev\FreeTAKServerParent\FreeTAKServer\controllers\configuration\FTSDataBase.db')
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.5.10 RC 1'
+    version = 'FreeTAKServer-1.5.8 RC 1'
 
-    MainPath = str(Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer'))
+    MainPath = str(Path(fr'C:\Users\natha\PycharmProjects\InDev\FreeTAKServerParent\FreeTAKServer'))
 
     ExCheckMainPath = str(Path(fr'{MainPath}/ExCheck'))
 

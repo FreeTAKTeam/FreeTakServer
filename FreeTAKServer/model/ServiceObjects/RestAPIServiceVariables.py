@@ -4,4 +4,4 @@ class RestAPIServiceVariables:
     def __init__(self):
         self.RestAPIServiceIP = MainConfig.APIIP
         self.RestAPIServicePort = MainConfig.APIPort
-        self.RestAPIServiceStatus = ""
+        self.RestAPIServiceStatus = "start"

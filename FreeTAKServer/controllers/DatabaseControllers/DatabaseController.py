@@ -3,7 +3,7 @@ from FreeTAKServer.controllers.DatabaseControllers import DataPackageTableContro
 from FreeTAKServer.controllers.DatabaseControllers import VideoStreamTableController
 from FreeTAKServer.controllers.DatabaseControllers import EventTableController
 from FreeTAKServer.controllers.DatabaseControllers import ActiveEmergencysController
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import make_transient
 from sqlalchemy.exc import IntegrityError
@@ -84,6 +84,7 @@ class DatabaseController:
         else:
             Base.metadata.create_all(engine)
             return engine
+
     def create_Sessionmaker(self):
         SessionMaker = sessionmaker(bind=self.engine)
         return SessionMaker

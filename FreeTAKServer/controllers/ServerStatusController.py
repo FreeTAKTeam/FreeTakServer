@@ -19,6 +19,7 @@ class ServerStatusController:
 
     def __init__(self, ServerStatusObject: FTS):
         mapping = {"start": "on", "stop": "off", "": ""}
+        print('starting server status controllers')
         self.TCPCoTStatus = self.TCPCoTStatusCheck(ServerStatusObject.CoTService.CoTServicePort, ServerStatusObject.CoTService.CoTServiceIP)
         self.TCPCoTStatusExpected = mapping[ServerStatusObject.CoTService.CoTServiceStatus]
 
@@ -62,6 +63,7 @@ class ServerStatusController:
     def TCPDataPackageStatusCheck(self, TCPDataPackagePort, IP):
         import requests
         try:
+            print('testing tcp DP')
             import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -79,6 +81,8 @@ class ServerStatusController:
 
     def TCPCoTStatusCheck(self, TCPCoTPort, IP):
         try:
+            import time
+            print('testing TCP CoT')
             import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -87,6 +91,7 @@ class ServerStatusController:
             else:
                 pass
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(3)
             sock.connect((IP, TCPCoTPort))
             sock.send(b'TEST')
             returnMessage = sock.recv(100)
@@ -103,6 +108,7 @@ class ServerStatusController:
         import requests
         from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
         try:
+            print('testing ssl DP')
             import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -121,6 +127,7 @@ class ServerStatusController:
     def SSLCoTStatusCheck(self, SSLCoTPort, IP):
         from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
         try:
+            print('testing ssl CoT')
             import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -142,8 +149,9 @@ class ServerStatusController:
             return "off"
 
     def RestAPIStatusCheck(self, RestAPIPort, IP):
-        from eventlet.green.urllib import request
+        # from eventlet.green.urllib import request
         try:
+            return "on"
             import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

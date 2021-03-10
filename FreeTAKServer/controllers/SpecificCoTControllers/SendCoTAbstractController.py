@@ -50,6 +50,7 @@ class SendCoTAbstractController(ABC):
 
         modelInstance = xml_serializer.XmlSerializer().from_format_to_fts_object(xmlString, tempObject)
         return modelInstance
+
     def create_xml_string(self, modelObject):
         """
         this function calls the model to xml serializer within XMLCoTController

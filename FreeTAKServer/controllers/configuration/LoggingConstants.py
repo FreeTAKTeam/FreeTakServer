@@ -1,6 +1,8 @@
 import os
 from pathlib import PurePath
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 class LoggingConstants:
+    LOGDIRECTORY = 'logs'
     def __init__(self):
         #main logging config
         self.CURRENTPATH = os.path.dirname(os.path.realpath(__file__))
@@ -8,11 +10,10 @@ class LoggingConstants:
         self.PARENTPATH = str(self.CURRENTPATH.parents[0])
         self.LOGFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
         self.LOGNAME = 'FTS'
-        self.LOGDIRECTORY = 'logs'
-        self.ERRORLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_error.log"))
-        self.DEBUGLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log"))
-        self.INFOLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log"))
-        self.HTTPLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log"))
+        self.ERRORLOG = str(PurePath(MainConfig.MainPath, f"{self.LOGDIRECTORY}/{self.LOGNAME}_error.log"))
+        self.DEBUGLOG = str(PurePath(MainConfig.MainPath, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log"))
+        self.INFOLOG = str(PurePath(MainConfig.MainPath, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log"))
+        self.HTTPLOG = str(PurePath(MainConfig.MainPath, f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log"))
         self.DELIMITER = ' ? '
         self.MAXFILESIZE = 100000
         self.BACKUPCOUNT = 5
