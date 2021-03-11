@@ -249,11 +249,12 @@ manage team member position
 * role: the given role within the team . Please see API documentation for a list of valid entries.
 * name: a string to ID the GeoObject on a map.
 * team: the color of the team 
-* UID: server generated Unique Id of this element
+* UID: server generated Unique Id of this element. *V. 1.7 only If you send the UID an existing CLI will be updated#
 
 Example
 ```json
 {
+  *"UID": "999b5874-1ebf-11zz-9e70-4e58de281c19"*
   "how": "nonCoT",
   "name": "POTUS",
   "longitude": -77.01385,
