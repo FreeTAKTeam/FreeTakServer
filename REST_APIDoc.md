@@ -1,15 +1,15 @@
 # FreeTAKServer REST API Documentation
-the FreeTAKServer REST API is a human readeble approach to the TAK world. The API allows you to easily connect third parties to the TAK family, without the need to understand the complexity of the COT structure or what a TCP connection is.  
+the FreeTAKServer REST API is a human readeble approach to the TAK world. The API allows you to easily connect third parties to the TAK family, without the need to understand the complexity of the COT structure or what a TCP connection is.  FTS also supports an [Internal API](REST_API_InternalDoc.md).
 
 ## List of supported API
-In the current release (1.2), FTS supports following API:
+In the current release (1.5), FTS supports following API:
   * ManageGeoEvent
   * ManageChat
   * ManageEmergency
   * ManagePresence
   
 ## General Configuration
-> To quickly test the APi you can use a browser extension (Chrome) like ARC Advanced rest client.REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. Please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/). 
+> To quickly test the API, you can use a browser extension (Chrome) like ARC Advanced rest client.REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. Please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/). 
 
 ### endpoint
 the API uses the following format
@@ -36,7 +36,7 @@ add_api_user
 see CLI help for details.
 To create a REST API key using the Web UI, go to the User section.
 
-to consume the API you need to request a key to your FTS admin. 
+to consume the API you will need to request a key to your FTS admin. 
 
 the following is a non-working example of a key
 ```
