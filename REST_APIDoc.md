@@ -1,5 +1,6 @@
 # FreeTAKServer REST API Documentation
 the FreeTAKServer REST API is a human readeble approach to the TAK world. The API allows you to easily connect third parties to the TAK family, without the need to understand the complexity of the COT structure or what a TCP connection is.  FTS also supports an [Internal API](REST_API_InternalDoc.md).
+WARNING: the current document contains experimental, not yet released functions (listed)
 
 ## List of supported API
 In the current release (1.5), FTS supports following API:
@@ -104,7 +105,7 @@ a GeoObject is an element place on a map. It has a name, characteristics and an 
 * "Ground"
   
 ##### Extensions for EMS
-planned extensions, not yet implemented in 1.5 
+planned extensions for 1.7, not yet implemented in 1.5 
 ```json
 {
 "longitude": -77.0104,
@@ -148,6 +149,9 @@ planned extensions, not yet implemented in 1.5
 * "assumed"
 * "neutral" 
 * "suspect" 
+
+#### putGeoObject
+update an existing geoobject
 
 ## ManageChat
 ### SendGeoChatObject
@@ -249,12 +253,12 @@ manage team member position
 * role: the given role within the team . Please see API documentation for a list of valid entries.
 * name: a string to ID the GeoObject on a map.
 * team: the color of the team 
-* UID: server generated Unique Id of this element. *V. 1.7 only If you send the UID an existing CLI will be updated#
+* uid: optional Unique Id of this element. if present will update an existing element. use the put insted *V. 1.7 only If you send the UID an existing CLI will be updated#
 
 Example
 ```json
 {
-  *"UID": "999b5874-1ebf-11zz-9e70-4e58de281c19"*
+    "uid": "999b5874-1ebf-11zz-9e70-4e58de281c19",
   "how": "nonCoT",
   "name": "POTUS",
   "longitude": -77.01385,
@@ -263,4 +267,22 @@ Example
   "team": "Yellow"
 }
 ```
+
+### putPresence
+Updates the location of a team memeber
+* verb: PUT
+* endPoint: /ManagePresence/putPresence
+* returns: UID
  
+ * uid: server generated Unique Id of this element. it will  update the existing element.  
+* longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
+* latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
+ 
+Example
+```json
+{
+    "uid": "999b5874-1ebf-11zz-9e70-4e58de281c19",
+  "longitude": -77.02385,
+  "latitude": 38.999
+}
+```
