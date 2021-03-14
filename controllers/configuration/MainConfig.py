@@ -42,12 +42,12 @@ class MainConfig:
     SaveCoTToDB = bool(True)
 
     # this should be set before startup
-    DBFilePath = str(r'C:\Users\natha\PycharmProjects\InDev\FreeTAKServerParent\FreeTAKServer\controllers\configuration\FTSDataBase.db')
+    DBFilePath = str(r'/opt/FreeTAKServer/FTSDataBase.db')
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.5.12 RC1'
+    version = 'FreeTAKServer-1.7 RC1 Beta'
 
-    MainPath = str(Path(fr'C:\Users\natha\PycharmProjects\InDev\FreeTAKServerParent\FreeTAKServer'))
+    MainPath = str(Path(fr'/opt/FreeTAKServer'))
 
     ExCheckMainPath = str(Path(fr'{MainPath}/ExCheck'))
 
