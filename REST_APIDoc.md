@@ -67,7 +67,7 @@ a GeoObject is an element place on a map. It has a name, characteristics and an 
 * bearing: FUTURE DEVELOPMENT, the direction expressed in degrees (1-360)   
 * distance": FUTURE DEVELOPMENT, the distance in meters from the Lat/long 
 * timeout:the length, expressed in seconds  until the point will stale out. Default is 300 seconds or 5 minutes.
-*  UID: server generated Unique Id of this element
+*  uid: optional input parameter, need to be an Unique Id for this element, if not present will be  server generated, if sent ATAK will try to update an existing geoObject. Use ``putGeoObject`` instead
 
 ##### Example body
 ```json
@@ -151,7 +151,35 @@ planned extensions for 1.7, not yet implemented in 1.5
 * "suspect" 
 
 #### putGeoObject
-update an existing geoobject
+update an existing geoObject cohordinates (can also update other features)
+
+* verb: PUT
+* endPoint: /ManageGeoObject/putGeoObject
+* returns: UID
+
+ #### Parameters
+ *  * REQUIRED*  uid: optional input parameter, need to be an Unique Id for this element, if not present will be  server generated, if sent ATAK will try to update an existing geoObject. Use ``putGeoObject`` instead
+* REQUIRED* GeoObject: It's the information that will determine which type will be placed on the tak maps including his icon. Please see API documentation for a list of valid entries.
+*REQUIRED*  longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
+* REQUIRED* latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
+* REQUIRED* attitude: the kind of expected behavior of the GeoObject (e.g friendly, hostile, unknown). Please see API documentation for a list of valid entries.
+* How: the way in which this geo information has been acquired. Please see API documentation for a list of valid entries.
+* name: a string to ID the GeoObject on a map.
+* bearing: FUTURE DEVELOPMENT, the direction expressed in degrees (1-360)   
+* distance": FUTURE DEVELOPMENT, the distance in meters from the Lat/long 
+* timeout:the length, expressed in seconds  until the point will stale out. Default is 300 seconds or 5 minutes.
+##### Example body
+```
+{
+"uid": "44455566775623",
+  "longitude": -66.12614,
+  "latitude": 43.96552,
+"attitude": "hostile",
+"geoObject": "Sniper",
+}
+```
+ #### Response
+ * 200 with UID
 
 ## ManageChat
 ### SendGeoChatObject
