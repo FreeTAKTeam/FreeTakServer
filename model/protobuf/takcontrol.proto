@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+// TAK Protocol control message
+// This specifies to a recipient what versions
+// of protocol elements this sender supports during
+// decoding.
+message TakControl {
+    // Lowest TAK protocol version supported
+    // If not filled in (reads as 0), version 1 is assumed
+    uint32 minProtoVersion = 1;
+
+    // Highest TAK protocol version supported
+    // If not filled in (reads as 0), version 1 is assumed
+    uint32 maxProtoVersion = 2;
+}
+
