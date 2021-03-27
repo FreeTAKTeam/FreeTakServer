@@ -49,6 +49,31 @@ the message is placed in the body of the request as JSON formatted. See below fo
 ## API Details
   ### manageGeoObject 
    a GeoObject is an element place on a map. It has a name, characteristics and an attitude. 
+  
+  #### putGeoObject
+  
+  * verb: PUT
+  * endpoint /ManageGeoObject/postGeoObject
+  * returns: UID
+  
+  #### Parameters
+  * uid
+  * how
+  * geoObject
+  * longitude
+  * latitude
+  * address
+  * name
+  * timeout
+  
+   ##### Response
+   * 200 Success: uid. you have create the geoObject
+   * [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
+   * server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
+  *  server error 400: you have probably an error in the format of your JSON query
+   * server error 404: you have an error in the end point definition
+ 
+  
   #### postGeoObject
   
  * verb: POST
@@ -77,6 +102,40 @@ the message is placed in the body of the request as JSON formatted. See below fo
 "timeout": 600  
 }
 ```
+alternate
+```json
+{
+"address": "123 Sesame St imaginary land",
+"attitude": "hostile",
+"geoObject": "Gnd Combat Infantry Sniper",
+"how": "nonCoT",
+"name": "Putin",
+"timeout": 600  
+}
+```
+alternate
+```json
+{
+"longitude": -77.0104,
+"latitude": 38.889,
+"distance": 500,
+"bearing": 92,
+"attitude": "hostile",
+"geoObject": "Gnd Combat Infantry Sniper",
+"how": "nonCoT",
+"name": "Putin",
+"timeout": 600  
+}
+```
+ ##### Supported attributes
+   * longitude(optional)
+   * latitude(optional)
+   * address*(optional)
+   * distance(optional): distance from specified coordinates or address
+   * bearing(optional): direction of point from specified coordinates, default: 0
+   * attitude(optional): attitude of the geoobject options specified below, default: unknown
+   * name: name of geoobject
+   * timeout(optional): length of time in seconds before point stales out in  ATAK, default: 300
 
  ##### Response
    * 200 Success: uid. you have create the geoObject
@@ -112,7 +171,7 @@ the message is placed in the body of the request as JSON formatted. See below fo
   ### SendGeoChatObject
    * verb: POST
    * endPoint: /ManageChat/postChatToAll
-
+   
  #### Parameters
   * message: the text of the GeoChat message
   * Sender: the name of the chat's sender, changing this will also change the chat room for the client.
@@ -135,8 +194,8 @@ create a emergency into the server
   * EmergencyType: the type of emergency to be displayed
   *  longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
   * latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
-  *  UID: server generated Unique Id of this element
-
+  *  uid: server generated Unique Id of this element
+  * address: address of emergency
 
    #### List of supported Emergency Types
 * "911 Alert"
@@ -222,3 +281,89 @@ Example
 }
 ```
  
+## getZoneCoT
+ * description: retrieve all CoTs within a specified radius
+ * verb: GET
+ * endpoint: /getZoneCoT
+ * returns: json shortened version of CoT elements
+#### parameters
+ * radius
+ * latitude
+ * longitude
+
+Example input
+```json
+{
+"latitude": 0,
+"longitude": 0,
+"radius": 500
+}
+```
+Example output:
+```json
+[{"latitude": -0.0036174779081532614, "longitude": 0.0, "distance": 402.6957986915376, "direction": 180.0, "type":
+"Sniper", "attitude": "hostile"}, {"latitude": -0.004521847385157638, "longitude": 0.0, "distance": 503.36974836064377,
+"direction": 180.0, "type": "Sniper", "attitude": "hostile"}, {"latitude": 0.0, "longitude": 0.0, "distance": 0.0,
+"direction": 0.0, "type": "Rifleman", "attitude": "friend"}]
+```
+ 
+## ManageRoute
+manage routes on the map
+
+#### postRoute
+ * verb: POST
+ * endpoint: /ManageRoute/postRoute
+ * returns: uid
+ 
+#### parameters
+ * latitude
+ * longitude
+ * name
+ * timeout
+ * address
+ * method
+ * longitudeDest
+ * latitudeDest
+
+Example
+```json
+{
+"latitude": 0,
+"longitude": 0,
+"name": "end location",
+"timeout": 40000,
+"address": "123 ABC st Smallville USA",
+"method": "Driving"
+}
+```
+alternate
+```json
+{
+"latitude": 0,
+"longitude": 0,
+"name": "end location",
+"timeout": 40000,
+"latitudeDest": 1,
+"longitudeDest": 1,
+"method": "Driving"
+}
+```
+## help
+retrieve API version and supported endpoints
+
+### help
+  * verb: GET
+  * endpoint: /help
+  * returns: json containing API version and supported endpoints
+  
+Example return data
+```json
+{"APIVersion": "1.1", 
+"SupportedEndpoints": 
+["/ManageEmergency/deleteEmergency", "/ManageGeoObject/postGeoObject",
+"/ManageEmergency/postEmergency", "/ManageGeoObject/putGeoObject", "/ManageGeoObject/getGeoObject",
+"/ManageEmergency/getEmergency", "/ManagePresence/postPresence", "/ManagePresence/putPresence",
+"/ManageRoute/postRoute", "/ManageChat/postChatToAll", "/DataPackageTable", "/ManageGeoObject", "/ManageEmergency",
+"/FederationTable", "/ManagePresence", "/MissionTable", "/ExCheckTable", "/SendGeoChat", "/ManageRoute", "/checkStatus",
+"/getZoneCoT", "/ManageChat", "/RecentCoT", "/APIUser", "/Clients", "/Alive", "/help", "/URL"]}
+```
