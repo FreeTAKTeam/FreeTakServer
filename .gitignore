@@ -139,3 +139,7 @@ dmypy.json
 /TAKfreeServerV0.6.5dev.zip
 /FreeTAKServerV0.7Alpha.zip
 /TAKfreeServer0.7.0.1.zip
+
+# VSCode settings
+# (They include user-specific paths)
+.vscode/

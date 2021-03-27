@@ -1,5 +1,6 @@
 ## List of supported API
-In the current release (1.3 internal), FTS supports following API:
+Internal APIs are primarly used by the FTS UI to communicate with the server. See also the [REST API DOC](REST_APIDoc.md)
+In the current release (1.5.12), FTS supports following API :
   * authenticate
   * users
   * logs
@@ -9,15 +10,15 @@ In the current release (1.3 internal), FTS supports following API:
   * DataPackageTable
   * MissionTable
   
-### Authorization
- to use the API you need to have  a rest key .
+### Authorization: API
+to use the API you need to have a REST API key.
 the authorization is placed in the header of the message.
 Authorization: Bearer [YOUR_API_KEY]
 
 > you need to use the string 'Bearer' before your API KEY
 
 ### Authorization Websocket
-  to use websocket events you need to trigger
+to use websocket events you need to trigger
 the event authenticate after connection and pass
 as the body of the message ```{"Authorization": [YOUR WEBSOCKET KEY]}```
 
@@ -28,56 +29,56 @@ Event: `connect` (this is a special event as it is called automatically on conne
 Subscription: `connectUpdate`
 
 ### returns
-  ```json
+```json
 {
-"starttime": ""(time at which server was started),
-"version": ""(version of FTS currently running)
+"starttime": "", // time at which server was started
+"version": "" // version of FTS currently running
 }
 ```
 
 ## authenticate
-  ### description
-   event used to authenticate new clients in the websocket<br />
-   Event: `authenticate` <br />
-   Subscription: `authentication`
-  ### returns
-   will call the event authentication on client with message body
-  ```{'successful': 'True'/'False'}``` dependant on whether or not
-  the authentication was accepted.
-  
-  ### parameters
-  a JSON body in the following format
-  ```json
+### description
+  event used to authenticate new clients in the websocket<br />
+  Event: `authenticate` <br />
+  Subscription: `authentication`
+### returns
+  will call the event authentication on client with message body
+```{'successful': 'True'/'False'}``` dependent on whether or not
+the authentication was accepted.
+
+### parameters
+a JSON body in the following format
+```json
 {"Authorization": [YOUR WEBSOCKET KEY]}
 ```
 ## users
-  ### description
-   event used to access list of connected client aswell as data
-  relating to each client.<br />
-   Event: `users` <br />
-   Subscription: `userUpdate`
-  
-  ### returns
-   a JSON message containing connected clients
-   ```
-   {
-	"Users":[
-		"user:"{"ip": "24.114.74.13", "callsign": "CorvoMobile", "team": "Yellow"},
-		"user:"{"ip": "24.144.79.13", "callsign": "Ghost", "team": "Blue"}
-	]
-  }
-  ```
-  ### parameters
-   None
-   
- ## systemUser
- retrieve all system users and their associated information<br />
-   Event: `systemUser` <br />
-   Subscription: `systemUserUpdate`
+### description
+event used to access list of connected client aswell as data
+relating to each client.<br />
+ Event: `users` <br />
+ Subscription: `userUpdate`
+
+### returns
+a JSON message containing connected clients
+```json
+{
+  "Users":[
+    "user:"{"ip": "24.114.74.13", "callsign": "CorvoMobile", "team": "Yellow"},
+    "user:"{"ip": "24.144.79.13", "callsign": "Ghost", "team": "Blue"}
+  ]
+}
+```
+### parameters
+None
+
+## systemUser
+retrieve all system users and their associated information<br />
+Event: `systemUser` <br />
+Subscription: `systemUserUpdate`
  
- ### returns
- system user information
- ```json
+### returns
+system user information
+```json
 {
 	"systemUsers": [
 		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "a.zip", "Uid": ""},
@@ -85,19 +86,22 @@ Subscription: `connectUpdate`
 		  {"Name": "Bill", "Group": "Yellow", "Token": "", "Password": "", "Certs": "c.zip", "Uid": ""}
 	]
 }
-````
- ### parameters
- None
- 
- ## addSystemUser
- ### description
- add one or many system users to the server<br />
-   Event: `addSystemUser`
- ### returns
- None
- ### parameters
- ```json
- {
+```
+
+### parameters
+None
+
+## addSystemUser
+### description
+add one or many system users to the server<br />
+Event: `addSystemUser`
+
+### returns
+None
+
+### parameters
+```json
+{
 	"systemUsers": [
 		  {"Name": "Dan", "Group": "Yellow", "Token": "", "Password": "", "Certs": "true"},
 		  {"Name": "Joe", "Group": "Blue", "Token": "", "Password": "", "Certs": "true"},
@@ -105,12 +109,15 @@ Subscription: `connectUpdate`
 	]
 }
 ```
+
 ## removeSystemUser
 ### description
 remove a system user from the server<br />
-   Event: `removeSystemUser`
+Event: `removeSystemUser`
+
 ### returns
 None
+
 ### parameters
 ```json
 {
@@ -121,12 +128,13 @@ None
   ]
 }
 ```
- ## logs
- ### description
-  event used to retrieve recent error log entries
-  from the server<br />
-   Event: `logs` <br />
-   Subscription: `logUpdate`
+## logs
+### description
+event used to retrieve recent error log entries
+from the server<br />
+Event: `logs` <br />
+Subscription: `logUpdate`
+
 ### returns
 recent error logs in JSON to the client event `logUpdate` with data in the following format
 ```json
@@ -136,37 +144,38 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
   ]
 }
 ```
- ### parameters
- the timestamp on the most recent log entry in format `%Y-%m-%d %H:%M:%S,%f`
+
+### parameters
+the timestamp on the most recent log entry in format `%Y-%m-%d %H:%M:%S,%f`
+
+## events
+### description
+event used to retrieve last 5 events<br />
+Event: `events` <br />
+Subscription: `eventsUpdate`
+
+
+### returns
+```json
+{
+  "events": ["server event 1", "server event 2", "server event 3", "server event 4", "server event 5"]
+}
+```
  
- ## events
- ### description
- event used to retrieve last 5 events<br />
-   Event: `events` <br />
-   Subscription: `eventsUpdate`
- 
- 
- ### returns
- ```json
- {
-   "events": ["server event 1", "server event 2", "server event 3", "server event 4", "server event 5"]
- }
- ```
- 
- ### parameters
- None
- 
- ## serviceInfo
- ### description
-  event used to retrieve information about all services including
-  their current status and port<br />
-   Event: `serviceInfo` <br />
-   Subscription: `serviceInfoUpdate`
- 
- ### returns
- status and port of each service aswell as the server starttime to the client event `serviceInfoUpdate`
- with body data in the following format
- ```json
+### parameters
+None
+
+## serviceInfo
+### description
+event used to retrieve information about all services including
+their current status and port<br />
+Event: `serviceInfo` <br />
+Subscription: `serviceInfoUpdate`
+
+### returns
+status and port of each service aswell as the server starttime to the client event `serviceInfoUpdate`
+with body data in the following format
+```json
 {
     "services": {
         "SSL_CoT_service": {
@@ -197,19 +206,20 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
     "IP": "127.0.0.1"
 }
 ```
- ### parameters
- None
- 
- ## serverHealth
- ### description
-  event used to retrieve information regarding
-  the status of the server hardware including
-  cpu, disk and memory usage.<br />
-   Event: `serverHealth` <br />
-   Subscription: `serverHealthUpdate`
+### parameters
+None
+
+## serverHealth
+### description
+event used to retrieve information regarding
+the status of the server hardware including
+cpu, disk and memory usage.<br />
+Event: `serverHealth` <br />
+Subscription: `serverHealthUpdate`
+
 ### returns
- current hardware usage to the client event `serverHealthUpdate` with body,
- ```json
+current hardware usage to the client event `serverHealthUpdate` with body,
+```json
 {
     "CPU": 56,
     "memory": 39,
@@ -220,105 +230,106 @@ recent error logs in JSON to the client event `logUpdate` with data in the follo
 ### parameters
 None
  
- ## systemStatus
- ### description
-  event used to execute test of all currently active
-  services and return their respective status.<br />
-   Event: `systemStatus` <br />
-   Subscription: `systemStatusUpdate`
-### returns
- current and expected status of all services on the server in JSON format 
- to the event `systemStatusUpdate` on the client with the body of the message 
- in the following format
+## systemStatus
+### description
+event used to execute test of all currently active
+services and return their respective status.<br />
+  Event: `systemStatus` <br />
+  Subscription: `systemStatusUpdate`
 
- ```json
+### returns
+current and expected status of all services on the server in JSON format 
+to the event `systemStatusUpdate` on the client with the body of the message 
+in the following format
+
+```json
 {
-    "services": {
-        "SSL_CoT_service": {
-            "status_expected": "on",
-            "status_actual": "off"
-        },
-        "TCP_CoT_service": {
-            "status_expected": "on",
-            "satus_actual": "on"
-        },
-        "SSL_DataPackage_service": {
-            "status_expected": "on",
-            "status_actual": "on"
-        },
-        "TCP_DataPackage_service": {
-            "status_expected": "on",
-            "status_actual": "on"
-        },
-        "SSL_Federation_service": {
-            "status_expected": "off",
-            "status_actual": "off"
-        },
-        "TCP_API_service": {
-            "status_expected": "on",
-            "status_actual": "on"
-        }
-    }
+  "services": {
+      "SSL_CoT_service": {
+          "status_expected": "on",
+          "status_actual": "off"
+      },
+      "TCP_CoT_service": {
+          "status_expected": "on",
+          "satus_actual": "on"
+      },
+      "SSL_DataPackage_service": {
+          "status_expected": "on",
+          "status_actual": "on"
+      },
+      "TCP_DataPackage_service": {
+          "status_expected": "on",
+          "status_actual": "on"
+      },
+      "SSL_Federation_service": {
+          "status_expected": "off",
+          "status_actual": "off"
+      },
+      "TCP_API_service": {
+          "status_expected": "on",
+          "status_actual": "on"
+      }
+  }
 }
 ```
 
 ### parameters
 None
  
- ## changeServiceInfo
- ### description
- Event used to change the status of each service running on the server<br />
-   Event: `changeServiceInfo` <br />
-   Subscription: `systemStatusUpdate`
+## changeServiceInfo
+### description
+Event used to change the status of each service running on the server<br />
+Event: `changeServiceInfo` <br />
+Subscription: `systemStatusUpdate`
  
 ### returns
 ```json
- {
-    "services": {
-        "SSL_CoT_service": {
-                      "status": "on",
-                      "port": 11111
-                  },
-        "TCP_CoT_service": {
-                      "status": "off",
-                      "port": 55555
-                  },
-        "SSL_DataPackage_service": {
-                      "status": "on",
-                      "port": 52345
-                  },
-        "TCP_DataPackage_service": {
-                      "status": "on",
-                      "port": 55235
-                  }
-    },
-    "ip": "127.0.0.1"
-  }
- ```
-
- ### parameters
- accepts JSON data containing information regarding the desired status of each service in the following format
- ```json
 {
-    "services": {
-        "SSL_CoT_service": {
-                      "status": "on",
-                      "port": 11111
-                  },
-        "TCP_CoT_service": {
-                      "status": "off",
-                      "port": 55555
-                  },
-        "SSL_DataPackage_service": {
-                      "status": "on",
-                      "port": 52345
-                  },
-        "TCP_DataPackage_service": {
-                      "status": "on",
-                      "port": 55235
-                  }
-    },
-    "ip": "127.0.0.1"
+"services": {
+    "SSL_CoT_service": {
+                  "status": "on",
+                  "port": 11111
+              },
+    "TCP_CoT_service": {
+                  "status": "off",
+                  "port": 55555
+              },
+    "SSL_DataPackage_service": {
+                  "status": "on",
+                  "port": 52345
+              },
+    "TCP_DataPackage_service": {
+                  "status": "on",
+                  "port": 55235
+              }
+},
+"ip": "127.0.0.1"
+}
+```
+
+### parameters
+accepts JSON data containing information regarding the desired status of each service in the following format
+```json
+{
+  "services": {
+      "SSL_CoT_service": {
+                    "status": "on",
+                    "port": 11111
+                },
+      "TCP_CoT_service": {
+                    "status": "off",
+                    "port": 55555
+                },
+      "SSL_DataPackage_service": {
+                    "status": "on",
+                    "port": 52345
+                },
+      "TCP_DataPackage_service": {
+                    "status": "on",
+                    "port": 55235
+                }
+  },
+  "ip": "127.0.0.1"
 }
 ```
 
@@ -327,120 +338,128 @@ None
 `port`(optional): the port on which the service should be listening eg: `8089` <br />
 not all services need to be in every message only those you would like to change
  
- ## systemUsers
-  Event used to retrieve all system users<br />
-   Event: `systemUsers` <br />
-   Subscription: `systemUsersUpdate`
- ### returns
- the metadata of each user
- ```json{
-	"systemUsers":[
-		{"Name": "Dan", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
-		{"Name": "Joe", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
-		{"Name": "Bill", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"}
-	]
+## systemUsers
+Event used to retrieve all system users<br />
+  Event: `systemUsers` <br />
+  Subscription: `systemUsersUpdate`
+### returns
+the metadata of each user
+```json
+{
+  "systemUsers":[
+    {"Name": "Dan", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
+    {"Name": "Joe", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"},
+    {"Name": "Bill", "Group": "Yellow", "Token": "Token1", "Password": "psw1", , "Certs": "a.zip"}
+  ]
 }
 ```
-##parameters
+
+### parameters
 None
 
 ## addSystemUsers
 used to create a new system user on the server<br />
-   Event: `addSystemUsers` <br />
+Event: `addSystemUsers` <br />
+
 ### returns
 None
+
 ### parameters
 ```json
 {
-  "systemUsers":
-	[
-	    {"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true" }
+  "systemUsers":[
+    {"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true" }
 	]
 }
 ```
- * Name: name of user
- * Group: group of user
- * Token: api token of user(optional)
- * Password: password for user(optional)
- * Certs: whether the user should have certs generated(should be true in ui)
- ## removeSystemUsers
+
+* Name: name of user
+* Group: group of user
+* Token: api token of user(optional)
+* Password: password for user(optional)
+* Certs: whether the user should have certs generated(should be true in ui)
+
+## removeSystemUsers
 used to remove a system user and their associated files from the server<br />
-   Event: `removeSystemUsers` <br />
- ###returns
- None
- ### parameters
- ```json
+Event: `removeSystemUsers` <br />
+
+### returns
+None
+
+### parameters
+```json
 { "systemUsers": 
   [ 
     { "uid": "46b3de87-85f5-400d-a098-536f2e1421ce" } 
   ] 
 }
 ```
- * uid: uid of user to remove
- ## DataPackageTable
- ### description
-  Endpoint used to access data regarding DataPackages
- 
- #### methods
-   * POST
-   * GET
-   * DELETE   
- 
- ### GET
-  returns JSON data containing information regarding all DataPackages currently on server
-  ```json
+
+* uid: uid of user to remove
+## DataPackageTable
+### description
+Endpoint used to access data regarding DataPackages
+
+#### methods
+* POST
+* GET
+* DELETE   
+
+### GET
+returns JSON data containing information regarding all DataPackages currently on server
+```json
 {
-"DataPackages":[
-        {"Keywords": "88.104.44.76", "name": "WWIII Locations","privacy":"public", "size":"345KB", "submitted":"2020-02-10" },
-        {"Keywords": "112.144.567.257", "name": "WWIII Locations","privacy":"public", "size":"345KB", "submitted":"2020-02-10" }
-    ]
+  "DataPackages":[
+    {"Keywords": "88.104.44.76", "name": "WWIII Locations","privacy":"public", "size":"345KB", "submitted":"2020-02-10" },
+    {"Keywords": "112.144.567.257", "name": "WWIII Locations","privacy":"public", "size":"345KB", "submitted":"2020-02-10" }
+  ]
 }
 ```
 
 ### POST
-  accepts the zipped form of the file in the body of the message and the following arguments in the url
-  * filename: the name of the zipped file
-  * creatorUid(optional): the uid of the user associated with the DataPackage defaults to ```server``` if none is provided
+accepts the zipped form of the file in the body of the message and the following arguments in the url
+* filename: the name of the zipped file
+* creatorUid(optional): the uid of the user associated with the DataPackage defaults to ```server``` if none is provided
   
 ### DELETE
- accepts the following JSON data
- ```json
+accepts the following JSON data
+```json
 {
-"DataPackages":[
-	{"hash": "194728885783f87ws84888943fjew"},
-	{"hash": "19472mw45783f7ws848758943fjegr"}
-]
+  "DataPackages":[
+    {"hash": "194728885783f87ws84888943fjew"},
+    {"hash": "19472mw45783f7ws848758943fjegr"}
+  ]
 }
 ```
 the hash values are the hashes of DataPackages to be deleted
 
 ### PUT
- accepts the following JSON data
- ```json
+accepts the following JSON data
+```json
 {
-  "DataPackages": [
+  "DataPackages":[
     {"PrimaryKey": "1", "Name": "new_name", "Keywords": "new keywords", "Privacy": "0"}
   ]
 }
 ```
- * PrimaryKey: primary key of DataPackage to be modified
- * Name: optional new name of DataPackage if not set name will not be changed
- * Keywords: optional new keywords of DataPackage if not set keywords will not be changed
- * Privacy: optional new privacy of DataPackage if not set privacy will not be changed must be 1(Private) or 0(Public)
+* PrimaryKey: primary key of DataPackage to be modified
+* Name: optional new name of DataPackage if not set name will not be changed
+* Keywords: optional new keywords of DataPackage if not set keywords will not be changed
+* Privacy: optional new privacy of DataPackage if not set privacy will not be changed must be 1(Private) or 0(Public)
 
- ## MissionTable
- ### description 
- Endpoint used to access data regarding mission packages
- 
- ### methods
- * GET
- * POST
- * DELETE
- 
- ### GET
-  return JSON data containing information about all current Missions
-  with the following format
-  ```json
+## MissionTable
+### description 
+Endpoint used to access data regarding mission packages
+
+### methods
+* GET
+* POST
+* DELETE
+
+### GET
+return JSON data containing information about all current Missions
+with the following format
+```json
 {
     "version": "3",
     "type": "Mission",
@@ -497,20 +516,20 @@ not yet implemented
 Endpoint used to access data regarding ExCheck items such as checklists and templates
 
 ### POST
-  creates a template on the server from a supplied xml file accepting the following URL encoded values:
-  * clientUid: the uid of the client to be recognized as the creator of the template
-  
-  body of the message should be the xml of the template
+creates a template on the server from a supplied xml file accepting the following URL encoded values:
+* clientUid: the uid of the client to be recognized as the creator of the template
+
+body of the message should be the xml of the template
 
 ### DELETE
 accepts the following data
-  ```json
+```json
 {
-    "ExCheck": 
-    {
-      "Templates": [{"uid": "TemplateUID1"}, {"uid": "TemplateUID2"}],
-      "Checklists": [{"uid": "ChecklistUID1"}, {"uid": "ChecklistUID2"}]  
-    }
+  "ExCheck": 
+  {
+    "Templates": [{"uid": "TemplateUID1"}, {"uid": "TemplateUID2"}],
+    "Checklists": [{"uid": "ChecklistUID1"}, {"uid": "ChecklistUID2"}]  
+  }
 }
 ```
 `uid`: the uid of those Checklists and Templates to be deleted
@@ -546,6 +565,7 @@ return JSON data containing the following information about Checklists and Templ
   }
 }
 ```
+
 ## FederationTable
 endpoint used to access federation objects
 
@@ -638,6 +658,7 @@ modify an existing federation configuration
     ]
 }
 ```
+
 * id: must be id of existing federation configuration
 * name(optional): new name of federation configuration
 * fallback(optional): name of new fallback
