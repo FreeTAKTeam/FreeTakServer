@@ -392,8 +392,8 @@ Updates the location of a team member
 * verb: PUT
 * endPoint: /ManagePresence/putPresence
 * returns: UID
- 
-## getZoneCoT
+  
+ ## getZoneCoT
  * description: retrieve all CoTs within a specified radius
  * verb: GET
  * endpoint: /getZoneCoT
