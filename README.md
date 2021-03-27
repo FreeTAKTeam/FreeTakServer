@@ -40,6 +40,7 @@ not a big fan of Paypal, but that is the easiest way I found for an initial atte
 we support a [public instance](https://www.reddit.com/r/ATAK/wiki/index/freetakserver) of FTS.
 - download the configuration [here](https://drive.google.com/file/d/1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli/view?usp=sharing)
 - use the Import manager in ATAK to import the configuration
+- [more details](https://freetakteam.github.io/FreeTAKServer-User-Docs/Usage/Connecting%20ATAK/)
 
 ### Tell us what you think!
 to discuss with the developer team
