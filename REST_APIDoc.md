@@ -247,6 +247,18 @@ update an existing geoObject cohordinates (can also update other features)
  #### Response
  * 200 with UID
 
+#### getGeoObject
+retrieve all geoObjects in a given radius
+* verb: GET
+* endPoint: /ManageGeoObject/getGeoObject
+
+#### Parameters
+NOTE: these should be provided in the form of url encoded variables
+ * radius: radius in meters where geoobjects, default(100)
+ * longitude: longitude from which radius is calculated, default(0)
+ * latitude: latitude from which radius is calculated, default(0)
+ * attitude: the attitude which will be filtered, default(*)
+
 ## ManageChat
 ### SendGeoChatObject
 * verb: POST
@@ -428,9 +440,9 @@ manage routes on the map
  * returns: uid
  
 #### parameters
- * latitude
- * longitude
- * name
+ * routeName
+ * endName
+ * startName
  * timeout
  * address
  * method
@@ -475,14 +487,14 @@ alternate
 ## help
 retrieve API version and supported endpoints
 
-### help
+### getHelp
   * verb: GET
-  * endpoint: /help
+  * endpoint: /manageAPI/getHelp
   * returns: json containing API version and supported endpoints
   
 Example return data
 ```json
-{"APIVersion": "1.1", 
+{"APIVersion": "1.7", 
 "SupportedEndpoints": 
 ["/ManageEmergency/deleteEmergency", "/ManageGeoObject/postGeoObject",
 "/ManageEmergency/postEmergency", "/ManageGeoObject/putGeoObject", "/ManageGeoObject/getGeoObject",
