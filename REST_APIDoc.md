@@ -17,9 +17,8 @@ In the current release (1.7), FTS supports following API:
   * ManagePresence/postPresence
   * ManagePresence/putPresence 
 
-  
 ## General Configuration
-> To quickly test the API, you can use a browser extension (Chrome) like ARC Advanced rest client.REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. Please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/). 
+> To quickly test the API, you can use a browser extension like ARC Advanced rest client (Chrome). REST APIs are easy to use, however they require a minimum ammount of knowledge, we DO NOT provide support to explain WHAT an API is. Please refer to an online tutorial such as [this](http://www.steves-internet-guide.com/using-http-apis-for-iot-beginners-guide/). 
 
 ### endpoint
 the API uses the following format
@@ -54,13 +53,15 @@ the following is a non-working example of a key
 ```
 
 ### Message
-the message is placed in the body of the request as JSON formatted. See below for detailed examples.
+In most end points, the message is placed in the body of the request as JSON formatted. See below for detailed examples.
+in the Get verbs it's a variable.
 
 ## API Details
-### help
-retrieve API version and supported endpoints
+### manageAPI
 
-#### help
+
+#### getHelp
+retrieve API version and supported endpoints
   * verb: GET
   * endpoint: /help
   * returns: json containing API version and supported endpoints
@@ -79,7 +80,7 @@ retrieve API version and supported endpoints
 ```
 
   ### manageGeoObject 
-   a GeoObject is an element place on a map. It has a name, characteristics and an attitude. 
+  A GeoObject is an element place on a map. It has a name, characteristics and an attitude. 
   
   #### putGeoObject
   
@@ -88,14 +89,22 @@ retrieve API version and supported endpoints
   * returns: UID
   
   #### Parameters
-  * uid
-  * how
-  * geoObject
-  * longitude
-  * latitude
-  * address
-  * name
-  * timeout
+* GeoObject: It's the information that will determine which type will be placed on the tak maps including his icon. Please see API documentation for a list of valid entries. Since 1.7 you can also use nicknames for the geo objects.
+*  longitude: OPTIONAL the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
+* latitude: OPTIONAL the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
+* How: the way in which this geo information has been acquired. Please see API documentation for a list of valid entries.
+* attitude: OPTIONAL the kind of expected behavior of the GeoObject (e.g friendly, hostile, unknown). Please see API documentation for a list of valid entries.
+* name: a string to ID the GeoObject on a map.
+* bearing: OPTIONALsince 1.7, the direction expressed in degrees (1-360.  default: 0)   
+* distance": OPTIONAL since 1.7, the distance in meters from the Lat/long  or address
+* timeout: OPTIONAL the length, expressed in seconds  until the point will stale out. Default is 300 seconds or 5 minutes.
+*  uid: REQUIRED input parameter, need to be an existing Id for this element,
+* address: OPTIONAL address of destination if you are not sending lat/long. If sent will try to solve the exact geolocation of the destination. Possible valid examples are  
+     - Big Arkansas River Park, Wichita, KS, USA 
+     - Wichita, KS, USA 
+     - Big Arkansas River Park, Wichita
+     - and so on
+
   
    ##### Response
    * 200 Success: uid. you have create the geoObject
@@ -104,9 +113,7 @@ retrieve API version and supported endpoints
   *  server error 400: you have probably an error in the format of your JSON query
    * server error 404: you have an error in the end point definition
  
-  
   #### postGeoObject
-
  * verb: POST
  * endPoint: /ManageGeoObject/postGeoObject
  * returns: UID
@@ -136,7 +143,6 @@ a GeoObject is an element place on a map. It has a name, characteristics and an 
      - Wichita, KS, USA 
      - Big Arkansas River Park, Wichita
      - and so on
-
 
 ##### Example body
 ```json
@@ -179,7 +185,6 @@ a GeoObject is an element place on a map. It has a name, characteristics and an 
 "timeout": 600  
 }
 ```
-
 
 ##### Response
 * 200 Success: uid. you have create the geoObject
@@ -471,8 +476,7 @@ manage routes on the map
 ```json
 {
     "uid": "bf2035ce-8f40-11eb-895a-4e58de281c19",
-   
-  "longitude": -77.02385,
+     "longitude": -77.02385,
   "latitude": 40.999
 }
 ```
@@ -493,10 +497,10 @@ manage routes on the map
 {
   "longitude": -77.02385,
   "latitude": 38.999,
-"name": "end location",
+"name": "trip to halifax",
 "timeout": 40000,
-"latitudeDest": -97,
-"longitudeDest": 37,
+"latitudeDest": -63,
+"longitudeDest": 44,
 "method": "Driving"
 }
 ```
