@@ -1,6 +1,8 @@
 # FreeTAKServer REST API Documentation
 the FreeTAKServer REST API is a human readeble approach to the TAK world. The API allows you to easily connect third parties to the TAK family, without the need to understand the complexity of the COT structure or what a TCP connection is.  FTS also supports an [Internal API](REST_API_InternalDoc.md).
-WARNING: the current document contains experimental, not yet released functions (listed)
+
+## How FTS manages the information
+FTS will send the  information coming trough the API to all the connected clients, addtionally it will save it to the persistency, to be query in future. 
 
 ## List of supported API
 In the current release (1.7), FTS supports following API:
@@ -54,16 +56,16 @@ the following is a non-working example of a key
 
 ### Message
 In most end points, the message is placed in the body of the request as JSON formatted. See below for detailed examples.
-in the Get verbs it's a variable.
+In the API using the *Get* verbs it's a variable.
 
 ## API Details
 ### manageAPI
-
+set of commands relative to API management
 
 #### getHelp
 retrieve API version and supported endpoints
   * verb: GET
-  * endpoint: /help
+  * endpoint: /manageAPI/getHelp
   * returns: json containing API version and supported endpoints
   
 
@@ -105,7 +107,6 @@ retrieve API version and supported endpoints
      - Big Arkansas River Park, Wichita
      - and so on
 
-  
    ##### Response
    * 200 Success: uid. you have create the geoObject
    * [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
@@ -113,14 +114,8 @@ retrieve API version and supported endpoints
   *  server error 400: you have probably an error in the format of your JSON query
    * server error 404: you have an error in the end point definition
  
-  #### postGeoObject
- * verb: POST
- * endPoint: /ManageGeoObject/postGeoObject
- * returns: UID
-### manageGeoObject 
-a GeoObject is an element place on a map. It has a name, characteristics and an attitude. 
 
-#### postGeoObject
+### postGeoObject
 
 * verb: POST
 * endPoint: /ManageGeoObject/postGeoObject
@@ -161,7 +156,7 @@ a GeoObject is an element place on a map. It has a name, characteristics and an 
 ##### Example body alternate
 ```json
 {
-"address": "123 Sesame St imaginary land",
+"address": "Washington, DC, USA",
 "attitude": "hostile",
 "geoObject": "Gnd Combat Infantry Sniper",
 "how": "nonCoT",
@@ -185,30 +180,7 @@ a GeoObject is an element place on a map. It has a name, characteristics and an 
 }
 ```
 
-##### Response
-* 200 Success: uid. you have create the geoObject
-* [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
-* server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
-*  server error 400: you have probably an error in the format of your JSON query
-* server error 404: you have an error in the end point definition
- 
-##### List of supported Geo Objects
-* "Gnd Combat Infantry Rifleman",  Nickname: "Rifleman"
-* "Gnd Combat Infantry grenadier", Nickname: "Grenadier"
-* "Gnd Combat Infantry Mortar" , Nickname: "Mortar" 
-* "Gnd Combat Infantry MachineGunner (LMG)",  Nickname: "LMG" 
-* "Gnd Combat Infantry Medic" ,  Nickname: "Medic"
-* "Gnd Combat Infantry Sniper",  Nickname: "Sniper"
-* "Gnd Combat Infantry Recon" ,  Nickname: "Recon"
-* "Gnd Combat Infantry anti Tank" ,  Nickname: "anti Tank"
-* "Gnd Combat Infantry air defense",  Nickname: "AA"
-* "Gnd Combat Infantry Engineer",  Nickname: "Engineer"
-* "Ground"
-  
-##### Extensions for EMS
-Extensions since 1.7, not available in 1.5 
-
-##### Example body
+##### Example 1.7 body
 ```json
 {
 "longitude": -77.0104,
@@ -223,6 +195,29 @@ Extensions since 1.7, not available in 1.5
 }
 ```
 
+##### Response
+* 200 Success: uid. you have create the geoObject
+* [MISSING PARAMETERNAME]: you have odmitted a parameter that is required
+* server error 500: you have probably missspelled the list of parameters (e.g geoObjects/ supported attitude). the names are case sensitive (!)
+*  server error 400: you have probably an error in the format of your JSON query
+* server error 404: you have an error in the end point definition
+ 
+##### Basic GeoObjects
+* "Gnd Combat Infantry Rifleman",  Nickname: "Rifleman"
+* "Gnd Combat Infantry grenadier", Nickname: "Grenadier"
+* "Gnd Combat Infantry Mortar" , Nickname: "Mortar" 
+* "Gnd Combat Infantry MachineGunner (LMG)",  Nickname: "LMG" 
+* "Gnd Combat Infantry Medic" ,  Nickname: "Medic"
+* "Gnd Combat Infantry Sniper",  Nickname: "Sniper"
+* "Gnd Combat Infantry Recon" ,  Nickname: "Recon"
+* "Gnd Combat Infantry anti Tank" ,  Nickname: "anti Tank"
+* "Gnd Combat Infantry air defense",  Nickname: "AA"
+* "Gnd Combat Infantry Engineer",  Nickname: "Engineer"
+* "Ground"
+  
+#####  GeoObjects Extensions for EMS
+Extensions since 1.7, not available in 1.5 
+
 * "Gnd Equip Vehic Civilian", Nickname: Vehicle (OK)
 * "Gnd Equip Vehic Ambulance": "a-.-G-E-V-m" , Nickname: Ambulance (OK)
 * "Gnd Structure IM Facilities Emergency Management": "a-.-G-I-i-e" Nickname: Emergency Station (empty shape)
@@ -235,7 +230,7 @@ Extensions since 1.7, not available in 1.5
 * "FOOD DISTRIBUTION": "b-r-.-O-O-O", Nickname: Food (OK, only label, need to implement nick) 
 * "Gnd Crowd Control Team": "a-.-G-U-i-l-cct" Nickname: Police (OK)
 * "Gnd Generators ": "a-.-G-U-i-p-gen" Nickname: Generator (empty shape)
-* "Other incident other": "a-.-X-i-o" Nickname: incident (OK, missing nich name?) 
+* "Other incident other": "a-.-X-i-o" Nickname: incident (OK, missing nick name?) 
 * "Combat search &amp; rescue (CSAR)": "a-.-A-M-F-Q-H", Nickname: SAR (OK)
 * "Medevac": "a-.-G-U-C-V-R-E",, Nickname: Medevac  (OK)
 * "Alarm": "b-l",  Nickname: Alarm
@@ -286,31 +281,23 @@ update an existing geoObject cohordinates (can also update other features)
 
 #### getGeoObject
 retrieve all geoObjects in a given radius
+
 * verb: GET
 * endPoint: /ManageGeoObject/getGeoObject
 
 #### Parameters
 NOTE: these should be provided in the form of url encoded variables
- * radius: radius in meters where geoobjects, default(100)
+ * radius: radius in meters where geoObjects, default(100)
  * longitude: longitude from which radius is calculated, default(0)
  * latitude: latitude from which radius is calculated, default(0)
- * attitude: the attitude which will be filtered, default(*)
+ * attitude: the attitude which will be filtered, default(any). see list of supported attitude above
 
-## ManageChat
-### SendGeoChatObject
-* verb: POST
-* endPoint: /ManageChat/postChatToAll
-
-   ##### List of supported Attitude
-  * "friend"
-  * "friendly"
-  * "hostile"
-  * "unknown"
-  * "pending" 
-  * "assumed"
-  * "neutral" 
-  * "suspect" 
-  
+``` JSON Variables
+  "longitude": -77.02385,
+  "latitude": 38.999,
+  "radius"
+ ```
+ 
   ## ManageChat
   ### SendGeoChatObject
    * verb: POST
@@ -434,31 +421,7 @@ Updates the location of a team member
   #### Parameters
 * uid: server generated Unique Id of this emergency
   
- ## getZoneCoT
- * description: retrieve all CoTs within a specified radius
- * verb: GET
- * endpoint: /getZoneCoT
- * returns: json shortened version of CoT elements
-#### parameters
- * radius: the radius of the serach in meters
- * latitude: 
- * longitude: 
-
-##### Example body
-```json
-{
-"latitude": 43.85276,
-"longitude": -66.10809,
-"radius": 500
-}
-```
-
-##### Example output
-```json
-[{"latitude": -0.0036174779081532614, "longitude": 0.0, "distance": 402.6957986915376, "direction": 180.0, "type":"Sniper", "attitude": "hostile"}, 
-{"latitude": -0.004521847385157638, "longitude": 0.0, "distance": 503.36974836064377,"direction": 180.0, "type": "Sniper", "attitude": "hostile"}, 
-{"latitude": 0.0, "longitude": 0.0, "distance": 0.0,"direction": 0.0, "type": "Rifleman", "attitude": "friend"}]
-```
+ 
 ## ManageRoute
 manage routes on the map
 
@@ -474,14 +437,14 @@ manage routes on the map
      - Wichita, KS, USA 
      - Big Arkansas River Park, Wichita
      - and so on
- * method: OPTIONAL the method we plan to use for the route (Driving, walking). currently not used
+ * method: OPTIONAL the method we plan to use for the route (Driving, Flying, Walking, Swimming, Watercraft). currently not used and set to Driving in the client
  * longitudeDest: OPTIONAL if address is not sent
  * latitudeDest: OPTIONAL if address is not sent
  * uid: OPTIONAL server generated Unique Id of this element. it will  update the existing element.  
- * routeName
- * endName
- * startName
- * uid: server generated Unique Id of this element. it will  update the existing element.  
+ * routeName:OPTIONAL the name of the route
+ * endName: OPTIONAL the name of the destination (end point on the route)
+ * startName: OPTIONAL the  name of the start (start point of the route)
+ * uid: OPTIONALserver generated Unique Id of this element. it will  update an existing route.  
 * longitude: the angular distance of the geoobject from the meridian of the greenwich, UK expressed in positive or negative float. (e.g -76.107.7998).  remember to set the display of your TAK in decimal cohordinates, where *West 77.08* is equal to '-77.08' in the API
 * latitude: the angular distance of the geoobject from the earths equator expressed in positive or negative float. (e.g 43.855682)
  
@@ -489,9 +452,14 @@ manage routes on the map
 ##### Example body
 ```json
 {
-    "uid": "bf2035ce-8f40-11eb-895a-4e58de281c19",
-     "longitude": -77.02385,
-  "latitude": 40.999
+  "longitude": -77.02385,
+  "latitude": 38.999,
+  "routeName": "trip to Phil",
+  "startName": "Washington",
+  "endName": "Philadelphia",
+  "timeout": 40000,
+  "latitudeDest": 39.940,
+  "longitudeDest": -75.01385
 }
 ```
 
@@ -500,23 +468,20 @@ manage routes on the map
 {
  "longitude": -77.01385,
  "latitude": 38.889,
-"name": "trip to wichita",
+"routeName": "trip to wichita",
 "timeout": 40000,
 "address": "Wichita, KS, USA"
 }
 ```
 
-##### Example body, alternate
+##### Example body 3
 ```json
 {
   "longitude": -77.02385,
   "latitude": 38.999,
-"name": "trip to halifax",
-"timeout": 40000,
-"latitudeDest": -63,
-"longitudeDest": 44,
-"method": "Driving"
+  "routeName": "trip to halifax",
+  "latitudeDest": 44.69,
+  "longitudeDest": -63.57,
+  "method": "Flying"
 }
-```
-
 ```
