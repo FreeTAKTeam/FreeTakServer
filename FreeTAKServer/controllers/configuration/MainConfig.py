@@ -43,12 +43,14 @@ class MainConfig:
     SaveCoTToDB = bool(os.environ.get('FTS_COT_TO_DB', True))
 
     # this should be set before startup
-    DBFilePath = str(os.environ.get('FTS_DB_PATH', r'/root/FTSDataBase.db'))
+
+    DBFilePath = str(os.environ.get('FTS_DATA_PATH', r'/root/') + "FTSDataBase.db")
 
     # the version information of the server (recommended to leave as default)
     version = 'FreeTAKServer-1.7 RC 1 Public'
 
-    MainPath = str(Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer'))
+    MainPath = str(os.environ.get('FTS_DATA_PATH',
+        Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')))
 
     ExCheckMainPath = str(Path(fr'{MainPath}/ExCheck'))
 
@@ -82,8 +84,8 @@ class MainConfig:
 
     federationCert = str(Path(fr'{certsPath}/pubserver.pem'))
     federationKey = str(Path(fr'{certsPath}/pubserver.key'))
-    federationKeyPassword = str(os.environ.get('FTS_FED_PASSWORD', 'defaultpass'))
-
+    federationKeyPassword = str(os.environ.get('FTS_FED_PASSWORD','defaultpass'))
+    
     # location to backup client packages
     clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
 

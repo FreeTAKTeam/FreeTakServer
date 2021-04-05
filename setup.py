@@ -14,7 +14,7 @@ setup(
     author='FreeTAKTeam',
     author_email='your.email@domain.com',
     url='https://github.com/FreeTAKTeam/FreeTakServer',
-    download_url='https://github.com/Tapawingo/FreeTakServer/archive/v0.8.4-Beta.tar.gz',
+    download_url=f'https://github.com/FreeTAKTeam/FreeTakServer/archive/{ version }.tar.gz',
     keywords=['TAK', 'OPENSOURCE'],
     install_requires=[
         'flask==1.1.2',
