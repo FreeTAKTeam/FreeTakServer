@@ -11,7 +11,8 @@ from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 
 
 class Presence:
-# default constructor  def __init__(self):  
+# default constructor  def __init__(self):
+    uid = ""
     how = ""
     # the angular distance of the geoobject from the meridian of the greenwich, UK
     # expressed in positive or negative float. (e.g -76.107.7998)

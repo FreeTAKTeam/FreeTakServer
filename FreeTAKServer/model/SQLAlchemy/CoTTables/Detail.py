@@ -37,7 +37,7 @@ class Detail(Base):
     __tablename__ = 'Detail'
     PrimaryKey = Column(ForeignKey("Event.uid"), primary_key=True)
     # Event = relationship("Event", back_populates="detail")
-    xmlString = Column(String)
+    xmlString = Column(String(100))
     archive = relationship("Archive", uselist=False, cascade="all, delete")
     _group = relationship("_Group", uselist=False, back_populates="Detail", cascade="all, delete")
     chat = relationship("Chat", uselist=False, cascade="all, delete")

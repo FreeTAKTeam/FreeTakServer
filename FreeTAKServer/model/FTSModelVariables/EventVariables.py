@@ -154,3 +154,14 @@ class EventVariables:
         cls.how = "h-g-i-g-o"
         return cls
 
+    @classmethod
+    def Route(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = "b-m-r"
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = "h-e"
+        return cls
+

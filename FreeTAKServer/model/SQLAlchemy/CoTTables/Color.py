@@ -16,4 +16,4 @@ class Color(Base):
 # default constructor  def __init__(self):  
     __tablename__ = "Color"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
-    argb = Column(String)
+    argb = Column(String(100))

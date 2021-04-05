@@ -24,8 +24,8 @@ class ServerServiceInterface(ServiceInterface):
 class ServiceBase(ServiceInterface):
 
     def receive_command_data(self, pipe: multiprocessing.Pipe) -> any:
-        if pipe.poll():
-            return pipe.recv()
+        if not pipe.empty():
+            return pipe.get()
         else:
             return None
 

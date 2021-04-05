@@ -12,6 +12,7 @@ import datetime as dt
 from FreeTAKServer.model.FTSModelVariables.LinkVariables import LinkVariables as vars
 
 class Link(FTSProtocolObject):
+    __modified = False
     def __init__(self):
         self.uid = None
         self.relation = None
@@ -62,12 +63,52 @@ class Link(FTSProtocolObject):
         link.setrelation(RELATION)
         return link
 
+    @staticmethod
+    def Route(UID=vars.Route().UID, TYPE=vars.Route().TYPE, RELATION=vars.Route().RELATION,
+              POINT=vars.Route().POINT, CALLSIGN=vars.Route().CALLSIGN, REMARKS=vars.Route().REMARKS,
+              ):
+        link = Link()
+        link.setuid(UID)
+        link.settype(TYPE)
+        link.setrelation(RELATION)
+        link.setpoint(POINT)
+        link.setcallsign(CALLSIGN)
+        link.setremarks(REMARKS)
+        return link
+
+    def getremarks(self):
+        return self.remarks
+
+    def setremarks(self, remarks):
+        self.__modified = True
+        self.remarks = remarks
+
+    def getcallsign(self):
+        return self.callsign
+
+    def setcallsign(self, callsign):
+        self.__modified = True
+        self.callsign = callsign
+
+    def getpoint(self):
+        return self.point
+
+    def setpoint(self, point):
+        self.__modified = True
+        self.point = point
+
     # uid getter 
-    def getuid(self): 
-        return self.uid 
+    def getuid(self):
+        import uuid
+        if self.uid:
+            return self.uid
+        else:
+            self.uid = uuid.uuid1()
+            return self.uid
 
     # uid setter 
-    def setuid(self, uid=0):  
+    def setuid(self, uid=0):
+        self.__modified = True
         self.uid=uid 
 
     # production_time getter 
@@ -76,6 +117,7 @@ class Link(FTSProtocolObject):
 
     # production_time setter 
     def setproduction_time(self, production_time=0):
+        self.__modified = True
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         if production_time == None:
             timer = dt.datetime
@@ -92,7 +134,8 @@ class Link(FTSProtocolObject):
         return self.relation 
 
     # relation setter 
-    def setrelation(self, relation=0):  
+    def setrelation(self, relation=0):
+        self.__modified = True
         self.relation=relation 
 
     # type getter 
@@ -100,7 +143,8 @@ class Link(FTSProtocolObject):
         return self.type 
 
     # type setter 
-    def settype(self, type=0):  
+    def settype(self, type=0):
+        self.__modified = True
         self.type=type 
 
     # parent_callsign getter 
@@ -108,5 +152,6 @@ class Link(FTSProtocolObject):
         return self.parent_callsign 
 
     # parent_callsign setter 
-    def setparent_callsign(self, parent_callsign=0):  
+    def setparent_callsign(self, parent_callsign=0):
+        self.__modified = True
         self.parent_callsign=parent_callsign 

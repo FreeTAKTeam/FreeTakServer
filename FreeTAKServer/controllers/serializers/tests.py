@@ -1,6 +1,5 @@
 import unittest
 
-from FreeTAKServer.controllers.serializers.json_serializer import JsonSerializer
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
@@ -8,7 +7,7 @@ from FreeTAKServer.controllers.JsonController import JsonController
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 #from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
-from lxml import etree
+from defusedxml import ElementTree as etree
 
 class TestSerializers(unittest.TestCase):
 
@@ -16,7 +15,6 @@ class TestSerializers(unittest.TestCase):
         """
         test new serialization in contrast with legacy serializer to ensure compatibility
         """
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import GeoObjectAdapter
         basejson = {
                         "attitude": "friendly",
@@ -45,7 +43,6 @@ class TestSerializers(unittest.TestCase):
         self.assertEqual(xml_legacy, xml_updated)
 
     def test_json_serializer_with_chat_adapter(self):
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import ChatAdapter
         basejson = {
                         "message": "testing",
@@ -69,7 +66,6 @@ class TestSerializers(unittest.TestCase):
         self.assertEqual(xml_legacy, xml_updated)
 
     def test_json_serializer_with_presence_adapter(self):
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import PresenceAdapter
         basejson = {
@@ -98,7 +94,6 @@ class TestSerializers(unittest.TestCase):
         self.assertEqual(xml_legacy, xml_updated)
 
     def test_json_serializer_with_emergency_adapter(self):
-        from FreeTAKServer.model.FTSModel.Event import Event
         from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
         from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import EmergencyOnAdapter
         basejson = {
@@ -127,12 +122,14 @@ class TestSerializers(unittest.TestCase):
         test new serialization in contrast with legacy serializer to ensure compatibility
         """
         from FreeTAKServer.model.FTSModel.Event import Event
-        xmlstring = '<event version="2.0" uid="GeoChat.ANDROID-359975090666199.FEATHER.27d8ef23-8578-4cb4-8f53-02f5dc150cd2" type="b-t-f" how="h-g-i-g-o" start="2021-01-03T19:01:35.472Z" time="2021-01-03T19:01:35.472Z" stale="2021-01-04T19:01:35.472Z"><detail><__chat id="S-1-5-21-2720623347-3037847324-4167270909-1002" parent="RootContactGroup" chatroom="FEATHER" groupOwner="false"><chatgrp uid0="ANDROID-359975090666199" uid1="S-1-5-21-2720623347-3037847324-4167270909-1002" id="S-1-5-21-2720623347-3037847324-4167270909-1002"/></__chat><link uid="ANDROID-359975090666199" relation="p-p" type="a-f-G-E-V-A"/><remarks time="2021-01-03T19:01:35.472Z" source="BAO.F.ATAK.ANDROID-359975090666199" to="S-1-5-21-2720623347-3037847324-4167270909-1002">at VDO</remarks><__serverdestination destinations="192.168.2.66:4242:tcp:ANDROID-359975090666199"/><marti><dest callsign = "WOLF"/><dest callsign="GALLOP"/><dest callsign="FEATHER"/></marti></detail><point le="9999999.0" ce="3.2" hae="22.958679722315807" lon="-66.10803" lat="43.855711"/></event>'
-        fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.GeoChat())
+        # xmlstring = '<event version="2.0" uid="GeoChat.ANDROID-359975090666199.FEATHER.27d8ef23-8578-4cb4-8f53-02f5dc150cd2" type="b-t-f" how="h-g-i-g-o" start="2021-01-03T19:01:35.472Z" time="2021-01-03T19:01:35.472Z" stale="2021-01-04T19:01:35.472Z"><detail><__chat id="S-1-5-21-2720623347-3037847324-4167270909-1002" parent="RootContactGroup" chatroom="FEATHER" groupOwner="false"><chatgrp uid0="ANDROID-359975090666199" uid1="S-1-5-21-2720623347-3037847324-4167270909-1002" id="S-1-5-21-2720623347-3037847324-4167270909-1002"/></__chat><link uid="ANDROID-359975090666199" relation="p-p" type="a-f-G-E-V-A"/><remarks time="2021-01-03T19:01:35.472Z" source="BAO.F.ATAK.ANDROID-359975090666199" to="S-1-5-21-2720623347-3037847324-4167270909-1002">at VDO</remarks><__serverdestination destinations="192.168.2.66:4242:tcp:ANDROID-359975090666199"/><marti><dest callsign = "WOLF"/><dest callsign="GALLOP"/><dest callsign="FEATHER"/></marti></detail><point le="9999999.0" ce="3.2" hae="22.958679722315807" lon="-66.10803" lat="43.855711"/></event>'
+        xmlstring = '<event version="2.0" uid="115e1a1a-9947-4531-801c-40215fa4888c" type="b-m-r" time="2021-03-17T21:53:08.07Z" start="2021-03-17T21:53:08.07Z" stale="2021-03-24T21:53:08.07Z" how="h-e"><point lat="0" lon="0" hae="0" ce="9999999" le="9999999" /><detail><contact callsign="Eliopoli/BOP" /><link uid="4eaf4026-8db6-48ef-83c2-063dd0120339" type="b-m-p-w" point="44.1644630, -65.7995800,85.84967474" callsign="Eliopoli/BOP SP" relation="c" remarks="" /><link uid="42882562-9dc6-481b-9c89-9a5ba96fbf57" type="b-m-p-w" point="43.9676310, -66.1266740,16.80836837" callsign="Eliopoli" relation="c" remarks="" /><link_attr color="-1" type="b-m-r" method="Driving" direction="Infil" routetype="Primary" order="Ascending Check Points" /></detail></event>'
+        # fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.GeoChat())
+        fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.Route())
         obj = XmlSerializer().from_fts_object_to_format(fts_obj)
         print(etree.tostring(obj).decode())
-        legacyftsobj = XMLCoTController().serialize_CoT_to_model(Event.GeoChat(), etree.fromstring(xmlstring))
-        legacy_string = XMLCoTController().serialize_model_to_CoT(legacyftsobj)
+        # legacyftsobj = XMLCoTController().serialize_CoT_to_model(Event.GeoChat(), etree.fromstring(xmlstring))
+        legacy_string = XMLCoTController().serialize_model_to_CoT(fts_obj)
         self.assertEqual(legacy_string.decode(), etree.tostring(obj).decode())
 
     def test_from_protobuf_serialization(self):

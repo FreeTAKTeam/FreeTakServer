@@ -18,4 +18,4 @@ class Usericon(Base):
     __tablename__ = "Usericon"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="usericon")
-    iconsetpath = Column(String)
+    iconsetpath = Column(String(100))

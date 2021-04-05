@@ -1,4 +1,4 @@
-from lxml import etree
+from defusedxml import ElementTree as etree
 
 class AbstractXMLSerializer:
     def __init__(self, xml):

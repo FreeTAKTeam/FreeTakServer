@@ -27,19 +27,19 @@ class Remarks(Base):
     # about mission-A
     #               ex. keywords="tasking_B, subject_C"  - Describes a conversation
     # about tasking_B and subject_C
-    keywords = Column(String)
-    # Source specifies the sender’s UID – this is what is parsed by recipients to
+    keywords = Column(String(100))
+    # Source specifies the senderï¿½s UID ï¿½ this is what is parsed by recipients to
     # determine the sender, with the UID format being the fallback.
-    source = Column(String)
+    source = Column(String(100))
     # the time of the remark was added to the CoT object
-    time = Column(String)
+    time = Column(String(100))
     # Intended recipeint(s) of this remark information. Tentative field coding as
     # follows: The to attribute may contain the UID of the entity to whom the message
     # is addressed.  (Implementors should expect that future versions of this sub
     # schema will allow a comma separated list of UIDs.)  Absense of an explict
     # addressee means the message is broadcast.
     # e.g. ANDROID-359975090666199
-    to = Column(String)
+    to = Column(String(100))
     # Version tag for this sub schema.  Neccessary to ensure upward compatibility
     # with future revisions.
-    version = Column(String)
+    version = Column(String(100))

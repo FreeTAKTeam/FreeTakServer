@@ -35,7 +35,7 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
             <entry key="count" class="class java.lang.Integer">1</entry>
             <entry key="description0" class="class java.lang.String">FreeTAKServer_{{ server }}</entry>
             <entry key="enabled0" class="class java.lang.Boolean">false</entry>
-            <entry key="connectString0" class="class java.lang.String">{{ server }}:8089:ssl</entry>
+            <entry key="connectString0" class="class java.lang.String">{{ server }}:{{ port }}:ssl</entry>
         </preference>
         <preference version="1" name="com.atakmap.app_preferences">
             <entry key="displayServerConnectionWidget" class="class java.lang.Boolean">true</entry>
@@ -82,7 +82,8 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
     else:
         server_address = MainConfig.UserConnectionIP
     pref = pref_file_template.render(server=server_address, server_filename=server_filename,
-                                     user_filename=user_filename, cert_password=cert_password)
+                                     user_filename=user_filename, cert_password=cert_password,
+                                     port=str(MainConfig.SSLCoTServicePort))
     man = manifest_file_template.render(uid=random_id, server=server_address, server_filename=server_filename,
                                         user_filename=user_filename, folder=folder)
     man_parent = manifest_file_parent_template.render(uid=new_uid, server=server_address,
@@ -96,7 +97,6 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
         pref_file.write(pref)
     with open('./MANIFEST/manifest.xml', 'w') as manifest_file:
         manifest_file.write(man)
-    print("Generating Data Package: " + username + ".zip")
     copyfile(MainConfig.p12Dir, "./" + folder + "/" + server_filename)
     copyfile("./" + user_filename, "./" + folder + "/" + user_filename)
     zipf = zipfile.ZipFile(f"{username}.zip", 'w', zipfile.ZIP_DEFLATED)
@@ -116,7 +116,6 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
         os.makedirs("./MANIFEST")
     with open('./MANIFEST/manifest.xml', 'w') as manifest_parent:
         manifest_parent.write(man_parent)
-    print(f"Generating Main Data Package: {username}_DP.zip")
     copyfile(f"./{username}.zip", f"./{parentfolder}/{username}.zip")
     zipp = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(MainConfig.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk('./' + parentfolder):
@@ -171,12 +170,10 @@ class AtakOfTheCerts:
             f = open(self.cakeypath, "wb")
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
             f.close()
-            print("CA key Stored Here: " + self.cakeypath)
 
             f = open(self.capempath, "wb")
             f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
             f.close()
-            print("CA pem Stored Here: " + self.capempath)
         else:
             print("CA found locally, not generating a new one")
 
@@ -187,14 +184,12 @@ class AtakOfTheCerts:
         """
         if os.path.exists(keypath):
             print("Certificate file exists, aborting.")
-            print(keypath)
         else:
             print("Generating Key...")
             self.key.generate_key(crypto.TYPE_RSA, 2048)
             f = open(keypath, "wb")
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key))
             f.close()
-            print("Key Stored Here: " + keypath)
 
     def _generate_certificate(self, cn: str = "Server", pempath: str = MainConfig.pemDir, p12path: str = MainConfig.p12Dir) -> None:
         """
@@ -205,7 +200,6 @@ class AtakOfTheCerts:
         """
         if os.path.exists(pempath):
             print("Certificate File Exists, aborting.")
-            print(pempath)
             return None
         cakey = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.cakeypath).read())
         capem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.capempath, 'rb').read())
@@ -228,16 +222,13 @@ class AtakOfTheCerts:
         p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding='UTF-8'))
         with open(p12path, 'wb') as p12file:
             p12file.write(p12data)
-            print("P12 Stored Here: " + p12path)
 
         if os.path.exists(pempath):
             print("Certificate File Exists, aborting.")
-            print(pempath)
         else:
             f = open(pempath, "wb")
             f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
             f.close()
-            print("PEM Stored Here: " + pempath)
 
     def bake(self, cn: str, cert: str = "user") -> None:
         """
@@ -279,18 +270,9 @@ class AtakOfTheCerts:
             return None
         if not os.path.exists(dest + "/Certs"):
             os.makedirs(dest + "/Certs")"""
-        print("Copying ./" + server_name + ".key to :" + MainConfig.keyDir)
         copyfile("./" + server_name + ".key", MainConfig.keyDir)
-        print("Done")
-        print("Copying ./" + server_name + ".key to :" + MainConfig.unencryptedKey)
         copyfile("./" + server_name + ".key", MainConfig.unencryptedKey)
-        print("Done")
-        print("Copying ./" + server_name + ".pem to :" + MainConfig.pemDir)
         copyfile("./" + server_name + ".pem", MainConfig.pemDir)
-        print("Done")
-        """print("Copying ./ca.pem to :" + MainConfig.CA)
-        copyfile("./ca.pem", MainConfig.CA)"""
-        print("Done")
 
     def generate_auto_certs(self, ip: str, copy: bool = False) -> None:
         """
@@ -303,92 +285,3 @@ class AtakOfTheCerts:
         if copy is True:
             self.copy_server_certs()
         generate_zip(server_address=ip)
-
-if __name__ == '__main__':
-    """if True:
-        AtakOfTheCerts().bake("testcert")
-        generate_zip(user_filename='testcert.p12')"""
-    VERSION = "0.3.5"
-    help_txt = "This Python script is to be used to generate the certificate files needed for \n" \
-               "FTS Version 1.3 and above to allow for SSL/TLS connections between Server and \n" \
-               "Client.\n\n" \
-               "This script works in the current working directory (the folder you are \n" \
-               "currently in)\n\n" \
-               "The .p12 files generated will need to be copied to ATAK clients\n" \
-               "the default password set on the .p12 files is atakatak\n" \
-               "The Server .key and .pem file will ne needed on the FTS server as per the MainConfig.py\n" \
-               "The ca.pem is also needed for the MainConfig.py\n" \
-               "the default password set on the .p12 files is atakatak, this can be overridden\n\n" \
-               "Arguments:\n" \
-               "-h --help : to open help\n" \
-               "-v --version : to print the version number of the script\n" \
-               "-p --password : to change the password for the p12 files from the default atakatak\n" \
-               "-a --automated : to run the script in a headless mode to auto generate ca,server and user certs " \
-               "for a fresh install\n" \
-               "-c --copy : Use this in conjunction with -a to copy the server certs needed into the default location for FTS\n" \
-               "-i --ip : The IP address of the server that clients will be accessing it on\n\n"
-    AUTO = False
-    COPY = False
-    IP = False
-    CERTPWD = "atakatak"
-    cmd_args = sys.argv
-    arg_list = cmd_args[1:]
-    stort_opts = "avhci:p:"
-    long_opts = ["automated", "version", "help", "copy", "ip", "password"]
-    args, values = getopt.getopt(arg_list, stort_opts, long_opts)
-    for current_arg, current_val in args:
-        if current_arg in ("-h", "--help"):
-            print(help_txt)
-            exit(1)
-        if current_arg in ("-v", "--version"):
-            print(VERSION)
-            exit(1)
-        if current_arg in ("-p", "--password"):
-            CERTPWD = current_val
-        if current_arg in ("-a", "--automated"):
-            AUTO = True
-        if current_arg in ("-c", "--copy"):
-            COPY = True
-        if current_arg in ("-i", "--ip"):
-            IP = current_val
-
-    with AtakOfTheCerts() as aotc:
-        aotc.generate_ca()
-    if AUTO:
-        if IP is False:
-            IP = str(input("Enter IP address or FQDN that clients will use to connect to FTS: "))
-        with AtakOfTheCerts() as aotc:
-            aotc.generate_auto_certs(copy=COPY, ip=IP)
-    else:
-        server_p12 = None
-        users_p12 = []
-        server_question = input("Would you like to generate a server certificate? y/n ")
-        if server_question.lower() == "y":
-            with AtakOfTheCerts(CERTPWD) as aotc:
-                IP = str(input("Enter IP address or FQDN that clients will use to connect to FTS: "))
-                aotc.bake(cn=IP, cert="server")
-                server_p12 = "./" + IP + ".p12"
-            copy_question = input("Would you like to copy the server certificate files where needed for FTS? y/n ")
-            if server_question.lower() == "y":
-                aotc.copy_server_certs(server_name=IP)
-        user_question = input("Would you like to generate a user certificate? y/n ")
-        if user_question.lower() == "y":
-            while True:
-                with AtakOfTheCerts(CERTPWD) as aotc:
-                    cn = input("Username: ")
-                    if len(cn) == 0:
-                        break
-                    aotc.bake(cn, cert="user")
-                    users_p12.append("./" + cn + ".p12")
-                    cont = input("Generate another? y/n ")
-                    if cont.lower() != "y":
-                        break
-            generate_zip_question = input(
-                "Would you like to generate Data Packages for each user just created? y/n ")
-            if generate_zip_question.lower() == "y":
-                while server_p12 is None:
-                    server_p12 = input("Enter path to server p12 file e.g ./pubserver.p12 : ")
-                while IP is False:
-                    IP = str(input("Enter IP address or FQDN that clients will use to connect to FTS: "))
-                for user in users_p12:
-                    generate_zip(server_address=IP, server_filename=server_p12, user_filename=user)

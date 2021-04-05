@@ -23,9 +23,9 @@ class User(Base):
     """sqlalchemy object of table of connected users and their information
     """
     __tablename__ = "User"
-    uid = Column(String(25), primary_key = True)
-    callsign = Column(String)
-    CN = Column(String, nullable=True)
-    IP = Column(String)
-    CoT_id = Column(String, ForeignKey("Event.uid"))
+    uid = Column(String(100), primary_key = True)
+    callsign = Column(String(100))
+    CN = Column(String(100), nullable=True)
+    IP = Column(String(100))
+    CoT_id = Column(String(100), ForeignKey("Event.uid"))
     CoT = relationship(Event, uselist=False, cascade="all, delete", backref="User")

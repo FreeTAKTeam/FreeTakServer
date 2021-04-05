@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as etree
+import defusedxml.ElementTree as etree
 
 
 class BasicModelInstantiate:

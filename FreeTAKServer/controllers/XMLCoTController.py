@@ -7,7 +7,7 @@
 # Original author: Natha Paquette
 # 
 #######################################################
-from lxml import etree
+from defusedxml import ElementTree as etree
 
 
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
@@ -168,7 +168,8 @@ class XMLCoTController:
         pass
 
     def serialize_model_to_CoT(self, modelObject, tagName = 'event', level = 0):
-        xml = etree.Element(tagName)
+        from lxml.etree import Element
+        xml = Element(tagName)
         for attribName, value in modelObject.__dict__.items():
             if hasattr(value, '__dict__'):
                 tagElement = self.serialize_model_to_CoT(value, attribName, level = level + 1)
@@ -218,7 +219,7 @@ class XMLCoTController:
         else:
             return xml
 
-    def serialize_CoT_to_model(self, model, xml):
+    """def serialize_CoT_to_model(self, model, xml):
         attributes = xml.attrib
         if xml.text != None:
             setter = getattr(model, 'setINTAG')
@@ -233,9 +234,15 @@ class XMLCoTController:
         for element in xml:
             submodel = getattr(model, 'get'+element.tag)
             submodel = submodel()
-            out = self.serialize_CoT_to_model(submodel, element)
-            setter = getattr(model, 'set'+element.tag)
-            setter(out)
+            if isinstance(submodel, list):
+                for submodel_item in submodel:
+                    out = self.serialize_CoT_to_model(submodel_item, element)
+                    setter = getattr(model, 'set' + element.tag)
+                    setter(out)
+            else:
+                out = self.serialize_CoT_to_model(submodel, element)
+                setter = getattr(model, 'set'+element.tag)
+                setter(out)
 
-        return model
+        return model"""
 

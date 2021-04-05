@@ -20,7 +20,8 @@ def requesttype(currenttype, supportedtype):
     return wrapper
 
 class Emergency:
-# default constructor  def __init__(self):  
+# default constructor  def __init__(self):
+    address = ""
     emergencyType = ""
     # the type of emergency to be displayed
     # the name of the person that has an emergency.

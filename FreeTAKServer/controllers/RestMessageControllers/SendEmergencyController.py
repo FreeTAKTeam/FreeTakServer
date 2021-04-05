@@ -11,6 +11,8 @@ from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendGeoChatController").getLogger()
 
+from geopy import Nominatim
+
 class SendEmergencyController:
     def __init__(self, json):
         if isinstance(json, EmergencyPost):
@@ -31,8 +33,14 @@ class SendEmergencyController:
             object.settype(RestEnumerations.emergencyTypes[json.getemergencyType()])
             object.detail.contact.setcallsign(json.getname())
             object.detail.emergency.settype(json.getemergencyType())
-            object.point.setlat(json.getlatitude())
-            object.point.setlon(json.getlongitude())
+            if json.getaddress():
+                locator = Nominatim(user_agent="myGeocoder")
+                location = locator.geocode(json.getaddress())
+                object.point.setlon(location.longitude)
+                object.point.setlat(location.latitude)
+            else:
+                object.point.setlon(json.getlongitude())
+                object.point.setlat(json.getlatitude())
             DatabaseController().create_ActiveEmergency(object)
             return object
 

@@ -4,6 +4,15 @@ class EmergencyPost(Emergency):
     def __init__(self):
         pass
 
+    def setaddress(self, address):
+        self.address = address
+
+    def getaddress(self):
+        try:
+            return self.address
+        except:
+            return None
+
     def setemergencyType(self, emergencyType):
         self.emergencyType = emergencyType
 

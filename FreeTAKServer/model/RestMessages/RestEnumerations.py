@@ -48,20 +48,96 @@ class RestEnumerations:
         "Gnd Combat Infantry Recon": "a-.-G-U-C-R",
         "Gnd Combat Infantry anti Tank": "a-.-G-U-C-A-A",
         "Gnd Combat Infantry air defense": "a-.-G-U-C-D",
-        "Gnd Combat Infantry Engineer": "a-.-G-U-C-E"
+        "Gnd Combat Infantry Engineer": "a-.-G-U-C-E",
+        "Gnd Crowd Control Team": "a-.-G-U-i-l-cct",
+        "Combat search &amp; rescue (CSAR)": "a-.-A-M-F-Q-H",
+        "Medevac": "a-.-G-U-C-V-R-E",
+        "REFUGEES": "b-r-.-O-I-R"
+    }
+
+    # nickname of squad types
+    SquadTypeNicknames = {
+        "Police": "a-.-G-U-i-l-cct",
+        "SAR": "a-.-A-M-F-Q-H",
+        "Medevac": "a-.-G-U-C-V-R-E",
+        "Refugees": "b-r-.-O-I-R",
+        "Sniper": "a-.-G-U-C-I-d",
+        "Recon": "a-.-G-U-C-R",
+        "Medic": "a-.-G-U-i-m-etf",
+        "Grenadier": "a-.-G-E-W-Z",
+        "Rifleman": "a-.-G-U-C-I",
+        "Engineer": "a-.-G-U-C-E",
+    }
+
+    # nicknames of vehicle types
+    VehicleTypeNicknames = {
+        "Vehicle": "a-.-G-E-V-C",
+        "Ambulance": "a-.-G-E-V-m",
+    }
+
+    # absolute names of vehicle types
+
+    VehicleTypes = {
+        "Gnd Equip Vehic Civilian": "a-.-G-E-V-C",
+        "Gnd Equip Vehic Ambulance": "a-.-G-E-V-m",
+    }
+
+    # nickname of building types
+    BuildingTypeNicknames = {
+        "Emergency Station": "a-.-G-I-i-e",
+        "Police Station": "a-.-G-I-i-l",
+        "gas Station": "a-.-G-I-R-P",
+        "Power Station": "a-.-G-I-U-E",
+        "Telco Station": "a-.-G-I-U-T",
+        "Hospital": "a-.-G-I-X-H",
+    }
+
+    # absolute building types
+    BuildingTypes = {
+        "Gnd Structure IM Facilities Emergency Management": "a-.-G-I-i-e",
+        "Gnd Structure IM Facilities Law Enforcement": "a-.-G-I-i-l",
+        "Gnd Structure petroleum gas oil": "a-.-G-I-R-P",
+        "Gnd Structure Utility Electric Power": "a-.-G-I-U-E",
+        "Gnd Structure Utility Telecommunications": "a-.-G-I-U-T",
+        "Gnd Structure Hospital": "a-.-G-I-X-H",
     }
 
     '''
     used when creating a shape
     '''
-    otherTypes = {
-        "Ground": "a-.-G"
+    OtherTypesNicknames = {
+        "Ground": "a-.-G",
+        "Generator": "a-.-G-U-i-p-gen",
+        "Incident": "a-.-X-i-o",
+        "Alarm": "b-l",
+        "Disorder": "b-l-l-l-cd",
+        "Riot": "b-r-.-O-I-V",
+        "Resources": "a-.-G-U-i",
+        "Food": "b-r-.-O-O-O"
+    }
+
+    # absolute other type
+    OtherTypes = {
+        "Gnd IM Resources": "a-.-G-U-i",
+        "FOOD DISTRIBUTION": "b-r-.-O-O-O",
+        "Gnd Generators": "a-.-G-U-i-p-gen",
+        "Other incident other": "a-.-X-i-o",
+        "Alarm": "b-l",
+        "Alarm/Security/Law Enforcement/Civil Disturbance or Disorder": "b-l-l-l-cd",
+        "REFUGEES": "b-r-.-O-I-R",
+        "VANDALISM/RAPE/LOOT/RANSACK/PLUNDER/SACK": "b-r-.-O-I-V"
     }
 
     supportedTypeEnumerations = {}
 
-    supportedTypeEnumerations.update(otherTypes)
+    supportedTypeEnumerations.update(OtherTypesNicknames)
+    supportedTypeEnumerations.update(SquadTypeNicknames)
+    supportedTypeEnumerations.update(BuildingTypeNicknames)
+    supportedTypeEnumerations.update(VehicleTypeNicknames)
+    supportedTypeEnumerations.update(OtherTypes)
     supportedTypeEnumerations.update(SquadTypes)
+    supportedTypeEnumerations.update(BuildingTypes)
+    supportedTypeEnumerations.update(VehicleTypes)
 
     """
     used when creating an emergency
@@ -113,17 +189,17 @@ class RestEnumerations:
     inserted into COTTYPE
     '''
     attitude = {
-        "friend": "a-f-",
-        "friendly": "a-f-",
-        "hostile": "a-h-",
-        "unknown": "a-u-",
-        "pending": "a-p-",
-        "assumed": "a-a-",
-        "neutral": "a-n-",
-        "suspect": "a-s-",
-        "joker": "a-j-",
-        "faker": "a-k-",
-        "atoms": "a-"}
+        "friend": "-f-",
+        "friendly": "-f-",
+        "hostile": "-h-",
+        "unknown": "-u-",
+        "pending": "-p-",
+        "assumed": "-a-",
+        "neutral": "-n-",
+        "suspect": "-s-",
+        "joker": "-j-",
+        "faker": "-k-",
+        "atoms": "-"}
 
     '''
     the base types without an ID
@@ -638,16 +714,16 @@ class RestEnumerations:
         "SOF Unit": "a-.-F",
         "Aviation": "a-.-F-A",
         "Fixed wing": "a-.-F-A-F",
-        "Fixed wing Attack": "a-.-F-A-F-A",
+        "Attack": "a-.-F-A-F-A",
         "Ranger": "a-.-F-G-R",
         "Special forces": "a-.-F-G-S",
         "Naval": "a-.-F-N",
         "SEAL": "a-.-F-N-S",
         "Support": "a-.-F-B",
         "Airborne command post": "a-.-A-M-F-Q-D",
-        "Airborne Attack": "a-.-A-M-F-Q-A",
+        "Attack": "a-.-A-M-F-Q-A",
         "Fighter": "a-.-A-M-F-Q-F",
-        "Airborne Medevac": "a-.-A-M-F-Q-O",
+        "Medevac": "a-.-A-M-F-Q-O",
         "Patrol": "a-.-A-M-F-Q-P",
         "Combat search &amp; rescue (CSAR)": "a-.-A-M-F-Q-H",
         "Special operations forces (SOF)": "a-.-A-M-F-Q-M",
@@ -670,7 +746,7 @@ class RestEnumerations:
         "Crane loading device": "a-.-G-E-V-S-C",
         "Ambulance": "a-.-G-E-V-U-A",
         "Tow truck": "a-.-G-E-V-U-T",
-        "truck Medium": "a-.-S-C-A-L-S-M",
+        "Medium": "a-.-S-C-A-L-S-M",
         "Tank": "a-.-S-C-A-L-S-T",
         "Antisubmarine warfare mission package": "a-.-S-C-L-L-L-A-S",
         "Mine warfare mission package": "a-.-S-C-L-L-L-M-I",
@@ -684,7 +760,7 @@ class RestEnumerations:
         "Midsize": "a-.-G-E-V-C-A-M",
         "Sedan": "a-.-G-E-V-C-A-H",
         "Large heavy": "a-.-G-E-V-C-J-H",
-        "Vehicle Medium": "a-.-G-E-V-C-J-M",
+        "Medium": "a-.-G-E-V-C-J-M",
         "Small light": "a-.-G-E-V-C-J-L",
         "Large bus": "a-.-G-E-V-C-M-H",
         "Small bus": "a-.-G-E-V-C-M-M",
@@ -710,7 +786,7 @@ class RestEnumerations:
         "Light tow truck": "a-.-G-E-V-U-T-L",
         "Chaparral": "a-.-G-U-C-D-S-C",
         "C2": "a-.-G-U-C-V-R-C",
-        "Vehicle Medevac": "a-.-G-U-C-V-R-E",
+        "Medevac": "a-.-G-U-C-V-R-E",
         "Meteorological": "a-.-G-U-U-M-R-O",
         "Int. range AD missile launcher TELAR": "a-.-G-E-W-M-A-I-E",
         "Int. range AD missile launcher TLAR": "a-.-G-E-W-M-A-I-R",

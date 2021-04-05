@@ -26,10 +26,13 @@ from FreeTAKServer.model.FTSModel.Usericon import Usericon
 from .Archive import Archive
 from FreeTAKServer.model.FTSModel.Summary import Summary
 from FreeTAKServer.model.FTSModel.Mission import Mission
+from FreeTAKServer.model.FTSModel.Link_attr import Link_attr
+
 
 class Detail(FTSProtocolObject):
     """An optional element used to hold CoT sub-schema. empty element
     """
+    __index = -1
     def __init__(self):
         pass
 
@@ -141,6 +144,18 @@ class Detail(FTSProtocolObject):
         detail.mission = Mission.ExcheckUpdate()
         return detail
 
+    @staticmethod
+    def Route():
+        global set_count, index_count
+        set_count = 0
+        index_count = 0
+        detail = Detail()
+        detail.contact = Contact.Route()
+        detail.__internal_link = [Link.Route()]
+        detail.link = []
+        detail.link_attr = Link_attr.Route()
+        return detail
+
     def setarchive(self, archive):
         self.archive = archive
 
@@ -160,10 +175,27 @@ class Detail(FTSProtocolObject):
         return self.remarks
 
     def setlink(self, link):
-        self.link = link
+        if isinstance(self.link, list):
+            self.__internal_link.append(Link.Route())
+            self.__index += 1
+        else:
+            self.link = link
 
     def getlink(self):
-        return self.link
+        # TODO: change Dest tags to also use an internal array as it prevents
+        # unnecessary tags
+        if isinstance(self.link, list):
+            link = self.__internal_link.pop()
+            self.link.append(link)
+            return link
+        else:
+            return self.link
+
+    def setlink_attr(self, link_attr):
+        self.link_attr = link_attr
+
+    def getlink_attr(self):
+        return self.link_attr
 
     def setstatus(self, status):
         self.status = status

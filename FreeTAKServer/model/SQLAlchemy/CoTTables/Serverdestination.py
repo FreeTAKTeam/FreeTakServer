@@ -20,4 +20,4 @@ class Serverdestination(Base):
     Detail = relationship("Detail", back_populates="serverdestination")
     # string composed by IP:port: protocol:machineID.
     # <i> e.g. 192.168.0.103:4242:tcp:ANDROID-R52JB0CDC4E</i>
-    destinations = Column(String)
+    destinations = Column(String(100))

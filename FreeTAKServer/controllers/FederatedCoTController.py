@@ -2,7 +2,7 @@ from FreeTAKServer.model.protobufModel import fig_pb2
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.SpecificCoT.SendFederatedCoT import SendFederatedCoT
 from FreeTAKServer.model.FTSModel.Event import Event
-from lxml import etree
+from defusedxml import ElementTree as etree
 import datetime
 
 class FederatedCoTController:

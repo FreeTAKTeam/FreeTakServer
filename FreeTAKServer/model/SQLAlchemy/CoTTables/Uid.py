@@ -19,5 +19,5 @@ class Uid(Base):
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="uid")
     # TBD, maybe from Android?
-    Droid = Column(String)
-    version = Column(String)
+    Droid = Column(String(100))
+    version = Column(String(100))

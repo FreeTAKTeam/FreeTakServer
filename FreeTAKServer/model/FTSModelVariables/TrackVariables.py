@@ -7,10 +7,12 @@ class TrackVariables:
     def connection(cls):
         cls.SPEED = None
         cls.COURSE = None
+        cls.SLOPE = None
         return cls
 
     @classmethod
     def UserUpdate(cls):
         cls.speed = None
         cls.course = None
+        cls.SLOPE = None
         return cls

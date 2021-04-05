@@ -27,7 +27,7 @@ class Contact(FTSProtocolObject):
     @staticmethod
     def connection(CALLSIGN = vars.connection().CALLSIGN, ENDPOINT = vars.connection().ENDPOINT,
                    ICONSETPATH = vars.connection().ICONSETPATH,UID = vars.connection().UID,
-                   NAME = vars.connection().NAME):
+                   NAME = vars.connection().NAME, PHONE = vars.connection().PHONE):
 
         contact = Contact()
         contact.setcallsign(CALLSIGN)
@@ -35,6 +35,7 @@ class Contact(FTSProtocolObject):
         contact.setuid(UID)
         contact.setendpoint(ENDPOINT)
         contact.seticonsetpath(ICONSETPATH)
+        contact.setphone(PHONE)
         return contact
 
     @staticmethod
@@ -83,13 +84,7 @@ class Contact(FTSProtocolObject):
         return contact
 
     @staticmethod
-    def SimpleCoT(CALLSIGN = vars.SimpleCoT().callsign):
-        contact = Contact()
-        contact.setcallsign(CALLSIGN)
-        return contact
-
-    @staticmethod
-    def Presence(CALLSIGN = vars.Presence().callsign):
+    def Route(CALLSIGN = vars.Presence().callsign):
         contact = Contact()
         contact.setcallsign(CALLSIGN)
         return contact

@@ -14,10 +14,13 @@ class GeoObject:
     """a GeoObject is an element place on a map. It has a name, characteristics and an
     attitude.
     """
+    address = ""
+
+    uid = ""
 # default constructor  def __init__(self):  
     # the kind of expected behavior of the GeoObject (e.g friendly, hostile, unknown).
     # Please see API documentation for a list of valid entries.
-    attitude = ""
+    attitude = "-u-"
     # a GeoObject is the information that will determine which type will be placed on
     # the tak maps including his icon. Please see API documentation for a list of
     # valid entries.

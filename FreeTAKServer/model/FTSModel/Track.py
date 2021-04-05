@@ -14,19 +14,22 @@ class Track(FTSProtocolObject):
     def __init__(self):
         self.course = None
         self.speed = None
+        self.slope = None
 
     @staticmethod
-    def connection(COURSE = vars.connection().COURSE, SPEED = vars.connection().SPEED):
+    def connection(COURSE = vars.connection().COURSE, SPEED = vars.connection().SPEED, SLOPE = vars.connection().SLOPE):
         track = Track()
         track.setcourse(COURSE)
         track.setspeed(SPEED)
+        track.setslope(SLOPE)
         return track
 
     @staticmethod
-    def UserUpdate(SPEED=vars.UserUpdate().speed, COURSE=vars.UserUpdate().course):
+    def UserUpdate(SPEED=vars.UserUpdate().speed, COURSE=vars.UserUpdate().course, SLOPE=vars.UserUpdate().SLOPE):
         track = Track()
         track.setspeed(SPEED)
         track.setcourse(COURSE)
+        track.setslope(SLOPE)
         return track
 
      # speed getter
@@ -45,3 +48,8 @@ class Track(FTSProtocolObject):
     def setcourse(self, course=0):  
         self.course=course 
      
+    def setslope(self, slope):
+        self.slope=slope
+
+    def getslope(self):
+        return self.slope

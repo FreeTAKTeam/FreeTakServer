@@ -1,4 +1,3 @@
-from lxml import etree
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.FTSModel.Event import Event as event

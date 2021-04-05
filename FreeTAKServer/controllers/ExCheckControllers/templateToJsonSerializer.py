@@ -1,5 +1,5 @@
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-from lxml import etree
+from defusedxml import ElementTree as etree
 from FreeTAKServer.model.ExCheck.templateInstanceContents import templateInstanceContents
 import hashlib
 import os

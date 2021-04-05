@@ -19,25 +19,25 @@ class Contact(Base):
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="contact")
     # The unit's voice call sign
-    callsign = Column(String)
+    callsign = Column(String(100))
     # DSN number for this element (if applicable)
-    dsn = Column(String)
+    dsn = Column(String(100))
     # e-mail address for this element (if applicable)
-    email = Column(String)
+    email = Column(String(100))
     # TBD
-    endpoint = Column(String)
+    endpoint = Column(String(100))
     # The frequency (in MHz) on which the unit may be contacted via voice.
-    freq = Column(String)
+    freq = Column(String(100))
     # DNS-resolvable host name
-    hostname = Column(String)
-    iconsetpath = Column(String)
+    hostname = Column(String(100))
+    iconsetpath = Column(String(100))
     # Amplifies the radio frequency information provided.  Contains the modulation
     # type for the communication.  (Coding tbd, should cover complex modulations such
     # as SINCGARS hopping, csma, etc...) am|fm
-    modulation = Column(String)
+    modulation = Column(String(100))
     # Phone number for this element (if applicable)
-    phone = Column(String)
+    phone = Column(String(100))
     # Version tag for this sub schema.  Necessary to ensure upward compatibility with
     # future revisions.
-    version = Column(String)
+    version = Column(String(100))
 
