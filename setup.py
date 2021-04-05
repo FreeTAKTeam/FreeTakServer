@@ -31,7 +31,7 @@ setup(
         'protobuf==3.14.0',
         'python-socketio==4.6.0',
         'python-engineio==3.13.2',
-        'Jinja2==2.11.2',
+        'Jinja2==2.11.3',
         'psutil',
         'geopy'
     ],
