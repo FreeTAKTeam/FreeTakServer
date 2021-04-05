@@ -18,7 +18,7 @@ setup(
     keywords=['TAK', 'OPENSOURCE'],
     install_requires=[
         'flask==1.1.2',
-        'lxml==4.6.1',
+        'lxml>=4.6.3',
         'pathlib==1.0.1',
         'tabulate==0.8.7',
         'sqlalchemy==1.3.20',
@@ -31,7 +31,7 @@ setup(
         'protobuf==3.14.0',
         'python-socketio==4.6.0',
         'python-engineio==3.13.2',
-        'Jinja2==2.11.2',
+        'jinja2>=2.11.3',
         'psutil',
         'geopy'
     ],
