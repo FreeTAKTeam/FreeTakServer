@@ -2,11 +2,11 @@ from setuptools import find_packages, setup
 from os import path
 
 this_directory = path.abspath(path.dirname(__file__))
-
+version = '1.7.5'
 setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
-    version='1.7.5',
+    version=version,
     license='Eclipse License',
     description='An open source server for the TAK family of applications.',
     long_description='An open source server for the TAK family of applications.',
