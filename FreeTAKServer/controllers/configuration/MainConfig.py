@@ -47,7 +47,7 @@ class MainConfig:
     DBFilePath = str(os.environ.get('FTS_DATA_PATH', r'/root/') + "FTSDataBase.db")
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.7 RC 1 Public'
+    version = 'FreeTAKServer-1.7.5 Public'
 
     MainPath = str(os.environ.get('FTS_DATA_PATH',
         Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')))
