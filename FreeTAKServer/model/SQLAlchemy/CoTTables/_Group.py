@@ -17,5 +17,5 @@ class _Group(Base):
     __tablename__ = "_Group"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="_group")
-    name = Column(String)
-    role = Column(String)
+    name = Column(String(100))
+    role = Column(String(100))

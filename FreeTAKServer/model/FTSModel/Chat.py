@@ -74,16 +74,16 @@ class Chat(FTSProtocolObject):
         self.id=id
     #chatgrp uid0 getter
     def getuid0(self):
-      self.chatgrp().getuid0()
+      self.chatgrp.getuid0()
   
     def setuid0(self, uid0=0):
-        self.chatgrp().setuid0(uid0)
+        self.chatgrp.setuid0(uid0)
 
     def getuid1(self):
-        self.chatgrp().getuid1()
+        self.chatgrp.getuid1()
   
     def setuid1(self, uid1=0):
-        self.chatgrp().setuid1(uid1)
+        self.chatgrp.setuid1(uid1)
 
     def getchatgrp(self):
         return self.chatgrp

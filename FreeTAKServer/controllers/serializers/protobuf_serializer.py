@@ -40,7 +40,7 @@ class ProtobufSerializer(SerializerAbstract):
                             datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(attribute) / 1000.0)),
                                                        "%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%dT%H:%M:%S.%fZ"))
                         continue
-                    except:
+                    except Exception as e:
                         setter(datetime.datetime.strftime(
                             datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(attribute) / 1000.0)),
                                                        "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT%H:%M:%S.%fZ"))
@@ -49,16 +49,17 @@ class ProtobufSerializer(SerializerAbstract):
                     setter(getattr(object.event, descriptor.name))
 
             elif attribute_name == 'other' and object.event.other != '':
-                from lxml import etree
+                from defusedxml import ElementTree as etree
+                from lxml.etree import Element
                 xmldetail = etree.fromstring(object.event.other)
                 xmldetail.remove(xmldetail.find('_flow-tags_'))
 
                 if xmldetail.find('remarks'):
-                    XmlSerializer().from_format_to_fts_object(etree.tostring(xmldetail).decode(), FTSObject)
+                    XmlSerializer().from_format_to_fts_object(etree.tostring(xmldetail).decode(), FTSObject.detail)
                 else:
-                    xmldetail.append(etree.Element('remarks'))
+                    xmldetail.append(Element('remarks'))
                     xmldetail.find('remarks').text = 'From federation '
-                    XmlSerializer().from_format_to_fts_object(etree.tostring(xmldetail).decode(), FTSObject)
+                    XmlSerializer().from_format_to_fts_object(etree.tostring(xmldetail).decode(), FTSObject.detail)
 
         return FTSObject
 
@@ -96,7 +97,7 @@ class ProtobufSerializer(SerializerAbstract):
                         setattr(obj.event, descriptor.name, getter())
 
                 else:
-                    from lxml import etree
+                    from defusedxml import ElementTree as etree
                     xmldetail = etree.tostring(XmlSerializer().from_fts_object_to_format(FTSObject.detail)).decode()
                     setattr(obj.event, 'other', xmldetail)
 

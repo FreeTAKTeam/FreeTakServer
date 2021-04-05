@@ -3,7 +3,7 @@ import os
 import random
 import string
 import traceback
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
@@ -26,6 +26,8 @@ dbController = DatabaseController()
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+
+USINGSSL = False
 
 sql = SQLcommands()
 const = DataPackageServerConstants()
@@ -151,6 +153,7 @@ def clientEndPoint():
 
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
+    from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
     logger.info('dataoackage upload started')
     file_hash = request.args.get('hash')
     app.logger.info(f"Data Package hash = {str(file_hash)}")
@@ -170,7 +173,11 @@ def upload():
                                            dbController))  # fetchone() gives a tuple, so only grab the first element
     FlaskFunctions().create_dp(dbController, uid=uid, Name=filename, Hash=file_hash, SubmissionUser=callsign,
                                CreatorUid=creatorUid, Size=fileSize)
-    return IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
+    if USINGSSL == False:
+        return "http://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
+
+    else:
+        return "https://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
@@ -202,7 +209,7 @@ def retrieveData():
 
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
-    from lxml import etree
+    from defusedxml import ElementTree as etree
     from os import listdir
     if request.method == 'GET' and request.args.get('uid') != None:
         data = request.data
@@ -253,7 +260,10 @@ def checkPresent():
     hash = request.args.get('hash')
     if FlaskFunctions().hashIsPresent(hash, dbController):
         app.logger.info(f"Data package with hash {hash} exists")
-        return IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + hash + "/tool"
+        if USINGSSL == False:
+            return "http://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + hash + "/tool"
+        else:
+            return "https://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + hash + "/tool"
     else:
         app.logger.info(f"Data package with hash {hash} does not exist")
         return '404', 404
@@ -328,7 +338,7 @@ def template():
         # this is where the client will post the xmi of a template
         from flask import request
         from datetime import datetime
-        from lxml import etree
+        from defusedxml import ElementTree as etree
         import hashlib
         # possibly the uid of the client submitting the template
         Y = request
@@ -361,7 +371,7 @@ def template():
         from FreeTAKServer.model.testobj import testobj
         object = testobj()
         object.xmlString = z
-        PIPE.send(object)
+        PIPE.put(object)
         return str(uid), 200
     except Exception as e:
         print(str(e))
@@ -369,7 +379,8 @@ def template():
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
     import uuid
-    from lxml import etree
+    from defusedxml import ElementTree as etree
+    from lxml.etree import Element
     import datetime
     uid = str(uuid.uuid4())
     r = request
@@ -391,7 +402,7 @@ def startList(subscription):
     xml = etree.parse(
         MainConfig.ExCheckChecklistFilePath + '/' + uid + '.xml').getroot()
 
-    starttime = etree.Element('startTime')
+    starttime = Element('startTime')
     starttime.text = startTime
     details = xml.find('checklistDetails')
     if details.find('startTime') == None:
@@ -430,7 +441,7 @@ def accesschecklist(checklistid):
 @app.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
     from flask import request
-    from lxml import etree
+    from defusedxml import ElementTree as etree
     from FreeTAKServer.controllers.SpecificCoTControllers.SendExcheckUpdateController import SendExcheckUpdateController
     from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
     from FreeTAKServer.model.FTSModel.Event import Event
@@ -497,7 +508,7 @@ def updatetemplate(checklistid, taskid):
     xml = XMLCoTController().serialize_model_to_CoT(object)
     rawcot.xmlString = xml
 
-    PIPE.send(rawcot)
+    PIPE.put(rawcot)
     #PIPE.send()
 
     return '', 200
@@ -516,19 +527,20 @@ def activechecklists():
     from os import listdir
     from FreeTAKServer.model.FTSModel.Checklists import Checklists
     from FreeTAKServer.model.FTSModel.Checklist import Checklist
-    from lxml import etree
+    from lxml.etree import Element
+    from defusedxml import ElementTree as etree
     checklists = Checklists.Checklist()
-    rootxml = etree.Element('checklists')
+    rootxml = Element('checklists')
 
     for file in listdir(MainConfig.ExCheckChecklistFilePath):
-        checklist = etree.Element('checklist')
+        checklist = Element('checklist')
         xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find('checklistDetails')
         checklist.append(xmldetails)
-        checklist.append(etree.Element('checklistColumns'))
-        checklist.append(etree.Element('checklistTasks'))
+        checklist.append(Element('checklistColumns'))
+        checklist.append(Element('checklistTasks'))
         rootxml.append(checklist)
 
-    xml = etree.tostring(rootxml, pretty_print=False)
+    xml = etree.tostring(rootxml)
     return xml
 class FlaskFunctions:
 
@@ -617,5 +629,14 @@ class FlaskFunctions:
     def getPIPE(self):
         global PIPE
         return PIPE
+
+    def setSSL(self, SSL: bool):
+        global USINGSSL
+        USINGSSL = SSL
+
+    def getSSL(self):
+        global USINGSSL
+        return USINGSSL
+
 if __name__ == "__main__":
     pass

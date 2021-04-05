@@ -18,12 +18,12 @@ class Track(Base):
     __tablename__ = "Track"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="track")
-    course = Column(String)
+    course = Column(String(100))
     # 1-sigma error on a Gaussian distribution associated with the course attribute
-    eCourse = Column(String)
+    eCourse = Column(String(100))
     # 1-sigma error on a Gaussian distribution associated with the slope attribute
-    eSlope = Column(String)
+    eSlope = Column(String(100))
     # 1-sigma error on a Gaussian distribution associated with the speed attribute
-    eSpeed = Column(String)
-    speed = Column(String)
-    version = Column(String)
+    eSpeed = Column(String(100))
+    speed = Column(String(100))
+    version = Column(String(100))

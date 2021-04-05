@@ -17,6 +17,6 @@ class ActiveEmergencys(Base):
 
     event = relationship("Event")
 
-    uid = Column(String, ForeignKey('Event.uid'))
+    uid = Column(String(100), ForeignKey('Event.uid'))
 
     #event = relationship("Event", uselist=False, backref="ActiveEmergencys")

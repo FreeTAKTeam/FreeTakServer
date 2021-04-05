@@ -13,4 +13,4 @@ from sqlalchemy import create_engine, Column, String, Integer
 Base = declarative_base()
 
 class Root:
-    uid = Column(String)
+    uid = Column(String(100))

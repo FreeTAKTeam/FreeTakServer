@@ -18,8 +18,8 @@ class Emergency(Base):
     __tablename__ = "Emergency"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="emergency")
-    Alert = Column(String)
+    Alert = Column(String(100))
     # if true the emergency beacon is canceled
-    cancel = Column(String)
+    cancel = Column(String(100))
     # default constructor  def __init__(self):
-    type = Column(String)
+    type = Column(String(100))

@@ -19,10 +19,10 @@ class Event(Base, Root):
 # default constructor  def __init__(self):  
 
     __tablename__ = "Event"
-    uid = Column(String, primary_key=True, unique=True)
-    how = Column(String)
-    start = Column(String)
-    type = Column(String)
-    version = Column(String)
+    uid = Column(String(100), primary_key=True, unique=True)
+    how = Column(String(100))
+    start = Column(String(100))
+    type = Column(String(100))
+    version = Column(String(100))
     point = relationship("Point", uselist=False, backref="Event", cascade="all, delete, merge, delete-orphan")
     detail = relationship("Detail", uselist=False, backref="Event", cascade="all, delete, merge, delete-orphan")

@@ -20,5 +20,5 @@ class Precisionlocation(Base):
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="precisionlocation")
     # TDB can be DTED0 or ???
-    altsrc = Column(String)
-    geopointsrc = Column(String)
+    altsrc = Column(String(100))
+    geopointsrc = Column(String(100))

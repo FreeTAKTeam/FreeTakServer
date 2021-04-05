@@ -1,6 +1,6 @@
 
 from FreeTAKServer.model.FTSModel.Event import Event
-from lxml import etree
+from defusedxml import ElementTree as etree
 
 class ApplyFullJsonController:
     def __init__(self):

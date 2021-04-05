@@ -5,6 +5,7 @@ class LinkVariables:
         self.PRODUCTIONTIME = None
         self.TYPE = None
         self.PARENTCALLSIGN = None
+        self.POINT = None
 
     @classmethod
     def drop_point(cls):
@@ -37,4 +38,14 @@ class LinkVariables:
         cls.uid = None
         cls.type = "a-f-G-U-C"
         cls.relation = "p-p"
+        return cls
+
+    @classmethod
+    def Route(cls):
+        cls.UID = None
+        cls.TYPE = "b-m-p-w"
+        cls.REMARKS = ""
+        cls.POINT = "0, 0"
+        cls.CALLSIGN = ""
+        cls.RELATION = "c"
         return cls

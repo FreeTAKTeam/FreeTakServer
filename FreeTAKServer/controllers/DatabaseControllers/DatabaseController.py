@@ -12,6 +12,7 @@ from FreeTAKServer.controllers.configuration.DatabaseConfiguration import Databa
 from FreeTAKServer.controllers.DatabaseControllers import APIUsersController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckChecklistController
+from FreeTAKServer.controllers.DatabaseControllers import API_call_controller
 from FreeTAKServer.controllers.DatabaseControllers.table_controllers import ActiveFederationsController, UserTableController, FederationsController
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
 import FreeTAKServer.model.SQLAlchemy.CoTTables._Group
@@ -41,6 +42,7 @@ import FreeTAKServer.model.SQLAlchemy.ExCheckKeywords
 import FreeTAKServer.model.SQLAlchemy.ExCheckData
 import FreeTAKServer.model.SQLAlchemy.ExCheck
 import FreeTAKServer.model.SQLAlchemy.ExCheckChecklist
+import FreeTAKServer.model.SQLAlchemy.APICalls
 
 class DatabaseController:
     """
@@ -65,6 +67,7 @@ class DatabaseController:
         self.ExCheckChecklistController = ExCheckChecklistController.ExCheckChecklistController()
         self.ActiveFederationController = ActiveFederationsController()
         self.FederationController = FederationsController()
+        self.APICallController = API_call_controller.APICallController()
 
     def create_engine(self):
         """
@@ -101,17 +104,17 @@ class DatabaseController:
     def create_datapackage(self, **args):
         return self._create(self.DataPackageController, **args)
 
-    def remove_datapackage(self, query="1 == 1"):
+    def remove_datapackage(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.DataPackageController, query=query)
 
-    def query_datapackage(self, query="1 == 1", column=['*']):
+    def query_datapackage(self, query="1=1", column=['*']):
         return self._query(controller=self.DataPackageController, query=query, columns=column)
 
-    def update_datapackage(self, column_value=None, query="1 == 1"):
+    def update_datapackage(self, column_value=None, query="1=1"):
         return self._update(controller=self.DataPackageController, query=query, column_value=column_value)
 
     def _create(self, controller, **args):
@@ -178,17 +181,17 @@ class DatabaseController:
                 self.session.rollback()
                 self.session.close()
                 self.session = self.create_Session()
-    def remove_user(self, query="1 == 1"):
+    def remove_user(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.UserTableController, query=query)
 
-    def query_user(self, query="1 == 1", column=['*']):
+    def query_user(self, query="1=1", column=['*']):
         return self._query(controller=self.UserTableController, query=query, columns=column)
 
-    def update_user(self, column_value=dict(), query="1 == 1"):
+    def update_user(self, column_value=dict(), query="1=1"):
         return self._update(controller=self.UserTableController, query=query, column_value=column_value)
 
     def create_systemUser(self, **args):
@@ -197,29 +200,29 @@ class DatabaseController:
         except Exception as e:
             self.session.rollback()
             self.session.commit()
-    def remove_systemUser(self, query="1 == 1"):
+    def remove_systemUser(self, query="1=1"):
         return self._remove(controller=self.SystemUserTableController, query=query)
 
-    def query_systemUser(self, query="1 == 1", column=['*']):
+    def query_systemUser(self, query="1=1", column=['*']):
         return self._query(controller=self.SystemUserTableController, query=query, columns=column)
 
-    def update_systemUser(self, column_value=dict(), query="1 == 1"):
+    def update_systemUser(self, column_value=dict(), query="1=1"):
         return self._update(controller=self.SystemUserTableController, query=query, column_value=column_value)
 
     def create_videostream(self, **args):
         return self._create(controller=self.VideoStreamTableController, **args)
 
-    def remove_videostream(self, query="1 == 1"):
+    def remove_videostream(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.VideoStreamTableController, query=query)
 
-    def query_videostream(self, query="1 == 1", column=['*']):
+    def query_videostream(self, query="1=1", column=['*']):
         return self._query(controller=self.VideoStreamTableController, query=query, columns=column)
 
-    def update_videostream(self, column_value=dict(), query="1 == 1"):
+    def update_videostream(self, column_value=dict(), query="1=1"):
         return self._update(controller=self.VideoStreamTableController, query=query, column_value=column_value)
 
     def create_CoT(self, object):
@@ -245,33 +248,33 @@ class DatabaseController:
                 raise e
         except Exception as e:
             self.session.rollback()
-    def remove_CoT(self, query="1 == 1"):
+    def remove_CoT(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.EventTableController, query=query)
 
-    def query_CoT(self, query="1 == 1", column=['*']):
+    def query_CoT(self, query="1=1", column=['*']):
         return self._query(controller=self.EventTableController, query=query, columns=column)
 
-    def update_CoT(self, column_value=dict(), query="1 == 1"):
+    def update_CoT(self, column_value=dict(), query="1=1"):
         return self._update(controller=self.EventTableController, query=query, column_value=column_value)
 
     def create_APIUser(self, **args):
         return self._create(self.APIUserController, **args)
 
-    def remove_APIUser(self, query="1 == 1"):
+    def remove_APIUser(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.APIUserController, query=query)
 
-    def query_APIUser(self, query="1 == 1", column=['*']):
+    def query_APIUser(self, query="1=1", column=['*']):
         return self._query(controller=self.APIUserController, query=query, columns=column)
 
-    def update_APIUser(self, column_value=None, query="1 == 1"):
+    def update_APIUser(self, column_value=None, query="1=1"):
         return self._update(controller=self.APIUserController, query=query, column_value=column_value)
 
     def create_ActiveEmergency(self, object):
@@ -281,13 +284,13 @@ class DatabaseController:
         except Exception as e:
             session.rollback()
             session.close()
-    def remove_ActiveEmergency(self, query="1 == 1"):
+    def remove_ActiveEmergency(self, query="1=1"):
         return self._remove(controller=self.ActiveEmergencysController, query=query)
 
-    def query_ActiveEmergency(self, query="1 == 1", column=['*']):
+    def query_ActiveEmergency(self, query="1=1", column=['*']):
         return self._query(controller=self.ActiveEmergencysController, query=query, columns=column)
 
-    def update_ActiveEmergency(self, column_value=None, query="1 == 1"):
+    def update_ActiveEmergency(self, column_value=None, query="1=1"):
         return self._update(controller=self.ActiveEmergencysController, query=query, column_value=column_value)
 
 
@@ -301,64 +304,76 @@ class DatabaseController:
             session.rollback()
             session.close()
 
-    def remove_ExCheck(self, query="1 == 1"):
+    def remove_ExCheck(self, query="1=1"):
         return self._remove(controller=self.ExCheckController, query=query)
 
-    def query_ExCheck(self, query = "1==1", column=["*"], verbose = False):
+    def query_ExCheck(self, query = "1=1", column=["*"], verbose = False):
         if verbose == False:
             return self._query(controller=self.ExCheckController, query=query, columns=column)
         else:
             return self.ExCheckController.queryChildren(query, column, self.session)
-    def update_ExCheck(self, query="1==1", column_value=None):
+    def update_ExCheck(self, query="1=1", column_value=None):
         return self._update(controller=self.ExCheckController, query=query, column_value=column_value)
 
     def create_Excheckchecklist(self, **args):
         return self._create(self.ExCheckChecklistController, **args)
 
-    def remove_ExCheckChecklist(self, query="1 == 1"):
+    def remove_ExCheckChecklist(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which exCheckChecklists are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.ExCheckChecklistController, query=query)
 
-    def query_ExCheckChecklist(self, query="1 == 1", column=['*']):
+    def query_ExCheckChecklist(self, query="1=1", column=['*']):
         return self._query(controller=self.ExCheckChecklistController, query=query, columns=column)
 
-    def update_ExCheckChecklist(self, column_value=None, query="1 == 1"):
+    def update_ExCheckChecklist(self, column_value=None, query="1=1"):
         return self._update(controller=self.ExCheckChecklistController, query=query, column_value=column_value)
 
     def create_ActiveFederation(self, **args):
         return self._create(self.ActiveFederationController, **args)
 
-    def remove_ActiveFederation(self, query="1 == 1"):
+    def remove_ActiveFederation(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which exCheckChecklists are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.ActiveFederationController, query=query)
 
-    def query_ActiveFederation(self, query="1 == 1", column=['*']):
+    def query_ActiveFederation(self, query="1=1", column=['*']):
         return self._query(controller=self.ActiveFederationController, query=query, columns=column)
 
-    def update_ActiveFederation(self, column_value=None, query="1 == 1"):
+    def update_ActiveFederation(self, column_value=None, query="1=1"):
         return self._update(controller=self.ActiveFederationController, query=query, column_value=column_value)
 
     def create_Federation(self, **args):
         return self._create(self.FederationController, **args)
 
-    def remove_Federation(self, query="1 == 1"):
+    def remove_Federation(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which exCheckChecklists are deleted
         :return: 1 on success
         '''
         return self._remove(controller=self.FederationController, query=query)
 
-    def query_Federation(self, query="1 == 1", column=['*']):
+    def query_Federation(self, query="1=1", column=['*']):
         return self._query(controller=self.FederationController, query=query, columns=column)
 
-    def update_Federation(self, column_value=None, query="1 == 1"):
+    def update_Federation(self, column_value=None, query="1=1"):
         return self._update(controller=self.FederationController, query=query, column_value=column_value)
+
+    def create_APICall(self, **args):
+        return self._create(self.APICallController, **args)
+
+    def remove_APICall(self, query="1=1"):
+        return self._remove(controller = self.APICallController, query = query)
+
+    def query_APICall(self, query="1=1", column=["*"]):
+        return self._query(controller=self.APICallController, query=query, columns=column)
+
+    def update_APICall(self, column_value = None, query="1=1"):
+        return self._update(controller=self.APICallController, query=query, column_value=column_value)
 
     def shutdown_Connection(self):
         self.session.close()
@@ -373,29 +388,30 @@ if __name__ == "__main__":
     #UID = 123
     #callsign = contr.query_user(query=f'uid == "{UID}"', column=['callsign'])
     # contr.(uid='9', CreatorUid='abc123', Hash='1bc21o', Keywords="foobar", MIMEType="aaa/bbb", Name="other", Privacy=1, Size=32, SubmissionDateTime=dt.datetime.utcnow(), SubmissionUser="blue")
-    y = contr.query_user()
+    lat_range = [45, 22]
+    lon_range = [0, -100]
+    from FreeTAKServer.model.SQLAlchemy.Event import Event
+    from FreeTAKServer.model.SQLAlchemy.CoTTables.Point import Point
+    from sqlalchemy import and_, or_
+    # from sqlalchemy import where_
+    #filter_arr = [Point.lat <= lat_range[0], Point.lat >= lat_range[1], Point.lon <= lon_range[0], Point.lon >= lon_range[1]]
 
+    lat_abs = 0
+    lon_abs = 0
+    radius = 500
+    # Point.coords = classmethod(lambda s: (s.lat, s.lon))
+    y = contr.session.query(Event).filter(or_(and_(Point.lon<0, Point.lat<0, (((((Point.lon*-1)-lon_abs)*111302.62) + (((Point.lat*-1)-lat_abs)*110574.61)) <= radius)), and_(Point.lon<0, Point.lat>=0, (((((Point.lon*-1)-lon_abs)*111302.62) + ((Point.lat-lat_abs)*110574.61)) <= radius)), and_(Point.lon>=0, Point.lat<0, ((((Point.lon-lon_abs)*111302.62) + (((Point.lat*-1)-lat_abs)*110574.61)) <= radius)), and_(Point.lon>=0, Point.lat>=0, ((((Point.lon-lon_abs)*111302.62) + ((Point.lat-lat_abs)*110574.61)) <= radius)))).all()
+    a = contr.session.query(Event).filter(and_(Point.lon<0, Point.lat<0, ((((Point.lon*-1)-lon_abs)*111302.62) + (((Point.lat*-1)-lat_abs)*110574.61)) <= radius)).all()
+    b = contr.session.query(Event).filter(and_(Point.lon<0, Point.lat>=0, ((((Point.lon*-1)-lon_abs)*111302.62) + ((Point.lat-lat_abs)*110574.61)) <= radius)).all()
+    d = contr.session.query(Event).filter(and_(Point.lon>=0, Point.lat>=0, (((Point.lon-lon_abs)*111302.62) + ((Point.lat-lat_abs)*110574.61)) <= radius)).all()
+
+    # y = contr.query_CoT(query= [(((Point.lat-lat) * (Point.lon-lon)) + ((Point.lat-lat) * (Point.lat-lat)))<=radius**2])
+    for x in y:
+        print(((x.point.lat-lat) * (x.point.lon-lon)) + ((x.point.lat-lat) * (x.point.lat-lat)))
+    print('finished')
+    # query=f'Point.lat <= "{lat_range[0]}" and Point.lat >= "{lat_range[1]}" and point.lon <= "{lon_range[0]}" and point.lon >= "{lon_range[1]}"'
     from FreeTAKServer.controllers.SpecificCoTControllers.SendDropPointController import SendDropPointController
     from FreeTAKServer.model.RawCoT import RawCoT
     from FreeTAKServer.model.SQLAlchemy.Event import Event
     from FreeTAKServer.model.SQLAlchemy.CoTTables.Detail import Detail
     import uuid
-    m = RawCoT()
-    e1 = Event(uid=str(uuid.uuid4()))
-    d1 = Detail()
-    d1.Event = e1
-    contr.session.add(e1)
-    contr.session.commit()
-    m.xmlString = "<event version='2.0' uid='4oh2-4265fe-83hb-9bd3442e6de0' type='a-h-G' time='2020-05-06T13:29:25.146Z' start='2020-05-06T13:29:25.146Z' stale='2020-05-06T13:34:25.146Z' how='h-g-i-g-o'><point lat='44.22054348420014' lon='-66.14146066424053' hae='9999999.0' ce='9999999.0' le='9999999.0' /><detail><status readiness='true'/><archive/><precisionlocation altsrc='???'/><archive/><usericon iconsetpath='COT_MAPPING_2525B/a-h/a-h-G'/><contact callsign='Bob'/><color argb='-1'/><link uid='ANDROID-352614100054990' production_time='2020-01-20T00:15:03.281Z' type='a-f-G-U-C' parent_callsign='Peregrin' relation='p-p'/><marti><dest callsign = 'abc'/></marti></detail></event>"
-    # m.xmlString = "<event version='2.0' uid='87f64797-4ae2-42ce-83cb-9bd3442e6dd0' type='a-h-G' time='2020-05-06T13:29:25.146Z' start='2020-05-06T13:29:25.146Z' stale='2020-05-06T13:34:25.146Z' how='h-g-i-g-o'><point lat='44.22054348420014' lon='-66.14146066424053' hae='9999999.0' ce='9999999.0' le='9999999.0' /><detail/></event>"
-    x = SendDropPointController(m)
-    b = RawCoT()
-    b.dbController = contr
-    b.xmlString = '<event version="2.0" uid="5bbka076-caea-4766-a300-1c9ac3f58d00" type="a-n-G" how="h-g-i-g-o" start="2020-09-30T00:56:29.71Z" time="2020-07-18T13:38:31.220Z" stale="2020-10-07T00:56:29.71Z"><detail><status readiness="true"/><usericon iconsetpath="COT_MAPPING_2525B/a-n/a-n-G"/><link uid="ANDROID-359975090666199" relation="p-p" production_time="2020-07-11T17:31:36.007Z" type="a-f-G-U-C" parent_callsign="NOVA"/><color argb="-1"/><precisionlocation altsrc="???"/><contact callsign="N.11.143136"/><remarks time="2020-09-30T00:56:12Z">DEFAULT</remarks></detail><point le="9999999.0" ce="9999999.0" hae="9999999.0" lon="-61.137312737751884" lat="-11.005735933018565"/></event>'
-    x = SendDropPointController(b)
-    y = x.getObject()
-    contr.create_CoT(y.modelObject)
-    x = contr.session.query(Event).all()[-1]
-    #contr.create_user(callsign = 'abc')
-    #import operator
-    #a = contr.query_datapackage("uid == 423")

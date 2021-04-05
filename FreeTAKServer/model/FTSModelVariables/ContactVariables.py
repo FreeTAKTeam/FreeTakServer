@@ -13,6 +13,7 @@ class ContactVariables:
         cls.ICONSETPATH = None
         cls.UID = None
         cls.NAME = None
+        cls.PHONE = None
         return cls
 
     @classmethod
@@ -56,5 +57,10 @@ class ContactVariables:
 
     @classmethod
     def Presence(cls):
+        cls.callsign = None
+        return cls
+
+    @classmethod
+    def Route(cls):
         cls.callsign = None
         return cls

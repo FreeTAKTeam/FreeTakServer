@@ -161,7 +161,7 @@ class Orchestrator:
             self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.detail.contact.callsign))
             sock = clientInformation.socket
             clientInformation.socket = None
-            self.clientDataPipe.send(['add', clientInformation, self.openSockets])
+            self.clientDataPipe.put(['add', clientInformation, self.openSockets])
             clientInformation.socket = sock
             self.sendUserConnectionGeoChat(clientInformation)
             return clientInformation
@@ -273,7 +273,7 @@ class Orchestrator:
             self.openSockets -= 1
             socketa = clientInformation.socket
             clientInformation.socket = None
-            self.clientDataPipe.send(['remove', clientInformation, self.openSockets])
+            self.clientDataPipe.put(['remove', clientInformation, self.openSockets])
             clientInformation.socket = socketa
             try:
                 clientInformation.socket.shutdown(socket.SHUT_RDWR)
@@ -399,8 +399,9 @@ class Orchestrator:
                         self.logger.info('exception in receive client data within main run function ' + str(e))
                         pass
                     try:
-                        if CoTSharePipe.poll(timeout=0.1):
-                            data = CoTSharePipe.recv()
+                        if not CoTSharePipe.empty():
+                            # print('getting share pipe data')
+                            data = CoTSharePipe.get()
                             CoTOutput = self.handel_shared_data(data)
                         else:
                             pass
@@ -417,7 +418,8 @@ class Orchestrator:
 
     def handel_shared_data(self, modelData):
         try:
-            print('data received within orchestrator '+str(modelData.xmlString))
+            print('\n \n handling shared data \n \n')
+            # print('data received within orchestrator '+str(modelData.xmlString))
             if hasattr(modelData, 'clientInformation'):
                 output = SendDataController().sendDataInQueue(modelData.clientInformation, modelData,
                                                               self.clientInformationQueue)
@@ -428,6 +430,7 @@ class Orchestrator:
 
             # this runs in the event of a new connection
             else:
+                print(modelData)
                 output = SendDataController().sendDataInQueue(None, modelData,
                                                               self.clientInformationQueue)
         except Exception as e:
@@ -483,8 +486,7 @@ class Orchestrator:
                 output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
                                                               self.clientInformationQueue, self.CoTSharePipe)
                 if self.checkOutput(output):
-                    self.logger.debug('connection data from client ' + str(
-                        CoTOutput.modelObject.detail.contact.callsign) + ' successfully processed')
+                    self.logger.debug('connection data from client ' + str(CoTOutput.modelObject.detail.contact.callsign) + ' successfully processed')
                 else:
                     raise Exception('error in sending data')
             else:

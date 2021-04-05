@@ -3,7 +3,15 @@ from FreeTAKServer.model.RestMessages.Presence import Presence, RestEnumerations
 class PresencePost(Presence):
     def __init__(self):
         pass
-    
+
+    def setuid(self, uid):
+        self.uid = uid
+
+    def getuid(self):
+        try:
+            return self.uid
+        except:
+            return None
     def sethow(self, how):
         self.how = RestEnumerations.how[how]
     

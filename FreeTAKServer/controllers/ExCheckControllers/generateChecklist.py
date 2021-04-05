@@ -1,5 +1,5 @@
 from FreeTAKServer.model.ExCheck.Checklists.Checklist import Checklist
-from lxml import etree
+from defusedxml import ElementTree as etree
 
 class generateChecklist:
     def __init__(self, template):

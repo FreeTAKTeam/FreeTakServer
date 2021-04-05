@@ -3,7 +3,25 @@ from FreeTAKServer.model.RestMessages.GeoObject import GeoObject, RestEnumeratio
 class GeoObjectPost(GeoObject):
     def __init__(self):
         pass
-    
+
+    def setaddress(self, address):
+        self.address = address
+
+    def getaddress(self):
+        try:
+            return self.address
+        except:
+            return None
+
+    def setuid(self, uid):
+        self.uid = uid
+
+    def getuid(self):
+        try:
+            return self.uid
+        except:
+            return None
+
     def setattitude(self, attitude):
         self.attitude = RestEnumerations.attitude[attitude]
 

@@ -4,8 +4,7 @@ import time
 class AsciiController:
   def slowprint(self, s):
       for c in s + '\n' :
-          sys.stdout.write(c)
-          sys.stdout.flush()
+          print(c)
           time.sleep(1. / 400)
   def ascii(self):
       self.slowprint(r'''\

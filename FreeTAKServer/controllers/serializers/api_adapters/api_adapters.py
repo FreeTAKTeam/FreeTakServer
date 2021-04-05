@@ -9,7 +9,7 @@ from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVari
 from FreeTAKServer.model.SpecificCoT.SendSimpleCoT import SendSimpleCoT
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.configuration.types import Types
-from lxml import etree
+from defusedxml import ElementTree as etree
 
 
 class AbstractApiAdapter(JsonSerializer):
@@ -37,7 +37,7 @@ class GeoObjectAdapter(AbstractApiAdapter):
     def serialize_initial_json(self, api_json: dict) -> dict:
         api_json['how'] = RestEnumerations.how[api_json['how']]
         if "-.-" in RestEnumerations.geoObject[api_json["geoObject"]]:
-            api_json['type'] = RestEnumerations.geoObject[api_json["geoObject"]].replace("a-.-", RestEnumerations.attitude[api_json['attitude']])
+            api_json['type'] = RestEnumerations.geoObject[api_json["geoObject"]].replace("-.-", RestEnumerations.attitude[api_json['attitude']])
         else:
             raise Exception('geoObject not supported')
         del(api_json['attitude'])

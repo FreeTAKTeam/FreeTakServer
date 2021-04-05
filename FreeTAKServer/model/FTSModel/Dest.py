@@ -3,7 +3,7 @@ from FreeTAKServer.model.FTSModelVariables.DestVariables import DestVariables as
 
 class Dest(FTSProtocolObject):
     def __init__(self, CALLSIGN = vars.other().CALLSIGN):
-        self.callsign = None
+        self.callsign = CALLSIGN
         self.__settercalled = False
         self.__gettercalled = False
         # self.setcallsign(CALLSIGN)
@@ -14,11 +14,11 @@ class Dest(FTSProtocolObject):
 
         return dest
 
-    @staticmethod
-    def geochat(CALLSIGN = vars.geochat().CALLSIGN):
-        dest = Dest()
+    @classmethod
+    def geochat(cls, CALLSIGN = vars.geochat().CALLSIGN):
+        # dest = Dest()
         # dest.setcallsign(CALLSIGN)
-        return dest
+        return cls(CALLSIGN)
 
     def getcallsign(self):
         self.__gettercalled = True

@@ -19,5 +19,5 @@ class Dest(Base):
     # the call sign of the destination
     __tablename__ = "Dest"
     PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
-    OwnerPrimaryKey = Column(String, ForeignKey("Marti.PrimaryKey"))
-    callsign = Column(String)
+    OwnerPrimaryKey = Column(String(100), ForeignKey("Marti.PrimaryKey"))
+    callsign = Column(String(100))

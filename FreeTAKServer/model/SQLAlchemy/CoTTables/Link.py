@@ -26,22 +26,22 @@ class Link(Base):
     # attribute is required and and appropriate Internet media type must be specified.
     #  Registered media types are managed by the IANA and are listed at http://www.
     # iana.org/assignments/media-types/.
-    mime = Column(String)
-    parent_callsign = Column(String)
-    production_time = Column(String)
+    mime = Column(String(100))
+    parent_callsign = Column(String(100))
+    production_time = Column(String(100))
     # The type of relationship (e.g, subject, object, indirect object) that this link
     # describes.  This is a hierarchy much like the event type field.
-    relation = Column(String)
+    relation = Column(String(100))
     # Remarks associated with this link.
-    remarks = Column(String)
+    remarks = Column(String(100))
     # The CoT type of the referenced object.  This is included because it is
     # generally the key item needed in a tasking.
-    type = Column(String)
-    uid = Column(String)
+    type = Column(String(100))
+    uid = Column(String(100))
     # If present, this is a URL through which the linked object can be retrieved.
     # If the URL is missing, then the object should be a periodic message (e.g., blue
     # force track) that can be read from a CoT stream.
-    url = Column(String)
+    url = Column(String(100))
     # Version tag for this sub schema.  Neccessary to ensure upward compatibility
     # with future revisions.
-    version = Column(String)
+    version = Column(String(100))

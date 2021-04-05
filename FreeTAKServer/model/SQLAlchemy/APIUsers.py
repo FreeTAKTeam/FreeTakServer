@@ -12,6 +12,6 @@ class APIUsers(Base, Root):
 
     PrimaryKey = Column(Integer, primary_key = True, autoincrement=True)
 
-    Username = Column(String, unique=True, nullable=False)
+    Username = Column(String(100), unique=True, nullable=False)
 
-    Token = Column(String, unique=True, nullable=False)
+    Token = Column(String(100), unique=True, nullable=False)

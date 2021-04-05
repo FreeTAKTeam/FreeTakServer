@@ -4,22 +4,39 @@
 
 Welcome to the FreeTakServer (FTS) git repository.
 
-FTS is a Python3 implementation of the TAK Server for devices like CivTAK, WinTAK, and ITAK, it is cross-platform. We use the Flask framework for web services. 
-It's free and open source (released under the Eclipse Public License).
+FTS is a Python3 implementation of the TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), [WinTAK](https://1drv.ms/u/s!AtMVrrXVTu4YgSanKtSHIslxfRu5?e=ftVio7 ), and ITAK, it is cross-platform and runs from a multi node installation on AWS down to the Android edition. 
+It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/)).
 
 ## User Documentation
-For documentation on installation and usage visit https://freetakteam.github.io/FreeTAKServer-User-Docs/
+For documentation on installation and usage visit our [FreeTAKServer Documentation page](https://freetakteam.github.io/FreeTAKServer-User-Docs/)
 
 ## Supported Use cases
 FTS allows you to connect ATAK clients to share geo information, to chat with all the connected clients, exchange files and more.
 It intends to support all the major use cases of the original TAK server.
-![the domain model with all the known objects used by CIVTAK/wintak](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
+-  Web administration 
+- Federation Service (Connecting two or more FTS instances)
+- Data Package upload and retrieval
+- Image transfer and storage
+- COT recording in a database
+- Execution of common task list (using the ExCheck plugin for WinTAK; ATAK plugin only available to users with takmaps.com access)
+- SSL Encryption
+- Command Line Interface for start and stop services
+- API for creation of information such as emergency, Enemy units and so on
+
+![some use cases](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 [Live version](http://pldemo.sparxsystems.us/TVHOG)
 
-## Community 
+## Project Status
 This code is currently in *Early Production Stage*.
 Check out our roadmap [@FreeTakServer#25](https://github.com/FreeTAKTeam/FreeTakServer/issues/25) to see what is planned
+Also subscribe to this feed to be automatically informed about PIP new versions:
+https://pypi.org/rss/project/freetakserver/releases.xml
+
+## Community 
 If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as TAKFreeServer is in continuous development.
+To discuss with the developer team you may use:
+- The [subreddit](https://www.reddit.com/r/ATAK/)
+- The [public ATAK Discord Server](https://discordapp.com/invite/XEPyhHA)
 
 ### Donate back
 the FTS team is working  daily on the development of an open and free solution. We plan to do more than simply replicate the functionalities of the legacy TAK server, our road map includes integration with open source systems like LORA's Meshtastic, porting it to Android, having an open API, and much more.
@@ -40,6 +57,7 @@ not a big fan of Paypal, but that is the easiest way I found for an initial atte
 we support a [public instance](https://www.reddit.com/r/ATAK/wiki/index/freetakserver) of FTS.
 - download the configuration [here](https://drive.google.com/file/d/1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli/view?usp=sharing)
 - use the Import manager in ATAK to import the configuration
+- [more details](https://freetakteam.github.io/FreeTAKServer-User-Docs/Usage/Connecting%20ATAK/)
 
 ### Tell us what you think!
 to discuss with the developer team
@@ -53,67 +71,39 @@ TAKFreeServer uses a MVC pattern, the concept of a COT (Cursor On Target) is des
 ![the domain model with all the known objects used by CIVTAK/wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png) [Live version](http://pldemo.sparxsystems.us/Ldsd4T)
 [generated documentation of the COT description](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
 
+## OPEN SOURCE NOTICES
+FTS was made possible by the following Open Source projects.
+We like to thank the following individuals and organization for providing crucial support and making FTS possible.
+- flask
+- lxml
+- pathlib
+- tabulate
+- sqlalchemy
+- setuptools
+- eventlet
+- random_word
+- Pip
+- Bootstrap4
+- pyopenssl
+- Flask Dashboard Black by AppSeed
+
 ## Documentation
-under /docs, you can find various documents including an UML model of the Domain classes involved in a COT event.
+Our [User docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/), contains various documents including an UML model of the Domain classes involved in a COT event.
 
 ## Requirements
 - Python 3.6 (or better)
 following Python libraries are required and will be installed automatically by pip: `flask, lxml, pathlib, tabulate, sqlalchemy, setuptools, Flask-SQLAlchemy`
 
 ## Installing and using FreeTakServer
-For documentation on installation and usage visit https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/PyPi/Linux/Install/
+For documentation on [installation](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/PyPi/Linux/Install/) visit the user docs
 
-### Windows
-go to the start menu and type ```cmd``` to start a command prompt
-
-open a console with admin rights
-Powershell has issues so do not use it
-```
-python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP [YourIP]
-```
-
-### Troubleshooting
-#### package not found'
-if, trying to start FTS you get an error 'package not found'
-```
-'package not found'
-```
-navigate to the physical location where the controllers are installed and start the server from there.
-
-You may also check for missing libraries and install then using pip
-
-#### issue connecting in WinTAK
-if you have issues connecting winTAK to FTS, try to deactivate the TAKChat plugin, under the plugin section
-
-## Update FreeTakServer
-if you already installed FTS with pip you can use
-```
-pip install FreeTAKServer --upgrade
-```
-subscribe to this feed to be automatically informed about new versions:
-https://pypi.org/rss/project/freetakserver/releases.xml
-
-### client2client datapackages
-
-If you have issues sending datapackages directly to clients via FTS, make sure the `-IP` argument you specified can be reached from your device.  
-A quick way to test if it works is to take a picture with Quick Pic in ATAK and send it to another client. Please also note that for that test ATAK clients needs to be on different network (ie one on mobile and one on wifi), because if you run them in same network (wifi, vpn, etc) they will just use same multicast group, bypassing FTS completely.  
-When you post package to specific contact in ATAK, following happens:  
-
-  1) Datapackage is uploaded to server, recorded in database and stored in FTS directory  
-  2) Client receives payload with URL pointing to datapackage so ATAK can download it   
-
-Assuming you want to run open-to-everyone FTS instance, and you have server hosted somewhere, you need to specify _public_ IP address in `-IP` argument. And just in case, `-IP` also accepts domain names.   
-If you run it at home and port forward on router doesn't work, check if you receive actual IP address and not being NATed and ports 8080 and 8087 are not filtered - you can ask your ISP about that.
-
-## Additional Documentation
-  * Since version 1.2 FTS supports a[REST API](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/REST_APIDoc.md)
 
 ##  Project Structure
 - TakFreeServer
-  - **Controllers**: Contains all the business Logic
-  - **Models**: Contains all the COT object model
-  - **TAKLinuxService**:   a demon for linux OS
-  -  **TakWinService**: a service for the windows OS
+  - **Controllers**: Contains FTS business Logic
+  - **Models**: Contains all the FTS  object model
+  - **Views**:   contains the access to FTS
+  - **certs**: code for secure connection
 - Docs: Usefull documentation regarding COTS and different logs to understand how those are implemented
 - Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html).
-- Old: Legacy versions
+

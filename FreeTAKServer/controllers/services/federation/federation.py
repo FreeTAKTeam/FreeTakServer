@@ -80,7 +80,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
         self.m_SendConnectionHandler.setNextHandler(self.m_SendDisconnectionHandler)
 
     def main(self):
-        from lxml import etree
+        from defusedxml import ElementTree as etree
         while True:
             time.sleep(0.1)
             command = self.receive_command_data(self.pipe)
@@ -198,7 +198,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
         return contentlength.to_bytes(4, byteorder="big")
 
     def send_data_to_clients(self, data):
-        from lxml import etree
+        from defusedxml import ElementTree as etree
         try:
             if self.federates:
                 xmlstring = data.xmlString

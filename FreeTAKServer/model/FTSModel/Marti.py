@@ -13,7 +13,7 @@ class Marti(FTSProtocolObject):
         # self.__tempdest = self.__dest
         self.dest = [DestObject(self.__counter)]
         self.__index = 0
-        self.__firstrun = True
+        # self.__firstrun = True
 
     @staticmethod
     def other():
@@ -42,7 +42,8 @@ class Marti(FTSProtocolObject):
     def getdest(self):
         # TODO: clean up this implementation and eliminate need for __firstrun
         try:
-            returnvalue = self.dest[self.__index]
+            return self.dest[self.__index]
+            """returnvalue = self.dest[self.__index]
             if returnvalue._gettercalled() == False and returnvalue._settercalled() == False and self.__index == 0:
                 # only when no changes have been made
                 return returnvalue
@@ -66,7 +67,7 @@ class Marti(FTSProtocolObject):
                 self.__firstrun = False
                 returnvalue = self.dest[self.__index]
                 return returnvalue
-            return returnvalue
+            return returnvalue"""
         except IndexError:
             try:
                 if self.__firstrun:
@@ -81,14 +82,14 @@ class Marti(FTSProtocolObject):
                 return self.dest[self.__index]
     def setdest(self, Dest = None):
         if not Dest:
-            Dest = DestObject(self.__index)
-        self.dest.append(Dest)
+            Dest = DestObject.geochat()
+        self.dest.append(DestObject.geochat())
         self.__index += 1
 
 
 if __name__ == "__main__":
     from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
-    from lxml import etree
+    from defusedxml import ElementTree as etree
     a = Marti.other()
     b = etree.fromstring(b'<marti><dest callsign = "bbbb"/></marti>')
     x = XMLCoTController().serialize_CoT_to_model(a, b)
@@ -100,3 +101,5 @@ if __name__ == "__main__":
     for x in a.dest:
         f = a.getdest()
     print('done')
+
+

@@ -28,19 +28,19 @@ class DataPackage(Base, Root):
     PrimaryKey = Column(Integer, primary_key = True, autoincrement=True)
 
     # UID of Package Creator
-    CreatorUid = Column(String)
+    CreatorUid = Column(String(100))
 
     # 32-bit hash of datapackage
-    Hash = Column(VARCHAR)
+    Hash = Column(VARCHAR(100))
 
     # data package keywords
     Keywords = Column(CHAR, default='foobar')
 
     # File type
-    MIMEType = Column(String, default="[application/x-zip-compressed]")
+    MIMEType = Column(String(100), default="[application/x-zip-compressed]")
 
     # Name of datapackage
-    Name = Column(String)
+    Name = Column(String(100))
 
     # whether or not the data package is private 0 indicates false meaning it will be publicly broadcasted.
     Privacy = Column(Integer, default=0)
@@ -52,4 +52,4 @@ class DataPackage(Base, Root):
     SubmissionDateTime = Column(DateTime, default=dt.utcnow())
 
     # the call sign of the user who submitted the data package
-    SubmissionUser = Column(String)
+    SubmissionUser = Column(String(100))

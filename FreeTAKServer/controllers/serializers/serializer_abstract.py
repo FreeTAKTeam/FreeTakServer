@@ -15,18 +15,17 @@ class SerializerAbstract(ABC):
     def from_fts_object_to_format(self, FTSObject: Event) -> type:
         raise NotImplementedError
 
-    @abstractmethod
-    def _get_method_in_method_list(self, method_list: List[callable], expected_class_name: str) -> callable:
-        raise NotImplementedError
-
-    def _get_fts_object_var_setter(self, FTSObject: __ftsObjectType, variable_name: str, setterlist=None) -> list:
+    def _get_fts_object_var_setter(self, FTSObject: __ftsObjectType, variable_name: str, setterlist=None) -> callable:
         """ return variable setter from object
-
-            recursively search the provided FTSObject instance for
-            the setter associated with the specified variable which will
-            then be returned. if this is not found an attribute error will
-            be raised
+            access the setter from an ftsobject by means of a recursive
+            itteration over all sub attributes
         """
+
+        """try:
+            setter = getattr(FTSObject, "set" + variable_name)
+            return setter
+        except Exception as e:
+            raise AttributeError("unknown setter requested")"""
 
         if setterlist is None:
             setterlist = []
@@ -34,27 +33,29 @@ class SerializerAbstract(ABC):
         for key, value in variables.items():
             if '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
                 continue
+            elif variable_name == key:
+                setterlist.append(getattr(FTSObject, 'set' + key))
             elif issubclass(type(value), FTSProtocolObject):
                 getter = getattr(FTSObject, "get"+key)
                 setterlist.extend(self._get_fts_object_var_setter(getter(), variable_name))
             elif isinstance(value, list):
-                getter = getattr(FTSObject, "get" + key)
-                setterlist.extend(self._get_fts_object_var_setter(getter(), variable_name))
-            elif variable_name == key:
-                setterlist.append(getattr(FTSObject, 'set' + key))
+                setter = getattr(FTSObject, 'set' + key)
+                setterlist.append(setter)
             else:
                 pass
 
         return setterlist
 
-    def _get_fts_object_var_getter(self, FTSObject: __ftsObjectType, variable_name: str, getterlist = None) -> list:
+    def _get_fts_object_var_getter(self, FTSObject: __ftsObjectType, variable_name: str, getterlist = None) -> callable:
         """ return variable getter from object
 
-            recursively search the provided FTSObject instance for
-            the getter associated with the specified variable which will
-            then be returned. if this is not available an attribute error will
-            be raised
+            access the getter from an ftsobject
         """
+        """try:
+            getter = getattr(FTSObject, 'get' + variable_name)
+            return getter
+        except Exception as e:
+            raise AttributeError("unknown getter requested")"""
         if getterlist is None:
             getterlist = []
 
@@ -62,13 +63,16 @@ class SerializerAbstract(ABC):
         for key, value in variables.items():
             if '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
                 continue
+            elif variable_name == key:
+                return [getattr(FTSObject, 'get' + variable_name)]
+
             elif issubclass(type(value), FTSProtocolObject):
-                getterlist.extend(self._get_fts_object_var_getter(value, variable_name))
+                 getterlist.extend(self._get_fts_object_var_getter(value, variable_name))
+
             elif isinstance(value, list):
                 getter = getattr(FTSObject, 'get'+key)
-                getterlist.extend(self._get_fts_object_var_getter(getter(), variable_name))
-            elif variable_name == key:
-                getterlist.append(getattr(FTSObject, 'get' + variable_name))
+                getterlist.append(getter)
+
             else:
                 pass
 

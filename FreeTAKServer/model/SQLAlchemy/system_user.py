@@ -2,7 +2,9 @@ from sqlalchemy import Column
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy import String
 from sqlalchemy import Boolean
+from sqlalchemy.orm import relationship
 from flask_login import UserMixin
+
 
 class SystemUser(Base, UserMixin):
 
@@ -13,6 +15,7 @@ class SystemUser(Base, UserMixin):
     password = Column(String(30), nullable=True)
     group = Column(String(15), default=True, nullable=True)
     certificate_package_name = Column(String(30), nullable=True, default=None)
+    api_calls = relationship("APICalls")
 
     def __init__(self, **kwargs):
         for property, value in kwargs.items():

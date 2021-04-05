@@ -11,7 +11,8 @@ class SendDataController:
         pass
     def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, shareDataPipe = None):
         try:
-            print('sending data to fts client' + str(processedCoT.xmlString))
+            pass
+            # print('sending data to fts client' + str(processedCoT.xmlString))
         except Exception as e:
             print(e)
         try:
@@ -32,7 +33,7 @@ class SendDataController:
                         pass
                 copiedProcessedCoTObject = copy.deepcopy(processedCoT)
                 copiedProcessedCoTObject.idData = copiedProcessedCoTObject.idData.encode()
-                shareDataPipe.send([copiedProcessedCoTObject])
+                shareDataPipe.put([copiedProcessedCoTObject])
                 return 1
             elif processedCoT.type == 'other':
                 self.returnData = self.send_to_specific_client(clientInformationQueue, processedCoT, sender, shareDataPipe)
@@ -47,11 +48,11 @@ class SendDataController:
     def send_to_specific_client(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             if processedCoT.martiPresent == False:
-                print('marti not present')
+                # print('marti not present')
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
 
             else:
-                print('marti present')
+                # print('marti present')
                 for dest in processedCoT.modelObject.detail.marti.dest:
                     try:
                         for client in clientInformationQueue:
@@ -72,7 +73,7 @@ class SendDataController:
                         return -1
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
-                    shareDataPipe.send(processedCoT)
+                    shareDataPipe.put(processedCoT)
                 else:
                     pass
                 return 1
@@ -86,17 +87,22 @@ class SendDataController:
                 sock = client.socket
                 try:
                     if hasattr(processedCoT, 'xmlString'):
-                        print('sending to all ' + str(processedCoT.xmlString))
-                        sock.send(processedCoT.xmlString)
+                        # print('sending to all ' + str(processedCoT.xmlString))
+                        try:
+                            sock.send(processedCoT.xmlString)
+                        except TypeError:
+                            sock.send(processedCoT.xmlString.encode())
                     else:
-                        sock.send(processedCoT.idData.encode())
+                        try:
+                            sock.send(processedCoT.idData)
+                        except TypeError:
+                            sock.send(processedCoT.idData.encode())
                 except Exception as e:
-                    print(e)
-                    logger.error('error in sending of data ' + str(processedCoT.xmlString))
+                    logger.error('error in sending of data ' + str(e))
                     return (-1, client)
             if shareDataPipe != None:
                 processedCoT.clientInformation = None
-                shareDataPipe.send(processedCoT)
+                shareDataPipe.put(processedCoT)
             else:
                 pass
             return 1
@@ -126,7 +132,7 @@ class SendDataController:
                         return -1
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
-                    shareDataPipe.send(processedCoT)
+                    shareDataPipe.put(processedCoT)
                 else:
                     pass
                 return 1

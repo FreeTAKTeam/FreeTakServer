@@ -6,14 +6,13 @@
 # Created on:      19-May-2020 6:56:00 PM
 #
 #######################################################
-from lxml import etree
 from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiate
 import uuid
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.ClientInformation import ClientInformation
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 
 logger = CreateLoggerController("ClientInformationController").getLogger()
 
@@ -37,7 +36,7 @@ class ClientInformationController(BasicModelInstantiate):
             self.clientInformation.idData = rawClientInformation.xmlString
             self.clientInformation.alive = 1
             self.clientInformation.ID = uuid.uuid1().int
-            self.clientInformation.modelObject = XMLCoTController().serialize_CoT_to_model(tempObject, etree.fromstring(rawClientInformation.xmlString.encode()))
+            self.clientInformation.modelObject = XmlSerializer().from_format_to_fts_object(rawClientInformation.xmlString.encode(), tempObject)
             return self.clientInformation
         except Exception as e:
             logger.debug('error in client information controller '+str(e))

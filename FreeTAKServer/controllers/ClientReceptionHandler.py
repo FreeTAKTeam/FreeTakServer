@@ -10,7 +10,7 @@
 import time
 import socket
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from lxml import etree
+from defusedxml import ElementTree as etree
 
 logger = CreateLoggerController("ClientReceptionHandler").getLogger()
 from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
@@ -125,7 +125,7 @@ class ClientReceptionHandler:
     def returnReceivedData(self, clientInformation, data, queue):
         try:
             from FreeTAKServer.model.RawCoT import RawCoT
-            print(data)
+            # print(data)
             RawCoT = RawCoT()
             RawCoT.clientInformation = clientInformation
             RawCoT.xmlString = data

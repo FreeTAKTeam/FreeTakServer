@@ -17,6 +17,6 @@ class Status(Base):
     __tablename__ = "Status"
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     # % of the battery on the phone
-    battery = Column(String)
+    battery = Column(String(100))
     # probably boolean to determine if ready or not
-    readiness = Column(String)
+    readiness = Column(String(100))

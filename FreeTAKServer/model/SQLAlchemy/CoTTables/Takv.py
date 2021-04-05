@@ -19,10 +19,10 @@ class Takv(Base):
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="takv")
     # type of physical device
-    device = Column(String)
+    device = Column(String(100))
     # the operating system running TAK
-    os = Column(String)
+    os = Column(String(100))
     # the variant of TAK
-    platform = Column(String)
+    platform = Column(String(100))
     # the version of TAK running on the device
-    version = Column(String)
+    version = Column(String(100))

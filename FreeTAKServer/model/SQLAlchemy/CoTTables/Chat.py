@@ -18,12 +18,12 @@ class Chat(Base):
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="chat")
     # TBD: the callsign of the receiver?
-    chatroom = Column(String)
+    chatroom = Column(String(100))
     # TBD, 
-    groupOwner = Column(String)
+    groupOwner = Column(String(100))
     # TBD: the unique ID of the sender?
-    id = Column(String)
+    id = Column(String(100))
     # the group where thise chat is attached
-    parent = Column(String)
+    parent = Column(String(100))
     # the call sign of the sender
-    senderCallsign = Column(String)
+    senderCallsign = Column(String(100))

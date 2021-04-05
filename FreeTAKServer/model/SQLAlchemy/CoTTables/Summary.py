@@ -19,4 +19,4 @@ class Summary(Base):
 
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)
     Detail = relationship("Detail", back_populates="summary")
-    INTAG = Column(String)
+    INTAG = Column(String(100))

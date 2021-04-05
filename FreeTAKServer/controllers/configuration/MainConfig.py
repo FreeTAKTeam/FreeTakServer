@@ -1,4 +1,5 @@
 import os
+
 currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
 
@@ -42,10 +43,11 @@ class MainConfig:
     SaveCoTToDB = bool(os.environ.get('FTS_COT_TO_DB', True))
 
     # this should be set before startup
+
     DBFilePath = str(os.environ.get('FTS_DATA_PATH', r'/root/') + "FTSDataBase.db")
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.5.10 RC 1'
+    version = 'FreeTAKServer-1.7 RC 1 Public'
 
     MainPath = str(os.environ.get('FTS_DATA_PATH',
         Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')))
@@ -71,7 +73,7 @@ class MainConfig:
 
     keyDir = str(Path(fr'{certsPath}/pubserver.key'))
 
-    pemDir = str(Path(fr'{certsPath}/pubserver.pem')) # or crt
+    pemDir = str(Path(fr'{certsPath}/pubserver.pem'))  # or crt
 
     unencryptedKey = str(Path(fr'{certsPath}/pubserver.key.unencrypted'))
 
