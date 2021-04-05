@@ -6,7 +6,7 @@ this_directory = path.abspath(path.dirname(__file__))
 setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
-    version='1.7.1',
+    version='1.7.5',
     license='Eclipse License',
     description='An open source server for the TAK family of applications.',
     long_description='An open source server for the TAK family of applications.',
