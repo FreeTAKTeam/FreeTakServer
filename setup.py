@@ -33,7 +33,8 @@ setup(
         'python-engineio==3.13.2',
         'jinja2>=2.11.3',
         'psutil',
-        'geopy'
+        'geopy',
+        'defusedxml'
     ],
     extras_require = {'ui': ['FreeTAKServer_UI']},
     classifiers=[
