@@ -1,6 +1,6 @@
 from defusedxml import ElementTree as etree
 from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
-from .SendCoTAbstractController import SendCoTAbstractController
+from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 
@@ -33,19 +33,21 @@ class SendOtherController(SendCoTAbstractController):
     #this function modifies the CoT so only the marti and point tags are present
     def filter_CoT(self, event):
         try:
-            from lxml.etree import SubElement
+            from xml.etree.ElementTree import Element
             outputEvent = etree.fromstring(event)
             tempDetail = outputEvent.find('detail')
             outputEvent.remove(tempDetail)
             detail = etree.fromstring(event).find('detail')
             try:
                 marti = detail.find('marti')
-                outputDetail = SubElement(outputEvent, 'detail')
+                outputDetail = Element('detail')
                 outputDetail.append(marti)
+                outputEvent.append(outputDetail)
                 print('dest client found')
                 self.object.martiPresent = True
-            except:
-                SubElement(outputEvent, 'detail')
+            except Exception as e:
+                outputDetail = Element('detail')
+                outputEvent.append(outputDetail)
                 print('no dest client found')
 
             return outputEvent
