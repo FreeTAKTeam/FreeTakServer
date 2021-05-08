@@ -26,7 +26,7 @@ setup(
         'Flask_SQLAlchemy==2.4.4',
         'flask-cors==3.0.9',
         'flask-socketio==4.3.1',
-        'eventlet==0.29.0',
+        'eventlet==0.31.0',
         'flask_httpauth==4.2.0',
         'protobuf==3.14.0',
         'python-socketio==4.6.0',
