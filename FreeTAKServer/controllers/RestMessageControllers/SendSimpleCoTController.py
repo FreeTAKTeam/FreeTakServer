@@ -88,6 +88,7 @@ class UpdateSimpleCoTController:
                 point.setlat(location.latitude)
             else:
                 point.setlon(json.getlongitude())
+                point.setlat(json.getlatitude())
             object.detail.contact.setcallsign(json.name)
             if json.gettimeout() != '':
                 object.setstale(staletime=int(json.gettimeout()))
