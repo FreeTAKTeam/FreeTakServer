@@ -113,7 +113,7 @@ class Orchestrator:
             ChatObj = RawCoT()
             ChatObj.xmlString = f'<event><point/><detail><remarks>{OrchestratorConstants().DEFAULTCONNECTIONGEOCHATOBJ}</remarks><marti><dest/></marti></detail></event>'
 
-            classobj = SendGeoChatController(ChatObj)
+            classobj = SendGeoChatController(ChatObj, AddToDB=False)
             instobj = classobj.getObject()
             instobj.modelObject.detail._chat.chatgrp.setuid1(clientInformation.modelObject.uid)
             dest = Dest()
