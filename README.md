@@ -8,6 +8,8 @@ FTS is a Python3 implementation of the TAK Server for devices like [ATAK](https:
 It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/)).
 
 ## User Documentation
+![FTS UI 1.8](https://user-images.githubusercontent.com/60719165/118400921-0731e180-b63a-11eb-976e-c38ee052a013.png)
+
 For documentation on installation and usage visit our [FreeTAKServer Documentation page](https://freetakteam.github.io/FreeTAKServer-User-Docs/)
 
 ## Supported Use cases
