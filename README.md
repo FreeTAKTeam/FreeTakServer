@@ -50,10 +50,11 @@ We are doing it for free because we believe that donating personal time to a cau
 If you feel that FTS is useful to you and you can donate in those challenging times please consider contributing here:
 [DONATE](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=brothercorvo%40gmail.com&item_name=FreeTAKServer+R%26D&currency_code=CAD&source=url)
 
-You can also support the project by buying one of our [t-shirts](http://tee.pub/lic/elARpZYCmaw)
+You can also support the project by buying one of our [t-shirts](http://tee.pub/lic/elARpZYCmaw).
 
 NOTE:
 not a big fan of Paypal, but that is the easiest way I found for an initial attempt. We may go to some more ethical system in future.
+Finally you can help the project by spamming FTS information, starring our repositories in github and Pip and upvoting us.
 
 ### Public instance
 we support a [public instance](https://www.reddit.com/r/ATAK/wiki/index/freetakserver) of FTS.
