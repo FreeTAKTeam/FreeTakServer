@@ -266,17 +266,35 @@ class Orchestrator:
             self.logger.error('an exception has been thrown in sending active emergencies ' + str(e))
 
     def clientDisconnected(self, clientInformation):
+        if hasattr(clientInformation, "clientInformation"):
+            clientInformation = clientInformation.clientInformation
+        try:
+            for client in self.clientInformationQueue:
+                if client.ID == clientInformation.ID:
+                    self.clientInformationQueue.remove(client)
+                else:
+                    pass
+        except AttributeError:
+            for client in self.clientInformationQueue:
+                if client.ID == clientInformation.clientInformation.ID:
+                    self.clientInformationQueue.remove(client)
+                else:
+                    pass
+        except Exception as e:
+            self.logger.critical("client removal failed "+str(e))
+        try:
+            self.ActiveThreadsController.removeClientThread(clientInformation)
+            self.dbController.remove_user(query=f'uid = "{clientInformation.modelObject.uid}"')
+        except Exception as e:
+            self.logger.critical(
+                'there has been an error in a clients disconnection while adding information to the database '+str(e))
+            pass
         if hasattr(clientInformation, 'clientInformation'):
             clientInformation = clientInformation.clientInformation
         else:
             pass
         try:
-            try:
-                self.ActiveThreadsController.removeClientThread(clientInformation)
-                self.dbController.remove_user(query=f'uid = "{clientInformation.modelObject.uid}"')
-            except Exception as e:
-                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
-                pass
+
             self.openSockets -= 1
             socketa = clientInformation.socket
             clientInformation.socket = None
@@ -294,17 +312,6 @@ class Orchestrator:
                 pass
 
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
-            for client in self.clientInformationQueue:
-                if client.ID == clientInformation.ID:
-                    self.clientInformationQueue.remove(client)
-                else:
-                    pass
-            try:
-                self.ActiveThreadsController.removeClientThread(clientInformation)
-                self.dbController.remove_user(query=f'uid = "{clientInformation.modelObject.uid}"')
-            except Exception as e:
-                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
-                pass
             # TODO: remove string
             tempXml = RawCoT()
             tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(clientInformation.modelObject.uid).encode()
@@ -403,7 +410,7 @@ class Orchestrator:
                     except multiprocessing.TimeoutError:
                         pass
                     except Exception as e:
-                        self.logger.info('exception in receive client data within main run function ' + str(e))
+                        #self.logger.info('exception in receive client data within main run function ' + str(e))
                         pass
                     try:
                         if not CoTSharePipe.empty():
