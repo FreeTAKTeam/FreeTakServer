@@ -88,7 +88,7 @@ class MainConfig:
         certsPath = os.environ.get('FTS_CERTS_PATH', fr'{MainPath}/certs')
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.7 RC 1 Public'
+    version = 'FreeTAKServer-1.8 RC 1 Public'
 
     # number of milliseconds to wait between each iteration of main loop
     # decreasing will increase CPU usage and server performance
