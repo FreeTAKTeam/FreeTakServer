@@ -8,6 +8,7 @@ class AddDataToCoTList:
     def send(self, pipes, data):
         for pipe in pipes:
             try:
+
                 #print('putting data in pipe')
                 pipe.put(data)
             except Exception as e:
@@ -16,12 +17,14 @@ class AddDataToCoTList:
         return 1
 
     #this function attempts to receive data from a specified pipe and then return the data
-    def recv(self, pipe):
+
+    def recv(self, pipe, timeout = None):
         try:
             if not pipe.empty():
-                data = pipe.get()
+                data = pipe.get(timeout = timeout)
                 return data
             else:
                 return 0
         except Exception as e:
+
             print(e)
