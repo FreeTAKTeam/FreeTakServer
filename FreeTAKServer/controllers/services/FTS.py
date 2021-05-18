@@ -599,7 +599,7 @@ class FTS:
                 self.start_all(StartupObject)
 
             while True:
-                #time.sleep(MainConfig.MainLoopDelay/1000)
+                time.sleep(MainConfig.MainLoopDelay/1000)
                 try:
                     self.checkPipes()
                 except Exception as e:
