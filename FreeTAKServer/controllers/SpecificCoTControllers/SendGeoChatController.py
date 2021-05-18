@@ -7,12 +7,12 @@ loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendGeoChatController").getLogger()
 
 class SendGeoChatController(SendCoTAbstractController):
-    def __init__(self, RawCoT=None):
+    def __init__(self, RawCoT=None, AddToDB = True):
         try:
             tempObject = super().Event.GeoChat()
             object = SendGeoChat()
             if RawCoT is not None:
-                self.fill_object(object, tempObject, RawCoT)
+                self.fill_object(object, tempObject, RawCoT, addToDB= AddToDB)
             else:
                 pass
         except Exception as e:

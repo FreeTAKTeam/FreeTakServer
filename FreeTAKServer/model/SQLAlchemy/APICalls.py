@@ -10,10 +10,10 @@ class APICalls(Base, Root):
 
     call_id = Column(Integer, primary_key = True, autoincrement=True)
 
-    content = Column(String(100), nullable=False)
+    content = Column(String(10000), nullable=False)
 
     endpoint = Column(String(100), nullable=False)
 
     timestamp = Column(DateTime, nullable=False)
 
-    user_id = Column(String(25), ForeignKey('SystemUser.uid'))
+    user_id = Column(String(100), ForeignKey('SystemUser.uid'))

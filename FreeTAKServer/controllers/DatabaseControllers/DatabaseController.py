@@ -173,7 +173,7 @@ class DatabaseController:
                 self.session.rollback()
                 self.session.close()
                 self.session = self.create_Session()
-                obj = self.query_CoT(f'uid == "{args["CoT"].uid}"')[0]
+                obj = self.query_CoT(f'uid = "{args["CoT"].uid}"')[0]
                 self.session.delete(obj)
                 self.session.commit()
                 return self._create(controller=self.UserTableController, **args)
@@ -181,6 +181,7 @@ class DatabaseController:
                 self.session.rollback()
                 self.session.close()
                 self.session = self.create_Session()
+                raise Exception(e)
     def remove_user(self, query="1=1"):
         '''
         :param query: this parameter will be used to select which datapackages are deleted
@@ -198,8 +199,10 @@ class DatabaseController:
         try:
             return self._create(controller=self.SystemUserTableController, **args)
         except Exception as e:
+            print(e)
             self.session.rollback()
             self.session.commit()
+            raise Exception(e)
     def remove_systemUser(self, query="1=1"):
         return self._remove(controller=self.SystemUserTableController, query=query)
 
@@ -235,7 +238,7 @@ class DatabaseController:
             try:
                 session.rollback()
                 session.close()
-                obj = self.query_CoT(f'uid == "{object.uid}"')[0]
+                obj = self.query_CoT(f'uid = "{object.uid}"')[0]
                 newobj = self.EventTableController.convert_model_to_row(object)
                 self.session.delete(obj)
                 self.session.commit()
@@ -282,8 +285,11 @@ class DatabaseController:
             session = self.create_Session()
             self.ActiveEmergencysController.create(session, object)
         except Exception as e:
+            print(e)
             session.rollback()
             session.close()
+            raise Exception(e)
+
     def remove_ActiveEmergency(self, query="1=1"):
         return self._remove(controller=self.ActiveEmergencysController, query=query)
 

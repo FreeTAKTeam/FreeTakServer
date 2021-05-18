@@ -25,3 +25,21 @@ class CreateStartupFilesController:
         DEBUGLOG.close()
         INFOLOG = open(LoggingConstants().INFOLOG, "w")
         INFOLOG.close()
+
+    def create_daemon(self):
+        f = open("/etc/systemd/system/FreeTAKServer.service", "w+")
+        f.write("""
+[Unit]
+Description=FreeTAK Server service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/python3 -m FreeTAKServer.controllers.services.FTS -DataPackageIP 0.0.0.0 -AutoStart True
+
+[Install]
+WantedBy=multi-user.target""")
+        f.close()

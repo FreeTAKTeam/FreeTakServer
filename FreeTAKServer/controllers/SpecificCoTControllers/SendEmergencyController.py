@@ -20,4 +20,4 @@ class SendEmergencyController(SendCoTAbstractController):
             object.status = 'off'
             self.fill_object(object, tempObject, RawCoT, addToDB=False)
             obj = self.getObject()
-            DatabaseController().remove_ActiveEmergency(query=f'uid == "{obj.modelObject.uid}"')
+            DatabaseController().remove_ActiveEmergency(query=f'uid = "{obj.modelObject.uid}"')

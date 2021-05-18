@@ -37,7 +37,7 @@ class SendCoTAbstractController(ABC):
                 pass
         except Exception as e:
             logger.warning('there has been an exception in the creation of a database instance of this object ' + str(e))
-
+            raise Exception(e)
         self.setObject(object)
 
     def create_model_object(self, tempObject, xmlString):

@@ -123,7 +123,7 @@ def insert_video_link():
             timeout = xml_feed.find("timeout").text
             rtsp_reliable = xml_feed.find("rtspReliable").text
             # Check that no other feeds with the same UID have been received
-            streams = dbController.query_videostream(query=f'uid = "{uid}"')
+            streams = dbController.query_videostream(query=f'uid == "{uid}"')
             if len(streams) > 0:
                 app.logger.info(f"Already received feed with UID={uid} (alias = {alias})")
                 continue  # Ignore this feed if there are duplicates
@@ -183,7 +183,7 @@ def upload():
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
     if request.data == b'private':
-        dbController.update_datapackage(query=f'Hash = "{hash}"', column_value={"Privacy": 1})
+        dbController.update_datapackage(query=f'Hash == "{hash}"', column_value={"Privacy": 1})
     return "Okay", 200
 
 
@@ -241,7 +241,7 @@ def specificPackage():
             app.logger.debug(str(path))
             return send_file(str(path))
         else:
-            obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{hash}"')
+            obj = dbController.query_ExCheck(verbose=True, query=f'hash == "{hash}"')
             data = etree.parse(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(obj[0].data.filename))))
             data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find('checklistTasks').find("checklistTask").find("checklistUid").text
             output = etree.tostring(data, pretty_print=False)
@@ -428,7 +428,7 @@ def startList(subscription):
         file.write(etree.tostring(xml).decode())
         file.close()
 
-    excheckobj = dbController.query_ExCheck(f'ExCheckData.uid = "{subscription}"', verbose=True,)[0]
+    excheckobj = dbController.query_ExCheck(f'ExCheckData.uid == "{subscription}"', verbose=True,)[0]
     dbController.create_Excheckchecklist(startTime=datetime.datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S.%fZ'), creatorUid = request.args.get('clientUid'), description = request.args.get('description'), callsign = request.args.get('callsign'), name = request.args.get('name'), uid = uid, filename = f'{uid}.xml', template = excheckobj)
 
     return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
@@ -551,15 +551,15 @@ class FlaskFunctions:
         return dbController.create_datapackage(**args)
 
     def hashIsPresent(self, hash, dbControl):
-        data = dbControl.query_datapackage(query=f'Hash = "{hash}"')
+        data = dbControl.query_datapackage(query=f'Hash == "{hash}"')
         return len(data) > 0
 
     def getSubmissionUser(self, UID, dbControl):
-        callsign = dbControl.query_user(query=f'uid = "{UID}"', column=['callsign'])
+        callsign = dbControl.query_user(query=f'uid == "{UID}"', column=['callsign'])
         return callsign
 
     def getAllPackages(self):
-        data = DatabaseController().query_datapackage("Privacy = 0")
+        data = DatabaseController().query_datapackage("Privacy == 0")
         package_dict = {
             "resultCount": len(data),
             "results": []

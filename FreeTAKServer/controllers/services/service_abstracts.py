@@ -12,7 +12,7 @@ class ServiceInterface(ABC):
         raise NotImplementedError
 
 class ServerServiceInterface(ServiceInterface):
-    from FreeTAKServer.controllers.configuration.types import Types
+    from FreeTAKServer.controllers.configuration.Types import Types
     @abstractmethod
     def send_data_to_clients(self, data: Types.fts_object):
         raise NotImplementedError

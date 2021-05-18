@@ -16,6 +16,7 @@ class LoggingConstants:
 
         self.LOGFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
         self.LOGNAME = 'FTS'
+
         self.ERRORLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_error.log"))
         self.DEBUGLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log"))
         self.INFOLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log"))

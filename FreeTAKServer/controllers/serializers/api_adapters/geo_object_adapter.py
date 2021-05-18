@@ -6,7 +6,7 @@ from FreeTAKServer.model.RestMessages.GeoObject import GeoObject, RestEnumeratio
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables
 from FreeTAKServer.model.SpecificCoT.SendSimpleCoT import SendSimpleCoT
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.controllers.configuration.types import Types
+from FreeTAKServer.controllers.configuration.Types import Types
 from defusedxml import ElementTree as etree
 
 class GeoObjectAdapter(AbstractApiAdapter, JsonSerializer):

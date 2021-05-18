@@ -34,7 +34,7 @@ class ReceiveConnections:
             if sslstatus == True:
                 sock.settimeout(60)
                 #sock.setblocking(0)
-            logger.debug('receive connection started')
+            #logger.debug('receive connection started')
             try:
                 client, address = sock.accept()
             except ssl.SSLError as e:

@@ -43,7 +43,7 @@ class SendDataController:
                 return self.returnData
         except Exception as e:
             logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR+str(e))
-            return -1
+            return Exception(e)
 
     def send_to_specific_client(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
@@ -83,7 +83,6 @@ class SendDataController:
     def send_to_all(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             for client in clientInformationQueue:
-    
                 sock = client.socket
                 try:
                     if hasattr(processedCoT, 'xmlString'):
@@ -107,7 +106,10 @@ class SendDataController:
                 pass
             return 1
         except Exception as e:
-            logger.error('error in send to all ' + str(e))
+            import traceback
+
+            logger.error('error in send to all ' + str(e)+str(traceback.format_exc()))
+            raise Exception(e)
     def geochat_sending(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             if processedCoT.modelObject.detail._chat.chatgrp.uid1 == 'All Chat Rooms':

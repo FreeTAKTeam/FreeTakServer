@@ -8,7 +8,7 @@ class AddDataToCoTList:
     def send(self, pipes, data):
         for pipe in pipes:
             try:
-                print('putting data in pipe')
+                #print('putting data in pipe')
                 pipe.put(data)
             except Exception as e:
                 print(e)

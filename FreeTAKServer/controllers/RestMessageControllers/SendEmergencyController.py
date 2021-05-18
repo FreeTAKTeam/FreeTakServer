@@ -47,7 +47,7 @@ class SendEmergencyController:
         # runs if emergency is off
         elif isinstance(json, EmergencyDelete):
             object.setuid(json.getuid())
-            DatabaseController().remove_ActiveEmergency(query=f'uid == "{object.uid}"')
+            DatabaseController().remove_ActiveEmergency(query=f'uid = "{object.uid}"')
             object.settype('b-a-o-can')
             object.detail.emergency.setcancel('true')
             return object

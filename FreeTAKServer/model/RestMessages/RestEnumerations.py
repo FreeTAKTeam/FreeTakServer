@@ -102,6 +102,38 @@ class RestEnumerations:
         "Gnd Structure Hospital": "a-.-G-I-X-H",
     }
 
+    IncidentTypes = {
+        "Other incident geo": "a-.-X-i-g",
+        "Other incident geo avalanche": "a-.-X-i-g-a",
+        "Other incident geo earthquake": "a-.-X-i-g-e",
+        "Other incident geo landslide": "a-.-X-i-g-l",
+        "Other incident geo subsistance": "a-.-X-i-g-s",
+        "Other incident geo volcano": "a-.-X-i-g-v",
+        "Other incident geo eruption": "a-.-X-i-g-v-e",
+        "Other incident met drought": "a-.-X-i-m-d",
+        "Other incident met cyclone": "a-.-X-i-m-c",
+        "Other incident met tsunami": "a-.-X-i-m-n",
+        "Other incident fire": "a-.-X-i-f",
+        "Other incident medical public health": "a-.-X-i-h",
+        "Other incident transportation vehicle accident": "a-.-X-i-t-v-a"
+    }
+
+    IncidentTypeNicknames = {
+        "geo incident": "a-.-X-i-g",
+        "avalanche": "a-.-X-i-g-a",
+        "earthquake": "a-.-X-i-g-e",
+        "landslide": "a-.-X-i-g-l",
+        "subsistance": "a-.-X-i-g-s",
+        "volcano": "a-.-X-i-g-v",
+        "eruption": "a-.-X-i-g-v-e",
+        "drought": "a-.-X-i-m-d",
+        "cyclone": "a-.-X-i-m-c",
+        "tsunami": "a-.-X-i-m-n",
+        "fire": "a-.-X-i-f",
+        "medical incident": "a-.-X-i-h",
+        "vehicle accident": "a-.-X-i-t-v-a"
+    }
+
     '''
     used when creating a shape
     '''
@@ -138,6 +170,9 @@ class RestEnumerations:
     supportedTypeEnumerations.update(SquadTypes)
     supportedTypeEnumerations.update(BuildingTypes)
     supportedTypeEnumerations.update(VehicleTypes)
+    supportedTypeEnumerations.update(IncidentTypes)
+    supportedTypeEnumerations.update(IncidentTypeNicknames)
+
 
     """
     used when creating an emergency

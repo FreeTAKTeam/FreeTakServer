@@ -20,7 +20,7 @@ from FreeTAKServer.controllers.services.federation.federation import FederationS
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.certificate_generation import AtakOfTheCerts
 from multiprocessing import Queue
-
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("FTS").getLogger()
 
@@ -48,8 +48,7 @@ class FTS:
 
     def start_restAPI_service(self, StartupObjects):
         try:
-            RestAPIPipe = Queue()
-            self.RestAPIPipe = APIQueueManager(RestAPIPipe, RestAPIPipe)
+            self.RestAPIPipe = Queue()
             restapicommandsthread = Queue()
             restapicommandsmain = Queue()
             self.RestAPICommandsFTS = QueueManager(restapicommandsmain, restapicommandsthread)
@@ -256,7 +255,10 @@ class FTS:
             try:
                 ip = FTSServiceStartupConfigObject.FederationServerService.FederationServerServiceIP
                 port = FTSServiceStartupConfigObject.FederationServerService.FederationServerServicePort
-                FederationServerServicePipe, self.FederationServerServicePipeFTS = multiprocessing.Pipe()
+                FederationServerServiceFTS = Queue()
+                FederationServerServiceController = Queue()
+                self.FederationServerServicePipeFTS = QueueManager(FederationServerServiceController, FederationServerServiceFTS)
+                FederationServerServicePipe = QueueManager(FederationServerServiceFTS, FederationServerServiceController)
                 self.FederationServerService = multiprocessing.Process(
                     target=FederationServerService().start, args=(FederationServerServicePipe, ip, port))
                 self.FederationServerService.start()
@@ -528,7 +530,7 @@ class FTS:
         try:
             for pipe in self.FilterGroup.sources:
                 try:
-                    data = AddDataToCoTList().recv(pipe)
+                    data = AddDataToCoTList().recv(pipe, timeout = MainConfig.MainLoopDelay/4000)
                 except Exception as e:
                     logger.error('get pipe data failed '+str(e))
                     continue
@@ -540,10 +542,6 @@ class FTS:
                             AddDataToCoTList().send(self.FilterGroup.receivers, client)
                     # this runs in all other cases in which data is received
                     elif data != 0 and data is not None:
-                        try:
-                            print('data received in FTS ' + str(data.xmlString))
-                        except:
-                            pass
                         AddDataToCoTList().send(self.FilterGroup.receivers, data)
                     # this runs when a timeout is triggered
                     else:
@@ -601,6 +599,7 @@ class FTS:
                 self.start_all(StartupObject)
 
             while True:
+                #time.sleep(MainConfig.MainLoopDelay/1000)
                 try:
                     self.checkPipes()
                 except Exception as e:
@@ -635,9 +634,12 @@ class QueueManager:
             pass
         #self.sender_queue.task_done()
 
-    def get(self, **args):
+    def get(self, timeout = None, **args):
         try:
-            gotten_data = self.listener_queue.get()
+            if timeout:
+                gotten_data = self.listener_queue.get(timeout = timeout)
+            else:
+                gotten_data = self.listener_queue.get()
         except Exception as e:
             # print(e)
             return None
@@ -708,11 +710,19 @@ if __name__ == "__main__":
                             default=FTSObj().RestAPIService.RestAPIServicePort)
         parser.add_argument('-RestAPIIP', type=str, help=OrchestratorConstants().APIPORTDESC,
                             default=FTSObj().RestAPIService.RestAPIServiceIP)
+        parser.add_argument('-d', type=bool)
         parser.add_argument('-AutoStart', type=str, help='whether or not you want all services to start or only the root service and the RestAPI service', default='True')
         parser.add_argument('-UI', type=str, help="set to true if you would like to start UI on server startup")
         args = parser.parse_args()
         AtakOfTheCerts().bake_startup()
-        CreateStartupFilesController()
+        import os
+        if args.d:
+            CreateStartupFilesController().create_daemon()
+            os.system("systemd daemon-reload")
+            os.system("systemctl start FreeTAKServer.service")
+            exit(1)
+        else:
+            CreateStartupFilesController()
         FTS().startup(args.CoTPort, args.CoTIP, args.DataPackagePort, args.DataPackageIP, args.SSLDataPackagePort, args.SSLDataPackageIP, args.RestAPIPort, args.RestAPIIP, args.SSLCoTPort, args.SSLCoTIP, args.AutoStart, True, args.UI)
     except Exception as e:
         print(e)

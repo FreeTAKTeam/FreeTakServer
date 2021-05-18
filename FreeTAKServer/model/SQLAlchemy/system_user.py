@@ -9,7 +9,7 @@ from flask_login import UserMixin
 class SystemUser(Base, UserMixin):
 
     __tablename__ = 'SystemUser'
-    uid = Column(String(25), primary_key=True)
+    uid = Column(String(80), primary_key=True)
     name = Column(String(15), nullable=False)
     token = Column(String(30), nullable=True)
     password = Column(String(30), nullable=True)

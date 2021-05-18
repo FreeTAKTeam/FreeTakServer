@@ -34,7 +34,7 @@ class DataPackage(Base, Root):
     Hash = Column(VARCHAR(100))
 
     # data package keywords
-    Keywords = Column(CHAR, default='foobar')
+    Keywords = Column(VARCHAR(100), default='foobar')
 
     # File type
     MIMEType = Column(String(100), default="[application/x-zip-compressed]")

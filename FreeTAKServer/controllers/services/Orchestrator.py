@@ -27,6 +27,7 @@ from FreeTAKServer.controllers.SpecificCoTControllers.SendDisconnectController i
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 from FreeTAKServer.model.FTSModel.Event import Event
+from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 
 ascii = AsciiController().ascii
 from logging.handlers import RotatingFileHandler
@@ -111,7 +112,8 @@ class Orchestrator:
         if OrchestratorConstants().DEFAULTCONNECTIONGEOCHATOBJ != None:
             ChatObj = RawCoT()
             ChatObj.xmlString = f'<event><point/><detail><remarks>{OrchestratorConstants().DEFAULTCONNECTIONGEOCHATOBJ}</remarks><marti><dest/></marti></detail></event>'
-            classobj = SendGeoChatController(ChatObj)
+
+            classobj = SendGeoChatController(ChatObj, AddToDB=False)
             instobj = classobj.getObject()
             instobj.modelObject.detail._chat.chatgrp.setuid1(clientInformation.modelObject.uid)
             dest = Dest()
@@ -158,7 +160,7 @@ class Orchestrator:
                 self.logger.error(
                     'there has been an error in a clients connection while adding information to the database ' +
                     str(e))
-            self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.detail.contact.callsign))
+            #self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.detail.contact.callsign))
             sock = clientInformation.socket
             clientInformation.socket = None
             self.clientDataPipe.put(['add', clientInformation, self.openSockets])
@@ -245,31 +247,53 @@ class Orchestrator:
         try:
 
             from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
+            from lxml import etree
             emergencys = self.dbController.query_ActiveEmergency()
             for emergency in emergencys:
                 emergencyobj = SendEmergency()
                 modelObject = Event.emergecyOn()
 
                 filledModelObject = SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(emergency.event, modelObject)
-                emergencyobj.setXmlString(XMLCoTController().serialize_model_to_CoT(filledModelObject))
+                # emergencyobj.setXmlString(XMLCoTController().serialize_model_to_CoT(filledModelObject))
+                emergencyobj.setXmlString(etree.tostring((XmlSerializer().from_fts_object_to_format(filledModelObject))))
+                print(emergencyobj.xmlString)
                 emergencyobj.setModelObject(filledModelObject)
                 SendDataController().sendDataInQueue(None, emergencyobj, [client])
 
         except Exception as e:
+            import traceback
+            self.logger.error(traceback.format_exc())
             self.logger.error('an exception has been thrown in sending active emergencies ' + str(e))
 
     def clientDisconnected(self, clientInformation):
+        if hasattr(clientInformation, "clientInformation"):
+            clientInformation = clientInformation.clientInformation
+        try:
+            for client in self.clientInformationQueue:
+                if client.ID == clientInformation.ID:
+                    self.clientInformationQueue.remove(client)
+                else:
+                    pass
+        except AttributeError:
+            for client in self.clientInformationQueue:
+                if client.ID == clientInformation.clientInformation.ID:
+                    self.clientInformationQueue.remove(client)
+                else:
+                    pass
+        except Exception as e:
+            self.logger.critical("client removal failed "+str(e))
+        try:
+            self.ActiveThreadsController.removeClientThread(clientInformation)
+            self.dbController.remove_user(query=f'uid = "{clientInformation.modelObject.uid}"')
+        except Exception as e:
+            self.logger.critical(
+                'there has been an error in a clients disconnection while adding information to the database '+str(e))
+            pass
         if hasattr(clientInformation, 'clientInformation'):
             clientInformation = clientInformation.clientInformation
         else:
             pass
         try:
-            try:
-                self.ActiveThreadsController.removeClientThread(clientInformation)
-                self.dbController.remove_user(query=f'uid == "{clientInformation.modelObject.uid}"')
-            except Exception as e:
-                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
-                pass
             self.openSockets -= 1
             socketa = clientInformation.socket
             clientInformation.socket = None
@@ -287,17 +311,6 @@ class Orchestrator:
                 pass
 
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
-            for client in self.clientInformationQueue:
-                if client.ID == clientInformation.ID:
-                    self.clientInformationQueue.remove(client)
-                else:
-                    pass
-            try:
-                self.ActiveThreadsController.removeClientThread(clientInformation)
-                self.dbController.remove_user(query=f'uid == "{clientInformation.modelObject.uid}"')
-            except Exception as e:
-                self.logger.error('there has been an error in a clients disconnection while adding information to the database')
-                pass
             # TODO: remove string
             tempXml = RawCoT()
             tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(clientInformation.modelObject.uid).encode()
@@ -396,7 +409,7 @@ class Orchestrator:
                     except multiprocessing.TimeoutError:
                         pass
                     except Exception as e:
-                        self.logger.info('exception in receive client data within main run function ' + str(e))
+                        #self.logger.info('exception in receive client data within main run function ' + str(e))
                         pass
                     try:
                         if not CoTSharePipe.empty():
@@ -418,7 +431,7 @@ class Orchestrator:
 
     def handel_shared_data(self, modelData):
         try:
-            print('\n \n handling shared data \n \n')
+            #print('\n \n handling shared data \n \n')
             # print('data received within orchestrator '+str(modelData.xmlString))
             if hasattr(modelData, 'clientInformation'):
                 output = SendDataController().sendDataInQueue(modelData.clientInformation, modelData,
@@ -434,6 +447,7 @@ class Orchestrator:
                 output = SendDataController().sendDataInQueue(None, modelData,
                                                               self.clientInformationQueue)
         except Exception as e:
+            self.logger.error("data base connection error " + str(e))
             print(e)
 
     def handel_regular_data(self, clientDataOutput):
@@ -524,8 +538,6 @@ class Orchestrator:
         self.pool.terminate()
         self.pool.close()
         self.pool.join()
-
-
 
 """if __name__ == "__main__":
 
