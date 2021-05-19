@@ -2,6 +2,7 @@ import multiprocessing
 import threading
 import argparse
 from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
+CreateStartupFilesController()
 from FreeTAKServer.controllers.services.TCPDataPackageService import TCPDataPackageService as TCPFlaskFunctions
 from FreeTAKServer.controllers.services.SSLDataPackageService import SSLDataPackageService as SSLFlaskFunctions
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import OrchestratorConstants
@@ -721,8 +722,6 @@ if __name__ == "__main__":
             os.system("systemd daemon-reload")
             os.system("systemctl start FreeTAKServer.service")
             exit(1)
-        else:
-            CreateStartupFilesController()
         FTS().startup(args.CoTPort, args.CoTIP, args.DataPackagePort, args.DataPackageIP, args.SSLDataPackagePort, args.SSLDataPackageIP, args.RestAPIPort, args.RestAPIIP, args.SSLCoTPort, args.SSLCoTIP, args.AutoStart, True, args.UI)
     except Exception as e:
         print(e)

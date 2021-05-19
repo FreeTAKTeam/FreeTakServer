@@ -55,9 +55,9 @@ if not os.path.exists(MainConfig.ExCheckChecklistFilePath):
 if not os.path.exists(MainConfig.ExCheckFilePath):
     os.mkdir(MainConfig.ExCheckFilePath)
 # Set up logging
-if not Path(log.LOGDIRECTORY).exists():
+"""if not Path(log.LOGDIRECTORY).exists():
     print(f"Creating directory at {log.LOGDIRECTORY}")
-    os.makedirs(log.LOGDIRECTORY)
+    os.makedirs(log.LOGDIRECTORY)"""
 app.logger.removeHandler(default_handler)
 formatter = logging.Formatter(log.LOGFORMAT)
 file_handler = RotatingFileHandler(
