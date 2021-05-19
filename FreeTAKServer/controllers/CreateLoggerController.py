@@ -5,7 +5,6 @@ import os
 loggingConstants = LoggingConstants()
 class CreateLoggerController:
     def __init__(self, loggername):
-        self.currentpath = str(os.path.dirname(os.path.realpath(__file__)))
         self.logger = logging.getLogger(loggername)
         self.logger.propagate = True
         log_format = logging.Formatter(loggingConstants.LOGFORMAT)

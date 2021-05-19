@@ -8,7 +8,7 @@
 # 
 #######################################################
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.configuration.Types import Types
+from FreeTAKServer.controllers.configuration.types import Types
 from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, ConnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
