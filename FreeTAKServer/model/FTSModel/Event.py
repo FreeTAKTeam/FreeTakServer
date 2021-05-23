@@ -310,6 +310,23 @@ class Event(FTSProtocolObject):
         event.detail = Detail.Route()
         return event
 
+    @staticmethod
+    def VideoStream(VERSION=vars.VideoStream().version,
+                    UID = vars.Route().uid, TYPE=vars.Route().type,
+                    TIME=vars.Route().time, START=vars.Route().start,
+                    STALE=vars.Route().stale, HOW=vars.Route().how):
+        event = Event()
+        event.setversion(VERSION)
+        event.setuid(UID)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.point = Point()
+        event.detail = Detail.VideoStream()
+        return event
+
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
         self.how = how
 

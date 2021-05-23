@@ -89,6 +89,12 @@ class Contact(FTSProtocolObject):
         contact.setcallsign(CALLSIGN)
         return contact
 
+    @staticmethod
+    def VideoStream(CALLSIGN = vars.VideoStream().callsign):
+        contact = Contact()
+        contact.setcallsign(CALLSIGN)
+        return contact
+
     # iconsetpath getter 
     def geticonsetpath(self): 
         return self.iconsetpath 

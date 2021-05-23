@@ -27,6 +27,7 @@ from .Archive import Archive
 from FreeTAKServer.model.FTSModel.Summary import Summary
 from FreeTAKServer.model.FTSModel.Mission import Mission
 from FreeTAKServer.model.FTSModel.Link_attr import Link_attr
+from FreeTAKServer.model.FTSModel._Video import _Video
 
 
 class Detail(FTSProtocolObject):
@@ -154,6 +155,15 @@ class Detail(FTSProtocolObject):
         detail.__internal_link = [Link.Route()]
         detail.link = []
         detail.link_attr = Link_attr.Route()
+        return detail
+
+    @staticmethod
+    def VideoStream():
+        detail = Detail()
+        detail.contact = Contact.VideoStream()
+        detail.link = Link.VideoStream()
+        detail.marti = Marti.VideoStream()
+        detail._video = _Video.VideoStream()
         return detail
 
     def setarchive(self, archive):
@@ -299,5 +309,15 @@ class Detail(FTSProtocolObject):
     def get__serverdestination(self):
         return self._serverdestination
 
+    def get__video(self):
+        return self._video
 
+    def set__video(self, video):
+        self._video = video
+
+    def get_video(self):
+        return self._video
+
+    def set_video(self, video):
+        self._video = video
 

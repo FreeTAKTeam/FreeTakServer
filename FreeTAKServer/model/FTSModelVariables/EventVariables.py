@@ -165,3 +165,13 @@ class EventVariables:
         cls.how = "h-e"
         return cls
 
+    @classmethod
+    def VideoStream(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = "b-i-v"
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = "m-g"
+        return cls

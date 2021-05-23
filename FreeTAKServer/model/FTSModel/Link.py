@@ -21,6 +21,16 @@ class Link(FTSProtocolObject):
         self.parent_callsign = None
 
     @staticmethod
+    def VideoStream(UID=vars.VideoStream().UID, PRODUCTIONTIME=vars.VideoStream().PRODUCTIONTIME,
+                    RELATIONSHIP=vars.VideoStream().RELATIONSHIP, PARENTCALLSIGN=vars.VideoStream().PARENTCALLSIGN):
+        link = Link()
+        link.setuid(UID)
+        link.setproduction_time(PRODUCTIONTIME)
+        link.setrelationship(RELATIONSHIP)
+        link.setparent_callsign(PARENTCALLSIGN)
+        return link
+
+    @staticmethod
     def drop_point(UID = vars.drop_point().UID, RELATION = vars.drop_point().RELATION,
                    PRODUCTIONTIME = vars.drop_point().PRODUCTIONTIME,
                    TYPE = vars.drop_point().TYPE, PARENTCALLSIGN = vars.drop_point().PARENTCALLSIGN):
@@ -155,3 +165,9 @@ class Link(FTSProtocolObject):
     def setparent_callsign(self, parent_callsign=0):
         self.__modified = True
         self.parent_callsign=parent_callsign 
+
+    def setrelationship(self, relationship):
+        self.relationship=relationship
+
+    def getrelationship(self):
+        return self.relationship

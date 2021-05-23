@@ -20,6 +20,12 @@ class Dest(FTSProtocolObject):
         # dest.setcallsign(CALLSIGN)
         return cls(CALLSIGN)
 
+    @classmethod
+    def VideoStream(cls):
+        dest = Dest()
+
+        return dest
+
     def getcallsign(self):
         self.__gettercalled = True
         return self.callsign

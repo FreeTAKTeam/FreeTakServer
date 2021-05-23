@@ -8,6 +8,14 @@ class LinkVariables:
         self.POINT = None
 
     @classmethod
+    def VideoStream(cls):
+        cls.UID = None
+        cls.PRODUCTIONTIME = None
+        cls.RELATIONSHIP = None
+        cls.PARENTCALLSIGN = None
+        return cls
+
+    @classmethod
     def drop_point(cls):
         cls.UID = "DEFAULT"
         cls.TYPE = "a-f-G-U-C"

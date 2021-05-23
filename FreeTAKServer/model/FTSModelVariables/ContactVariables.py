@@ -64,3 +64,8 @@ class ContactVariables:
     def Route(cls):
         cls.callsign = None
         return cls
+
+    @classmethod
+    def VideoStream(cls):
+        cls.callsign = None
+        return cls
