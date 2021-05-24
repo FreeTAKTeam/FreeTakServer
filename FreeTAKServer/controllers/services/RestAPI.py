@@ -27,6 +27,7 @@ from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController im
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController, UpdatePresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
 from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
+from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.JsonController import JsonController
 
@@ -737,7 +738,25 @@ def putGeoObject():
     except Exception as e:
         return str(e), 500
 
+@app.route("/ManageVideoStream")
+@auth.login_required()
+def ManageVideoStream():
+    pass
 
+@app.route("/ManageVideoStream/postVideoStream", methods=["POST"])
+@auth.login_required()
+def postVideoStream():
+    try:
+        jsondata = request.get_json(force=True)
+        simpleCoTObject = SendVideoStreamController(jsondata).getCoTObject()
+        print("putting in queue")
+        APIPipe.put(simpleCoTObject)
+        print(simpleCoTObject.xmlString)
+        print('put in queue')
+        return simpleCoTObject.modelObject.getuid(), 200
+
+    except Exception as e:
+        return str(e), 500
 
 """@app.route("/ManageGeoObject/getGeoObject", methods=[restMethods.GET])
 @auth.login_required

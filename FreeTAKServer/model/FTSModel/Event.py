@@ -312,9 +312,9 @@ class Event(FTSProtocolObject):
 
     @staticmethod
     def VideoStream(VERSION=vars.VideoStream().version,
-                    UID = vars.Route().uid, TYPE=vars.Route().type,
-                    TIME=vars.Route().time, START=vars.Route().start,
-                    STALE=vars.Route().stale, HOW=vars.Route().how):
+                    UID = vars.VideoStream().uid, TYPE=vars.VideoStream().type,
+                    TIME=vars.VideoStream().time, START=vars.VideoStream().start,
+                    STALE=vars.VideoStream().stale, HOW=vars.VideoStream().how):
         event = Event()
         event.setversion(VERSION)
         event.setuid(UID)
