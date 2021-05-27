@@ -18,8 +18,121 @@ import shutil
 import pathlib
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
-def generate_zip(server_address: str = None, server_filename: str = "pubserver.p12",
-                     user_filename: str = "user.p12", cert_password: str = MainConfig.password) -> None:
+try:
+    import requests
+except ImportError:
+    subprocess.run(["pip3", "install", "requests"], capture_output=True)
+import hashlib
+
+
+def _utc_time_from_datetime(date):
+    fmt = '%y%m%d%H%M'
+    if date.second > 0:
+        fmt += '%S'
+    if date.tzinfo is None:
+        fmt += 'Z'
+    else:
+        fmt += '%z'
+    return date.strftime(fmt)
+
+
+def revoke_certificate(ca_pem, ca_key, revoked_file, crl_file, user_cert_dir, username, crl_path=None):
+    """
+    Function to create/update a CRL with revoked user certificates
+    :param ca_pem: The path to your CA PEM file
+    :param ca_key: The Path to your CA key file
+    :param revoked_file: Path to JSON file to be used as a DB for revocation
+    :param crl_file: Path to CRL file
+    :param user_cert_dir: Path to director containing all issued user PEM files
+    :param username: the username to Revoke
+    :param crl_path: The path to your previous CRL file to be loaded and updated
+    :return: bool
+    """
+
+    import os
+    import json
+    from OpenSSL import crypto
+    from datetime import datetime
+    data = {}
+    certificate = crypto.load_certificate(crypto.FILETYPE_PEM, open(ca_pem, mode="rb").read())
+    private_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(ca_key, mode="r").read())
+    if crl_path:
+        crl = crypto.load_crl(crypto.FILETYPE_PEM, open(crl_path, mode="rb").read())
+    else:
+        crl = crypto.CRL()
+        if os.path.exists(revoked_file):
+            with open(revoked_file, 'r') as json_file:
+                data = json.load(json_file)
+
+    for cert in os.listdir(user_cert_dir):
+        if cert.lower() == f"{username.lower()}.pem":
+            with open(cert, 'rb') as cert:
+                revoked_cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert.read())
+            data[str(revoked_cert.get_serial_number())] = username
+            break
+
+    for key in data:
+        revoked_time = _utc_time_from_datetime(datetime.utcnow())
+        revoked = crypto.Revoked()
+        revoked.set_serial(format(int(key), "02x").encode())
+        revoked.set_rev_date(bytes(revoked_time, encoding='utf8'))
+        crl.add_revoked(revoked)
+    crl.sign(certificate, private_key, b"sha256")
+
+    with open(revoked_file, 'w+') as json_file:
+        json.dump(data, json_file)
+
+    with open(crl_file, 'wb') as f:
+        f.write(crl.export(cert=certificate, key=private_key, digest=b"sha256"))
+
+    delete = 0
+    with open(ca_pem, "r") as f:
+        lines = f.readlines()
+    with open(ca_pem, "w") as f:
+        for line in lines:
+            if delete:
+                continue
+            elif line.strip("\n") != "-----BEGIN X509 CRL-----":
+                f.write(line)
+            else:
+                delete = 1
+
+    with open(ca_pem, "ab") as f:
+        f.write(crl.export(cert=certificate, key=private_key, digest=b"sha256"))
+
+
+def send_data_package(server: str, dp_name: str = "user.zip") -> bool:
+    """
+    Function to send data package to server
+    :param server: Server address where the package will be uploaded
+    :param dp_name: Name of the zip file to upload
+    :return: bool
+    """
+    file_hash = hashlib.sha256()
+    block_size = 65536
+    with open(dp_name, 'rb') as f:
+        fb = f.read(block_size)
+        while len(fb) > 0:
+            file_hash.update(fb)
+            fb = f.read(block_size)
+
+    with open(dp_name, 'rb') as f:
+        s = requests.Session()
+        r = s.post(f'http://{server}:8080/Marti/sync/missionupload?hash={file_hash.hexdigest()}'
+                   f'&filename={dp_name}'
+                   f'&creatorUid=atakofthecerts',
+                   files={"assetfile": f.read()},
+                   headers={'Expect': '100-continue'})
+        if r.status_code == 200:
+            p_r = s.put(f'http://{server}:8080/Marti/api/sync/metadata/{file_hash.hexdigest()}/tool')
+            return True
+        else:
+            print("Something went wrong uploading DataPackage!")
+            return False
+
+
+def generate_zip(server_address: str = None, server_filename: str = "pubserver.p12", user_filename: str = "user.p12",
+                 cert_password: str = "atakatak", ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
     working directory.
@@ -27,7 +140,7 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
     :param server_filename: The filename of the server p12 file default is pubserver.p12
     :param user_filename: The filename of the server p12 file default is user.p12
     :param cert_password: The password for the certificate files
-
+    :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
     pref_file_template = Template("""<?xml version='1.0' standalone='yes'?>
     <preferences>
@@ -164,18 +277,16 @@ class AtakOfTheCerts:
             cert.set_serial_number(0)
             cert.set_version(2)
             cert.gmtime_adj_notBefore(0)
-            cert.gmtime_adj_notAfter(31536000)
+            cert.gmtime_adj_notAfter(expiry_time_secs)
             cert.set_issuer(cert.get_subject())
-            cert.add_extensions([crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
-                                 crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')])
             cert.set_pubkey(ca_key)
             cert.sign(ca_key, "sha256")
 
-            f = open(self.cakeypath, "wb")
+            f = open(self.ca_key_path, "wb")
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
             f.close()
 
-            f = open(self.capempath, "wb")
+            f = open(self.ca_pem_path, "wb")
             f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
             f.close()
         else:
@@ -195,35 +306,33 @@ class AtakOfTheCerts:
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key))
             f.close()
 
-    def _generate_certificate(self, cn: str = "Server", pempath: str = MainConfig.pemDir, p12path: str = MainConfig.p12Dir) -> None:
+    def _generate_certificate(self, common_name: str, pempath: str = MainConfig.pemDir, p12path: str,
+                              expiry_time_secs: int = 31536000) -> None:
         """
         Create a certificate and p12 file
         :param cn: Common Name for certificate
         :param pempath: String filepath for the pem file created
         :param p12path: String filepath for the p12 file created
+        :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        if os.path.exists(pempath):
-            print("Certificate File Exists, aborting.")
-            return None
-        cakey = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.cakeypath).read())
-        capem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.capempath, 'rb').read())
-        serialnumber = random.getrandbits(64)
-        chain = (capem,)
+        ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.ca_key_path).read())
+        ca_pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.ca_pem_path, 'rb').read())
+        serial_number = random.getrandbits(64)
+        chain = (ca_pem,)
         cert = crypto.X509()
-        cert.get_subject().CN = cn
-        cert.set_serial_number(serialnumber)
+        cert.get_subject().CN = common_name
+        cert.set_serial_number(serial_number)
         cert.gmtime_adj_notBefore(0)
-        cert.gmtime_adj_notAfter(315360000)
-        cert.set_issuer(capem.get_subject())
+        cert.gmtime_adj_notAfter(expiry_time_secs)
+        cert.set_issuer(ca_pem.get_subject())
         cert.set_pubkey(self.key)
         cert.set_version(2)
-        cert.sign(cakey, "sha256")
-        print('cert genned')
+        cert.sign(ca_key, "sha256")
         p12 = crypto.PKCS12()
         p12.set_privatekey(self.key)
         p12.set_certificate(cert)
         p12.set_ca_certificates(tuple(chain))
-        p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding='UTF-8'))
+        p12data = p12.export(passphrase=bytes(self.cert_pwd, encoding='UTF-8'))
         with open(p12path, 'wb') as p12file:
             p12file.write(p12data)
 
@@ -234,28 +343,20 @@ class AtakOfTheCerts:
             f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
             f.close()
 
-    def bake(self, cn: str, cert: str = "user") -> None:
+    def bake(self, common_name: str, cert: str = "user", expiry_time_secs: int = 31536000) -> None:
         """
         Wrapper for creating certificate and all files needed
-        :param cn: Common Name of the the certificate
+        :param common_name: Common Name of the the certificate
         :param cert: Type of cert being created "user" or "server"
+        :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        import os
-        keypath = f"./{cn}.key"
-        pempath = f"./{cn}.pem"
-        p12path = f"./{cn}.p12"
+        keypath = f"./{common_name}.key"
+        pempath = f"./{common_name}.pem"
+        p12path = f"./{common_name}.p12"
         self._generate_key(keypath)
-        self._generate_certificate(cn, pempath, p12path)
-        os.remove(keypath)
+        self._generate_certificate(common_name, pempath, p12path, expiry_time_secs)
         if cert.lower() == "server":
             copyfile(keypath, keypath + ".unencrypted")
-
-    def bake_startup(self, cn: str = 'Server') -> None:
-        self.generate_ca()
-        self._generate_key(MainConfig.keyDir)
-        print('key generated')
-        self._generate_certificate(cn, MainConfig.pemDir, MainConfig.p12Dir)
-        copyfile(MainConfig.keyDir, MainConfig.unencryptedKey)
 
     @staticmethod
     def copy_server_certs(server_name: str = "pubserver") -> None:
@@ -278,14 +379,15 @@ class AtakOfTheCerts:
         copyfile("./" + server_name + ".key", MainConfig.unencryptedKey)
         copyfile("./" + server_name + ".pem", MainConfig.pemDir)
 
-    def generate_auto_certs(self, ip: str, copy: bool = False) -> None:
+    def generate_auto_certs(self, ip: str, copy: bool = False, expiry_time_secs: int = 31536000) -> None:
         """
         Generate the basic files needed for a new install of FTS
         :param ip: A string based ip address or FQDN that clients will use to connect to the server
         :param copy: Whether to copy server files to FTS expected locations
+        :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        self.bake("pubserver", "server")
-        self.bake("user", "user")
+        self.bake("pubserver", "server", expiry_time_secs)
+        self.bake("user", "user", expiry_time_secs)
         if copy is True:
             self.copy_server_certs()
         generate_zip(server_address=ip)
