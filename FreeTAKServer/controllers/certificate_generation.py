@@ -36,7 +36,7 @@ def _utc_time_from_datetime(date):
     return date.strftime(fmt)
 
 
-def revoke_certificate(username, revoked_file=None, ca_pem = MainConfig.CA, ca_key = MainConfig.CAkey, crl_file = MainConfig.CRLFile, user_cert_dir=MainConfig.certsPath, crl_path=None):
+def revoke_certificate(username, revoked_file=None, ca_pem = MainConfig.CA, ca_key = MainConfig.CAkey, crl_file = MainConfig.CRLFile, user_cert_dir=MainConfig.certsPath, crl_path=MainConfig.CRLFile):
     """
     Function to create/update a CRL with revoked user certificates
     :param ca_pem: The path to your CA PEM file

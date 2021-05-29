@@ -101,6 +101,7 @@ class MainConfig:
 
         websocketkey = str(os.environ.get('FTS_WEBSOCKET_KEY', yamlConfig["Certs"].get("WebsocketKey", "YourWebsocketKey")))
 
+        CRLFile = str(os.environ.get('FTS_CRLDIR', yamlConfig["Certs"].get("CRLDir", fr"{certsPath}/FTS_CRL.json")))
 
 
 

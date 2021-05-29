@@ -334,9 +334,9 @@ def removeSystemUser(jsondata):
     from FreeTAKServer.controllers.certificate_generation import revoke_certificate
     jsondata = json.loads(jsondata)
     for systemUser in jsondata["systemUsers"]:
-        revoke_certificate()
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
+        revoke_certificate(systemUser.name)
         certificate_package_name = systemUser.certificate_package_name
         dbController.remove_systemUser(f'uid = "{uid}"')
         obj = dbController.query_datapackage(f'Name = "{certificate_package_name}"')
