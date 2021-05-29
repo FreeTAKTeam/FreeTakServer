@@ -36,7 +36,7 @@ def _utc_time_from_datetime(date):
     return date.strftime(fmt)
 
 
-def revoke_certificate(ca_pem, ca_key, revoked_file, crl_file, user_cert_dir, username, crl_path=None):
+def revoke_certificate(username, revoked_file=None, ca_pem = MainConfig.CA, ca_key = MainConfig.CAkey, crl_file = MainConfig.CRLFile, user_cert_dir=MainConfig.certsPath, crl_path=None):
     """
     Function to create/update a CRL with revoked user certificates
     :param ca_pem: The path to your CA PEM file
@@ -260,7 +260,7 @@ class AtakOfTheCerts:
     def __exit__(self, exc_type, exc_val, exc_tb):
         return None
 
-    def generate_ca(self) -> None:
+    def generate_ca(self, expiry_time_secs: int = 31536000) -> None:
         """
         Generate a CA certificate
         """
@@ -280,13 +280,13 @@ class AtakOfTheCerts:
             cert.gmtime_adj_notAfter(expiry_time_secs)
             cert.set_issuer(cert.get_subject())
             cert.set_pubkey(ca_key)
-            cert.sign(ca_key, "sha256")
+            cert.sign(ca_key, b"sha256")
 
-            f = open(self.ca_key_path, "wb")
+            f = open(self.cakeypath, "wb")
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
             f.close()
 
-            f = open(self.ca_pem_path, "wb")
+            f = open(self.capempath, "wb")
             f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
             f.close()
         else:
@@ -306,7 +306,7 @@ class AtakOfTheCerts:
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, self.key))
             f.close()
 
-    def _generate_certificate(self, common_name: str, pempath: str = MainConfig.pemDir, p12path: str,
+    def _generate_certificate(self, common_name: str, p12path: str, pempath: str = MainConfig.pemDir,
                               expiry_time_secs: int = 31536000) -> None:
         """
         Create a certificate and p12 file
@@ -315,8 +315,8 @@ class AtakOfTheCerts:
         :param p12path: String filepath for the p12 file created
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.ca_key_path).read())
-        ca_pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.ca_pem_path, 'rb').read())
+        ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.cakeypath).read())
+        ca_pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.capempath, 'rb').read())
         serial_number = random.getrandbits(64)
         chain = (ca_pem,)
         cert = crypto.X509()
@@ -327,12 +327,12 @@ class AtakOfTheCerts:
         cert.set_issuer(ca_pem.get_subject())
         cert.set_pubkey(self.key)
         cert.set_version(2)
-        cert.sign(ca_key, "sha256")
+        cert.sign(ca_key, b"sha256")
         p12 = crypto.PKCS12()
         p12.set_privatekey(self.key)
         p12.set_certificate(cert)
         p12.set_ca_certificates(tuple(chain))
-        p12data = p12.export(passphrase=bytes(self.cert_pwd, encoding='UTF-8'))
+        p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding='UTF-8'))
         with open(p12path, 'wb') as p12file:
             p12file.write(p12data)
 

@@ -331,8 +331,10 @@ def addSystemUser(jsondata):
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
 def removeSystemUser(jsondata):
+    from FreeTAKServer.controllers.certificate_generation import revoke_certificate
     jsondata = json.loads(jsondata)
     for systemUser in jsondata["systemUsers"]:
+        revoke_certificate()
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
         certificate_package_name = systemUser.certificate_package_name
@@ -1097,6 +1099,7 @@ def DataPackageTable():
             return 'successful', 200
         except Exception as e:
             return str(e), 500
+
     elif request.method == "PUT":
         updatedata = json.loads(request.data)
         DataPackages = updatedata['DataPackages']
