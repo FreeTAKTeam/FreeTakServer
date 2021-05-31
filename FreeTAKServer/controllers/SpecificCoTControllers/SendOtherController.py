@@ -3,11 +3,12 @@ from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendOtherController").getLogger()
 class SendOtherController(SendCoTAbstractController):
-    def __init__(self, RawCoT=None):
+    def __init__(self, RawCoT=None, addToDB = MainConfig.SaveCoTToDB):
         if type(RawCoT != bytes):
             pass
         else:
@@ -18,7 +19,7 @@ class SendOtherController(SendCoTAbstractController):
             if RawCoT is not None:
                 xml = RawCoT.xmlString
                 RawCoT.xmlString = etree.tostring(self.filter_CoT(xml))
-                self.fill_object(self.object, tempObject, RawCoT)
+                self.fill_object(self.object, tempObject, RawCoT, addToDB=addToDB)
                 try:
                     object = self.getObject()
 

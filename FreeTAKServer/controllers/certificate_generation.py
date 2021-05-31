@@ -56,17 +56,17 @@ def revoke_certificate(username, revoked_file=None, ca_pem = MainConfig.CA, ca_k
     data = {}
     certificate = crypto.load_certificate(crypto.FILETYPE_PEM, open(ca_pem, mode="rb").read())
     private_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(ca_key, mode="r").read())
-    if crl_path:
+    if crl_path and os.path.exists(crl_path):
         crl = crypto.load_crl(crypto.FILETYPE_PEM, open(crl_path, mode="rb").read())
     else:
         crl = crypto.CRL()
-        if os.path.exists(revoked_file):
+        if revoked_file and os.path.exists(revoked_file):
             with open(revoked_file, 'r') as json_file:
                 data = json.load(json_file)
 
     for cert in os.listdir(user_cert_dir):
         if cert.lower() == f"{username.lower()}.pem":
-            with open(cert, 'rb') as cert:
+            with open(MainConfig.certsPath+'/'+cert, 'rb') as cert:
                 revoked_cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert.read())
             data[str(revoked_cert.get_serial_number())] = username
             break
@@ -78,9 +78,9 @@ def revoke_certificate(username, revoked_file=None, ca_pem = MainConfig.CA, ca_k
         revoked.set_rev_date(bytes(revoked_time, encoding='utf8'))
         crl.add_revoked(revoked)
     crl.sign(certificate, private_key, b"sha256")
-
-    with open(revoked_file, 'w+') as json_file:
-        json.dump(data, json_file)
+    if revoked_file:
+        with open(revoked_file, 'w+') as json_file:
+            json.dump(data, json_file)
 
     with open(crl_file, 'wb') as f:
         f.write(crl.export(cert=certificate, key=private_key, digest=b"sha256"))
@@ -211,7 +211,7 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
     with open('./MANIFEST/manifest.xml', 'w') as manifest_file:
         manifest_file.write(man)
     copyfile(MainConfig.p12Dir, "./" + folder + "/" + server_filename)
-    copyfile("./" + user_filename, "./" + folder + "/" + user_filename)
+    copyfile(MainConfig.certsPath + "/" + user_filename, "./" + folder + "/" + user_filename)
     zipf = zipfile.ZipFile(f"{username}.zip", 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk('./' + folder):
         for file in files:
@@ -279,8 +279,10 @@ class AtakOfTheCerts:
             cert.gmtime_adj_notBefore(0)
             cert.gmtime_adj_notAfter(expiry_time_secs)
             cert.set_issuer(cert.get_subject())
+            cert.add_extensions([crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
+                                 crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')])
             cert.set_pubkey(ca_key)
-            cert.sign(ca_key, b"sha256")
+            cert.sign(ca_key, "sha256")
 
             f = open(self.cakeypath, "wb")
             f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
@@ -289,6 +291,29 @@ class AtakOfTheCerts:
             f = open(self.capempath, "wb")
             f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
             f.close()
+
+            # append empty crl
+            crl = crypto.CRL()
+            crl.sign(cert, ca_key, b"sha256")
+
+            with open(MainConfig.CRLFile, 'wb') as f:
+                f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
+
+            delete = 0
+            with open(self.capempath, "r") as f:
+                lines = f.readlines()
+            with open(self.capempath, "w") as f:
+                for line in lines:
+                    if delete:
+                        continue
+                    elif line.strip("\n") != "-----BEGIN X509 CRL-----":
+                        f.write(line)
+                    else:
+                        delete = 1
+
+            with open(self.capempath, "ab") as f:
+                f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
+
         else:
             print("CA found locally, not generating a new one")
 
@@ -315,34 +340,36 @@ class AtakOfTheCerts:
         :param p12path: String filepath for the p12 file created
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.cakeypath).read())
-        ca_pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.capempath, 'rb').read())
-        serial_number = random.getrandbits(64)
-        chain = (ca_pem,)
-        cert = crypto.X509()
-        cert.get_subject().CN = common_name
-        cert.set_serial_number(serial_number)
-        cert.gmtime_adj_notBefore(0)
-        cert.gmtime_adj_notAfter(expiry_time_secs)
-        cert.set_issuer(ca_pem.get_subject())
-        cert.set_pubkey(self.key)
-        cert.set_version(2)
-        cert.sign(ca_key, b"sha256")
-        p12 = crypto.PKCS12()
-        p12.set_privatekey(self.key)
-        p12.set_certificate(cert)
-        p12.set_ca_certificates(tuple(chain))
-        p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding='UTF-8'))
-        with open(p12path, 'wb') as p12file:
-            p12file.write(p12data)
+        if not os.path.exists(pempath):
+            ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, open(self.cakeypath).read())
+            ca_pem = crypto.load_certificate(crypto.FILETYPE_PEM, open(self.capempath, 'rb').read())
+            serial_number = random.getrandbits(64)
+            chain = (ca_pem,)
+            cert = crypto.X509()
+            cert.get_subject().CN = common_name
+            cert.set_serial_number(serial_number)
+            cert.gmtime_adj_notBefore(0)
+            cert.gmtime_adj_notAfter(expiry_time_secs)
+            cert.set_issuer(ca_pem.get_subject())
+            cert.set_pubkey(self.key)
+            cert.set_version(2)
+            cert.sign(ca_key, "sha256")
+            p12 = crypto.PKCS12()
+            p12.set_privatekey(self.key)
+            p12.set_certificate(cert)
+            p12.set_ca_certificates(tuple(chain))
+            p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding='UTF-8'))
+            with open(p12path, 'wb') as p12file:
+                p12file.write(p12data)
 
-        if os.path.exists(pempath):
-            print("Certificate File Exists, aborting.")
+            if os.path.exists(pempath):
+                print("Certificate File Exists, aborting.")
+            else:
+                f = open(pempath, "wb")
+                f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+                f.close()
         else:
-            f = open(pempath, "wb")
-            f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
-            f.close()
-
+            pass
     def bake(self, common_name: str, cert: str = "user", expiry_time_secs: int = 31536000) -> None:
         """
         Wrapper for creating certificate and all files needed
@@ -350,11 +377,11 @@ class AtakOfTheCerts:
         :param cert: Type of cert being created "user" or "server"
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        keypath = f"./{common_name}.key"
-        pempath = f"./{common_name}.pem"
-        p12path = f"./{common_name}.p12"
+        keypath = MainConfig.certsPath+f"/{common_name}.key"
+        pempath = MainConfig.certsPath+f"/{common_name}.pem"
+        p12path = MainConfig.certsPath+f"/{common_name}.p12"
         self._generate_key(keypath)
-        self._generate_certificate(common_name, pempath, p12path, expiry_time_secs)
+        self._generate_certificate(common_name=common_name, pempath=pempath, p12path=p12path, expiry_time_secs=expiry_time_secs)
         if cert.lower() == "server":
             copyfile(keypath, keypath + ".unencrypted")
 

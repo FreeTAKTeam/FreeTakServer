@@ -715,7 +715,10 @@ if __name__ == "__main__":
         parser.add_argument('-AutoStart', type=str, help='whether or not you want all services to start or only the root service and the RestAPI service', default='True')
         parser.add_argument('-UI', type=str, help="set to true if you would like to start UI on server startup")
         args = parser.parse_args()
-        AtakOfTheCerts().bake_startup()
+        with AtakOfTheCerts() as aotc:
+            aotc.generate_ca(expiry_time_secs=31536000)
+            aotc.bake(common_name="server", cert="server", expiry_time_secs=31536000)
+            aotc.bake(common_name="Client", cert="user", expiry_time_secs=31536000)
         import os
         if args.d:
             CreateStartupFilesController().create_daemon()

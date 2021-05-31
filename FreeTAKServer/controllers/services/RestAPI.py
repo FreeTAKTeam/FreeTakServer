@@ -276,7 +276,7 @@ def addSystemUser(jsondata):
     for systemuser in json.loads(jsondata)['systemUsers']:
         if systemuser["Certs"] == "true":
             # create certs
-            certificate_generation.AtakOfTheCerts().bake(cn=systemuser["Name"])
+            certificate_generation.AtakOfTheCerts().bake(common_name=systemuser["Name"])
             certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
             # add DP
             import string
@@ -319,7 +319,7 @@ def addSystemUser(jsondata):
             DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
             clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{systemuser["Name"]}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{systemuser["Name"]+".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{systemuser["Name"]+".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
             cot.xmlString = clientXML.encode()
-            newCoT = SendOtherController(cot)
+            newCoT = SendOtherController(cot, addToDB=False)
             APIPipe.put(newCoT.getObject())
 
         else:
@@ -336,7 +336,8 @@ def removeSystemUser(jsondata):
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
-        revoke_certificate(systemUser.name)
+        na = systemUser.name
+        revoke_certificate(username = na)
         certificate_package_name = systemUser.certificate_package_name
         dbController.remove_systemUser(f'uid = "{uid}"')
         obj = dbController.query_datapackage(f'Name = "{certificate_package_name}"')
