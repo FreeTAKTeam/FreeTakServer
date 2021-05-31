@@ -12,6 +12,7 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
+from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("ReceiveConnections").getLogger()
 import logging
@@ -37,7 +38,11 @@ class ReceiveConnections:
             #logger.debug('receive connection started')
             try:
                 client, address = sock.accept()
+                if sslstatus == True:
+                    client = SSLSocketController().wrap_client_socket(client)
             except ssl.SSLError as e:
+                print(e)
+                client.close()
                 logger.warning('ssl error thrown in connection attempt '+str(e))
                 return -1
             if sslstatus == True:

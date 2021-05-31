@@ -133,6 +133,7 @@ class Orchestrator:
             return 1
     def clientConnected(self, rawConnectionInformation):
         try:
+            import copy
             # temporarily broken
             # self.check_for_dead_sockets()
             from FreeTAKServer.controllers.DatabaseControllers.EventTableController import EventTableController
@@ -140,6 +141,10 @@ class Orchestrator:
             self.logger.info(loggingConstants.CLIENTCONNECTED)
             clientInformation = self.ClientInformationController.intstantiateClientInformationModelFromConnection(
                 rawConnectionInformation, clientPipe)
+            sock = clientInformation.socket
+            clientInformation.socket = None
+            clint_info_clean = copy.deepcopy(clientInformation)
+            clientInformation.socket = sock
             if self.checkOutput(clientInformation):
                 pass
             else:
@@ -161,10 +166,7 @@ class Orchestrator:
                     'there has been an error in a clients connection while adding information to the database ' +
                     str(e))
             #self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.detail.contact.callsign))
-            sock = clientInformation.socket
-            clientInformation.socket = None
-            self.clientDataPipe.put(['add', clientInformation, self.openSockets])
-            clientInformation.socket = sock
+            self.clientDataPipe.put(['add', clint_info_clean, self.openSockets])
             self.sendUserConnectionGeoChat(clientInformation)
             return clientInformation
         except Exception as e:

@@ -273,60 +273,63 @@ def systemUsers(empty=None):
 def addSystemUser(jsondata):
     from FreeTAKServer.controllers import certificate_generation
     import uuid
-    for systemuser in json.loads(jsondata)['systemUsers']:
-        if systemuser["Certs"] == "true":
-            # create certs
-            certificate_generation.AtakOfTheCerts().bake(common_name=systemuser["Name"])
-            certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
-            # add DP
-            import string
-            import random
-            from pathlib import PurePath, Path
-            import hashlib
-            from defusedxml import ElementTree as etree
-            import shutil
-            import os
-            dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
-            openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))), mode='rb')
-            file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-            openfile.close()
-            newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
-            os.mkdir(newDirectory)
-            shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))),
-                        str(PurePath(Path(newDirectory), Path(systemuser["Name"] + '.zip'))))
-            fileSize = Path(str(newDirectory), systemuser["Name"] + '.zip').stat().st_size
-            dbController.create_datapackage(uid=str(uuid.uuid4()), Name=systemuser["Name"] + '.zip', Hash=file_hash,
-                                            SubmissionUser='server',
-                                            CreatorUid='server-uid', Size=fileSize, Privacy=1)
-            dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                   token=systemuser["Token"], password=systemuser["Password"],
-                                                   uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"]+'.zip')
-            import datetime as dt
-            DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-            timer = dt.datetime
-            now = timer.utcnow()
-            zulu = now.strftime(DATETIME_FMT)
-            add = dt.timedelta(seconds=600)
-            stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-            stale = stale_part.strftime(DATETIME_FMT)
-            timer = dt.datetime
-            now = timer.utcnow()
-            zulu = now.strftime(DATETIME_FMT)
-            time = zulu
-            from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
-            from FreeTAKServer.model.RawCoT import RawCoT
-            cot = RawCoT()
-            DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
-            clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{systemuser["Name"]}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{systemuser["Name"]+".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{systemuser["Name"]+".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
-            cot.xmlString = clientXML.encode()
-            newCoT = SendOtherController(cot, addToDB=False)
-            APIPipe.put(newCoT.getObject())
+    try:
+        for systemuser in json.loads(jsondata)['systemUsers']:
+            if systemuser["Certs"] == "true":
+                # create certs
+                certificate_generation.AtakOfTheCerts().bake(common_name=systemuser["Name"])
+                certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
+                # add DP
+                import string
+                import random
+                from pathlib import PurePath, Path
+                import hashlib
+                from defusedxml import ElementTree as etree
+                import shutil
+                import os
+                dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
+                openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))), mode='rb')
+                file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
+                openfile.close()
+                newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
+                os.mkdir(newDirectory)
+                shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))),
+                            str(PurePath(Path(newDirectory), Path(systemuser["Name"] + '.zip'))))
+                fileSize = Path(str(newDirectory), systemuser["Name"] + '.zip').stat().st_size
+                dbController.create_datapackage(uid=str(uuid.uuid4()), Name=systemuser["Name"] + '.zip', Hash=file_hash,
+                                                SubmissionUser='server',
+                                                CreatorUid='server-uid', Size=fileSize, Privacy=1)
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                       token=systemuser["Token"], password=systemuser["Password"],
+                                                       uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"]+'.zip')
+                import datetime as dt
+                DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                timer = dt.datetime
+                now = timer.utcnow()
+                zulu = now.strftime(DATETIME_FMT)
+                add = dt.timedelta(seconds=600)
+                stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+                stale = stale_part.strftime(DATETIME_FMT)
+                timer = dt.datetime
+                now = timer.utcnow()
+                zulu = now.strftime(DATETIME_FMT)
+                time = zulu
+                from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+                from FreeTAKServer.model.RawCoT import RawCoT
+                cot = RawCoT()
+                DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
+                clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{systemuser["Name"]}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{systemuser["Name"]+".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{systemuser["Name"]+".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
+                cot.xmlString = clientXML.encode()
+                newCoT = SendOtherController(cot, addToDB=False)
+                APIPipe.put(newCoT.getObject())
 
-        else:
-            dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                   token=systemuser["Token"], password=systemuser["Password"],
-                                                   uid=str(uuid.uuid4()))
-
+            else:
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                       token=systemuser["Token"], password=systemuser["Password"],
+                                                       uid=str(uuid.uuid4()))
+    except Exception as e:
+        print(e)
+        return str(e), 500
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
@@ -345,6 +348,9 @@ def removeSystemUser(jsondata):
         currentPath = MainConfig.DataPackageFilePath
         shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
         dbController.remove_datapackage(f'Hash = "{obj[0].Hash}"')
+        os.remove(MainConfig.certsPath+f"/{na}.pem")
+        os.remove(MainConfig.certsPath+f"/{na}.key")
+        os.remove(MainConfig.certsPath+f"/{na}.p12")
 
 @socketio.on("events")
 @socket_auth(session=session)
