@@ -4,6 +4,7 @@ from FreeTAKServer.model.RestMessages.PresencePost import PresencePost
 from FreeTAKServer.model.RestMessages.ChatPost import ChatPost
 from FreeTAKServer.model.RestMessages.GeoObjectPost import GeoObjectPost
 from FreeTAKServer.model.RestMessages.RoutePost import RoutePost
+from FreeTAKServer.model.RestMessages.DroneSensor import DroneSensor
 
 class JsonController:
     def __init__(self):
@@ -35,7 +36,11 @@ class JsonController:
     def serialize_route_post(self, json):
         object = RoutePost()
         return self.serialize_json_to_object(object, json)
-    
+
+    def serialize_drone_sensor_post(self, json):
+        object = DroneSensor()
+        return self.serialize_json_to_object(object, json)
+
     def serialize_json_to_object(self, object, json):
         for key in json.keys():
             s = dir(object)

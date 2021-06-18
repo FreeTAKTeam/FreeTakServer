@@ -107,7 +107,7 @@ class SendDataController:
             return 1
         except Exception as e:
             import traceback
-
+            print('exception SendDataController ln:110')
             logger.error('error in send to all ' + str(e)+str(traceback.format_exc()))
             raise Exception(e)
     def geochat_sending(self, clientInformationQueue, processedCoT, sender, shareDataPipe):

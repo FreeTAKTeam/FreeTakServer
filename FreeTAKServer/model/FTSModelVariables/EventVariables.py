@@ -175,3 +175,14 @@ class EventVariables:
         cls.stale = None
         cls.how = "m-g"
         return cls
+
+    @classmethod
+    def DroneSensor(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = "a-f-A-M-H-Q"
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = "m-g"
+        return cls

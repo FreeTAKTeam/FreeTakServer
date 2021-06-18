@@ -327,6 +327,23 @@ class Event(FTSProtocolObject):
         event.detail = Detail.VideoStream()
         return event
 
+    @staticmethod
+    def DroneSensor(VERSION=vars.DroneSensor().version,
+                    UID = vars.DroneSensor().uid, TYPE=vars.DroneSensor().type,
+                    TIME=vars.DroneSensor().time, START=vars.DroneSensor().start,
+                    STALE=vars.DroneSensor().stale, HOW=vars.DroneSensor().how):
+        event = Event()
+        event.setversion(VERSION)
+        event.setuid(UID)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.point = Point()
+        event.detail = Detail.DroneSensor()
+        return event
+
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
         self.how = how
 

@@ -26,6 +26,7 @@ from flask_cors import CORS
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, UpdateSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController, UpdatePresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
+from FreeTAKServer.controllers.RestMessageControllers.SendSensorDroneController import SendSensorDroneController
 from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
 from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
@@ -830,6 +831,25 @@ def deleteEmergency():
         return 'success', 200
     except Exception as e:
         return str(e), 500
+
+@app.route("/Sensor")
+@auth.login_required
+def sensor():
+    pass
+
+@app.route("/Sensor/postDrone", methods=["POST"])
+@auth.login_required
+def postDroneSensor():
+    try:
+        from json import dumps
+
+        jsondata = request.get_json(force=True)
+        jsonobj = JsonController().serialize_drone_sensor_post(jsondata)
+        DroneObject = SendSensorDroneController(jsonobj).getCoTObject()
+        APIPipe.put(DroneObject)
+        return DroneObject.modelObject.getuid(), 200
+    except Exception as e:
+        return str(e), 200
 
 @app.route("/AuthenticateUser", methods=["GET"])
 @auth.login_required

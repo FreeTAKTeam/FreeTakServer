@@ -16,6 +16,7 @@ from FreeTAKServer.model.FTSModel.Status import Status
 from FreeTAKServer.model.FTSModel.Track import Track
 from FreeTAKServer.model.FTSModel.Marti import Marti
 from FreeTAKServer.model.FTSModel.Link import Link
+from FreeTAKServer.model.FTSModel.sensor import Sensor
 from .Contact import Contact
 from .Emergency import Emergency
 from FreeTAKServer.model.FTSModel.Chat import Chat
@@ -164,6 +165,13 @@ class Detail(FTSProtocolObject):
         detail.link = Link.VideoStream()
         detail.marti = Marti.VideoStream()
         detail._video = _Video.VideoStream()
+        return detail
+
+    @staticmethod
+    def DroneSensor():
+        detail = Detail()
+        detail.contact = Contact.DroneSensor()
+        detail.sensor = Sensor.DroneSensor()
         return detail
 
     def setarchive(self, archive):
@@ -321,3 +329,8 @@ class Detail(FTSProtocolObject):
     def set_video(self, video):
         self._video = video
 
+    def getsensor(self):
+        return self.sensor
+
+    def setsensor(self, sensor):
+        self.sensor = sensor

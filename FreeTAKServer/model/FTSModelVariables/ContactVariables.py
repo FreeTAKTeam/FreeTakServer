@@ -69,3 +69,8 @@ class ContactVariables:
     def VideoStream(cls):
         cls.callsign = None
         return cls
+
+    @classmethod
+    def DroneSensor(cls):
+        cls.callsign = None
+        return cls
