@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData">
+  <component name="PublishConfigData" compareModeInSync="TEXT" showNewOnTargetInSync="false">
     <serverData>
+      <paths name="Helio">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$/FreeTAKServer" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
       <paths name="localdev">
         <serverdata>
           <mappings>
@@ -13,6 +20,13 @@
         <serverdata>
           <mappings>
             <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="public">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$/FreeTAKServer" web="/" />
           </mappings>
         </serverdata>
       </paths>

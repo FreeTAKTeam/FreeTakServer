@@ -116,6 +116,13 @@ class Detail(FTSProtocolObject):
         return detail
 
     @staticmethod
+    def DeleteVideo():
+        detail = Detail()
+        detail.link = Link.DeleteVideo()
+        return detail
+
+
+    @staticmethod
     def UserUpdate():
         detail = Detail()
         detail._group = _Group.UserUpdate()
@@ -172,6 +179,24 @@ class Detail(FTSProtocolObject):
         detail = Detail()
         detail.contact = Contact.DroneSensor()
         detail.sensor = Sensor.DroneSensor()
+        detail.track = Track.DroneSensor()
+        detail._video = _Video.DroneSensor()
+        return detail
+
+    @staticmethod
+    def SPISensor():
+        detail = Detail()
+        detail.precisionlocation = Precisionlocation.SPISensor()
+        detail.contact = Contact.SPISensor()
+        detail.link = Link.SPISensor()
+        return detail
+
+    @staticmethod
+    def BitsImageryVideo():
+        detail = Detail()
+        detail.contact = Contact.BitsImageryVideo()
+        detail.link = Link.BitsImageryVideo()
+        detail._video = _Video.BitsImageryVideo()
         return detail
 
     def setarchive(self, archive):

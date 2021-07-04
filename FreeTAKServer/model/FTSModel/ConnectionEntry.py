@@ -36,6 +36,20 @@ class ConnectionEntry(FTSProtocolObject):
         connectionentry.setalias(ALIAS)
         return connectionentry
 
+    @staticmethod
+    def BitsImageryVideo(UID=vars.VideoStream().uid,
+                        PATH=vars.VideoStream().path, PROTOCOL=vars.VideoStream().protocol,
+                        ADDRESS=vars.VideoStream().address,PORT=vars.VideoStream().port,
+                        ALIAS=vars.VideoStream().alias):
+        connectionentry = ConnectionEntry()
+        connectionentry.setuid(UID)
+        connectionentry.setpath(PATH)
+        connectionentry.setprotocol(PROTOCOL)
+        connectionentry.setaddress(ADDRESS)
+        connectionentry.setport(PORT)
+        connectionentry.setalias(ALIAS)
+        return connectionentry
+
     def getnetworkTimeout(self):
             return self.networkTimeout
 

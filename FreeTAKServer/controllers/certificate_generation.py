@@ -132,7 +132,7 @@ def send_data_package(server: str, dp_name: str = "user.zip") -> bool:
 
 
 def generate_zip(server_address: str = None, server_filename: str = "pubserver.p12", user_filename: str = "user.p12",
-                 cert_password: str = "atakatak", ssl_port: str = "8089") -> None:
+                 cert_password: str = MainConfig.password, ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
     working directory.

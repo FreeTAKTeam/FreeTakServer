@@ -1,5 +1,9 @@
 class DroneSensor:
 
+    timeout = None
+
+    uid = None
+
     latitude = "0"
 
     longitude = "0"
@@ -13,6 +17,18 @@ class DroneSensor:
     FieldOfView = "80.0"
 
     VideoURLUID = None
+
+    SPILongitude = None
+
+    SPILatitude = None
+
+    SPIName = None
+
+    def settimeout(self, timeout):
+        self.timeout = timeout
+
+    def gettimeout(self):
+        return self.timeout
 
     def getlatitude(self):
         return self.latitude
@@ -50,5 +66,32 @@ class DroneSensor:
     def setFieldOfView(self, FieldOfView):
         self.FieldOfView = FieldOfView
 
+    def setVideoURLUID(self, VideoURLUID):
+        self.VideoURLUID = VideoURLUID
+
     def getVideoURLUID(self):
         return self.VideoURLUID
+
+    def getSPILatitude(self):
+        return self.SPILatitude
+
+    def setSPILatitude(self, SPILatitude):
+        self.SPILatitude = SPILatitude
+
+    def getSPILongitude(self):
+        return self.SPILongitude
+
+    def setSPILongitude(self, SPILongitude):
+        self.SPILongitude = SPILongitude
+
+    def getSPIName(self):
+        return self.SPIName
+
+    def setSPIName(self, Name):
+        self.SPIName = Name
+
+    def getuid(self):
+        return self.uid
+
+    def setuid(self, uid):
+        self.uid = uid

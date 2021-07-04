@@ -19,6 +19,7 @@ from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
+from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import SendDeleteVideoStreamController
 import os
 import shutil
 import json
@@ -27,6 +28,8 @@ from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController im
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController, UpdatePresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
 from FreeTAKServer.controllers.RestMessageControllers.SendSensorDroneController import SendSensorDroneController
+from FreeTAKServer.controllers.RestMessageControllers.SendSPISensorController import SendSPISensorController
+from FreeTAKServer.controllers.RestMessageControllers.SendImageryVideoController import SendImageryVideoController
 from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
 from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
@@ -408,22 +411,30 @@ def getlogErrors():
 def getemergencys():
     output = dbController.query_ActiveEmergency()
     for i in range(0, len(output)):
-        original = output[i]
-        output[i] = output[i].__dict__
-        output[i]["lat"] = original.event.point.lat
-        output[i]["lon"] = original.event.point.lon
-        output[i]["type"] = original.event.detail.emergency.type
-        output[i]["name"] = original.event.detail.contact.callsign
-        del (output[i]['_sa_instance_state'])
-        del (output[i]['event'])
+        try:
+            original = output[i]
+            output[i] = output[i].__dict__
+            output[i]["lat"] = original.event.point.lat
+            output[i]["lon"] = original.event.point.lon
+            output[i]["type"] = original.event.detail.emergency.type
+            output[i]["name"] = original.event.detail.contact.callsign
+            del (output[i]['_sa_instance_state'])
+            del (output[i]['event'])
+        except:
+            pass
     return output
 
 
 class Notification:
     def __init__(self):
-        self.emergencys = [i["name"]+" "+i["type"] for i in getemergencys()]
-        self.logErrors = [i["message"] for i in getlogErrors()]
-
+        try:
+            self.emergencys = [i["name"]+" "+i["type"] for i in getemergencys()]
+        except:
+            self.emergencys = []
+        try:
+            self.logErrors = [i["message"] for i in getlogErrors()]
+        except:
+            self.logErrors = []
 
 @app.route("/SendGeoChat", methods=[restMethods.POST])
 @auth.login_required()
@@ -753,6 +764,38 @@ def putGeoObject():
 def ManageVideoStream():
     pass
 
+@app.route("/ManageVideoStream/getVideoStream", methods=[restMethods.GET])
+@auth.login_required
+def getVideoStream():
+    try:
+        from json import dumps
+        from urllib import parse
+        from FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor import Sensor
+        output = dbController.query_CoT(query='type="b-i-v" OR type="a-f-A-M-H-Q"')
+        return_value = {"video_stream": []}
+        for value in output:
+            if value.detail._video.url:
+                return_value["video_stream"].append(parse.urlparse(value.detail._video.url).path)
+            elif value.detail._video.Connectionentry.path:
+                return_value["video_stream"].append(value.detail._video.Connectionentry.path)
+        return dumps(return_value), 200
+    except Exception as e:
+        return str(e), 500
+
+
+@app.route("/ManageVideoStream/deleteVideoStream", methods=[restMethods.DELETE])
+@auth.login_required
+def deleteVideoStream():
+    try:
+        from json import dumps
+        jsondata = request.get_json(force=True)
+        jsonobj = JsonController().serialize_video_stream_delete(jsondata)
+        EmergencyObject = SendDeleteVideoStreamController(jsonobj).getCoTObject()
+        APIPipe.put(EmergencyObject)
+        return 'success', 200
+    except Exception as e:
+        return str(e), 500
+
 @app.route("/ManageVideoStream/postVideoStream", methods=["POST"])
 @auth.login_required()
 def postVideoStream():
@@ -844,12 +887,49 @@ def postDroneSensor():
         from json import dumps
 
         jsondata = request.get_json(force=True)
+        print(jsondata)
         jsonobj = JsonController().serialize_drone_sensor_post(jsondata)
         DroneObject = SendSensorDroneController(jsonobj).getCoTObject()
+
+
+        print(DroneObject.xmlString)
         APIPipe.put(DroneObject)
+        if jsonobj.getSPILongitude() or jsonobj.getSPILatitude() or jsonobj.getSPIName():
+            jsonobjSPI = JsonController().serialize_spi_post(jsondata)
+            jsonobjSPI.setlatitude(jsonobj.getSPILatitude())
+            jsonobjSPI.setlongitude(jsonobj.getSPILongitude())
+            jsonobjSPI.setname(jsonobj.getSPIName())
+            jsonobjSPI.setdroneUid(DroneObject.modelObject.getuid())
+            SPISensor = SendSPISensorController(jsonobjSPI).getCoTObject()
+            APIPipe.put(SPISensor)
+            return json.dumps({"uid": DroneObject.modelObject.getuid(), "SPI_uid": SPISensor.modelObject.getuid()}), 200
         return DroneObject.modelObject.getuid(), 200
     except Exception as e:
         return str(e), 200
+
+@app.route("/Sensor/postSPI", methods=["POST"])
+@auth.login_required
+def postSPI():
+    try:
+        from json import dumps
+
+        jsondata = request.get_json(force=True)
+        jsonobj = JsonController().serialize_spi_post(jsondata)
+        SPIObject = SendSPISensorController(jsonobj).getCoTObject()
+        APIPipe.put(SPIObject)
+        return SPIObject.modelObject.getuid(), 200
+    except Exception as e:
+        return str(e), 200
+
+@app.route("/MapVid", methods=["POST"])
+@auth.login_required
+def mapvid():
+    from json import dumps
+    jsondata = request.get_json(force=True)
+    jsonobj = JsonController().serialize_imagery_video(jsondata)
+    ImagerVideoObject = SendImageryVideoController(jsonobj).getCoTObject()
+    APIPipe.put(ImagerVideoObject)
+    return 200
 
 @app.route("/AuthenticateUser", methods=["GET"])
 @auth.login_required

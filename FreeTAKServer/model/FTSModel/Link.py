@@ -66,7 +66,15 @@ class Link(FTSProtocolObject):
         return link
 
     @staticmethod
-    def disconnect(UID=vars.disconnect().uid, TYPE=vars.disconnect().type, RELATION=vars.disconnect().relation):
+    def disconnect(UID=vars.disconnect().UID, TYPE=vars.disconnect().TYPE, RELATION=vars.disconnect().RELATION):
+        link = Link()
+        link.setuid(UID)
+        link.settype(TYPE)
+        link.setrelation(RELATION)
+        return link
+
+    @staticmethod
+    def DeleteVideo(UID=vars.DeleteVideo().UID, TYPE=vars.DeleteVideo().TYPE, RELATION=vars.DeleteVideo().RELATION):
         link = Link()
         link.setuid(UID)
         link.settype(TYPE)
@@ -84,6 +92,21 @@ class Link(FTSProtocolObject):
         link.setpoint(POINT)
         link.setcallsign(CALLSIGN)
         link.setremarks(REMARKS)
+        return link
+
+    @staticmethod
+    def SPISensor(UID=vars.SPISensor().UID, TYPE=vars.SPISensor().TYPE, RELATION=vars.SPISensor().RELATION):
+        link = Link()
+        link.setuid(UID)
+        link.settype(TYPE)
+        link.setrelation(RELATION)
+        return link
+
+    @staticmethod
+    def BitsImageryVideo(UID=vars.BitsImageryVideo().UID, PRODUCTIONTIME=vars.BitsImageryVideo().PRODUCTIONTIME):
+        link = Link()
+        link.setuid(UID)
+        link.setproduction_time(PRODUCTIONTIME)
         return link
 
     def getremarks(self):

@@ -10,8 +10,9 @@ class MainConfig:
     should need to be changed
     """
 
+
     #
-    AlternateConfig = str(os.environ.get('FTS_CONFIG_PATH', r'C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\controllers\configuration\FTSConfig.yaml'))
+    AlternateConfig = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
 
     python_version = 'python3.8'
 
@@ -26,7 +27,83 @@ class MainConfig:
     except:
         ip = "0.0.0.0"
 
-    if os.path.exists(AlternateConfig):
+    #edit this if you dont want to use yaml configuration
+    if not os.path.exists(AlternateConfig):
+        MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 1))
+
+        # this is the port to which clients will connect
+        CoTServicePort = int(os.environ.get('FTS_COT_PORT', 8087))
+
+        SSLCoTServicePort = int(os.environ.get('FTS_SSLCOT_PORT', 8089))
+
+        # this needs to be changed for private data packages to work
+        DataPackageServiceDefaultIP = str(os.environ.get('FTS_DP_ADDRESS', ip))
+
+        # User Connection package IP needs to be set to the IP which is used when creating the connection in your tak device
+        UserConnectionIP = str(os.environ.get('FTS_USER_ADDRESS', ip))
+
+        # api port
+        APIPort = os.environ.get('FTS_API_PORT', 19023)
+
+        # Federation port
+        FederationPort = os.environ.get('FTS_FED_PORT', 9000)
+
+        # api IP
+        APIIP = os.environ.get('FTS_API_ADDRESS', '192.168.2.75')
+
+        # whether or not to save CoT's to the DB
+        SaveCoTToDB = bool(os.environ.get('FTS_COT_TO_DB', True))
+
+        # this should be set before startup
+        DBFilePath = str(os.environ.get('FTS_DB_PATH', r'/root/FTSDataBase.db'))
+
+        MainPath = str(os.environ.get("FTS_MAINPATH", Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')))
+
+        certsPath = str(os.environ.get('FTS_CERTS_PATH', fr'{MainPath}/certs'))
+
+        ExCheckMainPath = str(os.environ.get('FTS_EXCHECK_PATH', Path(fr'{MainPath}/ExCheck')))
+
+        ExCheckFilePath = str(os.environ.get('FTS_EXCHECK_TEMPLATE_PATH', Path(fr'{MainPath}/ExCheck/template')))
+
+        ExCheckChecklistFilePath = str(os.environ.get("FTS_EXCHECK_CHECKLIST_PATH", Path(fr'{MainPath}/ExCheck/checklist')))
+
+        DataPackageFilePath = str(os.environ.get("FTS_DATAPACKAGE_PATH", Path(fr'{MainPath}/FreeTAKServerDataPackageFolder')))
+
+        LogFilePath = str(os.environ.get("FTS_LOGFILE_PATH", Path(fr"{MainPath}/Logs")))
+
+
+        federationKeyPassword = str(os.environ.get('FTS_FED_PASSWORD', 'defaultpass'))
+
+        keyDir = str(os.environ.get("FTS_SERVER_KEYDIR",Path(fr'{certsPath}/server.key')))
+
+        pemDir = str(os.environ.get("FTS_SERVER_PEMDIR",Path(fr'{certsPath}/server.pem'))) # or crt
+
+        testPem = str(os.environ.get("FTS_TESTCLIENT_PEMDIR", pemDir))
+
+        testKey = str(os.environ.get("FTS_TESTCLIENT_KEYDIR", keyDir))
+
+        unencryptedKey = str(os.environ.get("FTS_UNENCRYPTED_KEYDIR", Path(fr'{certsPath}/server.key.unencrypted')))
+
+        p12Dir = str(os.environ.get("FTS_SERVER_P12DIR", Path(fr'{certsPath}/server.p12')))
+
+        CA = str(os.environ.get("FTS_CADIR", Path(fr'{certsPath}/ca.pem')))
+
+        CAkey = str(os.environ.get("FTS_CAKEYDIR", Path(fr'{certsPath}/ca.key')))
+
+        federationCert = str(os.environ.get("FTS_FEDERATION_CERTDIR", Path(fr'{certsPath}/server.pem')))
+
+        federationKey = str(os.environ.get("FTS_FEDERATION_KEYDIR", Path(fr'{certsPath}/server.key')))
+
+        federationKeyPassword = str(os.environ.get("FTS_FEDERATION_KEYPASS", 'defaultpass'))
+
+        password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', 'atakatak'))
+
+        websocketkey = str(os.environ.get('FTS_WEBSOCKET_KEY', "YourWebsocketKey"))
+
+        CRLFile = str(os.environ.get('FTS_CRLDIR', fr"{certsPath}/FTS_CRL.json"))
+
+    #dont edit here!
+    else:
         content = open(AlternateConfig).read()
         yamlConfig = yaml.safe_load(content)
 
@@ -184,82 +261,10 @@ class MainConfig:
 
             CRLFile = str(os.environ.get('FTS_CRLDIR', fr"{certsPath}/FTS_CRL.json"))
 
-    else:
-        MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 1))
 
-        # this is the port to which clients will connect
-        CoTServicePort = int(os.environ.get('FTS_COT_PORT', 8087))
-
-        SSLCoTServicePort = int(os.environ.get('FTS_SSLCOT_PORT', 8089))
-
-        # this needs to be changed for private data packages to work
-        DataPackageServiceDefaultIP = str(os.environ.get('FTS_DP_ADDRESS', "0.0.0.0"))
-
-        # User Connection package IP needs to be set to the IP which is used when creating the connection in your tak device
-        UserConnectionIP = str(os.environ.get('FTS_USER_ADDRESS', "0.0.0.0"))
-
-        # api port
-        APIPort = os.environ.get('FTS_API_PORT', 19023)
-
-        # Federation port
-        FederationPort = os.environ.get('FTS_FED_PORT', 9000)
-
-        # api IP
-        APIIP = os.environ.get('FTS_API_ADDRESS', '0.0.0.0')
-
-        # whether or not to save CoT's to the DB
-        SaveCoTToDB = bool(os.environ.get('FTS_COT_TO_DB', True))
-
-        # this should be set before startup
-        DBFilePath = str(os.environ.get('FTS_DB_PATH', r'/root/FTSDataBase.db'))
-
-        MainPath = str(os.environ.get("FTS_MAINPATH", Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')))
-
-        certsPath = str(os.environ.get('FTS_CERTS_PATH', fr'{MainPath}/certs'))
-
-        ExCheckMainPath = str(os.environ.get('FTS_EXCHECK_PATH', Path(fr'{MainPath}/ExCheck')))
-
-        ExCheckFilePath = str(os.environ.get('FTS_EXCHECK_TEMPLATE_PATH', Path(fr'{MainPath}/ExCheck/template')))
-
-        ExCheckChecklistFilePath = str(os.environ.get("FTS_EXCHECK_CHECKLIST_PATH", Path(fr'{MainPath}/ExCheck/checklist')))
-
-        DataPackageFilePath = str(os.environ.get("FTS_DATAPACKAGE_PATH", Path(fr'{MainPath}/FreeTAKServerDataPackageFolder')))
-
-        LogFilePath = str(os.environ.get("FTS_LOGFILE_PATH", Path(fr"{MainPath}/Logs")))
-
-
-        federationKeyPassword = str(os.environ.get('FTS_FED_PASSWORD', 'defaultpass'))
-
-        keyDir = str(os.environ.get("FTS_SERVER_KEYDIR",Path(fr'{certsPath}/server.key')))
-
-        pemDir = str(os.environ.get("FTS_SERVER_PEMDIR",Path(fr'{certsPath}/server.pem'))) # or crt
-
-        testPem = str(os.environ.get("FTS_TESTCLIENT_PEMDIR", pemDir))
-
-        testKey = str(os.environ.get("FTS_TESTCLIENT_KEYDIR", keyDir))
-
-        unencryptedKey = str(os.environ.get("FTS_UNENCRYPTED_KEYDIR", Path(fr'{certsPath}/server.key.unencrypted')))
-
-        p12Dir = str(os.environ.get("FTS_SERVER_P12DIR", Path(fr'{certsPath}/server.p12')))
-
-        CA = str(os.environ.get("FTS_CADIR", Path(fr'{certsPath}/ca.pem')))
-
-        CAkey = str(os.environ.get("FTS_CAKEYDIR", Path(fr'{certsPath}/ca.key')))
-
-        federationCert = str(os.environ.get("FTS_FEDERATION_CERTDIR", Path(fr'{certsPath}/server.pem')))
-
-        federationKey = str(os.environ.get("FTS_FEDERATION_KEYDIR", Path(fr'{certsPath}/server.key')))
-
-        federationKeyPassword = str(os.environ.get("FTS_FEDERATION_KEYPASS", 'defaultpass'))
-
-        password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', 'atakatak'))
-
-        websocketkey = str(os.environ.get('FTS_WEBSOCKET_KEY', "YourWebsocketKey"))
-
-        CRLFile = str(os.environ.get('FTS_CRLDIR', fr"{certsPath}/FTS_CRL.json"))
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.8.1 RC 1 Public'
+    version = 'FreeTAKServer-1.9 RC 2 Public'
 
     # allowed ip's to access CLI commands
     AllowedCLIIPs = ['127.0.0.1']

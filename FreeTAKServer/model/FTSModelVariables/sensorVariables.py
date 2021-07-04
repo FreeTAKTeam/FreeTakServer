@@ -16,12 +16,12 @@ class sensorVariables:
     def DroneSensor(cls):
         cls.elevation = "0.0"
         cls.vfov = "60"
-        cls.north = None
+        cls.north = "227"
         cls.roll = "0.0"
         cls.range = None
-        cls.azimuth = "0.0"
+        cls.azimuth = "46"
         cls.model = "Drone Camera"
         cls.fov = None
         cls.type = "r-e"
-        cls.version = "1.0"
+        cls.version = "0.6"
         return cls

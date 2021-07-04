@@ -214,6 +214,22 @@ class Event(FTSProtocolObject):
         return event
 
     @staticmethod
+    def DeleteVideo(UID=vars.DeleteVideo().uid, VERSION=vars.DeleteVideo().version, TYPE=vars.DeleteVideo().type,
+                   TIME=vars.DeleteVideo().time, START=vars.DeleteVideo().start, STALE=vars.DeleteVideo().stale,
+                   HOW=vars.DeleteVideo().how):
+        event = Event()
+        event.setuid(UID)
+        event.setversion(VERSION)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.point = Point()
+        event.detail = Detail.DeleteVideo()
+        return event
+
+    @staticmethod
     def takPong(VERSION=vars.takPong().version, UID=vars.takPong().uid, TYPE=vars.takPong().type,
                 HOW=vars.takPong().how, TIME=vars.takPong().time, START=vars.takPong().start,
                 STALE=vars.takPong().stale):
@@ -342,6 +358,40 @@ class Event(FTSProtocolObject):
         event.sethow(HOW)
         event.point = Point()
         event.detail = Detail.DroneSensor()
+        return event
+
+    @staticmethod
+    def SPISensor(VERSION=vars.SPISensor().version,
+                    UID = vars.SPISensor().uid, TYPE=vars.SPISensor().type,
+                    TIME=vars.SPISensor().time, START=vars.SPISensor().start,
+                    STALE=vars.SPISensor().stale, HOW=vars.SPISensor().how):
+        event = Event()
+        event.setversion(VERSION)
+        event.setuid(UID)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.point = Point()
+        event.detail = Detail.SPISensor()
+        return event
+    
+    @staticmethod
+    def BitsImageryVideo(VERSION=vars.BitsImageryVideo().version,
+                    UID = vars.BitsImageryVideo().uid, TYPE=vars.BitsImageryVideo().type,
+                    TIME=vars.BitsImageryVideo().time, START=vars.BitsImageryVideo().start,
+                    STALE=vars.BitsImageryVideo().stale, HOW=vars.BitsImageryVideo().how):
+        event = Event()
+        event.setversion(VERSION)
+        event.setuid(UID)
+        event.settype(TYPE)
+        event.settime(TIME)
+        event.setstart(START)
+        event.setstale(STALE)
+        event.sethow(HOW)
+        event.point = Point()
+        event.detail = Detail.BitsImageryVideo()
         return event
 
     def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):

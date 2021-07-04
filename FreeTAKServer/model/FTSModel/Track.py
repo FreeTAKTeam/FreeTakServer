@@ -32,6 +32,14 @@ class Track(FTSProtocolObject):
         track.setslope(SLOPE)
         return track
 
+    @staticmethod
+    def DroneSensor(COURSE = vars.DroneSensor().COURSE, SPEED = vars.DroneSensor().SPEED, SLOPE = vars.DroneSensor().SLOPE):
+        track = Track()
+        track.setcourse(COURSE)
+        track.setspeed(SPEED)
+        track.setslope(SLOPE)
+        return track
+
      # speed getter
     def getspeed(self): 
         return self.speed 
