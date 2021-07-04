@@ -29,6 +29,9 @@ import FreeTAKServer.model.SQLAlchemy.CoTTables.Takv
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Track
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Uid
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Usericon
+import FreeTAKServer.model.SQLAlchemy.CoTTables._Video
+import FreeTAKServer.model.SQLAlchemy.CoTTables.Connectionentry
+import FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor
 
 
 
@@ -55,4 +58,5 @@ class Detail(Base):
     track = relationship("Track", uselist=False, cascade="all, delete")
     uid = relationship("Uid", uselist=False, cascade="all, delete")
     usericon = relationship("Usericon", uselist=False, cascade="all, delete")
-
+    _video = relationship("_Video", uselist=False, cascade="all, delete")
+    sensor = relationship("Sensor", uselist=False, cascade="all, delete")

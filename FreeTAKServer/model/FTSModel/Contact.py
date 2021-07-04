@@ -89,6 +89,30 @@ class Contact(FTSProtocolObject):
         contact.setcallsign(CALLSIGN)
         return contact
 
+    @staticmethod
+    def VideoStream(CALLSIGN = vars.VideoStream().callsign):
+        contact = Contact()
+        contact.setcallsign(CALLSIGN)
+        return contact
+
+    @staticmethod
+    def DroneSensor(CALLSIGN = vars.DroneSensor().callsign):
+        contact = Contact()
+        contact.setcallsign(CALLSIGN)
+        return contact
+
+    @staticmethod
+    def SPISensor(CALLSIGN = vars.SPISensor().callsign):
+        contact = Contact()
+        contact.setcallsign(CALLSIGN)
+        return contact
+
+    @staticmethod
+    def BitsImageryVideo(CALLSIGN = vars.BitsImageryVideo().callsign):
+        contact = Contact()
+        contact.setcallsign(CALLSIGN)
+        return contact
+
     # iconsetpath getter 
     def geticonsetpath(self): 
         return self.iconsetpath 

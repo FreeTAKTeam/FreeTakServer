@@ -6,5 +6,7 @@ class SSLServerSocket(MainSocket):
         super().__init__()
         self.keyDir = MainConfig.keyDir
         self.pemDir = MainConfig.pemDir
+        self.testKeyDir = MainConfig.testKey
+        self.testPemDir = MainConfig.testPem
         self.password = MainConfig.password
         self.CA = MainConfig.CA

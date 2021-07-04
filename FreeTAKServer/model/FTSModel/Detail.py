@@ -16,6 +16,7 @@ from FreeTAKServer.model.FTSModel.Status import Status
 from FreeTAKServer.model.FTSModel.Track import Track
 from FreeTAKServer.model.FTSModel.Marti import Marti
 from FreeTAKServer.model.FTSModel.Link import Link
+from FreeTAKServer.model.FTSModel.sensor import Sensor
 from .Contact import Contact
 from .Emergency import Emergency
 from FreeTAKServer.model.FTSModel.Chat import Chat
@@ -27,6 +28,7 @@ from .Archive import Archive
 from FreeTAKServer.model.FTSModel.Summary import Summary
 from FreeTAKServer.model.FTSModel.Mission import Mission
 from FreeTAKServer.model.FTSModel.Link_attr import Link_attr
+from FreeTAKServer.model.FTSModel._Video import _Video
 
 
 class Detail(FTSProtocolObject):
@@ -114,6 +116,13 @@ class Detail(FTSProtocolObject):
         return detail
 
     @staticmethod
+    def DeleteVideo():
+        detail = Detail()
+        detail.link = Link.DeleteVideo()
+        return detail
+
+
+    @staticmethod
     def UserUpdate():
         detail = Detail()
         detail._group = _Group.UserUpdate()
@@ -154,6 +163,40 @@ class Detail(FTSProtocolObject):
         detail.__internal_link = [Link.Route()]
         detail.link = []
         detail.link_attr = Link_attr.Route()
+        return detail
+
+    @staticmethod
+    def VideoStream():
+        detail = Detail()
+        detail.contact = Contact.VideoStream()
+        detail.link = Link.VideoStream()
+        detail.marti = Marti.VideoStream()
+        detail._video = _Video.VideoStream()
+        return detail
+
+    @staticmethod
+    def DroneSensor():
+        detail = Detail()
+        detail.contact = Contact.DroneSensor()
+        detail.sensor = Sensor.DroneSensor()
+        detail.track = Track.DroneSensor()
+        detail._video = _Video.DroneSensor()
+        return detail
+
+    @staticmethod
+    def SPISensor():
+        detail = Detail()
+        detail.precisionlocation = Precisionlocation.SPISensor()
+        detail.contact = Contact.SPISensor()
+        detail.link = Link.SPISensor()
+        return detail
+
+    @staticmethod
+    def BitsImageryVideo():
+        detail = Detail()
+        detail.contact = Contact.BitsImageryVideo()
+        detail.link = Link.BitsImageryVideo()
+        detail._video = _Video.BitsImageryVideo()
         return detail
 
     def setarchive(self, archive):
@@ -299,5 +342,20 @@ class Detail(FTSProtocolObject):
     def get__serverdestination(self):
         return self._serverdestination
 
+    def get__video(self):
+        return self._video
 
+    def set__video(self, video):
+        self._video = video
 
+    def get_video(self):
+        return self._video
+
+    def set_video(self, video):
+        self._video = video
+
+    def getsensor(self):
+        return self.sensor
+
+    def setsensor(self, sensor):
+        self.sensor = sensor

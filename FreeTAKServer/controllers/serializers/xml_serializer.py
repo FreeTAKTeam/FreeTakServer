@@ -7,8 +7,8 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 import time
 class XmlSerializer(SerializerAbstract):
 
-    __exception_mapping_dict = {'_group': '__group', '_serverdestination': '__serverdestination', '__group': "_group", '__serverdestination': "_serverdestination", "chat": "__chat", "_chat": "__chat", "__chat": "_chat"}
-    __exception_mapping_dict_objs = {'_group': '__group', '__group': "_group", "chat": "__chat", "_chat": "__chat", '_serverdestination': '__serverdestination'}
+    __exception_mapping_dict = {'_group': '__group', '_serverdestination': '__serverdestination', '__group': "_group", '__serverdestination': "_serverdestination", "chat": "__chat", "_chat": "__chat", "__chat": "_chat", "_video": "__video", "__video":"_video", "connectionentry":"ConnectionEntry"}
+    __exception_mapping_dict_objs = {'_group': '__group', '__group': "_group", "chat": "__chat", "_chat": "__chat", '_serverdestination': '__serverdestination', "_video": "__video", "__video":"_video"}
 
     __ftsObjectType = NewType('ftsObject', FTSProtocolObject)
 
@@ -25,7 +25,7 @@ class XmlSerializer(SerializerAbstract):
         return self._xml_attribs_to_fts_properties(FTSObject, element)
 
     def _xml_attribs_to_fts_properties(self, FTSObject, element):
-        if element.text is not None:
+        if element.text is not None and element.text != " ":
             setters = self._get_fts_object_var_setter(FTSObject, "INTAG")
             setter = self._get_method_in_method_list(setters, element.tag)
             setter(element.text)

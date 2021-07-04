@@ -8,6 +8,14 @@ class LinkVariables:
         self.POINT = None
 
     @classmethod
+    def VideoStream(cls):
+        cls.UID = None
+        cls.PRODUCTIONTIME = None
+        cls.RELATIONSHIP = None
+        cls.PARENTCALLSIGN = None
+        return cls
+
+    @classmethod
     def drop_point(cls):
         cls.UID = "DEFAULT"
         cls.TYPE = "a-f-G-U-C"
@@ -35,9 +43,16 @@ class LinkVariables:
 
     @classmethod
     def disconnect(cls):
-        cls.uid = None
-        cls.type = "a-f-G-U-C"
-        cls.relation = "p-p"
+        cls.UID = None
+        cls.TYPE = "a-f-G-U-C"
+        cls.RELATION = "p-p"
+        return cls
+
+    @classmethod
+    def DeleteVideo(cls):
+        cls.UID = None
+        cls.TYPE = "b-i-v"
+        cls.RELATION = "p-p"
         return cls
 
     @classmethod
@@ -48,4 +63,17 @@ class LinkVariables:
         cls.POINT = "0, 0"
         cls.CALLSIGN = ""
         cls.RELATION = "c"
+        return cls
+
+    @classmethod
+    def SPISensor(cls):
+        cls.UID = None
+        cls.TYPE = "a-f-A-M-H-Q"
+        cls.RELATION = "p-p"
+        return cls
+
+    @classmethod
+    def BitsImageryVideo(cls):
+        cls.UID = None
+        cls.PRODUCTIONTIME = None
         return cls

@@ -528,17 +528,20 @@ def activechecklists():
     from FreeTAKServer.model.FTSModel.Checklists import Checklists
     from FreeTAKServer.model.FTSModel.Checklist import Checklist
     from lxml.etree import Element
-    from defusedxml import ElementTree as etree
+    from lxml import etree
     checklists = Checklists.Checklist()
     rootxml = Element('checklists')
 
     for file in listdir(MainConfig.ExCheckChecklistFilePath):
-        checklist = Element('checklist')
-        xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find('checklistDetails')
-        checklist.append(xmldetails)
-        checklist.append(Element('checklistColumns'))
-        checklist.append(Element('checklistTasks'))
-        rootxml.append(checklist)
+        try:
+            checklist = Element('checklist')
+            xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find('checklistDetails')
+            checklist.append(xmldetails)
+            checklist.append(Element('checklistColumns'))
+            checklist.append(Element('checklistTasks'))
+            rootxml.append(checklist)
+        except Exception as e:
+            print(e)
 
     xml = etree.tostring(rootxml)
     return xml

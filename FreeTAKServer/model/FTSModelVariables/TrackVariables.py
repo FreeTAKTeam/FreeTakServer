@@ -16,3 +16,10 @@ class TrackVariables:
         cls.course = None
         cls.SLOPE = None
         return cls
+
+    @classmethod
+    def DroneSensor(cls):
+        cls.SPEED = "-0.00"
+        cls.COURSE = "46"
+        cls.SLOPE = "0.00"
+        return cls

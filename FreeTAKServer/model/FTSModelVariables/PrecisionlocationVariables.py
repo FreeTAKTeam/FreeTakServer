@@ -20,3 +20,8 @@ class PrecisionlocationVariables:
         cls.altsrc = None
         cls.geopointsrc = None
         return cls
+
+    @classmethod
+    def SPISensor(cls):
+        cls.ALTSRC = "GPS"
+        return cls

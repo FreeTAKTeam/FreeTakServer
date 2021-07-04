@@ -100,6 +100,17 @@ class EventVariables:
         return cls
 
     @classmethod
+    def DeleteVideo(cls):
+        cls.uid = None
+        cls.version = '2.0'
+        cls.type = 't-x-d-d'
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = 'h-g-i-g-o'
+        return cls
+
+    @classmethod
     def takPong(cls):
         cls.version = '2.0'
         cls.uid = 'takPong'
@@ -165,3 +176,46 @@ class EventVariables:
         cls.how = "h-e"
         return cls
 
+    @classmethod
+    def VideoStream(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = "b-i-v"
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = "m-g"
+        return cls
+
+    @classmethod
+    def DroneSensor(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = "a-f-A-M-H-Q"
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = "m-g"
+        return cls
+
+    @classmethod
+    def BitsImageryVideo(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = "b-i-v"
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = "m-g"
+        return cls
+
+    @classmethod
+    def SPISensor(cls):
+        cls.version = None
+        cls.uid = None
+        cls.type = "b-m-p-s-p-i"
+        cls.time = None
+        cls.start = None
+        cls.stale = None
+        cls.how = "m-g"
+        return cls

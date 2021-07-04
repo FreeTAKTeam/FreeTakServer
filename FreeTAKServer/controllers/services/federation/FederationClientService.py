@@ -59,7 +59,7 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
 
     def _create_context(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        self.context.load_cert_chain(MainConfig.federationCert, MainConfig.federationKey,
+        self.context.load_cert_chain(certfile=MainConfig.federationCert, keyfile=MainConfig.federationKey,
                                      password=MainConfig.federationKeyPassword)
         self.context.set_ciphers('DEFAULT@SECLEVEL=1')
 

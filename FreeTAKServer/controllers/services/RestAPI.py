@@ -19,6 +19,7 @@ from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
+from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import SendDeleteVideoStreamController
 import os
 import shutil
 import json
@@ -26,7 +27,11 @@ from flask_cors import CORS
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, UpdateSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController, UpdatePresenceController
 from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
+from FreeTAKServer.controllers.RestMessageControllers.SendSensorDroneController import SendSensorDroneController
+from FreeTAKServer.controllers.RestMessageControllers.SendSPISensorController import SendSPISensorController
+from FreeTAKServer.controllers.RestMessageControllers.SendImageryVideoController import SendImageryVideoController
 from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
+from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.JsonController import JsonController
 
@@ -272,68 +277,74 @@ def systemUsers(empty=None):
 def addSystemUser(jsondata):
     from FreeTAKServer.controllers import certificate_generation
     import uuid
-    for systemuser in json.loads(jsondata)['systemUsers']:
-        if systemuser["Certs"] == "true":
-            # create certs
-            certificate_generation.AtakOfTheCerts().bake(cn=systemuser["Name"])
-            certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
-            # add DP
-            import string
-            import random
-            from pathlib import PurePath, Path
-            import hashlib
-            from defusedxml import ElementTree as etree
-            import shutil
-            import os
-            dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
-            openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))), mode='rb')
-            file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-            openfile.close()
-            newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
-            os.mkdir(newDirectory)
-            shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))),
-                        str(PurePath(Path(newDirectory), Path(systemuser["Name"] + '.zip'))))
-            fileSize = Path(str(newDirectory), systemuser["Name"] + '.zip').stat().st_size
-            dbController.create_datapackage(uid=str(uuid.uuid4()), Name=systemuser["Name"] + '.zip', Hash=file_hash,
-                                            SubmissionUser='server',
-                                            CreatorUid='server-uid', Size=fileSize, Privacy=1)
-            dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                   token=systemuser["Token"], password=systemuser["Password"],
-                                                   uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"]+'.zip')
-            import datetime as dt
-            DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-            timer = dt.datetime
-            now = timer.utcnow()
-            zulu = now.strftime(DATETIME_FMT)
-            add = dt.timedelta(seconds=600)
-            stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-            stale = stale_part.strftime(DATETIME_FMT)
-            timer = dt.datetime
-            now = timer.utcnow()
-            zulu = now.strftime(DATETIME_FMT)
-            time = zulu
-            from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
-            from FreeTAKServer.model.RawCoT import RawCoT
-            cot = RawCoT()
-            DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
-            clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{systemuser["Name"]}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{systemuser["Name"]+".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{systemuser["Name"]+".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
-            cot.xmlString = clientXML.encode()
-            newCoT = SendOtherController(cot)
-            APIPipe.put(newCoT.getObject())
+    try:
+        for systemuser in json.loads(jsondata)['systemUsers']:
+            if systemuser["Certs"] == "true":
+                # create certs
+                certificate_generation.AtakOfTheCerts().bake(common_name=systemuser["Name"])
+                certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
+                # add DP
+                import string
+                import random
+                from pathlib import PurePath, Path
+                import hashlib
+                from defusedxml import ElementTree as etree
+                import shutil
+                import os
+                dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
+                openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))), mode='rb')
+                file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
+                openfile.close()
+                newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
+                os.mkdir(newDirectory)
+                shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))),
+                            str(PurePath(Path(newDirectory), Path(systemuser["Name"] + '.zip'))))
+                fileSize = Path(str(newDirectory), systemuser["Name"] + '.zip').stat().st_size
+                dbController.create_datapackage(uid=str(uuid.uuid4()), Name=systemuser["Name"] + '.zip', Hash=file_hash,
+                                                SubmissionUser='server',
+                                                CreatorUid='server-uid', Size=fileSize, Privacy=1)
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                       token=systemuser["Token"], password=systemuser["Password"],
+                                                       uid=str(uuid.uuid4()), certificate_package_name=systemuser["Name"]+'.zip')
+                import datetime as dt
+                DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                timer = dt.datetime
+                now = timer.utcnow()
+                zulu = now.strftime(DATETIME_FMT)
+                add = dt.timedelta(seconds=600)
+                stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+                stale = stale_part.strftime(DATETIME_FMT)
+                timer = dt.datetime
+                now = timer.utcnow()
+                zulu = now.strftime(DATETIME_FMT)
+                time = zulu
+                from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+                from FreeTAKServer.model.RawCoT import RawCoT
+                cot = RawCoT()
+                DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
+                clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{systemuser["Name"]}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{systemuser["Name"]+".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{systemuser["Name"]+".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
+                cot.xmlString = clientXML.encode()
+                newCoT = SendOtherController(cot, addToDB=False)
+                APIPipe.put(newCoT.getObject())
 
-        else:
-            dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                   token=systemuser["Token"], password=systemuser["Password"],
-                                                   uid=str(uuid.uuid4()))
-
+            else:
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                       token=systemuser["Token"], password=systemuser["Password"],
+                                                       uid=str(uuid.uuid4()))
+    except Exception as e:
+        print(e)
+        return str(e), 500
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
 def removeSystemUser(jsondata):
+    from FreeTAKServer.controllers.certificate_generation import revoke_certificate
     jsondata = json.loads(jsondata)
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
+        na = systemUser.name
+        revoke_certificate(username = na)
         certificate_package_name = systemUser.certificate_package_name
         dbController.remove_systemUser(f'uid = "{uid}"')
         obj = dbController.query_datapackage(f'Name = "{certificate_package_name}"')
@@ -341,6 +352,9 @@ def removeSystemUser(jsondata):
         currentPath = MainConfig.DataPackageFilePath
         shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
         dbController.remove_datapackage(f'Hash = "{obj[0].Hash}"')
+        os.remove(MainConfig.certsPath+f"/{na}.pem")
+        os.remove(MainConfig.certsPath+f"/{na}.key")
+        os.remove(MainConfig.certsPath+f"/{na}.p12")
 
 @socketio.on("events")
 @socket_auth(session=session)
@@ -397,22 +411,30 @@ def getlogErrors():
 def getemergencys():
     output = dbController.query_ActiveEmergency()
     for i in range(0, len(output)):
-        original = output[i]
-        output[i] = output[i].__dict__
-        output[i]["lat"] = original.event.point.lat
-        output[i]["lon"] = original.event.point.lon
-        output[i]["type"] = original.event.detail.emergency.type
-        output[i]["name"] = original.event.detail.contact.callsign
-        del (output[i]['_sa_instance_state'])
-        del (output[i]['event'])
+        try:
+            original = output[i]
+            output[i] = output[i].__dict__
+            output[i]["lat"] = original.event.point.lat
+            output[i]["lon"] = original.event.point.lon
+            output[i]["type"] = original.event.detail.emergency.type
+            output[i]["name"] = original.event.detail.contact.callsign
+            del (output[i]['_sa_instance_state'])
+            del (output[i]['event'])
+        except:
+            pass
     return output
 
 
 class Notification:
     def __init__(self):
-        self.emergencys = [i["name"]+" "+i["type"] for i in getemergencys()]
-        self.logErrors = [i["message"] for i in getlogErrors()]
-
+        try:
+            self.emergencys = [i["name"]+" "+i["type"] for i in getemergencys()]
+        except:
+            self.emergencys = []
+        try:
+            self.logErrors = [i["message"] for i in getlogErrors()]
+        except:
+            self.logErrors = []
 
 @app.route("/SendGeoChat", methods=[restMethods.POST])
 @auth.login_required()
@@ -737,7 +759,57 @@ def putGeoObject():
     except Exception as e:
         return str(e), 500
 
+@app.route("/ManageVideoStream")
+@auth.login_required()
+def ManageVideoStream():
+    pass
 
+@app.route("/ManageVideoStream/getVideoStream", methods=[restMethods.GET])
+@auth.login_required
+def getVideoStream():
+    try:
+        from json import dumps
+        from urllib import parse
+        from FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor import Sensor
+        output = dbController.query_CoT(query='type="b-i-v" OR type="a-f-A-M-H-Q"')
+        return_value = {"video_stream": []}
+        for value in output:
+            if value.detail._video.url:
+                return_value["video_stream"].append(parse.urlparse(value.detail._video.url).path)
+            elif value.detail._video.Connectionentry.path:
+                return_value["video_stream"].append(value.detail._video.Connectionentry.path)
+        return dumps(return_value), 200
+    except Exception as e:
+        return str(e), 500
+
+
+@app.route("/ManageVideoStream/deleteVideoStream", methods=[restMethods.DELETE])
+@auth.login_required
+def deleteVideoStream():
+    try:
+        from json import dumps
+        jsondata = request.get_json(force=True)
+        jsonobj = JsonController().serialize_video_stream_delete(jsondata)
+        EmergencyObject = SendDeleteVideoStreamController(jsonobj).getCoTObject()
+        APIPipe.put(EmergencyObject)
+        return 'success', 200
+    except Exception as e:
+        return str(e), 500
+
+@app.route("/ManageVideoStream/postVideoStream", methods=["POST"])
+@auth.login_required()
+def postVideoStream():
+    try:
+        jsondata = request.get_json(force=True)
+        simpleCoTObject = SendVideoStreamController(jsondata).getCoTObject()
+        print("putting in queue")
+        APIPipe.put(simpleCoTObject)
+        print(simpleCoTObject.xmlString)
+        print('put in queue')
+        return simpleCoTObject.modelObject.getuid(), 200
+
+    except Exception as e:
+        return str(e), 500
 
 """@app.route("/ManageGeoObject/getGeoObject", methods=[restMethods.GET])
 @auth.login_required
@@ -802,6 +874,62 @@ def deleteEmergency():
         return 'success', 200
     except Exception as e:
         return str(e), 500
+
+@app.route("/Sensor")
+@auth.login_required
+def sensor():
+    pass
+
+@app.route("/Sensor/postDrone", methods=["POST"])
+@auth.login_required
+def postDroneSensor():
+    try:
+        from json import dumps
+
+        jsondata = request.get_json(force=True)
+        print(jsondata)
+        jsonobj = JsonController().serialize_drone_sensor_post(jsondata)
+        DroneObject = SendSensorDroneController(jsonobj).getCoTObject()
+
+
+        print(DroneObject.xmlString)
+        APIPipe.put(DroneObject)
+        if jsonobj.getSPILongitude() or jsonobj.getSPILatitude() or jsonobj.getSPIName():
+            jsonobjSPI = JsonController().serialize_spi_post(jsondata)
+            jsonobjSPI.setlatitude(jsonobj.getSPILatitude())
+            jsonobjSPI.setlongitude(jsonobj.getSPILongitude())
+            jsonobjSPI.setname(jsonobj.getSPIName())
+            jsonobjSPI.setdroneUid(DroneObject.modelObject.getuid())
+            SPISensor = SendSPISensorController(jsonobjSPI).getCoTObject()
+            APIPipe.put(SPISensor)
+            return json.dumps({"uid": DroneObject.modelObject.getuid(), "SPI_uid": SPISensor.modelObject.getuid()}), 200
+        return DroneObject.modelObject.getuid(), 200
+    except Exception as e:
+        return str(e), 200
+
+@app.route("/Sensor/postSPI", methods=["POST"])
+@auth.login_required
+def postSPI():
+    try:
+        from json import dumps
+
+        jsondata = request.get_json(force=True)
+        jsonobj = JsonController().serialize_spi_post(jsondata)
+        SPIObject = SendSPISensorController(jsonobj).getCoTObject()
+        APIPipe.put(SPIObject)
+        return SPIObject.modelObject.getuid(), 200
+    except Exception as e:
+        return str(e), 200
+
+@app.route("/MapVid", methods=["POST"])
+@auth.login_required
+def mapvid():
+    from json import dumps
+    jsondata = request.get_json(force=True)
+    jsonobj = JsonController().serialize_imagery_video(jsondata)
+    ImagerVideoObject = SendImageryVideoController(jsonobj).getCoTObject()
+    APIPipe.put(ImagerVideoObject)
+    return 200
 
 @app.route("/AuthenticateUser", methods=["GET"])
 @auth.login_required
@@ -1078,6 +1206,7 @@ def DataPackageTable():
             return 'successful', 200
         except Exception as e:
             return str(e), 500
+
     elif request.method == "PUT":
         updatedata = json.loads(request.data)
         DataPackages = updatedata['DataPackages']

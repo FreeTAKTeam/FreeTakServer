@@ -35,7 +35,7 @@ class TableController:
             return output
         elif isinstance(query, list):
             output = session.query(
-                *tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(*query).all()
+                *tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(text(*query)).all()
             return output
 
     def update(self, session, query, column_value):

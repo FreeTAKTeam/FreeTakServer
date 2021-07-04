@@ -39,6 +39,14 @@ class Marti(FTSProtocolObject):
         marti = Marti()
         return marti
 
+    @staticmethod
+    def VideoStream():
+        global set_count, index_count
+        set_count = 0
+        index_count = 0
+        marti = Marti()
+        return marti
+
     def getdest(self):
         # TODO: clean up this implementation and eliminate need for __firstrun
         try:

@@ -64,3 +64,23 @@ class ContactVariables:
     def Route(cls):
         cls.callsign = None
         return cls
+
+    @classmethod
+    def VideoStream(cls):
+        cls.callsign = None
+        return cls
+
+    @classmethod
+    def DroneSensor(cls):
+        cls.callsign = None
+        return cls
+
+    @classmethod
+    def SPISensor(cls):
+        cls.callsign = None
+        return cls
+
+    @classmethod
+    def BitsImageryVideo(cls):
+        cls.callsign = None
+        return cls

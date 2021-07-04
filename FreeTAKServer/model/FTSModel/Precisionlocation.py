@@ -42,6 +42,12 @@ class Precisionlocation(FTSProtocolObject):
         precisionlocation.setgeopointsrc(GEOPOINTSRC)
         return precisionlocation
 
+    @staticmethod
+    def SPISensor(ALTSRC=vars.SPISensor().ALTSRC):
+        precisionlocation = Precisionlocation()
+        precisionlocation.setaltsrc(altsrc=ALTSRC)
+        return precisionlocation
+
     # geopointsrc getter
     def getgeopointsrc(self): 
       return self.geopointsrc 
