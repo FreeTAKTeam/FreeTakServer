@@ -27,7 +27,6 @@ class MainConfig:
     except:
         ip = "0.0.0.0"
 
-    #edit this if you dont want to use yaml configuration
     if not os.path.exists(AlternateConfig):
         MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 1))
 
@@ -49,13 +48,13 @@ class MainConfig:
         FederationPort = os.environ.get('FTS_FED_PORT', 9000)
 
         # api IP
-        APIIP = os.environ.get('FTS_API_ADDRESS', '192.168.2.75')
+        APIIP = os.environ.get('FTS_API_ADDRESS', '0.0.0.0')
 
         # whether or not to save CoT's to the DB
         SaveCoTToDB = bool(os.environ.get('FTS_COT_TO_DB', True))
 
         # this should be set before startup
-        DBFilePath = str(os.environ.get('FTS_DB_PATH', r'/root/FTSDataBase.db'))
+        DBFilePath = str(os.environ.get('FTS_DB_PATH', r'/opt/FTSDataBase.db'))
 
         MainPath = str(os.environ.get("FTS_MAINPATH", Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')))
 
@@ -65,18 +64,19 @@ class MainConfig:
 
         ExCheckFilePath = str(os.environ.get('FTS_EXCHECK_TEMPLATE_PATH', Path(fr'{MainPath}/ExCheck/template')))
 
-        ExCheckChecklistFilePath = str(os.environ.get("FTS_EXCHECK_CHECKLIST_PATH", Path(fr'{MainPath}/ExCheck/checklist')))
+        ExCheckChecklistFilePath = str(
+            os.environ.get("FTS_EXCHECK_CHECKLIST_PATH", Path(fr'{MainPath}/ExCheck/checklist')))
 
-        DataPackageFilePath = str(os.environ.get("FTS_DATAPACKAGE_PATH", Path(fr'{MainPath}/FreeTAKServerDataPackageFolder')))
+        DataPackageFilePath = str(
+            os.environ.get("FTS_DATAPACKAGE_PATH", Path(fr'{MainPath}/FreeTAKServerDataPackageFolder')))
 
         LogFilePath = str(os.environ.get("FTS_LOGFILE_PATH", Path(fr"{MainPath}/Logs")))
 
-
         federationKeyPassword = str(os.environ.get('FTS_FED_PASSWORD', 'defaultpass'))
 
-        keyDir = str(os.environ.get("FTS_SERVER_KEYDIR",Path(fr'{certsPath}/server.key')))
+        keyDir = str(os.environ.get("FTS_SERVER_KEYDIR", Path(fr'{certsPath}/server.key')))
 
-        pemDir = str(os.environ.get("FTS_SERVER_PEMDIR",Path(fr'{certsPath}/server.pem'))) # or crt
+        pemDir = str(os.environ.get("FTS_SERVER_PEMDIR", Path(fr'{certsPath}/server.pem')))  # or crt
 
         testPem = str(os.environ.get("FTS_TESTCLIENT_PEMDIR", pemDir))
 
@@ -96,13 +96,12 @@ class MainConfig:
 
         federationKeyPassword = str(os.environ.get("FTS_FEDERATION_KEYPASS", 'defaultpass'))
 
-        password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', 'atakatak'))
+        password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', 'supersecret'))
 
         websocketkey = str(os.environ.get('FTS_WEBSOCKET_KEY', "YourWebsocketKey"))
 
         CRLFile = str(os.environ.get('FTS_CRLDIR', fr"{certsPath}/FTS_CRL.json"))
 
-    #dont edit here!
     else:
         content = open(AlternateConfig).read()
         yamlConfig = yaml.safe_load(content)
@@ -225,7 +224,7 @@ class MainConfig:
 
             federationKeyPassword = str(os.environ.get("FTS_FEDERATION_KEYPASS", yamlConfig["Certs"].get("FederationKeyPassword", None)))
 
-            password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', yamlConfig["Certs"].get("ClientCertPassword", 'atakatak')))
+            password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', yamlConfig["Certs"].get("ClientCertPassword", 'defaultpass')))
 
             websocketkey = str(os.environ.get('FTS_WEBSOCKET_KEY', yamlConfig["Certs"].get("WebsocketKey", "YourWebsocketKey")))
 
@@ -255,16 +254,15 @@ class MainConfig:
 
             federationKeyPassword = str(os.environ.get("FTS_FEDERATION_KEYPASS", 'defaultpass'))
 
-            password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', 'atakatak'))
+            password = str(os.environ.get('FTS_CLIENT_CERT_PASSWORD', 'defaultpass'))
 
             websocketkey = str(os.environ.get('FTS_WEBSOCKET_KEY', "YourWebsocketKey"))
 
             CRLFile = str(os.environ.get('FTS_CRLDIR', fr"{certsPath}/FTS_CRL.json"))
 
 
-
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.9 RC 2 Public'
+    version = 'FreeTAKServer-1.9 Alpha RC 2'
 
     # allowed ip's to access CLI commands
     AllowedCLIIPs = ['127.0.0.1']
