@@ -12,7 +12,7 @@ class MainConfig:
 
 
     #
-    AlternateConfig = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
+    yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
 
     python_version = 'python3.8'
 
@@ -27,7 +27,7 @@ class MainConfig:
     except:
         ip = "0.0.0.0"
 
-    if not os.path.exists(AlternateConfig):
+    if not os.path.exists(yaml_path):
         MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 1))
 
         # this is the port to which clients will connect
@@ -103,7 +103,7 @@ class MainConfig:
         CRLFile = str(os.environ.get('FTS_CRLDIR', fr"{certsPath}/FTS_CRL.json"))
 
     else:
-        content = open(AlternateConfig).read()
+        content = open(yaml_path).read()
         yamlConfig = yaml.safe_load(content)
 
         # number of milliseconds to wait between each iteration of main loop
@@ -282,3 +282,5 @@ class MainConfig:
 
     # location to backup client packages
     clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
+
+    first_start = True

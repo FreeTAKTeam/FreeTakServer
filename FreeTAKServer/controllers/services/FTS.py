@@ -11,6 +11,7 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 from FreeTAKServer.controllers.services.RestAPI import RestAPI
 from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSObj
 from FreeTAKServer.model.SimpleClient import SimpleClient
+from FreeTAKServer.controllers.configuration_wizard import ask_user_for_config
 import time
 from FreeTAKServer.controllers.AddDataToCoTList import AddDataToCoTList
 from FreeTAKServer.model.FilterGroup import FilterGroup
@@ -715,6 +716,11 @@ if __name__ == "__main__":
         parser.add_argument('-AutoStart', type=str, help='whether or not you want all services to start or only the root service and the RestAPI service', default='True')
         parser.add_argument('-UI', type=str, help="set to true if you would like to start UI on server startup")
         args = parser.parse_args()
+        if MainConfig.first_start:
+            ask_user_for_config()
+        else:
+            pass
+
         with AtakOfTheCerts() as aotc:
             aotc.generate_ca(expiry_time_secs=31536000)
             aotc.bake(common_name="server", cert="server", expiry_time_secs=31536000)
