@@ -5,6 +5,7 @@ from flask_httpauth import HTTPTokenAuth
 from flask_login import current_user, LoginManager
 import threading
 from functools import wraps
+import uuid
 import datetime as dt
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import datetime
@@ -939,29 +940,32 @@ def authenticate_user():
         username = request.args.get("username")
         password = request.args.get("password")
         try:
-            user = dbController.query_systemUser(query=(f'name = "{username}" and password = "{password}"'))[0]
+            user = dbController.query_systemUser(query=(f'name = "{username}"'))[0]
         except Exception as e:
             print(e)
             return None
-        print("query made")
-        user.metadata = None
-        user.query = None
-        user.query_class = None
-        user._decl_class_registry = None
-        user._sa_class_manager = None
-        user._sa_instance_state = None
-        user._modified_event = None
-        print("done setting to none")
-        json_user = user.__dict__
-        print(json_user)
-        del (json_user["_sa_class_manager"])
-        del (json_user["_sa_instance_state"])
-        del (json_user["_modified_event"])
-        del (json_user["_decl_class_registry"])
-        print('done defining dict')
-        return_data = json.dumps({"uid": json_user["uid"]})
-        print('returning data '+str(return_data))
-        return return_data
+        if user.password == password:
+            print("query made")
+            user.metadata = None
+            user.query = None
+            user.query_class = None
+            user._decl_class_registry = None
+            user._sa_class_manager = None
+            user._sa_instance_state = None
+            user._modified_event = None
+            print("done setting to none")
+            json_user = user.__dict__
+            print(json_user)
+            del (json_user["_sa_class_manager"])
+            del (json_user["_sa_instance_state"])
+            del (json_user["_modified_event"])
+            del (json_user["_decl_class_registry"])
+            print('done defining dict')
+            return_data = json.dumps({"uid": json_user["uid"]})
+            print('returning data '+str(return_data))
+            return return_data
+        else:
+            return None
     except Exception as e:
         print(e)
         return e, 500
@@ -1114,6 +1118,187 @@ def FederationTable():
 
     except Exception as e:
         return str(e), 500
+
+@app.route('/ManageKML/postKML', methods=[restMethods.POST])
+@auth.login_required()
+def create_kml():
+    from pykml.factory import KML_ElementMaker as KML
+    from pathlib import Path, PurePath
+    from lxml import etree
+    import hashlib
+    from zipfile import ZipFile
+    from lxml.etree import SubElement, Element
+    dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
+    jsondata = request.get_json(force=True)
+    name = jsondata["name"]
+    main = KML.kml(xmlns="http://www.opengis.net/kml/2.2")
+    root = KML.Document()
+    main[0].append(root)
+    root[0].append(KML.description(name))
+    root[0].append(KML.Folder())
+    root.Folder[0].append(KML.Placemark())
+    root.Folder.Placemark[0].append(KML.name(name))
+    root.Folder.Placemark[0].append(KML.ExtendedData())
+    root.Folder.Placemark[0].append(KML.Point(KML.coordinates(str(jsondata["longitude"])+","+str(jsondata["latitude"]))))
+    attribs = root.Folder.Placemark.ExtendedData[0]
+    for key, value in jsondata["body"].items():
+        attribs.append(KML.Data(KML.value(value), name=key))
+
+    # create DP
+    tempuid = str(uuid.uuid4())
+    app.logger.info(f"Data Package hash = {str(tempuid)}")
+    directory = Path(dp_directory, tempuid)
+    if not Path.exists(directory):
+        os.mkdir(str(directory))
+    filepath = str(PurePath(Path(directory), Path(name)))
+    data_stringified = etree.tostring(main)
+    '''data_stringified = """<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <description>SALUTE REPORT</description>
+    <Folder>
+      <Placemark>
+        <name>SALUTE REPORT</name>
+        <ExtendedData>
+          <Data name="title">
+            <value>SALUTE REPORT 001</value>
+          </Data>
+          <Data name="warning" />
+          <Data name="userCallsign">
+            <value>Corvo</value>
+          </Data>
+          <Data name="userDescription" />
+          <Data name="dateTime">
+            <value>2021-05-13T13:55:05.19Z</value>
+          </Data>
+          <Data name="dateTimeDescription" />
+          <Data name="type">
+            <value>Surveillance</value>
+          </Data>
+          <Data name="eventScale">
+            <value>Village</value>
+          </Data>
+          <Data name="scaleDescription" />
+          <Data name="importance">
+            <value>Routine</value>
+          </Data>
+          <Data name="status">
+            <value>FurtherInvestigation</value>
+          </Data>
+          <Data name="Time Observed">
+            <value>2021-05-13T13:55:05.19Z</value>
+          </Data>
+          <Data name="Duration of Event">
+            <value>All day</value>
+          </Data>
+          <Data name="Surveillance Type">
+            <value>Discreet</value>
+          </Data>
+          <Data name="Method Of Detection">
+            <value>General Observation</value>
+          </Data>
+          <Data name="Surveillance Mode">
+            <value>Vehicle</value>
+          </Data>
+          <Data name="Location">
+            <value>POINT (-77.0104 38.88890079253441)</value>
+          </Data>
+          <Data name="Range &amp; Bearing to point">
+            <value>300:90</value>
+          </Data>
+          <Data name="Vehicle Type">
+            <value>Sedan</value>
+          </Data>
+          <Data name="Vehicle Color">
+            <value>Orange</value>
+          </Data>
+          <Data name="License Plate" />
+          <Data name="Occupants">
+            <value>2</value>
+          </Data>
+          <Data name="Equipment Type">
+            <value>Other</value>
+          </Data>
+          <Data name="Equipment Description">
+            <value>UAV</value>
+          </Data>
+          <Data name="SDR Type">
+            <value>Intrusion Points</value>
+          </Data>
+            <Data name="Assessed Threats">
+            <value>Threat to Mission</value>
+          </Data>
+          <Data name="Final Remarks">
+            <value>foo</value>
+          </Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-78.087631247736226,36.46037039687095</coordinates>
+        </Point>
+      </Placemark>
+           </Folder>
+  </Document>
+</kml>"""'''
+    with open(filepath, mode="wb+") as file:
+
+        with ZipFile(file, mode='a') as zip:
+            print(zip.infolist())
+            uidtemp = uuid.uuid4()
+            if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
+                manifestXML = Element("MissionPackageManifest", version="2")
+                config = SubElement(manifestXML, "Configuration")
+                SubElement(config, "Parameter", name="name", value=name)
+                SubElement(config, "Parameter", name="uid", value=str(uidtemp))
+                zip.writestr(str(uidtemp.hex) + "/" + name + ".kml", data_stringified)
+                contents = SubElement(manifestXML, "Contents")
+                for fileName in zip.namelist():
+                    SubElement(contents, "Content", ignore="false", zipEntry=str(fileName))
+                # manifest = zip.open('MANIFEST\\manifest.xml', mode="w")
+                zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
+
+                print(zip.namelist())
+                file.seek(0)
+            else:
+                pass
+
+    openfile = open(str(PurePath(Path(str(directory), name))), mode='rb')
+    file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
+    openfile.close()
+    newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
+    os.rename(str(PurePath(Path(directory))), newDirectory)
+    fileSize = Path(str(newDirectory), name).stat().st_size
+    uid = str(uuid.uuid4())
+    dbController.create_datapackage(uid=uid, Name=name, Hash=file_hash, SubmissionUser='server',
+                                    CreatorUid='server-uid', Size=fileSize)
+
+    # broacast DP
+    broadcast_datapackage(uid)
+
+    return "successful", 200
+@app.route('/BroadcastDataPackage', methods=[restMethods.POST])
+@auth.login_required()
+def broadcast_datapackage(uid):
+    import datetime as dt
+    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+    timer = dt.datetime
+    now = timer.utcnow()
+    zulu = now.strftime(DATETIME_FMT)
+    add = dt.timedelta(seconds=600)
+    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+    stale = stale_part.strftime(DATETIME_FMT)
+    timer = dt.datetime
+    now = timer.utcnow()
+    zulu = now.strftime(DATETIME_FMT)
+    time = zulu
+    from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+    from FreeTAKServer.model.RawCoT import RawCoT
+    cot = RawCoT()
+    DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
+    DPObj = dbController.query_datapackage(f'uid = "{uid}"')[0]
+    clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{DPObj.Name+".zip"}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{DPObj.Hash}/tool" sizeInBytes="{DPObj.Size}" sha256="{str(DPObj.Hash)}" senderUid="server-uid" senderCallsign="server" name="{DPObj.Name}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{DPObj.Name}" /></detail></event>'
+    cot.xmlString = clientXML.encode()
+    newCoT = SendOtherController(cot, addToDB=False)
+    APIPipe.put(newCoT.getObject())
 
 @app.route('/DataPackageTable', methods=[restMethods.GET, restMethods.POST, restMethods.DELETE, "PUT"])
 @auth.login_required()

@@ -277,7 +277,7 @@ class Orchestrator:
         print('disconnecting client')
         if hasattr(clientInformation, "clientInformation"):
             clientInformation = clientInformation.clientInformation
-        try:
+        """try:
             clientInformation.socket.send(b'sample')
             return 1
         except:
@@ -288,7 +288,7 @@ class Orchestrator:
                 else:
                     return 1
             except:
-                return 1
+                return 1"""
         try:
             for client in self.clientInformationQueue:
                 if client.ID == clientInformation.ID:
@@ -507,7 +507,7 @@ class Orchestrator:
                         output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
                                                                       self.clientInformationQueue, self.CoTSharePipe)
                         print('data sent in queue')
-                        if self.checkOutput(output) and isinstance(output, tuple) == False:
+                        """if self.checkOutput(output) and isinstance(output, tuple) == False:
                             pass
                         elif isinstance(output, tuple):
                             self.logger.error('issue sending data to client now disconnecting')
@@ -518,7 +518,7 @@ class Orchestrator:
 
                         else:
                             self.logger.error('send data failed in main run function with data ' + str(
-                                CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.detail.contact.callsign)
+                                CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.detail.contact.callsign)"""
 
                     else:
                         raise Exception('error in general data processing')
