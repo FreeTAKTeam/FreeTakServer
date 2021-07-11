@@ -1123,6 +1123,7 @@ def FederationTable():
 @auth.login_required()
 def create_kml():
     from pykml.factory import KML_ElementMaker as KML
+    from pykml import parser
     from pathlib import Path, PurePath
     from lxml import etree
     import hashlib
