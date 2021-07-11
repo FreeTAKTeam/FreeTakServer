@@ -1131,7 +1131,7 @@ def create_kml():
     dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
     jsondata = request.get_json(force=True)
     name = jsondata["name"]
-    main = KML.kml(xmlns="http://www.opengis.net/kml/2.2")
+    main = parser.fromstring('<kml xmlns="http://www.opengis.net/kml/2.2"/>')
     root = KML.Document()
     main[0].append(root)
     root[0].append(KML.description(name))

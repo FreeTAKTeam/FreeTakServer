@@ -31,7 +31,7 @@ class XMLCoTController:
             except Exception as e:
                 logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
         #this runs if it is infact regular data
-        elif data.xmlString == b'' or data.xmlString == None:
+        elif data.xmlString == b'':
             #this handeles a client dissconection CoT
             print('data is empty')
             return ("clientDisconnected", data)
