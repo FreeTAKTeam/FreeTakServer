@@ -1129,6 +1129,7 @@ def create_kml():
     import hashlib
     from zipfile import ZipFile
     from lxml.etree import SubElement, Element
+    from geopy import Nominatim
     dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
     jsondata = request.get_json(force=True)
     name = jsondata["name"]
@@ -1140,7 +1141,16 @@ def create_kml():
     root.Folder[0].append(KML.Placemark())
     root.Folder.Placemark[0].append(KML.name(name))
     root.Folder.Placemark[0].append(KML.ExtendedData())
-    root.Folder.Placemark[0].append(KML.Point(KML.coordinates(str(jsondata["longitude"])+","+str(jsondata["latitude"]))))
+    if jsondata.get("longitude") and jsondata.get("latitude"):
+        root.Folder.Placemark[0].append(KML.Point(KML.coordinates(str(jsondata["longitude"])+","+str(jsondata["latitude"]))))
+    elif jsondata.get("address"):
+        locator = Nominatim(user_agent="myGeocoder")
+        location = locator.geocode(jsondata.get("address"))
+        root.Folder.Placemark[0].append(
+        KML.Point(KML.coordinates(str(location.longitude) + "," + str(location.latitude))))
+    else:
+        root.Folder.Placemark[0].append(
+            KML.Point(KML.coordinates(str(0) + "," + str(0))))
     attribs = root.Folder.Placemark.ExtendedData[0]
     for key, value in jsondata["body"].items():
         attribs.append(KML.Data(KML.value(value), name=key))
@@ -1153,93 +1163,6 @@ def create_kml():
         os.mkdir(str(directory))
     filepath = str(PurePath(Path(directory), Path(name)))
     data_stringified = etree.tostring(main)
-    '''data_stringified = """<?xml version="1.0" encoding="utf-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <description>SALUTE REPORT</description>
-    <Folder>
-      <Placemark>
-        <name>SALUTE REPORT</name>
-        <ExtendedData>
-          <Data name="title">
-            <value>SALUTE REPORT 001</value>
-          </Data>
-          <Data name="warning" />
-          <Data name="userCallsign">
-            <value>Corvo</value>
-          </Data>
-          <Data name="userDescription" />
-          <Data name="dateTime">
-            <value>2021-05-13T13:55:05.19Z</value>
-          </Data>
-          <Data name="dateTimeDescription" />
-          <Data name="type">
-            <value>Surveillance</value>
-          </Data>
-          <Data name="eventScale">
-            <value>Village</value>
-          </Data>
-          <Data name="scaleDescription" />
-          <Data name="importance">
-            <value>Routine</value>
-          </Data>
-          <Data name="status">
-            <value>FurtherInvestigation</value>
-          </Data>
-          <Data name="Time Observed">
-            <value>2021-05-13T13:55:05.19Z</value>
-          </Data>
-          <Data name="Duration of Event">
-            <value>All day</value>
-          </Data>
-          <Data name="Surveillance Type">
-            <value>Discreet</value>
-          </Data>
-          <Data name="Method Of Detection">
-            <value>General Observation</value>
-          </Data>
-          <Data name="Surveillance Mode">
-            <value>Vehicle</value>
-          </Data>
-          <Data name="Location">
-            <value>POINT (-77.0104 38.88890079253441)</value>
-          </Data>
-          <Data name="Range &amp; Bearing to point">
-            <value>300:90</value>
-          </Data>
-          <Data name="Vehicle Type">
-            <value>Sedan</value>
-          </Data>
-          <Data name="Vehicle Color">
-            <value>Orange</value>
-          </Data>
-          <Data name="License Plate" />
-          <Data name="Occupants">
-            <value>2</value>
-          </Data>
-          <Data name="Equipment Type">
-            <value>Other</value>
-          </Data>
-          <Data name="Equipment Description">
-            <value>UAV</value>
-          </Data>
-          <Data name="SDR Type">
-            <value>Intrusion Points</value>
-          </Data>
-            <Data name="Assessed Threats">
-            <value>Threat to Mission</value>
-          </Data>
-          <Data name="Final Remarks">
-            <value>foo</value>
-          </Data>
-        </ExtendedData>
-        <Point>
-          <coordinates>-78.087631247736226,36.46037039687095</coordinates>
-        </Point>
-      </Placemark>
-           </Folder>
-  </Document>
-</kml>"""'''
     with open(filepath, mode="wb+") as file:
 
         with ZipFile(file, mode='a') as zip:
