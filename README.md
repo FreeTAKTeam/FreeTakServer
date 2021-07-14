@@ -17,19 +17,19 @@ FTS allows you to connect ATAK clients to share geo information, to chat with al
 It intends to support all the major use cases of the original TAK server.
 -  Web administration 
 - Federation Service (Connecting two or more FTS instances)
-- Data Package upload and retrieval
+- Data Package upload, share with all connected users  and retrieval
 - Image transfer and storage
 - COT recording in a database
 - Execution of common task list (using the ExCheck plugin for WinTAK; ATAK plugin only available to users with takmaps.com access)
 - SSL Encryption
 - Command Line Interface for start and stop services
-- API for creation of information such as emergency, Enemy units and so on
+- [Extensive REST API](https://freetakteam.github.io/FreeTAKServer-User-Docs/API/REST_APIDoc.html) for intgrations and extensions
 
 ![some use cases](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 [Live version](http://pldemo.sparxsystems.us/TVHOG)
 
 ## Project Status
-This code is currently in *Early Production Stage*.
+This code is currently in *Production Stage*.
 Check out our roadmap [@FreeTakServer#25](https://github.com/FreeTAKTeam/FreeTakServer/issues/25) to see what is planned
 Also subscribe to this feed to be automatically informed about PIP new versions:
 https://pypi.org/rss/project/freetakserver/releases.xml
