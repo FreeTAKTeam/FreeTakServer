@@ -166,3 +166,10 @@ logs/
 /FreeTAKServer/FreeTAKServerDataPackageFolder/
 /FreeTAKServer/certs/
 /FreeTAKServer/ExCheck/
+/FreeTAKServer/model/RestMessages/ChatSchema.json
+/FreeTAKServer/controllers/configuration/FTSConfig.yaml
+/FreeTAKServer/model/RestMessages/geoObject.xsd
+/FreeTAKServer/model/RestMessages/GeoObjectMessage.json
+/FreeTAKServer/model/RestMessages/GeoObjectSchema.graphql
+/FreeTAKServer/model/RestMessages/GeoObjectSchema.json
+/FreeTAKServer/model/RestMessages/GeoObjectSchema-rdfs.xml
