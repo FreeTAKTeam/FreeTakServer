@@ -303,8 +303,6 @@ class Orchestrator:
                     pass
         except Exception as e:
             self.logger.critical("client removal failed "+str(e))
-        print('stage 1')
-        #time.sleep(1)
         try:
             self.ActiveThreadsController.removeClientThread(clientInformation)
             self.dbController.remove_user(query=f'uid = "{clientInformation.modelObject.uid}"')
@@ -312,7 +310,6 @@ class Orchestrator:
             self.logger.critical(
                 'there has been an error in a clients disconnection while adding information to the database '+str(e))
             pass
-        print('stage 1 a')
         if hasattr(clientInformation, 'clientInformation'):
             clientInformation = clientInformation.clientInformation
         else:
@@ -340,23 +337,16 @@ class Orchestrator:
             except Exception as e:
                 self.logger.error('error closing socket in client disconnection')
                 pass
-            #time.sleep(1)
-            print('stage 2')
 
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
             # TODO: remove string
             tempXml = RawCoT()
             tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(clientInformation.modelObject.uid).encode()
             disconnect = SendDisconnectController(tempXml)
-            print('stage 3')
-            #working
-            #time.sleep(1)
             SendDataController().sendDataInQueue(disconnect.getObject().clientInformation, disconnect.getObject(), self.clientInformationQueue, self.CoTSharePipe)
             self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(clientInformation.modelObject.detail.contact.callsign))
-            print('client disconnected')
             return 1
         except Exception as e:
-            print(e)
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + " " + str(e))
             pass
 
@@ -386,6 +376,8 @@ class Orchestrator:
 
     def mainRunFunction(self, clientData, receiveConnection, sock, pool, event, clientDataPipe, ReceiveConnectionKillSwitch, CoTSharePipe, ssl = False):
         print('server started')
+        if ssl:
+            print("\n\n running ssl \n\n")
         self.ssl = ssl
         import datetime
         receiveconntimeoutcount = datetime.datetime.now()
@@ -453,10 +445,8 @@ class Orchestrator:
                     try:
                         if not CoTSharePipe.empty():
                             # print('getting share pipe data')
+
                             data = CoTSharePipe.get()
-                            if ssl and data != []:
-                                print('handling data shared with ssl')
-                                print(data)
                             CoTOutput = self.handel_shared_data(data)
                         else:
                             pass
@@ -503,22 +493,17 @@ class Orchestrator:
                     if CoTOutput == 1:
                         continue
                     elif self.checkOutput(CoTOutput):
-                        print('sending data in queue')
                         output = SendDataController().sendDataInQueue(CoTOutput.clientInformation, CoTOutput,
                                                                       self.clientInformationQueue, self.CoTSharePipe)
-                        print('data sent in queue')
-                        """if self.checkOutput(output) and isinstance(output, tuple) == False:
+                        if self.checkOutput(output) and isinstance(output, tuple) == False:
                             pass
                         elif isinstance(output, tuple):
                             self.logger.error('issue sending data to client now disconnecting')
-                            print('issue sending data to client now disconnecting')
-                            import traceback
-                            print(str(traceback.format_exc()))
                             self.clientDisconnected(output[1])
 
                         else:
                             self.logger.error('send data failed in main run function with data ' + str(
-                                CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.detail.contact.callsign)"""
+                                CoTOutput.xmlString) + ' from client ' + CoTOutput.clientInformation.modelObject.detail.contact.callsign)
 
                     else:
                         raise Exception('error in general data processing')
@@ -532,7 +517,6 @@ class Orchestrator:
                         'exception in client data, data processing within main run function ' + str(
                             e) + ' data is ' + str(clientDataOutput))
         except Exception as e:
-            print(e)
             self.logger.info("there has been an error iterating client data output " + str(e))
             return -1
         return 1
