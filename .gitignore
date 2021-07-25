@@ -143,29 +143,12 @@ dmypy.json
 # VSCode settings
 # (They include user-specific paths)
 .vscode/
-/ExCheck/checklist/52b1486b-b83b-41a6-ac03-9f5f674ae45c.xml
-/ExCheck/template/82bf1a69-4f2d-446a-b1d9-69e75ab5a7ce.xml
-/ExCheck/template/4602d1c1-84a9-4254-b03a-b1204c2ddd45.xml
-/ExCheck/checklist/c3d6f91c-0f68-4907-84cf-21448bc1acd8.xml
-/certs/ca.key
-/certs/ca.pem
-/.idea/dataSources.local.xml
-/FreeTAKServerDataPackageFolder/94e1ba52df2d5194b5becd0c8091d572b9f867b442b8824115562e8a26f9ed4a/discord.zip
-/FreeTAKServerDataPackageFolder/4e8cafc1ad08e903307940638df2a33d42e9588cbbd80c45a7b28dafcf470488/DP-BULLET
-/FreeTAKServerDataPackageFolder/55c5c888a7079b2e75857b0b2fe428ad6bd809b943987dacd20daaca89623c92/DP-Recon1-1 Heavy lift.zip
-/certs/ClientPackages/FAST.zip
-/FreeTAKServerDataPackageFolder/ba0d310d514ba43db102d8287de69c6557c39c29b9b08707306fbd5965ecfe57/FAST.zip
-/dist/FreeTAKServer-1.2.5.tar.gz
-/logs/FTS_debug.log
-/logs/FTS_error.log
-/logs/FTS_http.log
-/logs/FTS_info.log
+ExCheck/
+certs/
+.idea/
+FreeTAKServerDataPackageFolder/
+logs/
 /controllers/configuration/FTSDataBase.db
-/certs/ClientPackages/NOVA.zip
-/certs/pubserver.key
-/certs/pubserver.key.unencrypted
-/certs/pubserver.p12
-/certs/pubserver.pem
 /.idea/shelf/Uncommitted_changes_before_Update_at_11_9_2020_5_13_PM_[Default_Changelist]/shelved.patch
 /controllers/services/test.p12
 /controllers/services/test.pem
@@ -180,3 +163,6 @@ dmypy.json
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
 /.idea/webServers.xml
+/FreeTAKServer/FreeTAKServerDataPackageFolder/
+/FreeTAKServer/certs/
+/FreeTAKServer/ExCheck/
