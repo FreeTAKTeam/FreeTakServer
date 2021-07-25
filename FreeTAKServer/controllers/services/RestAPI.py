@@ -1122,83 +1122,86 @@ def FederationTable():
 @app.route('/ManageKML/postKML', methods=[restMethods.POST])
 @auth.login_required()
 def create_kml():
-    from pykml.factory import KML_ElementMaker as KML
-    from pykml import parser
-    from pathlib import Path, PurePath
-    from lxml import etree
-    import hashlib
-    from zipfile import ZipFile
-    from lxml.etree import SubElement, Element
-    from geopy import Nominatim
-    dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
-    jsondata = request.get_json(force=True)
-    name = jsondata["name"]
-    main = parser.fromstring('<kml xmlns="http://www.opengis.net/kml/2.2"/>')
-    root = KML.Document()
-    main[0].append(root)
-    root[0].append(KML.description(name))
-    root[0].append(KML.Folder())
-    root.Folder[0].append(KML.Placemark())
-    root.Folder.Placemark[0].append(KML.name(name))
-    root.Folder.Placemark[0].append(KML.ExtendedData())
-    if jsondata.get("longitude") and jsondata.get("latitude"):
-        root.Folder.Placemark[0].append(KML.Point(KML.coordinates(str(jsondata["longitude"])+","+str(jsondata["latitude"]))))
-    elif jsondata.get("address"):
-        locator = Nominatim(user_agent="myGeocoder")
-        location = locator.geocode(jsondata.get("address"))
-        root.Folder.Placemark[0].append(
-        KML.Point(KML.coordinates(str(location.longitude) + "," + str(location.latitude))))
-    else:
-        root.Folder.Placemark[0].append(
-            KML.Point(KML.coordinates(str(0) + "," + str(0))))
-    attribs = root.Folder.Placemark.ExtendedData[0]
-    for key, value in jsondata["body"].items():
-        attribs.append(KML.Data(KML.value(value), name=key))
+    try:
+        from pykml.factory import KML_ElementMaker as KML
+        from pykml import parser
+        from pathlib import Path, PurePath
+        from lxml import etree
+        import hashlib
+        from zipfile import ZipFile
+        from lxml.etree import SubElement, Element
+        from geopy import Nominatim
+        dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
+        jsondata = request.get_json(force=True)
+        name = jsondata["name"]
+        main = parser.fromstring('<kml xmlns="http://www.opengis.net/kml/2.2"/>')
+        root = KML.Document()
+        main[0].append(root)
+        root[0].append(KML.description(name))
+        root[0].append(KML.Folder())
+        root.Folder[0].append(KML.Placemark())
+        root.Folder.Placemark[0].append(KML.name(name))
+        root.Folder.Placemark[0].append(KML.ExtendedData())
+        if jsondata.get("longitude") and jsondata.get("latitude"):
+            root.Folder.Placemark[0].append(KML.Point(KML.coordinates(str(jsondata["longitude"])+","+str(jsondata["latitude"]))))
+        elif jsondata.get("address"):
+            locator = Nominatim(user_agent="myGeocoder")
+            location = locator.geocode(jsondata.get("address"))
+            root.Folder.Placemark[0].append(
+            KML.Point(KML.coordinates(str(location.longitude) + "," + str(location.latitude))))
+        else:
+            root.Folder.Placemark[0].append(
+                KML.Point(KML.coordinates(str(0) + "," + str(0))))
+        attribs = root.Folder.Placemark.ExtendedData[0]
+        for key, value in jsondata["body"].items():
+            attribs.append(KML.Data(KML.value(value), name=key))
 
-    # create DP
-    tempuid = str(uuid.uuid4())
-    app.logger.info(f"Data Package hash = {str(tempuid)}")
-    directory = Path(dp_directory, tempuid)
-    if not Path.exists(directory):
-        os.mkdir(str(directory))
-    filepath = str(PurePath(Path(directory), Path(name)))
-    data_stringified = etree.tostring(main)
-    with open(filepath, mode="wb+") as file:
+        # create DP
+        tempuid = str(uuid.uuid4())
+        app.logger.info(f"Data Package hash = {str(tempuid)}")
+        directory = Path(dp_directory, tempuid)
+        if not Path.exists(directory):
+            os.mkdir(str(directory))
+        filepath = str(PurePath(Path(directory), Path(name)))
+        data_stringified = etree.tostring(main)
+        with open(filepath, mode="wb+") as file:
 
-        with ZipFile(file, mode='a') as zip:
-            print(zip.infolist())
-            uidtemp = uuid.uuid4()
-            if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
-                manifestXML = Element("MissionPackageManifest", version="2")
-                config = SubElement(manifestXML, "Configuration")
-                SubElement(config, "Parameter", name="name", value=name)
-                SubElement(config, "Parameter", name="uid", value=str(uidtemp))
-                zip.writestr(str(uidtemp.hex) + "/" + name + ".kml", data_stringified)
-                contents = SubElement(manifestXML, "Contents")
-                for fileName in zip.namelist():
-                    SubElement(contents, "Content", ignore="false", zipEntry=str(fileName))
-                # manifest = zip.open('MANIFEST\\manifest.xml', mode="w")
-                zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
+            with ZipFile(file, mode='a') as zip:
+                print(zip.infolist())
+                uidtemp = uuid.uuid4()
+                if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
+                    manifestXML = Element("MissionPackageManifest", version="2")
+                    config = SubElement(manifestXML, "Configuration")
+                    SubElement(config, "Parameter", name="name", value=name)
+                    SubElement(config, "Parameter", name="uid", value=str(uidtemp))
+                    zip.writestr(str(uidtemp.hex) + "/" + name + ".kml", data_stringified)
+                    contents = SubElement(manifestXML, "Contents")
+                    for fileName in zip.namelist():
+                        SubElement(contents, "Content", ignore="false", zipEntry=str(fileName))
+                    # manifest = zip.open('MANIFEST\\manifest.xml', mode="w")
+                    zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
 
-                print(zip.namelist())
-                file.seek(0)
-            else:
-                pass
+                    print(zip.namelist())
+                    file.seek(0)
+                else:
+                    pass
 
-    openfile = open(str(PurePath(Path(str(directory), name))), mode='rb')
-    file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-    openfile.close()
-    newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
-    os.rename(str(PurePath(Path(directory))), newDirectory)
-    fileSize = Path(str(newDirectory), name).stat().st_size
-    uid = str(uuid.uuid4())
-    dbController.create_datapackage(uid=uid, Name=name, Hash=file_hash, SubmissionUser='server',
-                                    CreatorUid='server-uid', Size=fileSize)
+        openfile = open(str(PurePath(Path(str(directory), name))), mode='rb')
+        file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
+        openfile.close()
+        newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
+        os.rename(str(PurePath(Path(directory))), newDirectory)
+        fileSize = Path(str(newDirectory), name).stat().st_size
+        uid = str(uuid.uuid4())
+        dbController.create_datapackage(uid=uid, Name=name, Hash=file_hash, SubmissionUser='server',
+                                        CreatorUid='server-uid', Size=fileSize)
 
-    # broacast DP
-    broadcast_datapackage(uid)
+        # broacast DP
+        broadcast_datapackage(uid)
 
-    return "successful", 200
+        return "successful", 200
+    except Exception as e:
+        print("exception is "+ str(e))
 @app.route('/BroadcastDataPackage', methods=[restMethods.POST])
 @auth.login_required()
 def broadcast_datapackage(uid):
@@ -1474,7 +1477,7 @@ def check_status():
 def help():
     try:
         from flask import url_for
-        message = {"APIVersion": "1.7",
+        message = {"APIVersion": str(MainConfig.APIVersion),
                    "SupportedEndpoints": [url_for(i.endpoint, **(i.defaults or {})) for i in app.url_map.iter_rules() if i.endpoint != 'static']
                    }
         return json.dumps(message)
