@@ -247,7 +247,7 @@ def generate_zip(server_address: str = None, server_filename: str = "pubserver.p
 class AtakOfTheCerts:
     def __init__(self, pwd: str = MainConfig.password) -> None:
         """
-        :param pwd: String based password used to secure the p12 files generated, defaults to atakatak
+        :param pwd: String based password used to secure the p12 files generated, defaults to MainConfig.password
         """
         self.key = crypto.PKey()
         self.CERTPWD = pwd
