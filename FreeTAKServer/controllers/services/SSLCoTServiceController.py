@@ -30,6 +30,7 @@ class SSLCoTServiceController(Orchestrator):
             self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe,
                                  ReceiveConnectionKillSwitch, RestAPIPipe, True)
         except Exception as e:
+            print(e)
             logger.error("there has been an exception thrown in"
                          " the starting of the ssl service " + str(e))
             return e
