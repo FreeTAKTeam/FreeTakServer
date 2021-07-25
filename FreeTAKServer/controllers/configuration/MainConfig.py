@@ -11,7 +11,7 @@ class MainConfig:
     """
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.9 Public'
+    version = 'FreeTAKServer-1.9.1 Public'
     #
     yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
 
@@ -29,6 +29,9 @@ class MainConfig:
         ip = "0.0.0.0"
 
     if not os.path.exists(yaml_path):
+
+        OptimizeAPI = True
+
         MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 1))
 
         # this is the port to which clients will connect
@@ -120,10 +123,14 @@ class MainConfig:
             # set to None if you don't want a message sent
             ConnectionMessage = str(os.environ.get("FTS_CONNECTION_MESSAGE", yamlConfig["System"].get("FTS_CONNECTION_MESSAGE", f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting')))
             DataBaseType = str(os.environ.get("FTS_DATABASE_TYPE", yamlConfig["System"].get("FTS_DATABASE_TYPE", "SQLite")))
+            OptimizeAPI = bool(os.environ.get("FTS_OPTIMIZE_API", yamlConfig["System"].get("FTS_OPTIMIZE_API", True)))
+
         else:
             MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY',  1))
             ConnectionMessage = str(os.environ.get("FTS_CONNECTION_MESSAGE", f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting'))
             DataBaseType = str(os.environ.get("FTS_DATABASE_TYPE", "SQLite"))
+            OptimizeAPI = bool(os.environ.get("FTS_OPTIMIZE_API", True))
+
         if yamlConfig.get("Addresses"):
             # this is the port to which clients will connect
             CoTServicePort = int(os.environ.get('FTS_COT_PORT', yamlConfig["Addresses"].get('FTS_COT_PORT', 8087)))
@@ -278,6 +285,8 @@ class MainConfig:
 
     # IP for CLI to access
     CLIIP = '127.0.0.1'
+
+    APIVersion = "1.9"
 
     # format of API message header should be {Authentication: Bearer 'TOKEN'}
     from uuid import uuid4
