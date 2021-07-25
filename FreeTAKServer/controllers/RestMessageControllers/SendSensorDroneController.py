@@ -5,6 +5,7 @@ from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 class SendSensorDroneController:
     def __init__(self, json):
@@ -12,8 +13,8 @@ class SendSensorDroneController:
         object = SendSensorDrone()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        # commented in version 1.9.1, reduces average endpoint time by a factor of 10
-        #DatabaseController().create_CoT(object.modelObject)
+        if not MainConfig.OptimizeAPI:
+            DatabaseController().create_CoT(object.modelObject)
         object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
         self.setCoTObject(object)
 
