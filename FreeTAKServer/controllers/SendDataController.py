@@ -29,7 +29,6 @@ class SendDataController:
                         # by the server due to the list contents
                         # being within a list
                     except Exception as e:
-                        print(e)
                         logger.error('error in sending connection data ' + str(processedCoT.idData))
                         pass
                 copiedProcessedCoTObject = copy.deepcopy(processedCoT)
@@ -44,7 +43,7 @@ class SendDataController:
                 return self.returnData
         except Exception as e:
             logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR+str(e))
-            raise Exception(e)
+            return Exception(e)
 
     def send_to_specific_client(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
@@ -79,7 +78,6 @@ class SendDataController:
                     pass
                 return 1
         except Exception as e:
-            print(e)
             logger.error('error in send data to specific client ' + str(e))
             return -1
     def send_to_all(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
@@ -99,22 +97,17 @@ class SendDataController:
                         except TypeError:
                             sock.send(processedCoT.idData.encode())
                 except Exception as e:
-                    if str(e) != "timed out":
-                        logger.error('error in sending of data ' + str(e))
-                        continue
+                    logger.error('error in sending of data ' + str(e))
                     return (-1, client)
             if shareDataPipe != None:
                 processedCoT.clientInformation = None
-                if processedCoT.clientInformation == None:
-                    shareDataPipe.put(processedCoT)
+                shareDataPipe.put(processedCoT)
             else:
                 pass
             return 1
         except Exception as e:
             import traceback
-            print('exception SendDataController ln:110')
-            print(str(traceback.format_exc()))
-            print(clientInformationQueue)
+
             logger.error('error in send to all ' + str(e)+str(traceback.format_exc()))
             raise Exception(e)
     def geochat_sending(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
@@ -146,5 +139,4 @@ class SendDataController:
                     pass
                 return 1
         except Exception as e:
-            print(e)
             logger.error('there has been an exception in sending geochat ' + str(e))
