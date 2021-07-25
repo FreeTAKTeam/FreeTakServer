@@ -29,6 +29,7 @@ class SendOtherController(SendCoTAbstractController):
             else:
                 pass
         except Exception as e:
+            print("exception"+str(e))
             logger.error("there has been an exception in the creation of an"
                          "Other object " + str(e))
     #this function modifies the CoT so only the marti and point tags are present
