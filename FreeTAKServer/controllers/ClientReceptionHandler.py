@@ -56,6 +56,7 @@ class ClientReceptionHandler:
                         BUFF_SIZE = 8087
                         data = b''
                     except Exception as e:
+                        print('\n\n disconnect A \n\n')
                         logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORA + str(e))
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
@@ -65,16 +66,19 @@ class ClientReceptionHandler:
                     except socket.timeout as e:
                         continue
                     except BrokenPipeError as e:
+                        print('\n\n disconnect B \n\n')
                         self.clientInformationArray.remove(client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except Exception as e:
+                        print('\n\n disconnect C ' + str(e) + "\n\n")
                         logger.error("Exception other than broken pipe in monitor for data function "+str(e))
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
                         continue
                     try:
                         if part == b'' or part == None:
+                            print('\n\n disconnect D \n\n')
                             self.returnReceivedData(client, b'', queue)
                             self.clientInformationArray.remove(client)
                             continue
@@ -100,6 +104,7 @@ class ClientReceptionHandler:
                                             self.clientInformationArray.remove(client)
                                             break
                                         except Exception as e:
+                                            print('\n\n disconnect E \n\n')
                                             logger.error("Exception other than broken pipe in monitor for data function")
                                             self.returnReceivedData(client, b'', queue)
                                             break
@@ -108,12 +113,14 @@ class ClientReceptionHandler:
                                 return -1
 
                     except Exception as e:
+                        print('\n\n disconnect F \n\n')
                         logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC + str(e))
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
                         return -1
 
                 except Exception as e:
+                    print('\n\n disconnect G \n\n')
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
                     self.returnReceivedData(client, b'', queue)
                     return -1
