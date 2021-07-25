@@ -12,7 +12,8 @@ class SendSensorDroneController:
         object = SendSensorDrone()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        DatabaseController().create_CoT(object.modelObject)
+        # commented in version 1.9.1, reduces average endpoint time by a factor of 10
+        #DatabaseController().create_CoT(object.modelObject)
         object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
         self.setCoTObject(object)
 
