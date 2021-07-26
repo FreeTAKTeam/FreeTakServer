@@ -723,8 +723,8 @@ if __name__ == "__main__":
 
         with AtakOfTheCerts() as aotc:
             aotc.generate_ca(expiry_time_secs=31536000)
-            aotc.bake(common_name="pubserver", cert="server", expiry_time_secs=31536000)
-            aotc.bake(common_name="user", cert="user", expiry_time_secs=31536000)
+            aotc.bake(common_name="server", cert="server", expiry_time_secs=31536000)
+            aotc.bake(common_name="Client", cert="user", expiry_time_secs=31536000)
         import os
         if args.d:
             CreateStartupFilesController().create_daemon()

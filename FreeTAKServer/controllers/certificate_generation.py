@@ -131,7 +131,7 @@ def send_data_package(server: str, dp_name: str = "user.zip") -> bool:
             return False
 
 
-def generate_zip(server_address: str = None, server_filename: str = "pubserver.p12", user_filename: str = "user.p12",
+def generate_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
                  cert_password: str = MainConfig.password, ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
@@ -386,7 +386,7 @@ class AtakOfTheCerts:
             copyfile(keypath, keypath + ".unencrypted")
 
     @staticmethod
-    def copy_server_certs(server_name: str = "pubserver") -> None:
+    def copy_server_certs(server_name: str = "server") -> None:
         """
         copy all the server files with of a given name to the FTS server cert location
         :param server_name: Name of the server/IP address that was used when generating the certificate
@@ -413,8 +413,8 @@ class AtakOfTheCerts:
         :param copy: Whether to copy server files to FTS expected locations
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        self.bake("pubserver", "server", expiry_time_secs)
-        self.bake("user", "user", expiry_time_secs)
+        self.bake("server", "server", expiry_time_secs)
+        self.bake("Client", "user", expiry_time_secs)
         if copy is True:
             self.copy_server_certs()
         generate_zip(server_address=ip)
