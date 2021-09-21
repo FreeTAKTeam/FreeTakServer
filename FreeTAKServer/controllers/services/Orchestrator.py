@@ -318,11 +318,13 @@ class Orchestrator:
             self.openSockets -= 1
             socketa = clientInformation.socket
             clientInformation.socket = None
+            while clientInformation.socket != None: # this while loop prevents the put command ln 327 from failing as it ensures that the socket object is not present
+                time.sleep(0.001)
             clientInformationcopy = deepcopy(clientInformation)
             print('stage 1 b')
             #time.sleep(1)
-            if clientInformationcopy.socket == None:
-                self.clientDataPipe.put(['remove', clientInformationcopy, self.openSockets])
+
+            self.clientDataPipe.put(['remove', clientInformationcopy, self.openSockets])
             #working
             #time.sleep(1)
             print('stage 1 c')
