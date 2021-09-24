@@ -8,6 +8,12 @@ import uuid
 
 class TCPServiceTests(unittest.TestCase):
     def setUp(self):
+        """ setup method to establish two sockets.
+
+        this method is run prior to any other tests running and will create the basic sockets
+        required for further testing.
+
+        """
         self.client_socket_a = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket_b = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
