@@ -173,3 +173,5 @@ logs/
 /FreeTAKServer/model/RestMessages/GeoObjectSchema.graphql
 /FreeTAKServer/model/RestMessages/GeoObjectSchema.json
 /FreeTAKServer/model/RestMessages/GeoObjectSchema-rdfs.xml
+/test users/__init__.py
+/test users/basic_user.py
