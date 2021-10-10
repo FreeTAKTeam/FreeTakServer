@@ -18,8 +18,8 @@ logger = CreateLoggerController("XMLCoTController").getLogger()
 loggingConstants = LoggingConstants()
 
 class XMLCoTController:
-    def __init__(self):  
-        pass
+    def __init__(self, logger = logger):
+        self.logger = logger
 
     def determineCoTGeneral(self, data):
         # this will establish the CoTs general type
@@ -29,7 +29,7 @@ class XMLCoTController:
                 return ("clientConnected", data)
 
             except Exception as e:
-                logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
+                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
         #this runs if it is infact regular data
         elif data.xmlString == b'' or data.xmlString == None:
             #this handeles a client dissconection CoT
@@ -40,7 +40,7 @@ class XMLCoTController:
                 return ("dataReceived", data)
 
             except Exception as e:
-                logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB+str(e))
+                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB+str(e))
 
     def convert_model_to_row(self, modelObject, rowObject):
         for attribName, attribValue in modelObject.__dict__.items():
