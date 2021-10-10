@@ -1,7 +1,7 @@
 import os
 from pathlib import PurePath
 class LoggingConstants:
-    def __init__(self):
+    def __init__(self, log_name = "FTS"):
         #main logging config
         # if on a unix type system with /var/log put the logs there
         if os.path.isdir('/var/log'):
@@ -15,7 +15,7 @@ class LoggingConstants:
             self.LOGDIRECTORY = 'logs'
 
         self.LOGFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
-        self.LOGNAME = 'FTS'
+        self.LOGNAME = log_name
 
         self.ERRORLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_error.log"))
         self.DEBUGLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log"))
