@@ -7,12 +7,13 @@ from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("FTS").getLogger()
+loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
+logger = CreateLoggerController("FTS-TCP_CoT_Service", logging_constants=loggingConstants).getLogger()
 
 class TCPCoTServiceController(Orchestrator):
     def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         try:
+            self.logger = logger
             self.dbController = DatabaseController()
             # self.clear_user_table()
             os.chdir('../../../')
