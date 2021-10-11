@@ -73,11 +73,11 @@ class ClientReceptionHandler:
                         self.clientInformationArray.remove(client)
                         self.returnReceivedData(client, b'', queue)
                         continue
-                    except errno.EWOULDBLOCK as e:
-                        logger.debug("EWOULDBLOCK error passed "+str(e))
-                        continue
                     except Exception as e:
                         import traceback
+                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:
+                            logger.debug("EWOULDBLOCK error passed " + str(e))
+                            continue
                         print('\n\n disconnect C ' + str(e) + "\n\n")
                         logger.error(
                             "Exception other than broken pipe in monitor for data function " + str(e) + ''.join(traceback.format_exception(None, e, e.__traceback__)))
