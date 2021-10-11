@@ -20,7 +20,6 @@ from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants imp
 loggingConstants = ClientReceptionLoggingConstants()
 
 
-
 class ClientReceptionHandler:
     def __init__(self):
         self.dataPipe = []
@@ -75,13 +74,16 @@ class ClientReceptionHandler:
                     except Exception as e:
                         import traceback
                         print('\n\n disconnect C ' + str(e) + "\n\n")
-                        logger.error("Exception other than broken pipe in monitor for data function "+str(e)+ "\n".join(traceback.format_stack()))
+                        logger.error(
+                            "Exception other than broken pipe in monitor for data function " + str(e) + "\n".join(
+                                traceback.format_stack()))
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
                         continue
                     try:
-                        if part == b'' or part == None:
+                        if part == b'' or part is None:
                             print('\n\n disconnect D \n\n')
+                            logger.debug("empty string sent, standard disconnect")
                             self.returnReceivedData(client, b'', queue)
                             self.clientInformationArray.remove(client)
                             continue
@@ -101,14 +103,16 @@ class ClientReceptionHandler:
                                             sock.settimeout(0.1)
                                             part += sock.recv(BUFF_SIZE)
                                         except socket.timeout as e:
-                                            logger.error('there has been an exception in client reception handler ' + str(e))
+                                            logger.error(
+                                                'there has been an exception in client reception handler ' + str(e))
                                             break
                                         except BrokenPipeError as e:
                                             self.clientInformationArray.remove(client)
                                             break
                                         except Exception as e:
                                             print('\n\n disconnect E \n\n')
-                                            logger.error("Exception other than broken pipe in monitor for data function")
+                                            logger.error(
+                                                "Exception other than broken pipe in monitor for data function")
                                             self.returnReceivedData(client, b'', queue)
                                             break
                             except Exception as e:
@@ -129,7 +133,7 @@ class ClientReceptionHandler:
                     return -1
             return 1
         except Exception as e:
-            logger.error('exception in monitor for data '+str(e))
+            logger.error('exception in monitor for data ' + str(e))
             return -1
 
     def returnReceivedData(self, clientInformation, data, queue):
