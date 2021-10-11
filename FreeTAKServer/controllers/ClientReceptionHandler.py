@@ -9,6 +9,8 @@
 #######################################################
 import time
 import socket
+import errno
+
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from defusedxml import ElementTree as etree
@@ -71,12 +73,14 @@ class ClientReceptionHandler:
                         self.clientInformationArray.remove(client)
                         self.returnReceivedData(client, b'', queue)
                         continue
+                    except errno.EAGAIN as e:
+                        logger.debug("EAGAIN error passed "+str(e))
+                        continue
                     except Exception as e:
                         import traceback
                         print('\n\n disconnect C ' + str(e) + "\n\n")
                         logger.error(
-                            "Exception other than broken pipe in monitor for data function " + str(e) + "\n".join(
-                                traceback.format_stack()))
+                            "Exception other than broken pipe in monitor for data function " + str(e) + ''.join(traceback.format_exception(None, e, e.__traceback__)))
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
                         continue
