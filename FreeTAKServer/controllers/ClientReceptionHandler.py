@@ -10,9 +10,11 @@
 import time
 import socket
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from defusedxml import ElementTree as etree
 
-logger = CreateLoggerController("ClientReceptionHandler").getLogger()
+loggingConstants = LoggingConstants(log_name="ClientReceptionHandler")
+logger = CreateLoggerController("ClientReceptionHandler", logging_constants=loggingConstants).getLogger()
 from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 
 loggingConstants = ClientReceptionLoggingConstants()
@@ -71,8 +73,9 @@ class ClientReceptionHandler:
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except Exception as e:
+                        import traceback
                         print('\n\n disconnect C ' + str(e) + "\n\n")
-                        logger.error("Exception other than broken pipe in monitor for data function "+str(e))
+                        logger.error("Exception other than broken pipe in monitor for data function "+str(e)+ "\n".join(traceback.format_stack()))
                         self.returnReceivedData(client, b'', queue)
                         self.clientInformationArray.remove(client)
                         continue
