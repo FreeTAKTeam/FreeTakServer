@@ -273,7 +273,7 @@ class Orchestrator:
         import time
         import traceback
         from copy import deepcopy
-        print(str(traceback.format_stack()))
+        self.logger.debug('client disconnected ' + "\n".join(traceback.format_stack()))
         print('disconnecting client')
         if hasattr(clientInformation, "clientInformation"):
             clientInformation = clientInformation.clientInformation
@@ -359,7 +359,7 @@ class Orchestrator:
             if isinstance(data, int):
                 return None
             else:
-                CoT = XMLCoTController().determineCoTGeneral(data)
+                CoT = XMLCoTController(logger=self.logger).determineCoTGeneral(data)
                 function = getattr(self, CoT[0])
                 output = function(CoT[1])
                 return output
