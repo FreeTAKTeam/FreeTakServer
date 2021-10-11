@@ -73,8 +73,8 @@ class ClientReceptionHandler:
                         self.clientInformationArray.remove(client)
                         self.returnReceivedData(client, b'', queue)
                         continue
-                    except errno.EAGAIN as e:
-                        logger.debug("EAGAIN error passed "+str(e))
+                    except errno.EWOULDBLOCK as e:
+                        logger.debug("EWOULDBLOCK error passed "+str(e))
                         continue
                     except Exception as e:
                         import traceback
