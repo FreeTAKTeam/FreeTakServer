@@ -75,7 +75,7 @@ class ClientReceptionHandler:
                         continue
                     except Exception as e:
                         import traceback
-                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:
+                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:  # this prevents errno 11 from spontanieously disconnecting clients due to the socket blocking set to 0
                             logger.debug("EWOULDBLOCK error passed " + str(e))
                             continue
                         print('\n\n disconnect C ' + str(e) + "\n\n")
