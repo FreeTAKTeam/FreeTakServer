@@ -6,8 +6,8 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
 
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("SSLDataPackageServer").getLogger()
+loggingConstants = LoggingConstants(log_name="FTS-SSL_DataPackage_Service")
+logger = CreateLoggerController("FTS-SSL_DataPackage_Service", logging_constants=loggingConstants).getLogger()
 
 class SSLDataPackageService(FlaskFunctions):
     def startup(self, ip, port, pipe):

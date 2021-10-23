@@ -3,8 +3,8 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("TCPDataPackageServer").getLogger()
+loggingConstants = LoggingConstants(log_name="FTS-TCP_DataPackage_Service")
+logger = CreateLoggerController("FTS-TCP_DataPackage_Service", logging_constants=loggingConstants).getLogger()
 
 class TCPDataPackageService(FlaskFunctions):
     def startup(self, ip, port, pipe):

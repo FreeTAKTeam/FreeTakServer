@@ -16,13 +16,14 @@ import eventlet
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
 
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("DataPackageServer").getLogger()
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, send_file
 from flask.logging import default_handler
 
 dbController = DatabaseController()
+
+loggingConstants = LoggingConstants(log_name="FTS-DataPackage_Service")
+logger = CreateLoggerController("FTS-DataPackage_Service", logging_constants=loggingConstants).getLogger()
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -191,7 +192,7 @@ def putDataPackageTool(hash):
 @cross_origin(send_wildcard = True)
 def getDataPackageTool(hash):
     from flask import make_response
-    file_list = os.listdir(str(dp_directory) + '/' + str(hash))
+    file_list = os.listdir(os.path.join(Path(str(dp_directory)), Path(str(hash))))
     path = PurePath(dp_directory, str(hash), file_list[0])
     app.logger.info(f"Sending data package from {str(path)}")
     resp = send_file(str(path))
@@ -205,7 +206,6 @@ def retrieveData():
     packages = FlaskFunctions().getAllPackages()
     app.logger.info(f"Data packages in the database: {packages}")
     return str(packages)
-
 
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
