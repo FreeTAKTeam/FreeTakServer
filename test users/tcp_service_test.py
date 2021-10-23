@@ -5,6 +5,44 @@ import test_cot_data
 import time
 from lxml import etree
 import uuid
+import asyncio
+
+class TCPClient:
+    def __init__(self, ip, port):
+        self.clientObj = test_cot_data.TestCoTClient()
+        self.sock = self.establish_socket_connection(ip=ip, port=port)
+
+    def establish_socket_connection(self, ip, port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((ip, port))
+        sock.send(self.clientObj.generate_cot())
+        return sock
+
+    async def service_connection(self):
+        asyncio.create_task(self.receive_data_until_empty())
+        asyncio.create_task(self.send_connection_data())
+
+    async def receive_data_until_empty(self):
+        self.sock.settimeout(0.1)
+        while True:
+            try:
+                self.sock.recv(100000)
+            except:
+                break
+
+    async def send_connection_data(self):
+        self.sock.send(self.clientObj.generate_cot())
+        self.sock.send(test_cot_data.TestCoTClient().generate_object_cot())
+
+    def connection_is_alive(self):
+        try:
+            self.sock.send(test_cot_data.TestCoTClient().generate_object_cot())
+            if self.sock.recv(5) != b'':
+                return True
+            else:
+                return False
+        except:
+            return False
 
 class TCPServiceTests(unittest.TestCase):
     def setUp(self):
@@ -17,7 +55,7 @@ class TCPServiceTests(unittest.TestCase):
         self.client_socket_a = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket_b = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def test_clientinformation_is_not_sent(self):
+    def test_clientinformation_is_not_sent_issue(self):
         """ this method tests that client data is not resent after disconnections
 
         test procedure:
