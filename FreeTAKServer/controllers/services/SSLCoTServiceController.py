@@ -14,7 +14,6 @@ class SSLCoTServiceController(Orchestrator):
     def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
         try:
             self.logger = logger
-            logger.info("test")
             self.dbController = DatabaseController()
             print('ssl cot service starting')
             os.chdir('../../')
