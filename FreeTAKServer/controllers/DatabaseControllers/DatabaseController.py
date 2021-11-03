@@ -13,6 +13,7 @@ from FreeTAKServer.controllers.DatabaseControllers import APIUsersController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckChecklistController
 from FreeTAKServer.controllers.DatabaseControllers import API_call_controller
+from FreeTAKServer.controllers.DatabaseControllers import _VideoTableController
 from FreeTAKServer.controllers.DatabaseControllers.table_controllers import ActiveFederationsController, UserTableController, FederationsController
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
 import FreeTAKServer.model.SQLAlchemy.CoTTables._Group
@@ -60,6 +61,7 @@ class DatabaseController:
         self.UserTableController = UserTableController()
         self.SystemUserTableController = system_user_table_controller.SystemUserTableController()
         self.VideoStreamTableController = VideoStreamTableController.VideoStreamTableController()
+        self._VideoTableController = _VideoTableController._VideoTableController()
         self.EventTableController = EventTableController.EventTableController()
         self.APIUserController = APIUsersController.APIUsersController()
         self.ActiveEmergencysController = ActiveEmergencysController.ActiveEmergencysController()
@@ -220,12 +222,28 @@ class DatabaseController:
         :param query: this parameter will be used to select which datapackages are deleted
         :return: 1 on success
         '''
-        return self._remove(controller=self.VideoStreamTableController, query=query)
+        return self._remove(controller=self._VideoTableController, query=query)
 
     def query_videostream(self, query="1=1", column=['*']):
-        return self._query(controller=self.VideoStreamTableController, query=query, columns=column)
+        return self._query(controller=self._VideoTableController, query=query, columns=column)
 
     def update_videostream(self, column_value=dict(), query="1=1"):
+        return self._update(controller=self._VideoTableController, query=query, column_value=column_value)
+
+    def create_vide(self, **args):
+        return self._create(controller=self._VideoTableController, **args)
+
+    def remove_vide(self, query="1=1"):
+        '''
+        :param query: this parameter will be used to select which datapackages are deleted
+        :return: 1 on success
+        '''
+        return self._remove(controller=self.VideoStreamTableController, query=query)
+
+    def query_video(self, query="1=1", column=['*']):
+        return self._query(controller=self._VideoTableController, query=query, columns=column)
+
+    def update_video(self, column_value=dict(), query="1=1"):
         return self._update(controller=self.VideoStreamTableController, query=query, column_value=column_value)
 
     def create_CoT(self, object):

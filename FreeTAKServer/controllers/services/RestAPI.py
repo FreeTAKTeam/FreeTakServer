@@ -769,16 +769,29 @@ def ManageVideoStream():
 @auth.login_required
 def getVideoStream():
     try:
+
+        # changed below line to access _Video table directly instead of using full stack call
+        # to make this endpoint more robust as well as prevent issues where post does not create
+        # full stack entries
+
+        # changed the main return from a list to an object to facilitate further development
         from json import dumps
         from urllib import parse
         from FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor import Sensor
-        output = dbController.query_CoT(query='type="b-i-v" OR type="a-f-A-M-H-Q"')
-        return_value = {"video_stream": []}
+
+        output = dbController.query_video()
+        return_value = {"video_stream": {}}
         for value in output:
-            if value.detail._video.url:
-                return_value["video_stream"].append(parse.urlparse(value.detail._video.url).path)
-            elif value.detail._video.Connectionentry.path:
-                return_value["video_stream"].append(value.detail._video.Connectionentry.path)
+            value_obj = return_value["video_stream"][str(value.PrimaryKey)] = {}
+            if value.url:
+                value_obj["url"] = parse.urlparse(value.url).path
+            if value.Connectionentry:
+                if value.Connectionentry.path:
+                    value_obj["path"] = value.Connectionentry.path
+                if value.Connectionentry.port:
+                    value_obj["port"] = value.Connectionentry.port
+                if value.Connectionentry.address:
+                    value_obj["address"] = value.Connectionentry.address
         return dumps(return_value), 200
     except Exception as e:
         return str(e), 500
@@ -1145,7 +1158,7 @@ def create_kml():
         if jsondata.get("longitude") and jsondata.get("latitude"):
             root.Folder.Placemark[0].append(KML.Point(KML.coordinates(str(jsondata["longitude"])+","+str(jsondata["latitude"]))))
         elif jsondata.get("address"):
-            locator = Nominatim(user_agent="myGeocoder")
+            locator = Nominatim(user_agent="FTS-UA")
             location = locator.geocode(jsondata.get("address"))
             root.Folder.Placemark[0].append(
             KML.Point(KML.coordinates(str(location.longitude) + "," + str(location.latitude))))
