@@ -23,7 +23,7 @@ It intends to support all the major use cases of the original TAK server.
 - Execution of common task list (using the ExCheck plugin for WinTAK; ATAK plugin only available to users with takmaps.com access)
 - SSL Encryption
 - Command Line Interface for start and stop services
-- [Extensive REST API](https://freetakteam.github.io/FreeTAKServer-User-Docs/API/REST_APIDoc.html) for intgrations and extensions
+- [Extensive REST API](https://freetakteam.github.io/FreeTAKServer-User-Docs/API/REST_APIDoc/) for intgrations and extensions
 
 ![some use cases](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 [Live version](http://pldemo.sparxsystems.us/TVHOG)
