@@ -30,6 +30,7 @@ class SendVideoStreamController:
             object.detail._video.ConnectionEntry.setpath(json["streamPath"])
             object.detail._video.ConnectionEntry.setport(json["streamPort"])
             object.detail._video.ConnectionEntry.setprotocol(json["streamProtocol"])
+            object.detail._video.seturl(json["streamAddress"]+":"+json["streamPort"]+json["streamPath"])
             del object.detail.marti
             object.getuid()
             object.detail._video.ConnectionEntry.setuid(object.getuid())

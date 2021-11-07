@@ -21,6 +21,7 @@ from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import Dat
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import SendDeleteVideoStreamController
+from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 import os
 import shutil
 import json
@@ -35,6 +36,7 @@ from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import
 from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.JsonController import JsonController
+from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 
 dbController = DatabaseController()
 
@@ -813,8 +815,24 @@ def deleteVideoStream():
 @app.route("/ManageVideoStream/postVideoStream", methods=["POST"])
 @auth.login_required()
 def postVideoStream():
+    from FreeTAKServer.model.FTSModel.Event import Event
+    from lxml.etree import tostring
     try:
         jsondata = request.get_json(force=True)
+
+        # the following prevents duplicate entries being added to the db
+        url = jsondata["streamAddress"]+":"+jsondata["streamPort"]+jsondata["streamPath"]
+        video_streams = dbController.query_videostream()
+
+        for video in video_streams:
+            if video.url == url:
+                sqlalchemy_obj = dbController.query_CoT(f'uid="{video.PrimaryKey}"')[0]
+                modelObject = SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(sqlalchemy_obj, Event.VideoStream())
+                xmlString = tostring(XmlSerializer().from_fts_object_to_format(modelObject))
+                modelObject.xmlString = xmlString
+                APIPipe.put(modelObject)
+                return "entry already exists in db "+str(video.PrimaryKey), 201
+
         simpleCoTObject = SendVideoStreamController(jsondata).getCoTObject()
         print("putting in queue")
         APIPipe.put(simpleCoTObject)
