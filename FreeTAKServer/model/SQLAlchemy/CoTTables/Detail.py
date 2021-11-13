@@ -30,7 +30,7 @@ import FreeTAKServer.model.SQLAlchemy.CoTTables.Track
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Uid
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Usericon
 import FreeTAKServer.model.SQLAlchemy.CoTTables._Video
-import FreeTAKServer.model.SQLAlchemy.CoTTables.Connectionentry
+import FreeTAKServer.model.SQLAlchemy.CoTTables.ConnectionEntry
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor
 
 

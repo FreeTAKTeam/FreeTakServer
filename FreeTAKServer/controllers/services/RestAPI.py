@@ -787,13 +787,13 @@ def getVideoStream():
             value_obj = return_value["video_stream"][str(value.PrimaryKey)] = {}
             if value.url:
                 value_obj["url"] = parse.urlparse(value.url).path
-            if value.Connectionentry:
-                if value.Connectionentry.path:
-                    value_obj["path"] = value.Connectionentry.path
-                if value.Connectionentry.port:
-                    value_obj["port"] = value.Connectionentry.port
-                if value.Connectionentry.address:
-                    value_obj["address"] = value.Connectionentry.address
+            if value.ConnectionEntry:
+                if value.ConnectionEntry.path:
+                    value_obj["path"] = value.ConnectionEntry.path
+                if value.ConnectionEntry.port:
+                    value_obj["port"] = value.ConnectionEntry.port
+                if value.ConnectionEntry.address:
+                    value_obj["address"] = value.ConnectionEntry.address
         return dumps(return_value), 200
     except Exception as e:
         return str(e), 500
@@ -831,7 +831,7 @@ def postVideoStream():
                 xmlString = tostring(XmlSerializer().from_fts_object_to_format(modelObject))
                 modelObject.xmlString = xmlString
                 APIPipe.put(modelObject)
-                return "entry already exists in db "+str(video.PrimaryKey), 201
+                return "entry already exists in db "+str(video.PrimaryKey)+" resending existing entry", 201
 
         simpleCoTObject = SendVideoStreamController(jsondata).getCoTObject()
         print("putting in queue")

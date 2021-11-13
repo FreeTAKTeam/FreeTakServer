@@ -21,9 +21,10 @@ class EventTableController(TableController):
         for attribName, attribValue in modelObject.__dict__.items():
             if hasattr(attribValue, '__dict__'):
                 if attribName[0].isalpha():
-                    attribName = attribName.capitalize()
+                    attribName = attribName[0].upper()+attribName[1:]
                 else:
-                    attribName = '_'+attribName[1:].capitalize()
+                    attribName = '_'+attribName[1].upper()+attribName[2:]
+
                 subRowObjectImport = importlib.import_module(
                     f'FreeTAKServer.model.SQLAlchemy.CoTTables.{attribName}')
 

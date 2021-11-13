@@ -1,13 +1,24 @@
 import unittest
+from defusedxml import ElementTree as etree
 
+from FreeTAKServer.model.FTSModel.Event import Event
+
+from FreeTAKServer.controllers.serializers.test_data import TestData
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.JsonController import JsonController
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 #from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
-from defusedxml import ElementTree as etree
+
+def compare_model_objects(model_object_a, model_object_b):
+    if model_object_a == model_object_b:
+        return True
+    else:
+        return False
 
 class TestSerializers(unittest.TestCase):
 
@@ -116,6 +127,29 @@ class TestSerializers(unittest.TestCase):
         xml_legacy = etree.tostring(xml_legacy).decode()
         xml_updated = etree.tostring(xml_updated).decode()
         self.assertEqual(xml_legacy, xml_updated)
+
+    def test_sqlalchemy_serialization(self, model_object_array = []):
+        """
+        this test validates the functionality of the sqlalchemy serialization, by first generating the sqlAlchemy object from
+        a given model object and then regenerating the original model object
+        Returns:
+
+        """
+        if not model_object_array:
+           model_object_array = TestData().test_data_arr
+
+        for model_object in model_object_array:
+            # generate and add sqlalchemy object to database
+            contr = DatabaseController()
+            contr.create_CoT(model_object)
+
+            # query object from db
+            sqlAlchemyObject = contr.query_CoT(f'uid="{model_object.getuid()}"')[0]
+
+            # convert sql alchemy object to model object
+            modelObjectGenerated = SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(sqlAlchemyObject, model_object)
+
+            self.assertTrue(compare_model_objects(model_object, modelObjectGenerated))
 
     def test_xml_serialization(self):
         """

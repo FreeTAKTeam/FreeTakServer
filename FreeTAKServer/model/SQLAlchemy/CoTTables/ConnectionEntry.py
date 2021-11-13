@@ -2,10 +2,10 @@ from sqlalchemy import Column, ForeignKey, String, Integer
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy.orm import relationship
 
-class Connectionentry(Base):
-    __tablename__ = "Connectionentry"
+class ConnectionEntry(Base):
+    __tablename__ = "ConnectionEntry"
     OwnerPrimaryKey = Column(String(100), ForeignKey("_Video.PrimaryKey"))
-    _Video = relationship("_Video", back_populates="Connectionentry")
+    _Video = relationship("_Video", back_populates="ConnectionEntry")
     PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
     networkTimeout = Column(String(100))
     uid = Column(String(100))
