@@ -1176,7 +1176,7 @@ def create_kml():
         if jsondata.get("longitude") and jsondata.get("latitude"):
             root.Folder.Placemark[0].append(KML.Point(KML.coordinates(str(jsondata["longitude"])+","+str(jsondata["latitude"]))))
         elif jsondata.get("address"):
-            locator = Nominatim(user_agent="FTS-UA")
+            locator = Nominatim(user_agent=str(uuid.uuid4()))
             location = locator.geocode(jsondata.get("address"))
             root.Folder.Placemark[0].append(
             KML.Point(KML.coordinates(str(location.longitude) + "," + str(location.latitude))))

@@ -2,6 +2,7 @@ from FreeTAKServer.model.SpecificCoT.SendRoute import SendRoute
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
+import uuid
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
 from lxml.etree import tostring
@@ -27,7 +28,7 @@ class SendRouteController:
             point = object.point
             end = object.detail.getlink()
             if json.getaddress():
-                locator = Nominatim(user_agent="myGeocoder")
+                locator = Nominatim(user_agent=str(uuid.uuid4()))
                 location = locator.geocode(json.getaddress())
                 end.setpoint(f"{location.latitude}, {location.longitude}")
                 # point.setlat(location.latitude)

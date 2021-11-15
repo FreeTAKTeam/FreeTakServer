@@ -10,6 +10,7 @@ from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVari
 from geopy import Nominatim
 from defusedxml import ElementTree as etree
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+import uuid
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendSimpleCoTController").getLogger()
 
@@ -37,7 +38,7 @@ class SendSimpleCoTController:
             object.settype(COTTYPE)
             point = object.point
             if json.getaddress():
-                locator = Nominatim(user_agent="myGeocoder")
+                locator = Nominatim(user_agent=str(uuid.uuid4()))
                 location = locator.geocode(json.getaddress())
                 point.setlon(location.longitude)
                 point.setlat(location.latitude)
@@ -66,7 +67,7 @@ class UpdateSimpleCoTController:
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
         DatabaseController().create_CoT(object.modelObject)
-        object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
+        object.setXmlString(etree.tostring(XmlSerializer().from_fts_object_to_format(object.modelObject)))
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object, json):
@@ -82,12 +83,13 @@ class UpdateSimpleCoTController:
             object.settype(COTTYPE)
             point = object.point
             if json.getaddress():
-                locator = Nominatim(user_agent="myGeocoder")
+                locator = Nominatim(user_agent=str(uuid.uuid4()))
                 location = locator.geocode(json.getaddress())
                 point.setlon(location.longitude)
                 point.setlat(location.latitude)
             else:
                 point.setlon(json.getlongitude())
+                point.setlat(json.getlatitude())
             object.detail.contact.setcallsign(json.name)
             if json.gettimeout() != '':
                 object.setstale(staletime=int(json.gettimeout()))

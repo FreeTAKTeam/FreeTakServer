@@ -11,7 +11,7 @@ class MainConfig:
     """
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.9.5.4 Alpha'
+    version = 'FreeTAKServer-1.9.5.5 Alpha'
     #
     yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
 
@@ -286,7 +286,7 @@ class MainConfig:
     # IP for CLI to access
     CLIIP = '127.0.0.1'
 
-    APIVersion = "1.9"
+    APIVersion = "1.9.5"
 
     # format of API message header should be {Authentication: Bearer 'TOKEN'}
     from uuid import uuid4

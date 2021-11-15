@@ -3,6 +3,7 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
+import uuid
 import json as jsonmodule
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
@@ -34,7 +35,7 @@ class SendEmergencyController:
             object.detail.contact.setcallsign(json.getname())
             object.detail.emergency.settype(json.getemergencyType())
             if json.getaddress():
-                locator = Nominatim(user_agent="myGeocoder")
+                locator = Nominatim(user_agent=str(uuid.uuid4()))
                 location = locator.geocode(json.getaddress())
                 object.point.setlon(location.longitude)
                 object.point.setlat(location.latitude)
