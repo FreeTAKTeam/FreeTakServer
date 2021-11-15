@@ -23,7 +23,15 @@ class RestEnumerations:
         'Red': 'Red',
         'Yellow': 'Yellow',
         'Green': 'Green',
-        'Blue': 'Blue'
+        'Blue': 'Blue',
+        'Orange': 'Orange',
+        'Magenta': 'Magenta',
+        'Maroon': 'Maroon',
+        'Purple': 'Purple',
+        'Dark Blue': 'Dark Blue',
+        'Teal': 'Teal',
+        'Dark Green': 'Dark Green',
+        'Brown': 'Brown'
     }
 
     roles = {
