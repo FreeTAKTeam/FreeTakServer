@@ -1,48 +1,12 @@
 import unittest
 from test import support
 import socket
-import test_cot_data
+import test_data
 import time
 from lxml import etree
 import uuid
 import asyncio
-
-class TCPClient:
-    def __init__(self, ip, port):
-        self.clientObj = test_cot_data.TestCoTClient()
-        self.sock = self.establish_socket_connection(ip=ip, port=port)
-
-    def establish_socket_connection(self, ip, port):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((ip, port))
-        sock.send(self.clientObj.generate_cot())
-        return sock
-
-    async def service_connection(self):
-        asyncio.create_task(self.receive_data_until_empty())
-        asyncio.create_task(self.send_connection_data())
-
-    async def receive_data_until_empty(self):
-        self.sock.settimeout(0.1)
-        while True:
-            try:
-                self.sock.recv(100000)
-            except:
-                break
-
-    async def send_connection_data(self):
-        self.sock.send(self.clientObj.generate_cot())
-        self.sock.send(test_cot_data.TestCoTClient().generate_object_cot())
-
-    def connection_is_alive(self):
-        try:
-            self.sock.send(test_cot_data.TestCoTClient().generate_object_cot())
-            if self.sock.recv(5) != b'':
-                return True
-            else:
-                return False
-        except:
-            return False
+from common_testing_tools import TCPClient
 
 class TCPServiceTests(unittest.TestCase):
     def setUp(self):
@@ -95,11 +59,11 @@ class TCPServiceTests(unittest.TestCase):
 
         self.client_socket_b.close()  # disconnect final socket
 
-    def connect_client_to_server(self, sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM), ip: str = '127.0.0.1', port: int = 15777, uid: str = str(uuid.uuid4())) -> test_cot_data.TestCoTClient:
+    def connect_client_to_server(self, sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM), ip: str = '127.0.0.1', port: int = 15777, uid: str = str(uuid.uuid4())) -> test_data.TestCoTClient:
         """this method is used to connect a client to the server and send a basic connection message
         """
         sock.connect((ip, port))
-        client_object = test_cot_data.TestCoTClient(uid=uid)
+        client_object = test_data.TestCoTClient(uid=uid)
         sock.send(client_object.generate_cot())
         return client_object
 

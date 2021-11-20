@@ -1,13 +1,19 @@
 import unittest
 import json
 import time
+import asyncio
+import socketio
+import requests
+import concurrent.futures
 
 import test_data
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from stdlib_extensions import CustomAssertions
+from common_testing_tools import TCPClient
 
-import socketio
-import requests
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+pool = concurrent.futures.ThreadPoolExecutor()
 
 def get_user_uid(username, password, token):
     fts_response = get_endpoint(auth_token=token, params={"password": password, "username": username},
@@ -41,16 +47,13 @@ def get_endpoint(auth_token: str, body: dict = {}, url: str = 'http://127.0.0.1:
 class APIServiceTest():
 
     def setUp(self) -> None:
-        self.url = 'http://127.0.0.1:19023'
+        self.ip = '192.168.2.129'
+        self.port = 19023
+        self.url = f'http://{self.ip}:{self.port}'
         self.headers = {
                             'Authorization': 'Bearer token',
                             'Content-Type': 'application/json'
                         }
-
-    def test_download_datapackage(self):
-        """ download a datapackage with the public API and test that the response is a 200
-        """
-        pass
 
 class SystemUserTest(unittest.TestCase, APIServiceTest):
     def setUp(self) -> None:
@@ -150,7 +153,7 @@ class ManageVideoStreamTest(APIServiceTest, unittest.TestCase):
         self.assertTrue(response.status_code == 200)
 
     def test_get_video_streams(self):
-        """ this method tests the functionality of creating getting existing video_streams
+        """ this method tests the functionality of creating video_streams
 
         Returns: None
 
@@ -159,8 +162,80 @@ class ManageVideoStreamTest(APIServiceTest, unittest.TestCase):
         response = requests.request("GET", url, headers=self.headers)
         self.assertTrue(response.status_code == 200)
 
+class ManageGeoObject(APIServiceTest, unittest.TestCase):
+    """ this class is responsible for testing all API based functionality of the
+    ManageGeoObject endpoint
 
+    """
 
+    def setUp(self):
+        super().setUp()
+        self.url = self.url + "/ManageGeoObject"
+
+    def test_post_geoObject(self):
+        """ this method tests the functionality of creating geo objects
+
+        Returns:
+
+        """
+        url = self.url + "/postGeoObject"
+        postData = json.dumps(test_data.TestAPIData().postGeoObject)
+        response = requests.request("POST", url, headers=self.headers, data = postData)
+        self.assertTrue(response.status_code == 200)
+
+    def test_put_geoObject(self):
+        """this method tests the functionality of updating an existing geoObject
+
+        Returns:
+
+        """
+        # post initial geoobject
+        url = self.url + "/postGeoObject"
+        postData = json.dumps(test_data.TestAPIData().postGeoObject[0])
+        response = requests.request("POST", url, headers=self.headers, data=postData)
+        uid = response.content
+        # update previously posted geoobject
+        putData = test_data.TestAPIData().putGeoObject
+        putData["uid"] = str(uid)
+        putData = json.dumps(putData)
+        result = pool.submit(asyncio.run, listen_for_cot(uid=uid))
+        response = requests.request("PUT", url, headers=self.headers, data=putData)
+        output = result.result()
+        self.assertTrue(response.status_code == 200 and output)
+
+class ManagePresence(APIServiceTest, unittest.TestCase):
+    """ this class is responsible for testing all API based functionality of the
+    ManagePresence endpoint
+
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.url = self.url + "/ManagePresence"
+
+    def test_high_volume_post_presence(self):
+        """ this method tests the functionality of creating a large volume
+        of geo objects with several connections in response to issue #198 on
+        git.
+
+        Returns:
+
+        """
+        url = self.url + "/postPresence"
+        data = test_data.TestAPIData().postPresence
+        postData = json.dumps(data)
+        response = requests.request("POST", url, headers=self.headers, data=postData)
+        uid = str(response.content)
+        #client = TCPClient(ip=self.ip, port=15777)
+        #client.connect()
+        #time.sleep(0.5)
+        for x in range(6000):
+            data = test_data.TestAPIData().putPresence
+            data["uid"] = uid
+            url = self.url + "/putPresence"
+            putData = json.dumps(data)
+            response = requests.request("PUT", url, headers=self.headers, data=putData)
+            self.assertTrue(response.status_code == 200)
 
 if __name__ == '__main__':
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(ManageVideoStreamTest)
