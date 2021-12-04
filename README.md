@@ -1,8 +1,9 @@
-# FreeTAKServer
+# FreeTAKServer [![Downloads](https://pepy.tech/badge/freetakserver)](https://pepy.tech/project/freetakserver)
 
 ![the Parrot is not dead](https://github.com/Tapawingo/FreeTakServer/blob/master/docs/FreeTakServer%20specs/FreeTakServerLogo.png?raw=true)
 
 Welcome to the FreeTakServer (FTS) git repository.
+
 
 FTS is a Python3 implementation of the TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), [WinTAK](https://1drv.ms/u/s!AtMVrrXVTu4YgSanKtSHIslxfRu5?e=ftVio7 ), and ITAK, it is cross-platform and runs from a multi node installation on AWS down to the Android edition. 
 It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/)).
@@ -22,11 +23,12 @@ It intends to support all the major use cases of the original TAK server.
 - COT recording in a database
 - Execution of common task list (using the ExCheck plugin for WinTAK; ATAK plugin only available to users with takmaps.com access)
 - SSL Encryption
-- Command Line Interface for start and stop services
-- [Extensive REST API](https://freetakteam.github.io/FreeTAKServer-User-Docs/API/REST_APIDoc.html) for intgrations and extensions
+- KML generation
+- Command Line Interface
+- [Extensive REST API](https://freetakteam.github.io/FreeTAKServer-User-Docs/API/REST_APIDoc/) for intgrations and extensions
 
 ![some use cases](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
-[Live version](http://pldemo.sparxsystems.us/TVHOG)
+
 
 ## Project Status
 This code is currently in *Production Stage*.
