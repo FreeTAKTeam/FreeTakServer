@@ -380,7 +380,7 @@ def template():
 def startList(subscription):
     import uuid
     from defusedxml import ElementTree as etree
-    from lxml.etree import Element
+    from xml.etree.ElementTree import Element
     import datetime
     uid = str(uuid.uuid4())
     r = request
@@ -456,10 +456,13 @@ def updatetemplate(checklistid, taskid):
         str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistid + '.xml')))).getroot()
     updatedTask = etree.fromstring(data)
     tasks = xml.find('checklistTasks')
+    index = 0
     for task in tasks:
+        index += 1
         uid = task.find('uid')
         if uid.text == taskid:
-            tasks.replace(task, updatedTask)
+            tasks.remove(task)
+            tasks.insert(index, updatedTask)
         else:
             pass
     with open(
@@ -527,7 +530,7 @@ def activechecklists():
     from os import listdir
     from FreeTAKServer.model.FTSModel.Checklists import Checklists
     from FreeTAKServer.model.FTSModel.Checklist import Checklist
-    from lxml.etree import Element
+    from xml.etree.ElementTree import Element
     from defusedxml import ElementTree as etree
     checklists = Checklists.Checklist()
     rootxml = Element('checklists')
