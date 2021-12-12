@@ -11,7 +11,7 @@ loggingConstants = LoggingConstants(log_name="FTS-SSL_CoT_Service")
 logger = CreateLoggerController("FTS-SSL_CoT_Service", logging_constants=loggingConstants).getLogger()
 
 class SSLCoTServiceController(Orchestrator):
-    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
+    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe, clientDataRecvPipe):
         try:
             self.logger = logger
             self.dbController = DatabaseController()
@@ -24,6 +24,7 @@ class SSLCoTServiceController(Orchestrator):
             sock = self.SSLSocketController.createSocket()
             #threadpool is used as it allows the transfer of SSL socket unlike processes
             pool = ThreadPool(processes=2)
+            self.clientDataRecvPipe = clientDataRecvPipe
             self.pool = pool
             clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))

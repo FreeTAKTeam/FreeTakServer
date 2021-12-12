@@ -1,4 +1,4 @@
-from FreeTAKServer.model.SpecificCoT.SendPrecense import SendPresence
+from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
@@ -14,7 +14,7 @@ logger = CreateLoggerController("SendPresenceController").getLogger()
 class UpdatePresenceController:
     def __init__(self, json):
         tempObject = event.Presence()
-        object = SendPresence()
+        object = Presence()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
         DatabaseController().create_CoT(object.modelObject)
@@ -50,7 +50,7 @@ class UpdatePresenceController:
 class SendPresenceController:
     def __init__(self, json):
         tempObject = event.Presence()
-        object = SendPresence()
+        object = Presence()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
         DatabaseController().create_CoT(object.modelObject)

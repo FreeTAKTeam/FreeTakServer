@@ -19,6 +19,23 @@ class TCPServiceTests(unittest.TestCase):
         self.client_socket_a = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket_b = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    def test_old_clientinformation_sent(self):
+        """ this method tests that most recent geo information is shared upon connection of new client
+
+        test procedure:
+        client A conn -> FTS
+        client A send geo update -> FTS
+        client B conn -> FTS
+        client B <-updated client A geo Information FTS
+        """
+        client_a_object = TCPClient(ip='127.0.0.1', port=15777) # establish client A connection
+        time.sleep(1)
+        cot = test_data.TestCoTClient(uid= client_a_object.clientObj.uid).generate_cot()
+        client_a_object.send_specific_data(cot=cot)
+        client_b_object = TCPClient(ip='127.0.0.1', port=15777)
+        data = client_b_object.receive_specific_data(10000)
+        self.assertIn(cot, data)
+
     def test_clientinformation_is_not_sent_issue(self):
         """ this method tests that client data is not resent after disconnections
 
@@ -59,6 +76,12 @@ class TCPServiceTests(unittest.TestCase):
 
         self.client_socket_b.close()  # disconnect final socket
 
+    def test_simple_client_connection(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(('127.0.0.1', 15777))
+        client_object = test_data.TestCoTClient()
+        sock.send(client_object.generate_cot())
+        sock.close()
     def connect_client_to_server(self, sock: socket.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM), ip: str = '127.0.0.1', port: int = 15777, uid: str = str(uuid.uuid4())) -> test_data.TestCoTClient:
         """this method is used to connect a client to the server and send a basic connection message
         """

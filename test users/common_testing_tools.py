@@ -15,7 +15,10 @@ class TCPClient:
         sock.send(self.clientObj.generate_cot())
         return sock
 
-    async def service_connection(self):
+    def send_specific_data(self, cot: bytes):
+        self.sock.send(cot)
+
+    def service_connection(self):
         self.receive_data_until_empty()
         self.send_connection_data()
 
@@ -26,6 +29,9 @@ class TCPClient:
                 self.sock.recv(100000)
             except:
                 break
+
+    def receive_specific_data(self, buffer: int):
+        return self.sock.recv(buffer)
 
     def send_connection_data(self):
         self.sock.send(self.clientObj.generate_cot())

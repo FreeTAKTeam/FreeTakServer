@@ -11,7 +11,7 @@ loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
 logger = CreateLoggerController("FTS-TCP_CoT_Service", logging_constants=loggingConstants).getLogger()
 
 class TCPCoTServiceController(Orchestrator):
-    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe):
+    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe, clientDataRecvPipe):
         try:
             self.logger = logger
             self.dbController = DatabaseController()
@@ -24,6 +24,7 @@ class TCPCoTServiceController(Orchestrator):
             sock = self.TCPSocketController.createSocket()
             pool = ThreadPool(processes=2)
             self.pool = pool
+            self.clientDataRecvPipe = clientDataRecvPipe
             clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object

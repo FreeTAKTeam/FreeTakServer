@@ -10,6 +10,7 @@
 import time
 import socket
 import errno
+import copy
 
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
@@ -29,7 +30,7 @@ class ClientReceptionHandler:
 
     def startup(self, clientInformationArray):
         try:
-            self.clientInformationArray = clientInformationArray
+            self.clientInformationArray = clientInformationArray  # create copy of client information array so it cant be changed during iteration
             '''logger.propagate = False
             logger.info(loggingConstants.CLIENTRECEPTIONHANDLERSTART)
             logger.propagate = True'''
@@ -52,8 +53,10 @@ class ClientReceptionHandler:
         updated receive all
         '''
         try:
-            for client in self.clientInformationArray:
-                sock = client.socket
+            keys = copy.deepcopy(list(self.clientInformationArray.keys()))  # this prevents changes to the clientInformationArray from having any severe effects on this method
+            for user_id in keys:
+                sock = self.clientInformationArray[user_id][0]
+                client = self.clientInformationArray[user_id][1]
                 try:
                     try:
                         BUFF_SIZE = 8087
@@ -62,7 +65,6 @@ class ClientReceptionHandler:
                         print('\n\n disconnect A \n\n')
                         logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORA + str(e))
                         self.returnReceivedData(client, b'', queue)
-                        self.clientInformationArray.remove(client)
                     try:
                         sock.settimeout(0.001)
                         part = sock.recv(BUFF_SIZE)
@@ -70,7 +72,6 @@ class ClientReceptionHandler:
                         continue
                     except BrokenPipeError as e:
                         print('\n\n disconnect B \n\n')
-                        self.clientInformationArray.remove(client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except Exception as e:
@@ -82,14 +83,12 @@ class ClientReceptionHandler:
                         logger.error(
                             "Exception other than broken pipe in monitor for data function " + str(e) + ''.join(traceback.format_exception(None, e, e.__traceback__)))
                         self.returnReceivedData(client, b'', queue)
-                        self.clientInformationArray.remove(client)
                         continue
                     try:
                         if part == b'' or part is None:
                             print('\n\n disconnect D \n\n')
                             logger.debug("empty string sent, standard disconnect")
                             self.returnReceivedData(client, b'', queue)
-                            self.clientInformationArray.remove(client)
                             continue
                         else:
                             try:
@@ -111,7 +110,7 @@ class ClientReceptionHandler:
                                                 'there has been an exception in client reception handler ' + str(e))
                                             break
                                         except BrokenPipeError as e:
-                                            self.clientInformationArray.remove(client)
+                                            self.returnReceivedData(client, b'', queue)
                                             break
                                         except Exception as e:
                                             print('\n\n disconnect E \n\n')
@@ -121,20 +120,20 @@ class ClientReceptionHandler:
                                             break
                             except Exception as e:
                                 logger.error('error in buffer ' + str(e))
-                                return -1
+                                # return -1 commented out so entire run isn't stopped because of one disconnect
 
                     except Exception as e:
                         print('\n\n disconnect F \n\n')
                         logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC + str(e))
                         self.returnReceivedData(client, b'', queue)
-                        self.clientInformationArray.remove(client)
-                        return -1
+                        # self.clientInformationArray.remove(client) commented out so size doesnt change during iteration
+                        # return -1 commented out so entire run isn't stopped because of one disconnect
 
                 except Exception as e:
                     print('\n\n disconnect G \n\n')
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
                     self.returnReceivedData(client, b'', queue)
-                    return -1
+                    # return -1 commented out so entire run isn't stopped because of one disconnect
             return 1
         except Exception as e:
             logger.error('exception in monitor for data ' + str(e))
@@ -148,6 +147,7 @@ class ClientReceptionHandler:
             RawCoT.clientInformation = clientInformation
             RawCoT.xmlString = data
             self.dataPipe.append(RawCoT)
+            logger.debug("data: "+ str(data)+" received from: "+clientInformation.user_id)
             return 1
         except Exception as e:
             logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNRECEIVEDDATAERROR + str(e))

@@ -82,9 +82,9 @@ class ChatAdapter(AbstractApiAdapter):
 class PresenceAdapter(AbstractApiAdapter):
 
     def from_api_to_fts_object(self, api_json: dict) -> Types.specific_cot:
-        from FreeTAKServer.model.SpecificCoT.SendPrecense import SendPresence
+        from FreeTAKServer.model.SpecificCoT.Presence import Presence
         serialized_json = self.serialize_initial_json(api_json)
-        CoTObject = self._create_cot_object(serialized_json, Event.Presence(), SendPresence())
+        CoTObject = self._create_cot_object(serialized_json, Event.Presence(), Presence())
         return CoTObject
 
     def serialize_initial_json(self, api_json: dict) -> dict:
@@ -139,8 +139,8 @@ class EmergencyOnAdapter(AbstractApiAdapter):
 class EmergencyOffAdapter(AbstractApiAdapter):
 
     def from_api_to_fts_object(self, api_json: dict) -> Types.specific_cot:
-        from FreeTAKServer.model.SpecificCoT.SendPrecense import SendPresence
+        from FreeTAKServer.model.SpecificCoT.Presence import Presence
         serialized_json = self.serialize_initial_json(api_json)
-        CoTObject = self._create_cot_object(serialized_json, Event.Presence(), SendPresence())
+        CoTObject = self._create_cot_object(serialized_json, Event.Presence(), Presence())
         return CoTObject
 
