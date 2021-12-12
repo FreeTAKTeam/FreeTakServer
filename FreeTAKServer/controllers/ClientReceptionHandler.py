@@ -16,8 +16,8 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from defusedxml import ElementTree as etree
 
-loggingConstants = LoggingConstants(log_name="ClientReceptionHandler")
-logger = CreateLoggerController("ClientReceptionHandler", logging_constants=loggingConstants).getLogger()
+loggingConstants = LoggingConstants(log_name="FTS_ClientReceptionHandler")
+logger = CreateLoggerController("FTS_ClientReceptionHandler", logging_constants=loggingConstants).getLogger()
 from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 
 loggingConstants = ClientReceptionLoggingConstants()
