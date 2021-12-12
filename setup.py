@@ -39,7 +39,8 @@ setup(
         'geopy',
         'ruamel.yaml',
         'pykml',
-        'Flask-Login'
+        'Flask-Login',
+        'wtforms==2.3.3'
     ],
     extras_require = {'ui': ['FreeTAKServer_UI']},
     classifiers=[
