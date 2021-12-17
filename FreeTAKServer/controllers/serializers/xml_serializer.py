@@ -4,7 +4,18 @@ from typing import NewType, List
 from defusedxml import ElementTree as etree
 from lxml.etree import Element
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+
 import time
+
+
+loggingConstants = LoggingConstants(log_name="FTS_XmlSerializer")
+logger = CreateLoggerController("FTS_XmlSerializer", logging_constants=loggingConstants).getLogger()
+
+loggingConstants = LoggingConstants()
+
+
 class XmlSerializer(SerializerAbstract):
 
     __exception_mapping_dict = {'_group': '__group', '_serverdestination': '__serverdestination', '__group': "_group", '__serverdestination': "_serverdestination", "chat": "__chat", "_chat": "__chat", "__chat": "_chat", "_video": "__video", "__video":"_video", "connectionentry":"ConnectionEntry"}
@@ -30,8 +41,11 @@ class XmlSerializer(SerializerAbstract):
             setter = self._get_method_in_method_list(setters, element.tag)
             setter(element.text)
         for key, var in element.attrib.items():
-            setters = self._get_fts_object_var_setter(FTSObject, key)
-            setter = self._get_method_in_method_list(setters, element.tag)
+            try:
+                setters = self._get_fts_object_var_setter(FTSObject, key)
+                setter = self._get_method_in_method_list(setters, element.tag)
+            except AttributeError as e:
+                logger.info("the following property is missing from the FTS model missing cot: " + str(etree.tostring(element)) + " attr: "+str(key)+" please open an issue on the FTS github page with this message so that we can address it in future releases")
             setter(var)
         return FTSObject
 

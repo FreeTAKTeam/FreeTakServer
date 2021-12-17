@@ -20,10 +20,11 @@ class Chat(FTSProtocolObject):
         self.chatroom = None
         self.groupOwner = None
         self.chatgrp = None
+        self.messageId = None
 
     @staticmethod
     def geochat(GROUPOWNER = vars.geochat().GROUPOWNER, ID = vars.geochat().ID, PARENT = vars.geochat().PARENT,
-                CHATROOM = vars.geochat().CHATROOM, SENDERCALLSIGN = vars.geochat().SENDERCALLSIGN):
+                CHATROOM = vars.geochat().CHATROOM, SENDERCALLSIGN = vars.geochat().SENDERCALLSIGN, MESSAGEID = vars.geochat().MESSAGEID):
         chat = Chat()
         chat.setgroupOwner(GROUPOWNER)
         chat.setparent(PARENT)
@@ -31,6 +32,7 @@ class Chat(FTSProtocolObject):
         chat.setchatroom(CHATROOM)
         chat.setsenderCallsign(SENDERCALLSIGN)
         chat.setchatgrp(Chatgrp.geochat())
+        chat.setmessageId(MESSAGEID)
         return chat
 
     def getparent(self): 
@@ -39,7 +41,14 @@ class Chat(FTSProtocolObject):
      # parent setter 
     def setparent(self,parent=0):  
         self.parent=parent 
-    
+
+    def getmessageId(self):
+        return self.messageId
+
+     # parent setter
+    def setmessageId(self,messageId=0):
+        self.messageId=messageId
+
     # senderCallsign getter 
     def getsenderCallsign(self):
         return senderCallsign 
