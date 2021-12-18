@@ -102,7 +102,12 @@ def ask_user_for_config():
         log_path = get_user_input(question="enter the preferred log file path", default=MainConfig.LogFilePath)
         MainConfig.LogFilePath = log_path"""
 
-default_yaml_file = """
+default_yaml_file = f"""
+System:
+  #FTS_DATABASE_TYPE: SQLite
+  FTS_CONNECTION_MESSAGE: Welcome to FreeTAKServer {MainConfig.version}. The Parrot is not dead. It’s just resting
+  #FTS_OPTIMIZE_API: True
+  #FTS_MAINLOOP_DELAY: 1
 Addresses:
   #FTS_COT_PORT: 8087
   #FTS_SSLCOT_PORT: 8089
