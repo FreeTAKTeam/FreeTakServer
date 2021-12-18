@@ -14,6 +14,8 @@ class ContactVariables:
         cls.UID = None
         cls.NAME = None
         cls.PHONE = None
+        cls.EMAILADDRESS = None
+        cls.XMPPUSERNAME = None
         return cls
 
     @classmethod
@@ -23,6 +25,8 @@ class ContactVariables:
         cls.ICONSETPATH = None
         cls.UID = None
         cls.NAME = None
+        cls.EMAILADDRESS = None
+        cls.XMPPUSERNAME = None
         return cls
 
     @classmethod
@@ -32,6 +36,8 @@ class ContactVariables:
         cls.ICONSETPATH = None
         cls.UID = None
         cls.NAME = None
+        cls.EMAILADDRESS = None
+        cls.XMPPUSERNAME = None
         return cls
 
     @classmethod
@@ -41,13 +47,17 @@ class ContactVariables:
         cls.ICONSETPATH = None
         cls.UID = None
         cls.NAME = None
+        cls.EMAILADDRESS = None
+        cls.XMPPUSERNAME = None
         return cls
 
     @classmethod
     def UserUpdate(cls):
-        cls.endpoint = None
-        cls.phone = None
-        cls.callsign = None
+        cls.ENDPOINT = None
+        cls.PHONE = None
+        cls.CALLSIGN = None
+        cls.EMAILADDRESS = None
+        cls.XMPPUSERNAME = None
         return cls
 
     @classmethod

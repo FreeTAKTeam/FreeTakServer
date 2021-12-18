@@ -464,7 +464,7 @@ class FTS:
                     if isinstance(data[1], Presence):
                         self.user_dict[data[1].modelObject.uid].m_presence = data[1]
                     else:
-                        logger.error("error in updating existing client data in user_dict client presence data: " + str(data[1]))
+                        logger.error("error in updating existing client data in user_dict client presence data: " + str(data))
 
                 elif data[0] == 'get':
                     if data[1] == None:
