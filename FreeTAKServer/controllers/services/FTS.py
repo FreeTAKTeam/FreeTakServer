@@ -456,7 +456,7 @@ class FTS:
 
                 elif data[0] == 'remove':
                     self.user_dict[data[1].user_id].delete_connection(data[3])
-                    if len(self.user_dict[data[1].user_id].connections) <= 0:  # prevent users connected to one service being completely deleted upon disconnect
+                    if len(self.user_dict[data[1].user_id].connections) < 1:  # prevent users connected to more than one service being completely deleted upon disconnect
                         del self.user_dict[data[1].user_id]
 
                 elif data[0] == 'update':
