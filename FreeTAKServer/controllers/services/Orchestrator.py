@@ -94,6 +94,16 @@ class Orchestrator:
         self.dbController.remove_user()
         print('user table cleared')
 
+    def clientdatapipe_status_check(self) -> bool:
+        """ this method checks that the clientdatapipe is not full and wont block
+
+        Returns: bool representing whether or not the data pipe is functioning
+        """
+        if self.clientDataPipe.full():  # if queue is full return False as queue isnt working
+            return False
+        else:  # otherwise return true
+            return True
+
     def remove_client_information(self, client_information):
         """ this method generates the presence object from the
         client_information parameter and sends it as a remove message
@@ -105,12 +115,16 @@ class Orchestrator:
         Returns:
         """
         try:
-            if self.ssl:
-                connection_type = ConnectionTypes.SSL
-            elif self.ssl is False:
-                connection_type = ConnectionTypes.TCP
+            if self.clientdatapipe_status_check():
+                if self.ssl:
+                    connection_type = ConnectionTypes.SSL
+                elif self.ssl is False:
+                    connection_type = ConnectionTypes.TCP
 
-            self.clientDataPipe.put(['remove', client_information, self.openSockets, connection_type])
+                self.clientDataPipe.put(['remove', client_information, self.openSockets, connection_type])
+                self.logger.debug("client removal has been sent through queue " + str(client_information))
+            else:
+                self.logger.critical("client data pipe is Full !")
         except Exception as e:
             self.logger.error("exception has been thrown removing client data from queue "+str(e))
             raise e
@@ -127,12 +141,16 @@ class Orchestrator:
 
         """
         try:
-            presence_object = Presence()
-            presence_object.modelObject = client_information.modelObject
-            presence_object.xmlString = client_information.xmlString.decode()
-            presence_object.clientInformation = client_information.modelObject
-            self.clientDataPipe.put(['update', presence_object, self.openSockets, None])
-            self.get_client_information()
+            if self.clientdatapipe_status_check():
+                presence_object = Presence()
+                presence_object.modelObject = client_information.modelObject
+                presence_object.xmlString = client_information.xmlString.decode()
+                presence_object.clientInformation = client_information.modelObject
+                self.clientDataPipe.put(['update', presence_object, self.openSockets, None])
+                self.logger.debug("client update has been sent through queue " + str(client_information))
+                self.get_client_information()
+            else:
+                self.logger.critical("client data pipe is Full !")
         except Exception as e:
             self.logger.error("exception has been thrown updating client data in queue "+str(e))
             raise e
@@ -144,19 +162,23 @@ class Orchestrator:
         Returns:
         """
         try:
-            presence_object = Presence()
-            presence_object.modelObject = client_information.modelObject
-            presence_object.xmlString = client_information.idData
-            presence_object.clientInformation = client_information.modelObject
-            if self.ssl:
-                connection_object = SSLConnection()
-                # TODO: add certificate name derived from socket
-                connection_object.certificate_name = None
-            elif self.ssl is False:
-                connection_object = TCPConnection()
-            connection_object.sock = None
-            connection_object.user_id = client_information.modelObject.uid
-            self.clientDataPipe.put(['add', presence_object, self.openSockets, connection_object])
+            if self.clientdatapipe_status_check():
+                presence_object = Presence()
+                presence_object.modelObject = client_information.modelObject
+                presence_object.xmlString = client_information.idData
+                presence_object.clientInformation = client_information.modelObject
+                if self.ssl:
+                    connection_object = SSLConnection()
+                    # TODO: add certificate name derived from socket
+                    connection_object.certificate_name = None
+                elif self.ssl is False:
+                    connection_object = TCPConnection()
+                connection_object.sock = None
+                connection_object.user_id = client_information.modelObject.uid
+                self.clientDataPipe.put(['add', presence_object, self.openSockets, connection_object])
+                self.logger.debug("client addition has been sent through queue " + str(client_information))
+            else:
+                self.logger.critical("client data pipe is Full !")
         except Exception as e:
             self.logger.error("exception has been thrown adding client data from queue "+str(e))
             raise e
@@ -168,28 +190,30 @@ class Orchestrator:
         Returns:
         """
         try:
-            if self.ssl is True:
-                conn_type = ConnectionTypes.SSL
-            elif self.ssl is False:
-                conn_type = ConnectionTypes.TCP
+            if self.clientdatapipe_status_check():
+                if self.ssl is True:
+                    conn_type = ConnectionTypes.SSL
+                elif self.ssl is False:
+                    conn_type = ConnectionTypes.TCP
 
-            self.clientDataPipe.put(["get", conn_type, self.openSockets])
-            user_dict = self.clientDataRecvPipe.get(timeout=0.1)
+                self.clientDataPipe.put(["get", conn_type, self.openSockets])
+                user_dict = self.clientDataRecvPipe.get(timeout=0.1)
 
-            for client_id, client_obj_list in self.clientInformationQueue.items():
-                if client_id in user_dict.keys() and len(client_obj_list) == 1:  # forces FTS core to be single source of truth
-                    self.clientInformationQueue[client_id].append(user_dict[client_id])
+                for client_id, client_obj_list in self.clientInformationQueue.items():
+                    if client_id in user_dict.keys() and len(client_obj_list) == 1:  # forces FTS core to be single source of truth
+                        self.clientInformationQueue[client_id].append(user_dict[client_id])
 
-                elif client_id in user_dict.keys() and len(client_obj_list) == 2:
-                    self.clientInformationQueue[client_id][1] = user_dict[client_id]
+                    elif client_id in user_dict.keys() and len(client_obj_list) == 2:
+                        self.clientInformationQueue[client_id][1] = user_dict[client_id]
 
-                elif client_id not in user_dict.keys():  # if the entry isn't present in FTS core than the client will be disconnected and deleted to maintain single source of truth
-                    self.disconnect_socket(self.clientInformationQueue[client_id][0])
-                    del self.clientInformationQueue[client_id]
-                
-                else:
-                    self.logger.error("the data for this client is invalid " + str(client_id))
+                    elif client_id not in user_dict.keys():  # if the entry isn't present in FTS core than the client will be disconnected and deleted to maintain single source of truth
+                        self.disconnect_socket(self.clientInformationQueue[client_id][0])
+                        del self.clientInformationQueue[client_id]
 
+                    else:
+                        self.logger.error("the data for this client is invalid " + str(client_id))
+            else:
+                self.logger.critical("client data pipe is Full !")
         except Exception as e:
             self.logger.error("exception has been thrown getting client data from queue "+str(e))
 
@@ -409,9 +433,12 @@ class Orchestrator:
         from copy import deepcopy
         self.logger.debug('client disconnected ' + "\n".join(traceback.format_stack()))
         print('disconnecting client')
-        if hasattr(clientInformation, "clientInformation"):
-            clientInformation = clientInformation.clientInformation
-        sock = self.clientInformationQueue[clientInformation.user_id][0]
+        try:
+            if hasattr(clientInformation, "clientInformation"):
+                clientInformation = clientInformation.clientInformation
+            sock = self.clientInformationQueue[clientInformation.user_id][0]
+        except Exception as e:
+            self.logger.critical("getting sock from client information queue failed " + str(e))
         try:
             del self.clientInformationQueue[clientInformation.user_id]
         except Exception as e:
@@ -422,10 +449,6 @@ class Orchestrator:
         except Exception as e:
             self.logger.critical(
                 'there has been an error in a clients disconnection while adding information to the database ' + str(e))
-            pass
-        if hasattr(clientInformation, 'clientInformation'):
-            clientInformation = clientInformation.clientInformation
-        else:
             pass
         try:
             self.remove_client_information(client_information=clientInformation)
@@ -444,7 +467,7 @@ class Orchestrator:
             SendDataController().sendDataInQueue(disconnect.getObject().clientInformation, disconnect.getObject(),
                                                  self.clientInformationQueue, self.CoTSharePipe)
             self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(
-                clientInformation.m_presence.modelObject.detail.contact.callsign))
+                clientInformation.m_presence.modelObject.uid))
             return 1
         except Exception as e:
             import traceback
