@@ -104,12 +104,16 @@ class Orchestrator:
 
         Returns:
         """
-        if self.ssl:
-            connection_type = ConnectionTypes.SSL
-        elif self.ssl is False:
-            connection_type = ConnectionTypes.TCP
+        try:
+            if self.ssl:
+                connection_type = ConnectionTypes.SSL
+            elif self.ssl is False:
+                connection_type = ConnectionTypes.TCP
 
-        self.clientDataPipe.put(['remove', client_information, self.openSockets, connection_type])
+            self.clientDataPipe.put(['remove', client_information, self.openSockets, connection_type])
+        except Exception as e:
+            self.logger.error("exception has been thrown removing client data from queue "+str(e))
+            raise e
 
     def update_client_information(self, client_information):
         """ this method generates the presence object from the
@@ -122,12 +126,16 @@ class Orchestrator:
         Returns:
 
         """
-        presence_object = Presence()
-        presence_object.modelObject = client_information.modelObject
-        presence_object.xmlString = client_information.xmlString.decode()
-        presence_object.clientInformation = client_information.modelObject
-        self.clientDataPipe.put(['update', presence_object, self.openSockets, None])
-        self.get_client_information()
+        try:
+            presence_object = Presence()
+            presence_object.modelObject = client_information.modelObject
+            presence_object.xmlString = client_information.xmlString.decode()
+            presence_object.clientInformation = client_information.modelObject
+            self.clientDataPipe.put(['update', presence_object, self.openSockets, None])
+            self.get_client_information()
+        except Exception as e:
+            self.logger.error("exception has been thrown updating client data in queue "+str(e))
+            raise e
 
     def add_client_information(self, client_information):
         """ this method generates the presence and connection objects from the
@@ -135,19 +143,23 @@ class Orchestrator:
 
         Returns:
         """
-        presence_object = Presence()
-        presence_object.modelObject = client_information.modelObject
-        presence_object.xmlString = client_information.idData
-        presence_object.clientInformation = client_information.modelObject
-        if self.ssl:
-            connection_object = SSLConnection()
-            # TODO: add certificate name derived from socket
-            connection_object.certificate_name = None
-        elif self.ssl is False:
-            connection_object = TCPConnection()
-        connection_object.sock = None
-        connection_object.user_id = client_information.modelObject.uid
-        self.clientDataPipe.put(['add', presence_object, self.openSockets, connection_object])
+        try:
+            presence_object = Presence()
+            presence_object.modelObject = client_information.modelObject
+            presence_object.xmlString = client_information.idData
+            presence_object.clientInformation = client_information.modelObject
+            if self.ssl:
+                connection_object = SSLConnection()
+                # TODO: add certificate name derived from socket
+                connection_object.certificate_name = None
+            elif self.ssl is False:
+                connection_object = TCPConnection()
+            connection_object.sock = None
+            connection_object.user_id = client_information.modelObject.uid
+            self.clientDataPipe.put(['add', presence_object, self.openSockets, connection_object])
+        except Exception as e:
+            self.logger.error("exception has been thrown adding client data from queue "+str(e))
+            raise e
 
     def get_client_information(self):
         """ this method gets client information from the client information pipe and returns it as a dict merged
@@ -179,7 +191,7 @@ class Orchestrator:
                     self.logger.error("the data for this client is invalid " + str(client_id))
 
         except Exception as e:
-            print(e)
+            self.logger.error("exception has been thrown getting client data from queue "+str(e))
 
     def testing(self):
         """
