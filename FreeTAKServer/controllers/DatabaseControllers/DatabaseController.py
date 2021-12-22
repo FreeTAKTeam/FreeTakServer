@@ -211,7 +211,7 @@ class DatabaseController:
     def query_systemUser(self, query="1=1", column=['*']):
         return self._query(controller=self.SystemUserTableController, query=query, columns=column)
 
-    def update_systemUser(self, column_value=dict(), query="1=1"):
+    def update_systemUser(self, column_value=dict, query="1=1"):
         return self._update(controller=self.SystemUserTableController, query=query, column_value=column_value)
 
     def create_videostream(self, **args):

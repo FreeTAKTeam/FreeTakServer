@@ -275,6 +275,36 @@ def systemUsers(empty=None):
 
     emit('systemUsersUpdate', json.dumps(jsondata))
 
+@socketio.on('updateSystemUser')
+@socket_auth(session=session)
+def updateSystemUser(jsondata):
+    """ this socket event updates an existing system user entry in the database. User id must be provided if user with specified id doesnt
+    exist operation will return an error
+
+    example request:
+    {"systemUsers": [
+            {"uid": "existing user id", "password": "new user password", "token": "new user token", "group": "new user group"}
+        ]
+    }
+
+    Args:
+        jsondata: dict
+
+    Returns:
+
+    """
+    for systemuser in json.loads(jsondata)['systemUsers']:
+        update_column = {}
+
+        if "token" in systemuser:
+            update_column["token"] = str(systemuser["token"])
+        if "password" in systemuser:
+            update_column["password"] = str(systemuser["password"])
+        if "group" in systemuser:
+            update_column["group"] = str(systemuser["group"])
+        dbController.update_systemUser(query=f'uid = "{systemuser["uid"]}"', column_value=update_column)
+        return 200
+
 @socketio.on('addSystemUser')
 @socket_auth(session=session)
 def addSystemUser(jsondata):

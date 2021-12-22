@@ -45,6 +45,10 @@ loggingConstants = LoggingConstants()
 class FTS:
 
     def __init__(self):
+        self.FederationClientService = None
+        self.FederationServerService = None
+        self.SSLCoTService = None
+        self.SSLDataPackageService = None
         self.CoTService = None
         self.TCPDataPackageService = None
         self.UserCommand = None
@@ -325,6 +329,8 @@ class FTS:
         try:
             if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus
+                if isinstance(self.TCPDataPackageService, multiprocessing.Process) and self.TCPDataPackageService.is_alive(): # stop the running service and restart, this applies primarily to port changes
+                    self.stop_tcp_data_package_service()
                 self.start_tcp_data_package_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort != "":
                     self.FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort = FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort
@@ -346,6 +352,8 @@ class FTS:
 
             if FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceStatus = FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceStatus
+                if isinstance(self.SSLDataPackageService, multiprocessing.Process) and self.SSLDataPackageService.is_alive(): # stop the running service and restart, this applies primarily to port changes
+                    self.stop_ssl_data_package_service()
                 self.start_ssl_data_package_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort != "":
                     self.FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort = FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort
@@ -367,6 +375,8 @@ class FTS:
 
             if FTSServiceStartupConfigObject.CoTService.CoTServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.CoTService.CoTServiceStatus = FTSServiceStartupConfigObject.CoTService.CoTServiceStatus
+                if isinstance(self.CoTService, multiprocessing.Process) and self.CoTService.is_alive(): # stop the running service and restart, this applies primarily to port changes
+                    self.stop_CoT_service()
                 self.start_CoT_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.CoTService.CoTServicePort != "":
                     self.FTSServiceStartupConfigObject.CoTService.CoTServicePort = FTSServiceStartupConfigObject.CoTService.CoTServicePort
@@ -381,6 +391,8 @@ class FTS:
 
             if FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus
+                if isinstance(self.SSLCoTService, multiprocessing.Process) and self.SSLCoTService.is_alive(): # stop the running service and restart, this applies primarily to port changes
+                    self.stop_SSL_CoT_service()
                 self.start_SSL_CoT_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort != "":
                     self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort
@@ -396,6 +408,8 @@ class FTS:
 
             if FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceStatus = FTSServiceStartupConfigObject.FederationClientService.FederationClientServiceStatus
+                if isinstance(self.FederationClientService, multiprocessing.Process) and self.FederationClientService.is_alive(): # stop the running service and restart, this applies primarily to port changes
+                    self.stop_federation_client_service()
                 self.start_federation_client_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.FederationClientService.FederationClientServicePort != "":
                     self.FTSServiceStartupConfigObject.FederationClientService.FederationClientServicePort = FTSServiceStartupConfigObject.FederationClientService.FederationClientServicePort
@@ -412,6 +426,8 @@ class FTS:
 
             if FTSServiceStartupConfigObject.FederationServerService.FederationServerServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.FederationServerService.FederationServerServiceStatus = FTSServiceStartupConfigObject.FederationServerService.FederationServerServiceStatus
+                if isinstance(self.FederationServerService, multiprocessing.Process) and self.FederationServerService.is_alive(): # stop the running service and restart, this applies primarily to port changes
+                    self.stop_federation_server_service()
                 self.start_federation_server_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.FederationServerService.FederationServerServicePort != "":
                     self.FTSServiceStartupConfigObject.FederationServerService.FederationServerServicePort = FTSServiceStartupConfigObject.FederationServerService.FederationServerServicePort
@@ -436,7 +452,18 @@ class FTS:
         return 1
 
     def receive_data_froCoT_service_thread(self, recv_pipe, clientArray, send_pipe):
-        found = 0
+        """ this is the method centrally responsible for the managment of User information
+        it receives all client information operations from all services and updates the central
+        user_dict accordingl
+
+        Args:
+            recv_pipe: the queue to receive client information from
+            clientArray:
+            send_pipe: the queue to send updates to
+
+        Returns:
+
+        """
         # pip data should be composed of 3 parts, [operation, modelObject, opensockets, connection_object(only necessary for add opp)]
         try:
             # TODO: change 'add' 'remove' 'update' and 'get' to an enumeration
@@ -455,9 +482,12 @@ class FTS:
                         logger.error("error in adding client data to user_dict client presence data: " + str(data[1]) + " client connection data: " + str(data[3]))
 
                 elif data[0] == 'remove':
+                    logger.debug("removing client " + str(data[1].user_id))
                     self.user_dict[data[1].user_id].delete_connection(data[3])
                     if len(self.user_dict[data[1].user_id].connections) < 1:  # prevent users connected to more than one service being completely deleted upon disconnect
+                        logger.debug("client " + str(data[1].user_id) + " deleted from user_dict")
                         del self.user_dict[data[1].user_id]
+                    logger.debug('user_dict is now '+str(self.user_dict))
 
                 elif data[0] == 'update':
                     # when update is called user object is updated within the user_dict
@@ -468,7 +498,7 @@ class FTS:
 
                 elif data[0] == 'get':
                     if data[1] == None:
-                        recv_pipe.put(self.user_dict)
+                        send_pipe.put(self.user_dict)
                     else:
                         return_users = {}
                         for user_id, user_object in self.user_dict.items():
@@ -488,7 +518,10 @@ class FTS:
             filename = f.f_code.co_filename
             linecache.checkcache(filename)
             line = linecache.getline(filename, lineno, f.f_globals)
-            logger.error("exception has been thrown in receive_data_froCoT_service_thread " + str(e) + " " + " error on line: "+str(line))
+            logger.error("exception has been thrown in receive_data_froCoT_service_thread " + str(e) + " " + " error on line: "+str(line) +
+                         "\n user_dict: " + str(self.user_dict) +
+                         "\n data: " + str(data) +
+                         "\n connections "+ str(self.user_dict[data[1].user_id].connections), exc_info=True)
             return self.user_dict
 
     def receive_Rest_commands(self, kill):
