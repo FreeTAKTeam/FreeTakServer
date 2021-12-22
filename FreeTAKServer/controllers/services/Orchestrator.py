@@ -191,6 +191,7 @@ class Orchestrator:
         """
         try:
             if self.clientdatapipe_status_check():
+                import copy
                 if self.ssl is True:
                     conn_type = ConnectionTypes.SSL
                 elif self.ssl is False:
@@ -198,15 +199,17 @@ class Orchestrator:
 
                 self.clientDataPipe.put(["get", conn_type, self.openSockets])
                 user_dict = self.clientDataRecvPipe.get(timeout=0.1)
+                clientInformaionQueue_client_ids = copy.copy(list(self.clientInformationQueue.keys()))
 
-                for client_id, client_obj_list in self.clientInformationQueue.items():
-                    if client_id in user_dict.keys() and len(client_obj_list) == 1:  # forces FTS core to be single source of truth
+                for client_id in clientInformaionQueue_client_ids:
+                    if client_id in user_dict.keys() and len(self.clientInformationQueue[client_id]) == 1:  # forces FTS core to be single source of truth
                         self.clientInformationQueue[client_id].append(user_dict[client_id])
 
-                    elif client_id in user_dict.keys() and len(client_obj_list) == 2:
+                    elif client_id in user_dict.keys() and len(self.clientInformationQueue[client_id]) == 2:
                         self.clientInformationQueue[client_id][1] = user_dict[client_id]
 
                     elif client_id not in user_dict.keys():  # if the entry isn't present in FTS core than the client will be disconnected and deleted to maintain single source of truth
+                        self.logger.debug("disconnection client "+ str(client_id)+ " because client was not in FTS core user_dict")
                         self.disconnect_socket(self.clientInformationQueue[client_id][0])
                         del self.clientInformationQueue[client_id]
 
@@ -439,6 +442,11 @@ class Orchestrator:
             sock = self.clientInformationQueue[clientInformation.user_id][0]
         except Exception as e:
             self.logger.critical("getting sock from client information queue failed " + str(e))
+        try:
+            self.logger.debug('client ' + clientInformation.m_presence.modelObject.uid + ' disconnected ' + "\n".join(
+                traceback.format_stack()))
+        except Exception as e:
+            self.logger.critical("there was an error logging disconnection information "+str(e))
         try:
             del self.clientInformationQueue[clientInformation.user_id]
         except Exception as e:

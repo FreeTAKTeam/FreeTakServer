@@ -11,10 +11,6 @@
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 
 class Connection:
-    user_id = None
-    ip = None
-    port = None
-    connection_type = None
 
     def __init__(self, ip: str, port: int, user_id: str, connection_type: ConnectionTypes):
         self.ip = ip

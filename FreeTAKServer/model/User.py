@@ -12,24 +12,24 @@ from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 
 class User:
-    connections = []
-
-    m_presence = None
-    user_id = None
+    """ this class defines a User object which represents a connected device within the TAK ecosystem
+    a user may have multiple connections however must have at least one at any given time
+    """
 
     def __init__(self, connection: Connection, m_presence: Presence = None):
-        self.connections.append(connection)
+        self.connections = {connection.connection_type: connection}
         self.m_presence = m_presence
         self.user_id = m_presence.modelObject.uid
 
-    def get_connection(self, connection_type: ConnectionTypes) -> Connection:
+    def get_connection(self, connection_type: ConnectionTypes) -> Connection or None:
         """get a specific connection from the user based on connectionType passed
         """
-        for connection in self.connections:
-            if connection.connection_type == connection_type:
-                return connection
+        if connection_type in self.connections:
+            return self.connections[connection_type]
+        else:
+            return None
 
-    def get_connections(self) -> list:
+    def get_connections(self) -> dict:
         """get all connections associated with a user
         """
         return self.connections
@@ -43,6 +43,5 @@ class User:
         Returns:
             None
         """
-        connection = self.get_connection(connection_type=connection_type)
-        self.connections.remove(connection)
+        del self.connections[connection_type]
         return None

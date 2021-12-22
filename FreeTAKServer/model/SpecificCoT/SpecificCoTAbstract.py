@@ -2,6 +2,11 @@ from abc import ABC
 
 
 class SpecificCoTAbstract(ABC):
+    """
+    this class is an abstract class to be implemented by all specific client
+    connection protocol classes
+    """
+
     typ = None
     clientInformation = None
     modelObject = None
