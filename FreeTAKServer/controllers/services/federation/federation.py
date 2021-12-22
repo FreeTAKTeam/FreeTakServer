@@ -109,11 +109,11 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
                         event = XmlSerializer().from_fts_object_to_format(fts_obj)
                         xmlstring = event
                         xmlstring.find('detail').remove(xmlstring.find('detail').find('remarks'))
-                        xmlstring.find('detail').extend([child for child in detail])
+                        xmlstring.find('detail').extend([child for child in xmlstring.find('detail')])
                         # specific_obj.xmlString = etree.tostring(xmlstring)
                         print(etree.tostring(xmlstring))
                         specific_obj.xmlString = etree.tostring(xmlstring)
-                        self.pipe.send(specific_obj)
+                        self.pipe.put(specific_obj)
                     except Exception as e:
                         pass
                     """if isinstance(SpecificCoTObj, SendOtherController):
@@ -208,7 +208,7 @@ class FederationServerService(ServerServiceInterface, ServiceBase):
                 protobufstring = protobuf.SerializeToString()
                 header = self._generate_header(len(protobufstring))
                 protobufstring = header + protobufstring
-                print(protobufstring)
+                print("sending proto to client "+str(protobufstring))
                 for client in self.federates.values():
                     client.conn.send(protobufstring)
             else:
