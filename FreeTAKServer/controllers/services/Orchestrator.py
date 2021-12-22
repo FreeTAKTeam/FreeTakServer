@@ -431,10 +431,17 @@ class Orchestrator:
             self.logger.error('an exception has been thrown in sending active emergencies ' + str(e))
 
     def clientDisconnected(self, clientInformation: User):
+        """ this method is responsible for handling the disconnection of clients
+
+        Args:
+            clientInformation:
+
+        Returns:
+
+        """
         import time
         import traceback
         from copy import deepcopy
-        self.logger.debug('client disconnected ' + "\n".join(traceback.format_stack()))
         print('disconnecting client')
         try:
             if hasattr(clientInformation, "clientInformation"):
@@ -652,6 +659,7 @@ class Orchestrator:
                             self.logger.debug('most recent client data '+str(recent_client_data_output))
                             self.logger.debug('time since last valid data ' + str(time.time() - recent_client_data_output[1]))
                             self.logger.debug('content of last valid data ' + str(recent_client_data_output[0][0].xmlString))
+                        self.logger.debug('client dict: '+str(self.clientInformationQueue))
                 except Exception as e:
                     self.logger.error("the periodic debug message has thrown an error "+str(e))
             except Exception as e:
