@@ -11,8 +11,7 @@ class SendDataController:
         pass
     def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, shareDataPipe = None):
         try:
-            pass
-            # print('sending data to fts client' + str(processedCoT.xmlString))
+            logger.debug('sending data to fts client' + str(processedCoT.xmlString))
         except Exception as e:
             print(e)
         try:
