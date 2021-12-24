@@ -62,7 +62,6 @@ class SendDataController:
                     try:
                         for client in clientInformationQueue.values():
                             if client[1].m_presence.modelObject.detail.contact.callsign == dest.callsign:
-                                print('client socket is ' + str(client.socket))
                                 sock = client[0]
                                 try:
                                     sock.send(processedCoT.xmlString)
