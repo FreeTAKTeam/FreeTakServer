@@ -143,7 +143,6 @@ class ClientReceptionHandler:
         try:
             from FreeTAKServer.model.RawCoT import RawCoT
             # print(data)
-            print(data)
             RawCoT = RawCoT()
             RawCoT.clientInformation = clientInformation
             RawCoT.xmlString = data.replace(b'\n', b'')  # replace all newlines with empty
