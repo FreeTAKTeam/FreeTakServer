@@ -8,11 +8,13 @@
 # 
 #######################################################
 from defusedxml import ElementTree as etree
-
+import re
 
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.SpecificCoTControllers import *
+
+from FreeTAKServer.model.FTSModel.Event import Event
 
 logger = CreateLoggerController("XMLCoTController").getLogger()
 loggingConstants = LoggingConstants()
@@ -50,6 +52,26 @@ class XMLCoTController:
                 setattr(rowObject, attribName, subTableRowObject)
             else:
                 setattr(rowObject, attribName, attribValue)
+
+    def determine_model_object_type(self, type_id):
+        if type_id == "t-x-c-t":
+            return Event.Ping
+        elif type_id == "t-x-c-t-r":
+            return Event.takPong
+        elif type_id == "b-t-f":
+            return Event.GeoChat
+        elif re.match('^a-f-G-', type_id):
+            return Event.UserUpdate
+        elif re.match('^a-.-.$', type_id):
+            return Event.dropPoint
+        else:
+            return Event.Other
+        CoTTypes = {
+            "t-x-c-t": Event.Ping,
+            "t-x-c-t-r": Event.takPong,
+            "b-t-f": Event.GeoChat,
+
+        }
 
     def determineCoTType(self, RawCoT):
         # this function is to establish which specific controller applys to the CoT if any

@@ -1,5 +1,7 @@
 from abc import ABC
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceInterface
+from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
+
 from FreeTAKServer.model.federate import Federate
 from FreeTAKServer.model.clients import ClientAbstract
 from FreeTAKServer.controllers.configuration.types import Types
@@ -27,7 +29,7 @@ class HandlerBase(HandlerInterface):
     def __init__(self):
         self.nextHandler = None
 
-    def Handle(self, obj: ServiceInterface, command):
+    def Handle(self, obj: FederationServiceBase, command):
         raise NotImplementedError
     
     def setNextHandler(self, handler: HandlerInterface):
@@ -38,7 +40,7 @@ class HandlerBase(HandlerInterface):
 
         self.nextHandler = handler
 
-    def callNextHandler(self, obj: ServiceInterface, command):
+    def callNextHandler(self, obj: FederationServiceBase, command):
         if self.nextHandler is None:
             raise Exception("no further handlers, object not supported by responsibility chain")
         else:
@@ -48,7 +50,7 @@ class ConnectHandler(HandlerBase):
     """ Handler for command to connect to new server
 
     """
-    def Handle(self, obj: ServiceInterface, command):
+    def Handle(self, obj: FederationServiceBase, command):
         if isinstance(command, tuple) and command[1] == "CREATE":
             obj.connect_to_server(command)
 
@@ -60,8 +62,8 @@ class DisconnectHandler(HandlerBase):
 
     """
 
-    def Handle(self, obj: ServiceInterface, command):
-        if isinstance(obj, ServerServiceInterface) and isinstance(command, tuple) and command[1] == "DELETE":
+    def Handle(self, obj: FederationServiceBase, command):
+        if isinstance(obj, FederationServiceBase) and isinstance(command, tuple) and command[1] == "DELETE":
             obj.disconnect_client(command[0])
 
         else:
@@ -72,9 +74,9 @@ class SendDataHandler(HandlerBase):
 
     """
 
-    def Handle(self, obj: ServiceInterface, command: any):
+    def Handle(self, obj: FederationServiceBase, command: any):
 
-        if isinstance(obj, ServerServiceInterface) and isinstance(command, SpecificCoTAbstract):
+        if isinstance(obj, FederationServiceBase) and isinstance(command, SpecificCoTAbstract):
             obj.send_data_to_clients(command)
 
         else:
@@ -82,10 +84,10 @@ class SendDataHandler(HandlerBase):
 
 class SendConnectionDataHandler(HandlerBase):
 
-    def Handle(self, obj: ServiceInterface, command: any):
+    def Handle(self, obj: FederationServiceBase, command: any):
         from FreeTAKServer.model.ClientInformation import ClientInformation
 
-        if isinstance(obj, ServerServiceInterface) and isinstance(command, ClientInformation):
+        if isinstance(obj, FederationServiceBase) and isinstance(command, ClientInformation):
             obj.send_connection_data(command)
             return None
         else:
@@ -95,7 +97,7 @@ class SendDisconnectionDataHandler(HandlerBase):
     def Handle(self, obj: ServiceInterface, command):
         from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
 
-        if isinstance(obj, ServerServiceInterface) and isinstance(command, SendDisconnect):
+        if isinstance(obj, FederationServiceBase) and isinstance(command, SendDisconnect):
             obj.send_disconnection_data(command)
 
         else:
@@ -106,9 +108,9 @@ class StopHandler(HandlerBase):
 
     """
 
-    def Handle(self, obj: ServiceInterface, command):
+    def Handle(self, obj: FederationServiceBase, command):
 
-        if isinstance(obj, ServiceInterface) and command == "STOP":
+        if isinstance(obj, FederationServiceBase) and command == "STOP":
             obj.stop()
 
         else:

@@ -34,6 +34,8 @@ class ReceiveConnections:
             #establish the socket variables
             if sslstatus == True:
                 sock.settimeout(60)
+                #sock.setblocking(0)
+            #logger.debug('receive connection started')
             try:
                 client, address = sock.accept()
                 if sslstatus == True:
@@ -61,7 +63,6 @@ class ReceiveConnections:
             RawConnectionInformation.socket = client
             RawConnectionInformation.xmlString = data.decode('utf-8')
             try:
-                print(socket != None and data != b'')
                 if socket != None and data != b'':
                     return RawConnectionInformation
                 else:

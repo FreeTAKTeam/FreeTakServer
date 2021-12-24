@@ -52,6 +52,18 @@ class Remarks(FTSProtocolObject):
     remarks.setto(TO)
     return remarks
 
+  @staticmethod
+  def UserUpdate(TIME = vars.geochat().TIME, SOURCE = vars.geochat().SOURCE, SOURCEID = vars.geochat().SOURCEID, INTAG = vars.geochat().INTAG, TO = vars.geochat().TO):
+    remarks = Remarks()
+    remarks.settime(time=TIME)
+    remarks.setsource(source=SOURCE)
+    remarks.setsourceID(SOURCEID)
+    remarks.setINTAG(INTAG)
+    remarks.setto(TO)
+    return remarks
+
+
+
   # time getter
   def gettime(self):
     return self.time

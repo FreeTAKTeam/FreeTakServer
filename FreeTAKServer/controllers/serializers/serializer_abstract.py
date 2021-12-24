@@ -38,9 +38,9 @@ class SerializerAbstract(ABC):
             elif issubclass(type(value), FTSProtocolObject):
                 getter = getattr(FTSObject, "get"+key)
                 setterlist.extend(self._get_fts_object_var_setter(getter(), variable_name))
-            elif isinstance(value, list):
-                setter = getattr(FTSObject, 'set' + key)
-                setterlist.append(setter)
+            #elif isinstance(value, list):
+            #    setter = getattr(FTSObject, 'set' + key)
+            #    setterlist.append(setter)
             else:
                 pass
 
@@ -69,9 +69,9 @@ class SerializerAbstract(ABC):
             elif issubclass(type(value), FTSProtocolObject):
                  getterlist.extend(self._get_fts_object_var_getter(value, variable_name))
 
-            elif isinstance(value, list):
-                getter = getattr(FTSObject, 'get'+key)
-                getterlist.append(getter)
+            #elif isinstance(value, list):
+            #    getter = getattr(FTSObject, 'get'+key)
+            #    getterlist.append(getter)
 
             else:
                 pass

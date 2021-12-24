@@ -30,4 +30,4 @@ class ServiceBase(ServiceInterface):
             return None
 
     def define_responsibility_chain(self):
-        pass
+        raise NotImplementedError

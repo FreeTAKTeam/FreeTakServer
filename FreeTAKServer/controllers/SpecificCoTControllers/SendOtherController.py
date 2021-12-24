@@ -22,7 +22,9 @@ class SendOtherController(SendCoTAbstractController):
                 self.fill_object(self.object, tempObject, RawCoT, addToDB=addToDB)
                 try:
                     object = self.getObject()
-
+                except AttributeError as e:
+                    logger.error("invalid cot sent "+ str(xml))
+                    raise e
                 except Exception as e:
                     logger.error("there has been an exception getting object " + str(e))
                 self.Object.setXmlString(xml)
@@ -50,6 +52,7 @@ class SendOtherController(SendCoTAbstractController):
             except Exception as e:
                 outputDetail = Element('detail')
                 outputEvent.append(outputDetail)
+                print(event)
                 print('no dest client found')
 
             return outputEvent

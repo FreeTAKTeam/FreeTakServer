@@ -30,6 +30,8 @@ from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import Dat
 from FreeTAKServer.controllers.certificate_generation import AtakOfTheCerts
 from multiprocessing import Queue
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+
+from FreeTAKServer.model.Enumerations.serviceTypes import ServiceTypes
 from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.model.Connection import Connection
 
@@ -82,7 +84,7 @@ class FTS:
             self.receive_Rest.start()
             self.RestAPIProcess.start()
             self.pipeList['restAPI'] = self.RestAPIPipe
-            self.FilterGroup.sources.append(self.RestAPIPipe)
+            self.FilterGroup.add_source(self.RestAPIPipe, ServiceTypes.APISERVICE)
             return 1
         except Exception as e:
             logger.error('There has been an exception thrown in the startup of the restAPI service ' + str(e))
@@ -115,8 +117,8 @@ class FTS:
             self.ReceiveConnectionsReset, TCPCoTService, self.core_tcp_user_queue_send))
             self.CoTService.start()
             self.pipeList['TCPCoTServiceFTSPipe'] = self.TCPCoTService
-            self.FilterGroup.receivers.append(self.TCPCoTService)
-            self.FilterGroup.sources.append(self.TCPCoTService)
+            self.FilterGroup.add_receiver(self.TCPCoTService, ServiceTypes.TCPCOTSERVICE)
+            self.FilterGroup.add_source(self.TCPCoTService, ServiceTypes.TCPCOTSERVICE)
             print('CoTService started')
             return 1
         except Exception as e:
@@ -135,8 +137,8 @@ class FTS:
             else:
                 self.CoTService.join()
 
-            self.FilterGroup.sources.remove(self.TCPCoTService)
-            self.FilterGroup.receivers.remove(self.TCPCoTService)
+            self.FilterGroup.remove_source(ServiceTypes.TCPCOTSERVICE)
+            self.FilterGroup.remove_receiver(ServiceTypes.TCPCOTSERVICE)
 
         except Exception as e:
             logger.error("there's been an exception in the stopping of CoT Service " + str(e))
@@ -155,7 +157,7 @@ class FTS:
             print('starting now')
             self.TCPDataPackageService.start()
             self.pipeList['tcp_data_package_service_pipe'] = self.tcp_data_package_service_pipe
-            self.FilterGroup.sources.append(self.tcp_data_package_service_pipe)
+            self.FilterGroup.add_source(self.tcp_data_package_service_pipe, ServiceTypes.TCPDPSERVICE)
             time.sleep(2)
             return 1
         except Exception as e:
@@ -165,7 +167,7 @@ class FTS:
 
     def stop_tcp_data_package_service(self):
         del self.pipeList['tcp_data_package_service_pipe']
-        self.FilterGroup.sources.remove(self.tcp_data_package_service_pipe)
+        self.FilterGroup.remove_source(ServiceTypes.TCPDPSERVICE)
         try:
             self.TCPDataPackageService.terminate()
         except Exception as e:
@@ -191,7 +193,7 @@ class FTS:
             print('starting SSL now')
             self.SSLDataPackageService.start()
             self.pipeList['ssl_data_package_service'] = self.ssl_data_package_service
-            self.FilterGroup.sources.append(self.ssl_data_package_service)
+            self.FilterGroup.add_source(self.ssl_data_package_service, ServiceTypes.SSLDPSERVICE)
             time.sleep(2)
             return 1
         except Exception as e:
@@ -201,7 +203,7 @@ class FTS:
 
     def stop_ssl_data_package_service(self):
         del (self.pipeList['ssl_data_package_service'])
-        self.FilterGroup.sources.remove(self.ssl_data_package_service)
+        self.FilterGroup.remove_source(ServiceTypes.SSLDPSERVICE)
         try:
             self.SSLDataPackageService.terminate()
         except Exception as e:
@@ -232,8 +234,8 @@ class FTS:
             self.service_ssl_user_queue_send, self.ReceiveConnectionsReset, SSLCoTServicePipe, self.core_ssl_user_queue_send))
             self.SSLCoTService.start()
             self.pipeList['SSLCoTServiceFTSPipe'] = self.SSLCoTServicePipe
-            self.FilterGroup.sources.append(self.SSLCoTServicePipe)
-            self.FilterGroup.receivers.append(self.SSLCoTServicePipe)
+            self.FilterGroup.add_source(self.SSLCoTServicePipe, ServiceTypes.SSLCOTSERVICE)
+            self.FilterGroup.add_receiver(self.SSLCoTServicePipe, ServiceTypes.SSLCOTSERVICE)
             print('SSL CoTService started')
             return 1
         except Exception as e:
@@ -252,8 +254,8 @@ class FTS:
             else:
                 self.SSLCoTService.join()
             del (self.pipeList["SSLCoTServiceFTSPipe"])
-            self.FilterGroup.sources.remove(self.SSLCoTServicePipe)
-            self.FilterGroup.receivers.remove(self.SSLCoTServicePipe)
+            self.FilterGroup.remove_source(ServiceTypes.SSLCOTSERVICE)
+            self.FilterGroup.remove_receiver(ServiceTypes.SSLCOTSERVICE)
 
         except Exception as e:
             logger.error("there's been an exception in the stopping of CoT Service " + str(e))
@@ -269,23 +271,21 @@ class FTS:
                                                                args=(FederationClientServicePipe,))
         self.FederationClientService.start()
         self.pipeList['FederationClientServiceFTSPipe'] = self.FederationClientServicePipeFTS
-        self.FilterGroup.sources.append(self.FederationClientServicePipeFTS)
-        self.FilterGroup.receivers.append(self.FederationClientServicePipeFTS)
+        self.FilterGroup.add_source(self.FederationClientServicePipeFTS, ServiceTypes.FEDCLIENTSERVICE)
+        self.FilterGroup.add_receiver(self.FederationClientServicePipeFTS, ServiceTypes.FEDCLIENTSERVICE)
         return 1
 
     def stop_federation_client_service(self):
         try:
             del (self.pipeList['FederationClientServiceFTSPipe'])
-            self.FilterGroup.receivers.remove(self.FederationClientServicePipeFTS)
-            self.FilterGroup.sources.remove(self.FederationClientServicePipeFTS)
             if self.FederationClientService.is_alive():
                 self.FederationClientService.terminate()
                 self.FederationClientService.join()
             else:
                 self.FederationClientService.join()
 
-            self.FilterGroup.sources.remove(self.FederationClientServicePipeFTS)
-            self.FilterGroup.receivers.remove(self.FederationClientServicePipeFTS)
+            self.FilterGroup.remove_receiver(ServiceTypes.FEDCLIENTSERVICE)
+            self.FilterGroup.remove_source(ServiceTypes.FEDCLIENTSERVICE)
             return 1
         except:
             return -1
@@ -303,10 +303,10 @@ class FTS:
                 target=FederationServerService().start, args=(FederationServerServicePipe, ip, port))
             self.FederationServerService.start()
             self.pipeList['FederationServerServiceFTSPipe'] = self.FederationServerServicePipeFTS
-            self.FilterGroup.sources.append(self.FederationServerServicePipeFTS)
-            self.FilterGroup.receivers.append(self.FederationServerServicePipeFTS)
+            self.FilterGroup.add_source(self.FederationServerServicePipeFTS, ServiceTypes.FEDSERVERSERVICE)
+            self.FilterGroup.add_receiver(self.FederationServerServicePipeFTS, ServiceTypes.FEDSERVERSERVICE)
             return 1
-        except:
+        except Exception as e:
             return -1
 
     def stop_federation_server_service(self):
@@ -317,8 +317,8 @@ class FTS:
             else:
                 self.FederationServerService.join()
             self.FederationServerServicePipeFTS.close()
-            self.FilterGroup.sources.remove(self.FederationServerServicePipeFTS)
-            self.FilterGroup.receivers.remove(self.FederationServerServicePipeFTS)
+            self.FilterGroup.remove_source(ServiceTypes.FEDSERVERSERVICE)
+            self.FilterGroup.remove_receiver(ServiceTypes.FEDSERVERSERVICE)
             return 1
         except:
             return -1
@@ -620,31 +620,32 @@ class FTS:
             logger.error('error in kill function ' + str(e))
 
     def checkPipes(self):
-        try:
-            for pipe in self.FilterGroup.sources:
-                try:
-                    data = AddDataToCoTList().recv(pipe, timeout=MainConfig.MainLoopDelay / 4000)
-                except Exception as e:
-                    logger.error('get pipe data failed ' + str(e))
-                    continue
-                # this runs in the event a new client has connected
-                try:
-                    if data == 0 or data is None:
+        while True:
+            try:
+                for service_name, pipe in self.FilterGroup.get_sources().items():
+                    try:
+                        data = AddDataToCoTList().recv(pipe, timeout=MainConfig.MainLoopDelay / 4000)
+                    except Exception as e:
+                        logger.error('get pipe data failed ' + str(e))
                         continue
-                    elif isinstance(data, list):
-                        AddDataToCoTList().send(self.FilterGroup.receivers, data[0])
-                        for client in self.user_dict.values():
-                            AddDataToCoTList().send(self.FilterGroup.receivers, client.m_presence) # send presence objects of all clients too the service with a new client
-                    # this runs in all other cases in which data is received
-                    elif data != 0 and data is not None:
-                        AddDataToCoTList().send(self.FilterGroup.receivers, data)
-                    # this runs when a timeout is triggered
-                    else:
-                        pass
-                except Exception as e:
-                    logger.error('processing received connection data failed ' + str(e))
-        except Exception as e:
-            logger.error('exception in checking pipes ' + str(e))
+                    # this runs in the event a new client has connected
+                    try:
+                        if data == 0 or data is None:
+                            continue
+                        elif isinstance(data, list):
+                            AddDataToCoTList().send(self.FilterGroup.receivers, data[0], service_name)
+                            for client in self.user_dict.values():
+                                AddDataToCoTList().send(self.FilterGroup.receivers, client.m_presence, service_name) # send presence objects of all clients too the service with a new client
+                        # this runs in all other cases in which data is received
+                        elif data != 0 and data is not None:
+                            AddDataToCoTList().send(self.FilterGroup.receivers, data, service_name)
+                        # this runs when a timeout is triggered
+                        else:
+                            pass
+                    except Exception as e:
+                        logger.error('processing received connection data failed ' + str(e))
+            except Exception as e:
+                logger.error('exception in checking pipes ' + str(e))
 
     def startup(self, CoTPort, CoTIP, DataPackagePort, DataPackageIP, SSLDataPackagePort, SSLDataPackageIP, RestAPIPort,
                 RestAPIIP, SSLCoTPort, SSLCoTIP, AutoStart, firstStart=False, UI="False"):
@@ -695,7 +696,7 @@ class FTS:
                 self.start_all(StartupObject)
 
             start_timer = time.time() - 60
-
+            threading.Thread(target=self.checkPipes).start()
             while True:
                 time.sleep(MainConfig.MainLoopDelay / 1000)
                 try:
@@ -704,10 +705,6 @@ class FTS:
                         logger.debug(str(self.user_dict))
                 except Exception as e:
                     logger.error("the periodic debug message has thrown an error "+str(e))
-                try:
-                    self.checkPipes()
-                except Exception as e:
-                    logger.error("error in core FTS process Data Pipe " + str(e))
                 try:
                     self.user_dict = self.receive_data_froCoT_service_thread(self.service_tcp_user_queue_send, self.user_dict, self.core_tcp_user_queue_send)
                 except Exception as e:

@@ -36,29 +36,36 @@ class XmlSerializer(SerializerAbstract):
         return self._xml_attribs_to_fts_properties(FTSObject, element)
 
     def _xml_attribs_to_fts_properties(self, FTSObject, element):
-        if element.text is not None and element.text != " ":
-            setters = self._get_fts_object_var_setter(FTSObject, "INTAG")
-            setter = self._get_method_in_method_list(setters, element.tag)
-            setter(element.text)
-        for key, var in element.attrib.items():
+        if element.text is not None and element.text != " ":  # this statement handles instances where tags have text eg. <example> text </example>
+            try:
+                setters = self._get_fts_object_var_setter(FTSObject, "INTAG")
+                setter = self._get_method_in_method_list(setters, element.tag)
+                setter(element.text)
+            except AttributeError as e:
+                logger.info("the following property is missing from the FTS model missing cot: " + str(etree.tostring(element)) + " attr: "+str("INTAG")+" please open an issue on the FTS github page with this message so that we can address it in future releases")
+        for key, var in element.attrib.items():  # this statement handles iterating through and applying all element attributes to the model
             try:
                 setters = self._get_fts_object_var_setter(FTSObject, key)
                 setter = self._get_method_in_method_list(setters, element.tag)
+                setter(var)
             except AttributeError as e:
                 logger.info("the following property is missing from the FTS model missing cot: " + str(etree.tostring(element)) + " attr: "+str(key)+" please open an issue on the FTS github page with this message so that we can address it in future releases")
-            setter(var)
+
         return FTSObject
 
     def _xml_subelement_to_fts_nested(self, FTSObject, element, object):
         for subelem in etree.XML(object).findall("*"):
             if subelem.tag in self.__exception_mapping_dict:
                 subelem.tag = self.__exception_mapping_dict[subelem.tag]
-            setters = self._get_fts_object_var_setter(FTSObject, subelem.tag)
-            setter = self._get_method_in_method_list(setters, element.tag)
-            getters = self._get_fts_object_var_getter(FTSObject, subelem.tag)
-            getter = self._get_method_in_method_list(getters, element.tag)
-            fts_obj = getter()
-            setter(self.from_format_to_fts_object(etree.tostring(subelem), fts_obj))
+            try:
+                setters = self._get_fts_object_var_setter(FTSObject, subelem.tag)
+                setter = self._get_method_in_method_list(setters, element.tag)
+                getters = self._get_fts_object_var_getter(FTSObject, subelem.tag)
+                getter = self._get_method_in_method_list(getters, element.tag)
+                fts_obj = getter()
+                setter(self.from_format_to_fts_object(etree.tostring(subelem), fts_obj))
+            except AttributeError:
+                logger.info("the following tag is missing from the FTS model, missing cot "+str(etree.tostring(element)) + " missing tag name: "+str(subelem.tag))
 
     def from_fts_object_to_format(self, FTSObject: Event, root: Element = None) -> Element:
         """ serialize a FTS_object to an etree Element

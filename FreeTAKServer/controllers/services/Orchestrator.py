@@ -581,7 +581,7 @@ class Orchestrator:
                             receiveConnection = pool.apply_async(ReceiveConnections().listen,
                                                                  (sock,))
                         else:
-                            receiveConnectionOutput = receiveConnection.get(timeout=1)
+                            receiveConnectionOutput = receiveConnection.get(timeout=0.1)
                             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock, ssl,))
                             receiveconntimeoutcount = datetime.datetime.now()
                             lastprint = datetime.datetime.now()
@@ -635,13 +635,13 @@ class Orchestrator:
                         self.logger.info('exception in receive client data within main run function ' + str(e))
                         pass
                     try:
-                        if not CoTSharePipe.empty():
-                            # print('getting share pipe data')
+                        for x in range(100):
+                            if not CoTSharePipe.empty():
 
-                            data = CoTSharePipe.get()
-                            CoTOutput = self.handel_shared_data(data)
-                        else:
-                            pass
+                                data = CoTSharePipe.get()
+                                CoTOutput = self.handel_shared_data(data)
+                            else:
+                                break
                     except Exception as e:
                         self.logger.error(
                             'there has been an excepion in the handling of data supplied by the rest API ' + str(e))
@@ -682,7 +682,6 @@ class Orchestrator:
 
             # this runs in the event of a new connection
             else:
-                print(modelData)
                 output = SendDataController().sendDataInQueue(None, modelData,
                                                               self.clientInformationQueue)
         except Exception as e:
@@ -702,7 +701,6 @@ class Orchestrator:
             for clientDataOutputSingle in clientDataOutput:
                 try:
                     print('handling reg data')
-                    print(clientDataOutputSingle)
                     if clientDataOutputSingle == -1:
                         continue
                     CoTOutput = self.monitorRawCoT(clientDataOutputSingle)

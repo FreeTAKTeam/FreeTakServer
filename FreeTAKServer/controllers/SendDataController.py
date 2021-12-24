@@ -11,7 +11,8 @@ class SendDataController:
         pass
     def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, shareDataPipe = None):
         try:
-            logger.debug('sending data to fts client' + str(processedCoT.xmlString))
+            pass
+            # print('sending data to fts client' + str(processedCoT.xmlString))
         except Exception as e:
             print(e)
         try:
@@ -29,7 +30,6 @@ class SendDataController:
                             sock.send(processedCoT.idData.encode())
 
                             # send existing client data to new client
-                            print(user.m_presence.xmlString.encode())
                             sender.socket.send(user.m_presence.xmlString.encode())
                             # this is a special case which is identified
                             # by the server due to the list contents
