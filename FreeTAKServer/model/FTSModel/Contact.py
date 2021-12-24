@@ -19,6 +19,7 @@ class Contact(FTSProtocolObject):
         self.name = None
         self.emailAddress = None
         self.xmppUsername = None
+        self.sipAddress = None
 
     @staticmethod
     def drop_point(CALLSIGN = vars.drop_point().CALLSIGN):
@@ -30,7 +31,8 @@ class Contact(FTSProtocolObject):
     def connection(CALLSIGN = vars.connection().CALLSIGN, ENDPOINT = vars.connection().ENDPOINT,
                    ICONSETPATH = vars.connection().ICONSETPATH,UID = vars.connection().UID,
                    NAME = vars.connection().NAME, PHONE = vars.connection().PHONE,
-                   EMAILADDRESS = vars.connection().EMAILADDRESS, XMPPUSERNAME = vars.connection().XMPPUSERNAME):
+                   EMAILADDRESS = vars.connection().EMAILADDRESS, XMPPUSERNAME = vars.connection().XMPPUSERNAME,
+                   SIPADDRESS = vars.connection().SIPADDRESS):
 
         contact = Contact()
         contact.setcallsign(CALLSIGN)
@@ -41,13 +43,14 @@ class Contact(FTSProtocolObject):
         contact.setphone(PHONE)
         contact.setemailAddress(EMAILADDRESS)
         contact.setxmppUsername(XMPPUSERNAME)
+        contact.setsipAddress(SIPADDRESS)
         return contact
 
     @staticmethod
     def geochat(CALLSIGN=vars.geochat().CALLSIGN, ENDPOINT=vars.geochat().ENDPOINT,
                    ICONSETPATH=vars.geochat().ICONSETPATH, UID=vars.geochat().UID,
                    NAME=vars.geochat().NAME, EMAILADDRESS = vars.connection().EMAILADDRESS,
-                   XMPPUSERNAME = vars.connection().XMPPUSERNAME):
+                   XMPPUSERNAME = vars.connection().XMPPUSERNAME, SIPADDRESS = vars.connection().SIPADDRESS):
         contact = Contact()
         contact.setcallsign(CALLSIGN)
         contact.setname(NAME)
@@ -56,13 +59,14 @@ class Contact(FTSProtocolObject):
         contact.seticonsetpath(ICONSETPATH)
         contact.setemailAddress(EMAILADDRESS)
         contact.setxmppUsername(XMPPUSERNAME)
+        contact.setsipAddress(SIPADDRESS)
         return contact
 
     @staticmethod
     def emergency_on(CALLSIGN=vars.emergency_on().CALLSIGN, ENDPOINT=vars.emergency_on().ENDPOINT,
                 ICONSETPATH=vars.emergency_on().ICONSETPATH, UID=vars.emergency_on().UID,
                 NAME=vars.emergency_on().NAME, EMAILADDRESS = vars.connection().EMAILADDRESS,
-                   XMPPUSERNAME = vars.connection().XMPPUSERNAME):
+                   XMPPUSERNAME = vars.connection().XMPPUSERNAME, SIPADDRESS = vars.connection().SIPADDRESS):
         contact = Contact()
         contact.setcallsign(CALLSIGN)
         contact.setname(NAME)
@@ -71,18 +75,20 @@ class Contact(FTSProtocolObject):
         contact.seticonsetpath(ICONSETPATH)
         contact.setemailAddress(EMAILADDRESS)
         contact.setxmppUsername(XMPPUSERNAME)
+        contact.setsipAddress(SIPADDRESS)
         return contact
 
     @staticmethod
     def UserUpdate(ENDPOINT=vars.UserUpdate().ENDPOINT, PHONE=vars.UserUpdate().PHONE,
                    CALLSIGN=vars.UserUpdate().CALLSIGN, EMAILADDRESS = vars.connection().EMAILADDRESS,
-                   XMPPUSERNAME = vars.connection().XMPPUSERNAME):
+                   XMPPUSERNAME = vars.connection().XMPPUSERNAME, SIPADDRESS = vars.connection().SIPADDRESS):
         contact = Contact()
         contact.setendpoint(ENDPOINT)
         contact.setphone(PHONE)
         contact.setcallsign(CALLSIGN)
         contact.setemailAddress(EMAILADDRESS)
         contact.setxmppUsername(XMPPUSERNAME)
+        contact.setsipAddress(SIPADDRESS)
         return contact
     
     @staticmethod
@@ -134,6 +140,14 @@ class Contact(FTSProtocolObject):
     # iconsetpath setter 
     def seticonsetpath(self, iconsetpath=None):
         self.iconsetpath=iconsetpath 
+
+    # sipAddress getter
+    def getsipAddress(self):
+        return self.sipAddress
+
+    # sipAddress setter
+    def setsipAddress(self, sipAddress=None):
+        self.sipAddress=sipAddress
 
     # emailAddress setter
     def getemailAddress(self):

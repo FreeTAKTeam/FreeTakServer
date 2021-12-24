@@ -16,6 +16,7 @@ class ContactVariables:
         cls.PHONE = None
         cls.EMAILADDRESS = None
         cls.XMPPUSERNAME = None
+        cls.SIPADDRESS = None
         return cls
 
     @classmethod
@@ -27,6 +28,7 @@ class ContactVariables:
         cls.NAME = None
         cls.EMAILADDRESS = None
         cls.XMPPUSERNAME = None
+        cls.SIPADDRESS = None
         return cls
 
     @classmethod
@@ -38,6 +40,7 @@ class ContactVariables:
         cls.NAME = None
         cls.EMAILADDRESS = None
         cls.XMPPUSERNAME = None
+        cls.SIPADDRESS = None
         return cls
 
     @classmethod
@@ -49,6 +52,7 @@ class ContactVariables:
         cls.NAME = None
         cls.EMAILADDRESS = None
         cls.XMPPUSERNAME = None
+        cls.SIPADDRESS = None
         return cls
 
     @classmethod
@@ -58,6 +62,7 @@ class ContactVariables:
         cls.CALLSIGN = None
         cls.EMAILADDRESS = None
         cls.XMPPUSERNAME = None
+        cls.SIPADDRESS = None
         return cls
 
     @classmethod
