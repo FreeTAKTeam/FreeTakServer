@@ -5,12 +5,12 @@ class AddDataToCoTList:
         pass
 
     #this function sends specified data to all pipes within a provided array
-    def send(self, pipes, data):
-        for pipe in pipes:
+    def send(self, pipes, data, origin):
+        for service, pipe in pipes.items():
             try:
-
-                #print('putting data in pipe')
-                pipe.put(data)
+                if service != origin:
+                    #print('putting data in pipe')
+                    pipe.put(data)
             except Exception as e:
                 print(e)
                 pass

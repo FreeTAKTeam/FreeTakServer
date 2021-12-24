@@ -11,7 +11,12 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.configuration.types import Types
 from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, ConnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
+
+
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
+from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
+
+
 from multiprocessing import Pipe as multiprocessingPipe
 from FreeTAKServer.model.federate import Federate
 import selectors
@@ -19,6 +24,9 @@ import socket
 from typing import Tuple
 import ssl
 import codecs
+import threading
+from defusedxml import ElementTree as etree
+
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
@@ -35,32 +43,17 @@ logger = CreateLoggerController("FTS_FederationClientService", logging_constants
 
 loggingConstants = LoggingConstants()
 
-class FederationClientServiceController(ServerServiceInterface, ServiceBase):
-#class FederationClientServiceController:
+class FederationClientServiceController(FederationServiceBase):
     """A service which controllers the connection too and transfer of data with
     federated servers.
     """
 
     def __init__(self):
+        self.logger = logger
         self._define_responsibility_chain()
         self.pipe = None
         self.federates: {str: Federate} = {}
         self.sel = selectors.DefaultSelector()
-
-    def _send_connected_clients(self, connection):
-        clients = self.db.query_user()
-        for client in clients:
-            try:
-                proto_obj = FederatedEvent()
-                proto_obj.contact.uid = str(client.uid)
-                proto_obj.contact.callsign = str(client.CoT.detail.contact.callsign)
-                proto_obj.contact.operation = 1
-                proto_str = proto_obj.SerializeToString()
-                header = self._generate_header(len(proto_str))
-                connection.send(header + proto_str)
-            except Exception as e:
-                logger.warning("error thrown sending federate data to newly connected federate " + str(e))
-                continue
 
     def _create_context(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -88,33 +81,32 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
         self.m_SendConnectionHandler.setNextHandler(self.m_SendDisconnectionHandler)
 
     def main(self):
-        from defusedxml import ElementTree as etree
-        import time
-        while True:
-            time.sleep(0.1)
-            command = self.receive_command_data(self.pipe)
-            if command:
-                try:
-                    self.m_SendConnectionHandler.Handle(self, command)
-                except Exception as e:
-                    logger.debug("exception in command chain "+str(e))
-            else:
-                pass
+        inbound_data_thread = threading.Thread(target=self.inbound_data_handler)
+        inbound_data_thread.start()
+        outbound_data_thread = threading.Thread(target=self.outbound_data_handler)
+        outbound_data_thread.start()
+        inbound_data_thread.join()
 
-            data = self.receive_data_from_federate(1)
+    def outbound_data_handler(self):
+        """ this is the main process respoonsible for receiving data from federates and sharing
+        with FTS core
+
+        Returns:
+
+        """
+        while True:
+            try:
+                data = self.receive_data_from_federate(1)
+            except ssl.SSLWantReadError:
+                data = None
             if data:
                 for protobuf_object in data:
                     # TODO: clean all of this up as it's just a PoC
 
+                    # event = etree.Element('event')
+                    # SpecificCoTObj = XMLCoTController().categorize_type(protobuf_object.type)
                     try:
-                        detail = etree.fromstring(protobuf_object.event.other)
-                        protobuf_object.event.other = ''
-                        fts_obj = ProtobufSerializer().from_format_to_fts_object(protobuf_object, Event.FederatedCoT())
-                        specific_obj = SendOther()
-                        event = XmlSerializer().from_fts_object_to_format(fts_obj)
-                        xmlstring = event
-                        xmlstring.find('detail').remove(xmlstring.find('detail').find('remarks'))
-                        xmlstring.find('detail').extend([child for child in xmlstring.find('detail')])
+                        specific_obj, xmlstring = self._process_protobuff_to_object(protobuf_object)
                         # specific_obj.xmlString = etree.tostring(xmlstring)
                         print(etree.tostring(xmlstring))
                         specific_obj.xmlString = etree.tostring(xmlstring)
@@ -133,58 +125,56 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
                         self.pipe.send(data)"""
             else:
                 pass
+    def inbound_data_handler(self):
+        """this is the main process responsible for receiving data from FTS core
+
+        Returns:
+
+        """
+        while True:
+            try:
+                command = self.receive_command_data(self.pipe)
+                if command:
+                    try:
+                        self.m_SendConnectionHandler.Handle(self, command)
+                    except Exception as e:
+                        pass
+                else:
+                    pass
+            except Exception as e:
+                self.logger.error(str(e))
 
     def connect_to_server(self, server_vars: Tuple[str, str]) -> None:
-        try:
-            federate_db_obj = self.db.query_Federation(f'id == "{server_vars[0]}"')[0]
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-            ssock = self.context.wrap_socket(sock, server_hostname=federate_db_obj.address)
-            ssock.settimeout(10)
-            ssock.connect((str(federate_db_obj.address), int(federate_db_obj.port)))
-            ssock.setblocking(False)
-            federate = Federate()
-            federate.uid = server_vars[0]
-            federate.addr = federate_db_obj.address
-            federate.conn = ssock
-            federate.name = federate_db_obj.name
-            events = selectors.EVENT_READ | selectors.EVENT_WRITE
-            self.sel.register(ssock, events, federate)
-            self.federates[server_vars[0]] = federate
-            self._send_connected_clients(ssock)
-            self.db.create_ActiveFederation(id = federate_db_obj.id, address = federate_db_obj.address,
-                                            port = federate_db_obj.port, initiator = "Self")
-            self.db.update_Federation({"lastError": None}, query=f'id == "{federate_db_obj.id}"')
-            return None
-        except Exception as e:
             try:
-                self.db.remove_ActiveFederation(f'id == "{server_vars[0]}"')
-            except Exception as e:
-                logger.warning("exception thrown removing outgoing federation from DB "+str(e))
-            logger.warning("exception thrown creating new federation "+str(e))
-            try:
-                self.db.update_Federation({"status": "Disabled", "lastError": str(e)}, query=f'id == "{server_vars[0]}"')
-            except Exception as e:
-                logger.warning("exception thrown updating federate in db "+str(e))
-    def disconnect_client(self, id: str) -> None:
-        try:
-            try:
-                federate = self.federates[id]
-            except Exception as e:
-                logger.warning("federate array has no item with uid "+str(id)+" federates array is len " + str(len(self.federates)))
+                federate_db_obj = self.db.query_Federation(f'id == "{server_vars[0]}"')[0]
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+                ssock = self.context.wrap_socket(sock, server_hostname=federate_db_obj.address)
+                ssock.settimeout(10)
+                ssock.connect((str(federate_db_obj.address), int(federate_db_obj.port)))
+                ssock.setblocking(False)
+                federate = Federate()
+                federate.uid = server_vars[0]
+                federate.addr = federate_db_obj.address
+                federate.conn = ssock
+                federate.name = federate_db_obj.name
+                events = selectors.EVENT_READ | selectors.EVENT_WRITE
+                self.sel.register(ssock, events, federate)
+                self.federates[server_vars[0]] = federate
+                self._send_connected_clients(ssock)
+                self.db.create_ActiveFederation(id = federate_db_obj.id, address = federate_db_obj.address,
+                                                port = federate_db_obj.port, initiator = "Self")
+                self.db.update_Federation({"lastError": None}, query=f'id == "{federate_db_obj.id}"')
                 return None
-            try:
-                federate.conn.close()
-                self.sel.unregister(federate.conn)
-                del(self.federates[federate.uid])
             except Exception as e:
-                logger.warning("exception thrown disconnecting client "+str(e))
-            try:
-                self.db.remove_ActiveFederation(f'id == "{federate.uid}"')
-            except Exception as e:
-                logger.warning("exception thrown removing outgoing federation from DB "+str(e))
-            return None
-        except Exception as e:
-            logger.warning("exception thrown accessing client for disconnecting client " + str(e))
+                try:
+                    self.db.remove_ActiveFederation(f'id == "{server_vars[0]}"')
+                except Exception as e:
+                    self.logger.warning("exception thrown removing outgoing federation from DB "+str(e))
+                self.logger.warning("exception thrown creating new federation "+str(e))
+                try:
+                    self.db.update_Federation({"status": "Disabled", "lastError": str(e)}, query=f'id == "{server_vars[0]}"')
+                except Exception as e:
+                    self.logger.warning("exception thrown updating federate in db "+str(e))
 
     def receive_data_from_federate(self, timeout):
         """called whenever data is available from any federate and immediately proceeds to
@@ -213,74 +203,6 @@ class FederationClientServiceController(ServerServiceInterface, ServiceBase):
                 else:
                     self.disconnect_client(key.data.uid)
             return dataarray
-        else:
-            return None
-
-    def _get_header_length(self, header):
-        return int.from_bytes(header, 'big')
-
-    def _generate_header(self, contentlength):
-        return contentlength.to_bytes(4, byteorder="big")
-
-    def send_data_to_clients(self, data):
-        from defusedxml import ElementTree as etree
-        try:
-            if self.federates:
-                xmlstring = data.xmlString
-                detail = etree.fromstring(xmlstring).find('detail')
-                if detail:
-                    protobuf = ProtobufSerializer().from_fts_object_to_format(data.modelObject)
-                    try:
-                        protobuf.event.other = etree.tostring(detail)
-                        protobufstring = protobuf.SerializeToString()
-                        header = self._generate_header(len(protobufstring))
-                        protobufstring = header + protobufstring
-                        print(protobufstring)
-                    except Exception as e:
-                        logger.warning("creating protobuf message failed "+str(e))
-                        return None
-                    for client in self.federates.values():
-                        client.conn.send(protobufstring)
-                else:
-                    return None
-            else:
-                return None
-        except Exception as e:
-            import traceback
-            trace = traceback.format_exc()
-            logger.warning("sending data to federates failed "+str(e))
-
-    def send_connection_data(self, CoT: ClientInformation) -> None:
-        try:
-            if self.federates:
-                logger.debug("connection data received in send_connection_data")
-                proto_obj = FederatedEvent()
-                proto_obj.contact.uid = str(CoT.modelObject.uid)
-                proto_obj.contact.callsign = str(CoT.modelObject.detail.contact.callsign)
-                proto_obj.contact.operation = 1
-                proto_str = proto_obj.SerializeToString()
-                header = self._generate_header(len(proto_str))
-                for fed in self.federates.values():
-                    fed.conn.send(header + proto_str)
-                return None
-
-            else:
-                return None
-
-        except Exception as e:
-            logger.warning("exception throw sending new connection data to federates " + str(e))
-            return None
-
-    def send_disconnection_data(self, CoT: SendDisconnect):
-        if self.federates:
-            proto_obj = FederatedEvent()
-            proto_obj.contact.uid = str(CoT.modelObject.detail.link.uid)
-            proto_obj.contact.callsign = str(CoT.modelObject.detail.link.type)
-            proto_obj.contact.operation = 4
-            proto_str = proto_obj.SerializeToString()
-            header = self._generate_header(len(proto_str))
-            for fed in self.federates.values():
-                fed.conn.send(header + proto_str)
         else:
             return None
 
