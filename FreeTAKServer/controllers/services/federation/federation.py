@@ -86,41 +86,39 @@ class FederationServerService(FederationServiceBase):
 
         """
         while True:
-            if self.federates:
-                try:
-                    data = self.receive_data_from_federate(1)
-                except ssl.SSLWantReadError:
-                    data = None
-                if data:
-                    for protobuf_object in data:
-                        # TODO: clean all of this up as it's just a PoC
+            try:
+                data = self.receive_data_from_federate(1)
+            except ssl.SSLWantReadError:
+                data = None
+            if data:
+                for protobuf_object in data:
+                    # TODO: clean all of this up as it's just a PoC
 
-                        # event = etree.Element('event')
-                        # SpecificCoTObj = XMLCoTController().categorize_type(protobuf_object.type)
-                        try:
-                            specific_obj, xmlstring = self._process_protobuff_to_object(protobuf_object)
-                            # specific_obj.xmlString = etree.tostring(xmlstring)
-                            specific_obj.xmlString = etree.tostring(xmlstring)
-                            if self.pipe.sender_queue.full():
-                                print('queue full !!!')
-                            self.pipe.put(specific_obj)
-                            print("data put in pipe " + str(etree.tostring(xmlstring)))
-                        except Exception as e:
-                            pass
-                        """if isinstance(SpecificCoTObj, SendOtherController):
-                            detail = protobuf_object.event.other
-                            protobuf_object.event.other = ''
-                            fts_obj = ProtobufSerializer().from_format_to_fts_object(protobuf_object, Event.Other())
-                            protobuf_object.event.other = detail
-                            SpecificCoTObj.object = fts_obj
-                            SpecificCoTObj.Object =
-                        else:
-                            fts_obj = ProtobufSerializer().from_format_to_fts_object(protobuf_object, SpecificCoTObj().object)
-                            self.pipe.send(data)"""
-                else:
-                    pass
+                    # event = etree.Element('event')
+                    # SpecificCoTObj = XMLCoTController().categorize_type(protobuf_object.type)
+                    try:
+                        specific_obj, xmlstring = self._process_protobuff_to_object(protobuf_object)
+                        # specific_obj.xmlString = etree.tostring(xmlstring)
+                        specific_obj.xmlString = etree.tostring(xmlstring)
+                        if self.pipe.sender_queue.full():
+                            print('queue full !!!')
+                        self.pipe.put(specific_obj)
+                        print("data put in pipe " + str(etree.tostring(xmlstring)))
+                    except Exception as e:
+                        pass
+                    """if isinstance(SpecificCoTObj, SendOtherController):
+                        detail = protobuf_object.event.other
+                        protobuf_object.event.other = ''
+                        fts_obj = ProtobufSerializer().from_format_to_fts_object(protobuf_object, Event.Other())
+                        protobuf_object.event.other = detail
+                        SpecificCoTObj.object = fts_obj
+                        SpecificCoTObj.Object =
+                    else:
+                        fts_obj = ProtobufSerializer().from_format_to_fts_object(protobuf_object, SpecificCoTObj().object)
+                        self.pipe.send(data)"""
             else:
-                time.sleep(MainConfig.MainLoopDelay / 1000)
+                pass
+
     def inbound_data_handler(self):
         """this is the main process responsible for receiving data from FTS core
 
