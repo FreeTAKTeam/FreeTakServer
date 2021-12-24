@@ -1,10 +1,10 @@
 class FilterGroup:
     def __init__(self):
         # an array of pipes to receive data from
-        self.sources = []
+        self.sources = {}
 
         # an array of pipes to send data too
-        self.receivers = []
+        self.receivers = {}
 
         # an array of types of CoT which can be received by this group
         self.allowedType = ['*']
@@ -12,20 +12,20 @@ class FilterGroup:
         # an array of types of CoT which can't be received by this group
         self.rejectedType = []
 
-    def add_source(self, source):
-        self.sources.append(source)
+    def add_source(self, source, source_name):
+        self.sources[source_name] = source
     
-    def remove_source(self, source):
-        self.sources.remove(source)
+    def remove_source(self, source_name):
+        del self.sources[source_name]
         
     def get_sources(self):
-        return self.receivers
+        return self.sources
 
-    def add_receiver(self, source):
-        self.receivers.append(source)
+    def add_receiver(self, receiver, receiver_name):
+        self.receivers[receiver_name] = receiver
     
-    def remove_receiver(self, source):
-        self.receivers.remove(source)
+    def remove_receiver(self, receiver_name):
+        del self.receivers[receiver_name]
         
     def get_receivers(self):
         return self.receivers
