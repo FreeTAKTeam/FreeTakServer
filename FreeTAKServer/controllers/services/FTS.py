@@ -19,7 +19,10 @@ from FreeTAKServer.controllers.services.RestAPI import RestAPI
 from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSObj
 from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.controllers.configuration_wizard import ask_user_for_config
+
 import time
+import queue
+
 from FreeTAKServer.controllers.AddDataToCoTList import AddDataToCoTList
 from FreeTAKServer.model.FilterGroup import FilterGroup
 from FreeTAKServer.controllers.services.SSLCoTServiceController import SSLCoTServiceController
@@ -467,8 +470,11 @@ class FTS:
         # pip data should be composed of 3 parts, [operation, modelObject, opensockets, connection_object(only necessary for add opp)]
         try:
             # TODO: change 'add' 'remove' 'update' and 'get' to an enumeration
-            if not recv_pipe.empty():
-                data = recv_pipe.get()
+            try:
+                data = recv_pipe.get(timeout=MainConfig.MainLoopDelay/1000)
+            except queue.Empty:
+                return self.user_dict
+            if data:
                 self.socketCount = data[2]
 
                 if data[0] == 'add':
@@ -509,7 +515,6 @@ class FTS:
                 return self.user_dict
             else:
                 return self.user_dict
-
         except Exception as e:
             import traceback
             exc_type, exc_obj, tb = sys.exc_info()
@@ -698,7 +703,6 @@ class FTS:
             start_timer = time.time() - 60
             threading.Thread(target=self.checkPipes).start()
             while True:
-                time.sleep(MainConfig.MainLoopDelay / 1000)
                 try:
                     if time.time() > start_timer+60:
                         start_timer = time.time()

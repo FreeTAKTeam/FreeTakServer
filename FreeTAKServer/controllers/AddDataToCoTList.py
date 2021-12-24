@@ -1,5 +1,4 @@
-import multiprocessing
-
+import queue
 class AddDataToCoTList:
     def __init__(self):
         pass
@@ -20,11 +19,10 @@ class AddDataToCoTList:
 
     def recv(self, pipe, timeout = None):
         try:
-            if not pipe.empty():
-                data = pipe.get(timeout = timeout)
-                return data
-            else:
-                return 0
+            data = pipe.get(timeout = timeout)
+            return data
+        except queue.Empty:
+            return None
         except Exception as e:
 
             print(e)
