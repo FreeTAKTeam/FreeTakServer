@@ -624,7 +624,7 @@ class FTS:
             try:
                 for service_name, pipe in self.FilterGroup.get_sources().items():
                     try:
-                        data = AddDataToCoTList().recv(pipe, timeout=MainConfig.MainLoopDelay / 4000)
+                        data = AddDataToCoTList().recv(pipe, timeout=MainConfig.MainLoopDelay / 1000)
                     except Exception as e:
                         logger.error('get pipe data failed ' + str(e))
                         continue
