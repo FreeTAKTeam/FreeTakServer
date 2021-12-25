@@ -104,7 +104,7 @@ class Orchestrator:
         else:  # otherwise return true
             return True
 
-    def remove_client_information(self, client_information):
+    def remove_service_user(self, client_information):
         """ this method generates the presence object from the
         client_information parameter and sends it as a remove message
         to the client data pipe
@@ -155,7 +155,7 @@ class Orchestrator:
             self.logger.error("exception has been thrown updating client data in queue "+str(e))
             raise e
 
-    def add_client_information(self, client_information):
+    def add_service_user(self, client_information):
         """ this method generates the presence and connection objects from the
         client_information parameter and sends it to
 
@@ -318,7 +318,7 @@ class Orchestrator:
             # self.logger.info(loggingConstants.CLIENTCONNECTEDFINISHED + str(clientInformation.modelObject.detail.contact.callsign))
             print("adding client")
             self.clientInformationQueue[clientInformation.modelObject.uid] = [clientInformation.socket]
-            self.add_client_information(client_information=clientInformation)
+            self.add_service_user(client_information=clientInformation)
             self.get_client_information()
             print("client added")
             self.sendUserConnectionGeoChat(clientInformation)
@@ -466,7 +466,7 @@ class Orchestrator:
                 'there has been an error in a clients disconnection while adding information to the database ' + str(e))
             pass
         try:
-            self.remove_client_information(client_information=clientInformation)
+            self.remove_service_user(client_information=clientInformation)
             # working
             # time.sleep(1)
             print('stage 1 c')

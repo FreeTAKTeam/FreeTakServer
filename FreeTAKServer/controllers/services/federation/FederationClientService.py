@@ -9,7 +9,8 @@
 #######################################################
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.configuration.types import Types
-from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, ConnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler
+from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, ConnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler, DestinationValidationHandler, DataValidationHandler, HandlerBase
+from FreeTAKServer.controllers.services.federation.external_data_handlers import *
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
 
 
@@ -21,7 +22,7 @@ from multiprocessing import Pipe as multiprocessingPipe
 from FreeTAKServer.model.federate import Federate
 import selectors
 import socket
-from typing import Tuple
+from typing import Tuple, Dict, List
 import ssl
 import codecs
 import threading
@@ -30,9 +31,13 @@ from defusedxml import ElementTree as etree
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+
+
 from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 from FreeTAKServer.model.FTSModel.Event import Event
+from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
 from FreeTAKServer.model.ClientInformation import ClientInformation
+from FreeTAKServer.model.SQLAlchemy.User import User
 from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 
@@ -50,10 +55,37 @@ class FederationClientServiceController(FederationServiceBase):
 
     def __init__(self):
         self.logger = logger
-        self._define_responsibility_chain()
+        self._define_command_responsibility_chain()
+        self._define_connection_responsibility_chain()
+        self._define_service_responsibility_chain()
+        self._define_external_data_responsibility_chain()
+        self._define_data_responsibility_chain()
         self.pipe = None
         self.federates: {str: Federate} = {}
         self.sel = selectors.DefaultSelector()
+        self.user_dict = {}
+
+    def get_service_users(self) -> List[FederatedEvent]:
+        return self.user_dict.values()
+
+    def add_service_user(self, user: FederatedEvent) -> None:
+        """ add a service user to this services user persistence mechanism
+
+        Returns: None
+
+        """
+        self.user_dict[user.contact.uid] = user
+
+    def remove_service_user(self, user: FederatedEvent):
+        """ remove a service user from this services user persistence mechanism
+
+        Returns: None
+
+        """
+        del self.user_dict[user.contact.uid]
+
+    def define_responsibility_chain(self):
+        pass
 
     def _create_context(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -61,7 +93,95 @@ class FederationClientServiceController(FederationServiceBase):
                                      password=MainConfig.federationKeyPassword)
         self.context.set_ciphers('DEFAULT@SECLEVEL=1')
 
-    def _define_responsibility_chain(self):
+    def _define_external_data_responsibility_chain(self):
+        """ this method is responsible for defining the responsibility chain which handles external data
+        eg. data sent to FTS by a federate
+
+        Returns:
+
+        """
+        fed_proto_standard_handler = FederationProtobufStandardHandler()
+
+        fed_proto_disconnect_handler = FederationProtobufDisconnectionHandler()
+        fed_proto_disconnect_handler.setNextHandler(fed_proto_standard_handler)
+
+        fed_proto_connection_handler = FederationProtobufConnectionHandler()
+        fed_proto_connection_handler.setNextHandler(fed_proto_disconnect_handler)
+
+        fed_proto_validation_handler = FederationProtobufValidationHandler()
+        fed_proto_validation_handler.setNextHandler(fed_proto_connection_handler)
+
+        self.external_data_chain = fed_proto_validation_handler
+
+    def _call_responsibility_chain(self, command):
+        """ this method is responsible for calling the responsibility chains for all command types:
+            service level commands; start, stop etc
+            Connection level commands; close connection, open connection etc
+            data level commands; send data x, each handler is responsible for some facet of data validation before
+                the connection receives it
+
+        Returns: output from successful handler
+
+        """
+        #if command.level == "SERVICE":
+        if command == "STOP":
+            self.service_chain.Handle(obj = self, command= command)
+
+        # elif command.level == "CONNECTION":
+        elif isinstance(command, tuple) and (command[1] == "DELETE" or command[1] == "CREATE" or command[1] == "UPDATE"):
+            self.connection_chain.Handle(obj=self, command=command)
+
+        #elif command.level == "DATA":
+        if isinstance(command, SpecificCoTAbstract) or isinstance(command, ClientInformation):
+            self.data_chain.Handle(obj = self, command= command)
+
+    def _define_service_responsibility_chain(self):
+        """ this method is responsible for defining the responsibility chain which will handle service level commands;
+            or commands which effect the entire service
+
+        Returns: the entry handler for this responsibility chain
+
+        """
+        stop_handler = StopHandler()
+        self.service_chain = stop_handler
+
+    def _define_connection_responsibility_chain(self):
+        """ this method is responsible for defining the responsibility chain which will handle connection level commands;
+            or commands which effect the status of a connection at the socket level
+
+        Returns: the entry handler for this responsibility chain
+
+        """
+        connect_handler = ConnectHandler()
+        disconnect_handler = DisconnectHandler()
+        disconnect_handler.setNextHandler(connect_handler)
+        self.connection_chain = disconnect_handler
+
+    def _define_data_responsibility_chain(self):
+        """ this method is responsible for defining the responsibility chain which will handle data level commands;
+            or commands which transfer data to a client
+
+        Returns: the entry handler for this responsibility chain
+
+        """
+
+        send_data_handler = SendDataHandler()
+
+        destination_validation_handler = DestinationValidationHandler()
+        destination_validation_handler.setNextHandler(send_data_handler)
+
+        send_disconnection_data_handler = SendDisconnectionDataHandler()
+        send_disconnection_data_handler.setNextHandler(destination_validation_handler)
+
+        send_connection_data_handler = SendConnectionDataHandler()
+        send_connection_data_handler.setNextHandler(send_disconnection_data_handler)
+
+        data_validation_handler = DataValidationHandler()
+        data_validation_handler.setNextHandler(send_connection_data_handler)
+
+        self.data_chain = data_validation_handler
+
+    def _define_command_responsibility_chain(self) -> HandlerBase:
         self.m_StopHandler = StopHandler()
 
         self.m_ConnectHandler = ConnectHandler()
@@ -87,8 +207,13 @@ class FederationClientServiceController(FederationServiceBase):
         outbound_data_thread.start()
         inbound_data_thread.join()
 
+    def serialize_data(self, data_object: FederatedEvent):
+        specific_obj, xmlstring = self._process_protobuff_to_object(data_object)
+        specific_obj.xmlString = etree.tostring(xmlstring)
+        return specific_obj
+
     def outbound_data_handler(self):
-        """ this is the main process respoonsible for receiving data from federates and sharing
+        """ this is the main process responsible for receiving data from federates and sharing
         with FTS core
 
         Returns:
@@ -108,13 +233,10 @@ class FederationClientServiceController(FederationServiceBase):
                         # event = etree.Element('event')
                         # SpecificCoTObj = XMLCoTController().categorize_type(protobuf_object.type)
                         try:
-                            specific_obj, xmlstring = self._process_protobuff_to_object(protobuf_object)
-                            # specific_obj.xmlString = etree.tostring(xmlstring)
-                            print(etree.tostring(xmlstring))
-                            specific_obj.xmlString = etree.tostring(xmlstring)
-                            self.pipe.put(specific_obj)
+                            serialized_data = self.serialize_data(protobuf_object)
+                            self.send_command_to_core(serialized_data)
                         except Exception as e:
-                            pass
+                            self.logger.warning("there has been an exception thrown in the outbound_data_handler "+str(e))
                         """if isinstance(SpecificCoTObj, SendOtherController):
                             detail = protobuf_object.event.other
                             protobuf_object.event.other = ''
@@ -130,6 +252,11 @@ class FederationClientServiceController(FederationServiceBase):
             else:
                 time.sleep(MainConfig.MainLoopDelay / 1000)
 
+    def send_command_to_core(self, serialized_data):
+        if self.pipe.sender_queue.full():
+            print('queue full !!!')
+        self.pipe.put(serialized_data)
+
     def inbound_data_handler(self):
         """this is the main process responsible for receiving data from FTS core
 
@@ -141,11 +268,10 @@ class FederationClientServiceController(FederationServiceBase):
                 command = self.pipe.get()
                 if command:
                     try:
-                        self.m_SendConnectionHandler.Handle(self, command)
+                        self._call_responsibility_chain(command)
                     except Exception as e:
                         pass
-                else:
-                    pass
+
             except Exception as e:
                 self.logger.error(str(e))
 
@@ -201,6 +327,7 @@ class FederationClientServiceController(FederationServiceBase):
                         print(raw_protobuf_message)
                         protobuf_object = FederatedEvent()
                         protobuf_object.ParseFromString(raw_protobuf_message)
+                        self.external_data_chain.Handle(self, protobuf_object)
                         dataarray.append(protobuf_object)
                     except Exception as e:
                         conn.recv(10000)

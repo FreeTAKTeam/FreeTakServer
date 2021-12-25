@@ -38,6 +38,16 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
     def _generate_header(self, contentlength):
         return contentlength.to_bytes(4, byteorder="big")
 
+    def check_dest_user(self, data):
+        """ this method is responsible for validating that the federate has
+        any of the intended recipients for the CoT
+
+        Args:
+            data: a CoT object
+
+        Returns boolean: True if the federate has any dest client otherwise false
+
+        """
     def send_data_to_clients(self, data):
         from defusedxml import ElementTree as etree
         try:
