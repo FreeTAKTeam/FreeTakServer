@@ -143,7 +143,7 @@ class FederationServerService(FederationServiceBase):
         send data through process pipe
         """
         dataarray = []
-        events = self.sel.select(timeout)
+        events = self.sel.select(timeout=timeout)
         for key, mask in events:
             if key.data is None:
                 self._accept_connection(key.fileobj)
@@ -189,7 +189,7 @@ class FederationServerService(FederationServiceBase):
             data.name = addr[0]
             data.addr = addr
             data.uid = str(uuid.uuid4())
-            events = selectors.EVENT_READ | selectors.EVENT_WRITE
+            events = selectors.EVENT_READ
             self._send_connected_clients(conn)
             self.sel.register(conn, events, data=data)
             self.federates[data.uid] = data

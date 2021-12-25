@@ -162,7 +162,7 @@ class FederationClientServiceController(FederationServiceBase):
                 federate.addr = federate_db_obj.address
                 federate.conn = ssock
                 federate.name = federate_db_obj.name
-                events = selectors.EVENT_READ | selectors.EVENT_WRITE
+                events = selectors.EVENT_READ
                 self.sel.register(ssock, events, federate)
                 self.federates[server_vars[0]] = federate
                 self._send_connected_clients(ssock)
@@ -187,7 +187,7 @@ class FederationClientServiceController(FederationServiceBase):
         """
         dataarray = []
         if self.federates:
-            events = self.sel.select(timeout)
+            events = self.sel.select(timeout=timeout)
             for key, mask in events:
                 conn = key.fileobj
                 try:
