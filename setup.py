@@ -19,7 +19,7 @@ setup(
     keywords=['TAK', 'OPENSOURCE'],
     install_requires=[
         'flask==1.1.2',
-        'lxml==4.6.1',
+        'lxml==4.6.5',
         'pathlib==1.0.1',
         'tabulate==0.8.7',
         'sqlalchemy==1.3.20',
