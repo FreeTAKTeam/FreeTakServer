@@ -4,6 +4,21 @@
 
 Welcome to the FreeTakServer (FTS) git repository.
 
+:zap:        ANNOUNCEMENT!  
+>The FTS Team will be testing performance of the new and improved V2.0 on our public server ,
+>  **January 9th, Sunday @ 7-8 PM GTM**, to help out read the 
+
+**instructions**
+1. Connect your TAK client to the ip `204.48.30.216` on port `8087`
+2. Connect and disconnect X3
+3. create and Broadcast to all the route from a location of your choice to a location of your choice
+4. Create and Broadcast a complex shape (e.g. a country)
+5. Participate to the chat sending some messages to the "All room" 
+6. If you can drive the route! (this provide valuable info). In alternative you may use a [route simulator](https://stackoverflow.com/questions/17258922/how-to-simulate-driving-a-route-in-real-device)
+7. play around with the TAK platform by making a scenario ! Add buddies and enemies, food and beverage along the route, the objective, further info etc. 
+8. and be sure 	to broadcast all the points so you can stress test FTS while you're at it)
+
+:warning: **please dont spam with bot's, the intention of this excercise it to understand how the new system responds to real client behaviour**
 
 FTS is a Python3 implementation of the TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), [WinTAK](https://1drv.ms/u/s!AtMVrrXVTu4YgSanKtSHIslxfRu5?e=ftVio7 ), and ITAK, it is cross-platform and runs from a multi node installation on AWS down to the Android edition. 
 It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/)).
