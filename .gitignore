@@ -167,7 +167,7 @@ logs/
 /FreeTAKServer/certs/
 /FreeTAKServer/ExCheck/
 /FreeTAKServer/model/RestMessages/ChatSchema.json
-/FreeTAKServer/controllers/configuration/FTSConfig.yaml
+/FreeTAKServer/controllers/configuration/FTSConfig.yml
 /FreeTAKServer/model/RestMessages/geoObject.xsd
 /FreeTAKServer/model/RestMessages/GeoObjectMessage.json
 /FreeTAKServer/model/RestMessages/GeoObjectSchema.graphql
