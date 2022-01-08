@@ -13,7 +13,7 @@ class MainConfig:
     # the version information of the server (recommended to leave as default)
     version = 'FreeTAKServer-1.9.8 Public'
     #
-    yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
+    yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yml'))
 
     python_version = 'python3.8'
 
