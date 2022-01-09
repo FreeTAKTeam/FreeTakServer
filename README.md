@@ -6,7 +6,7 @@ Welcome to the FreeTakServer (FTS) git repository.
 
 :zap:        ANNOUNCEMENT!  
 >The FTS Team will be testing performance of the new and improved V2.0 on our public server ,
->  **January 9th, Sunday @ 7-8 PM GTM**, to help out read the 
+>  **January 9th, Sunday @ 7-8 PM GMT**, to help out read the 
 
 **instructions**
 1. Connect your TAK client to the ip `204.48.30.216` on port `8087`
