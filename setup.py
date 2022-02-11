@@ -29,7 +29,7 @@ setup(
         'flask-socketio==4.3.1',
         'eventlet==0.29.0',
         'flask_httpauth==4.2.0',
-        'protobuf==3.14.0',
+        'protobuf==3.15.0',
         'python-socketio==4.6.0',
         'python-engineio==3.13.2',
         'Jinja2==2.11.2',
