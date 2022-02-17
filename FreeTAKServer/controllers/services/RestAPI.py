@@ -552,6 +552,7 @@ def ManageRoute():
 
 
 @app.route("/ManageRoute/postRoute", methods=["POST"])
+@auth.login_required()
 def postRoute():
     try:
         from json import dumps
