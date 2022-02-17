@@ -175,3 +175,4 @@ logs/
 /FreeTAKServer/model/RestMessages/GeoObjectSchema-rdfs.xml
 /test users/__init__.py
 /test users/basic_user.py
+/FreeTAKServer/controllers/serializers/federation_protobuf_serializer.py
