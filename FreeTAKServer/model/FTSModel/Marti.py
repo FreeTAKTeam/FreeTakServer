@@ -1,13 +1,16 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModel.Dest import Dest as DestObject
 
-#TODO: modify to call dest with static method
+
+# TODO: modify to call dest with static method
 class counter:
     count = 0
     getter_called = False
 
+
 class Marti(FTSProtocolObject):
     __counter = counter()
+
     def __init__(self):
         # self.__dest = [DestObject(self.__counter)]
         # self.__tempdest = self.__dest
@@ -51,31 +54,6 @@ class Marti(FTSProtocolObject):
         # TODO: clean up this implementation and eliminate need for __firstrun
         try:
             return self.dest[self.__index]
-            """returnvalue = self.dest[self.__index]
-            if returnvalue._gettercalled() == False and returnvalue._settercalled() == False and self.__index == 0:
-                # only when no changes have been made
-                return returnvalue
-            elif returnvalue._gettercalled() == True and returnvalue._settercalled() == False and self.__index != 0:
-                returnvalue = self.dest[self.__index]
-                self.__index += 1
-                return returnvalue
-            elif returnvalue._gettercalled() == True and returnvalue._settercalled() == True:
-                self.__index += 1
-                returnvalue = self.dest[self.__index]
-                return returnvalue
-            elif returnvalue._settercalled() and returnvalue._gettercalled() == False and returnvalue.callsign != None and self.__firstrun:
-                # value has already been set and therefore new instance of dest must be returned
-                self.setdest()
-                returnvalue = self.dest[self.__index]
-                return returnvalue
-            elif not returnvalue._settercalled() and not returnvalue._gettercalled() and returnvalue.callsign == None and self.__index == 0:
-                return returnvalue
-            elif not returnvalue._settercalled() and not returnvalue._gettercalled() and returnvalue.callsign == None:
-                self.__index = 0
-                self.__firstrun = False
-                returnvalue = self.dest[self.__index]
-                return returnvalue
-            return returnvalue"""
         except IndexError:
             try:
                 if self.__firstrun:
@@ -86,11 +64,10 @@ class Marti(FTSProtocolObject):
                     self.__index = 0
                     return self.dest[self.__index]
             except IndexError:
-                self.__index= 0
+                self.__index = 0
                 return self.dest[self.__index]
-    def setdest(self, Dest = None):
-        if not Dest:
-            Dest = DestObject.geochat()
+
+    def setdest(self, Dest=None):
         self.dest.append(DestObject.geochat())
         self.__index += 1
 
@@ -98,6 +75,7 @@ class Marti(FTSProtocolObject):
 if __name__ == "__main__":
     from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
     from defusedxml import ElementTree as etree
+
     a = Marti.other()
     b = etree.fromstring(b'<marti><dest callsign = "bbbb"/></marti>')
     x = XMLCoTController().serialize_CoT_to_model(a, b)
@@ -109,5 +87,3 @@ if __name__ == "__main__":
     for x in a.dest:
         f = a.getdest()
     print('done')
-
-

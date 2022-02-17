@@ -8,34 +8,67 @@
 # 
 #######################################################
 import socket
+import logging
+import logging.handlers
+import re
+from lxml import etree
+import ssl
+import time
+import os
+from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
+
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
 from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("ReceiveConnections").getLogger()
-import logging
-import logging.handlers
-import ssl
-import time
-#TODO: move health check values to constants and create controller for HealthCheck data
+
+loggingConstants = LoggingConstants(log_name="FTS_ReceiveConnections")
+logger = CreateLoggerController("FTS_ReceiveConnections", logging_constants=loggingConstants).getLogger()
+
+loggingConstants = ClientReceptionLoggingConstants()
+
+
+# TODO: move health check values to constants and create controller for HealthCheck data
 
 class ReceiveConnections:
-    def __init__(self):
-        pass
+    connections_received = 0
 
+    def receive_connection_data(self, client):
+        """ this method is responsible for receiving connection data from the client
 
-    def listen(self, sock, sslstatus = False):
-        #logger = CreateLoggerController("ReceiveConnections").getLogger()
-        #listen for client connections
-        sock.listen(0)
+        :param client:
+        :return:
+        """
+        print('receiving')
+        client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
+        part = client.recv(1)
+        client.settimeout(None)
+        client.setblocking(False)  # blocking must be false for
+
+        client_file = client.makefile()  # get file descriptor so socket can be read without delay
+        print('reading')
+        xmlstring = ''.join(client_file.read())
+        print(xmlstring)
+        if not xmlstring: raise Exception('empty data')
+        client.setblocking(True)
+        client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
+        print(xmlstring)
+        xmlstring = "<multiEvent>" + part.decode() + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
+        xmlstring = re.sub(r'\<\?xml(?s)(.*)\?\>', '',
+                           xmlstring)  # replace xml definition tag with empty string as it breaks serilization
+        events = etree.fromstring(xmlstring)
+        return events
+
+    def listen(self, sock, sslstatus=False):
+        # logger = CreateLoggerController("ReceiveConnections").getLogger()
+        # listen for client connections
+        sock.listen(1000)
         try:
-            #establish the socket variables
+            # establish the socket variables
             if sslstatus == True:
                 sock.settimeout(60)
-                #sock.setblocking(0)
-            #logger.debug('receive connection started')
+            # logger.debug('receive connection started')
             try:
                 client, address = sock.accept()
                 if sslstatus == True:
@@ -43,34 +76,42 @@ class ReceiveConnections:
             except ssl.SSLError as e:
                 print(e)
                 client.close()
-                logger.warning('ssl error thrown in connection attempt '+str(e))
+                logger.warning('ssl error thrown in connection attempt ' + str(e))
                 return -1
             if sslstatus == True:
                 logger.info('client connected over ssl ' + str(address) + ' ' + str(time.time()))
-            #wait to receive client
-            client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
-            data = client.recv(1024)
-            if data == ReceiveConnectionsConstants().TESTDATA:
-                client.send(b'success')
-                return -1
-            else:
-                pass
+            # wait to receive client
+            try:
+                events = self.receive_connection_data(client=client)
+            except (IndexError, Exception) as e:
+                if events.text == ReceiveConnectionsConstants().TESTDATA:
+                    client.send(b'success')
+                else:
+                    try:
+                        events = self.receive_connection_data(client=client)
+                    except Exception as e:
+                        return -1
             client.settimeout(0)
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
-            #establish the socket array containing important information about the client
-            RawConnectionInformation = sat()
-            RawConnectionInformation.ip = address[0]
-            RawConnectionInformation.socket = client
-            RawConnectionInformation.xmlString = data.decode('utf-8')
+            # establish the socket array containing important information about the client
+            raw_connection_information = self.instantiate_client_object(address, client, events)
+            logger.info("client accepted")
             try:
-                if socket != None and data != b'':
-                    return RawConnectionInformation
+                if socket is not None and raw_connection_information.xmlString != b'':
+                    return raw_connection_information
                 else:
                     return -1
             except Exception as e:
-                logger.warning('exception in returning data '+str(e))
+                logger.warning('exception in returning data ' + str(e))
                 return -1
 
         except Exception as e:
-            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR+str(e))
+            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR + str(e))
             return -1
+
+    def instantiate_client_object(self, address, client, events):
+        raw_connection_information = sat()
+        raw_connection_information.ip = address[0]
+        raw_connection_information.socket = client
+        raw_connection_information.xmlString = etree.tostring(events.findall('event')[0]).decode('utf-8')
+        return raw_connection_information

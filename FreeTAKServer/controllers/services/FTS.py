@@ -3,6 +3,7 @@ import threading
 import argparse
 import linecache
 import sys
+import random
 
 from FreeTAKServer.controllers.CreateStartupFilesController import CreateStartupFilesController
 
@@ -50,6 +51,7 @@ loggingConstants = LoggingConstants()
 class FTS:
 
     def __init__(self):
+        self.data_from_services = 0
         self.FederationClientService = None
         self.FederationServerService = None
         self.SSLCoTService = None
@@ -71,7 +73,12 @@ class FTS:
         logger.propagate = True
         logger.info('something')
 
-    def start_restAPI_service(self, StartupObjects):
+    def start_rest_api_service(self, StartupObjects):
+        """ this method starts the rest api service and instantiates ISC protocols
+
+        :param StartupObjects:
+        :return:
+        """
         try:
             self.RestAPIPipe = Queue()
             restapicommandsthread = Queue()
@@ -93,7 +100,12 @@ class FTS:
             logger.error('There has been an exception thrown in the startup of the restAPI service ' + str(e))
             return -1
 
-    def stop_RestAPI_service(self):
+    def stop_rest_api_service(self):
+        """ this method terminates the REST API process and closses
+        associated resources
+
+        :return:
+        """
         try:
             self.RestAPIProcess.terminate()
             self.RestAPIProcess.join()
@@ -102,7 +114,12 @@ class FTS:
         except Exception as e:
             logger.error('an exception has been thrown in RestAPI Startup ' + str(e))
 
-    def start_CoT_service(self, FTSServiceStartupConfigObject):
+    def start_cot_service(self, FTSServiceStartupConfigObject):
+        """ this method starts the cot service process and the required ISC resources
+
+        :param FTSServiceStartupConfigObject: object containing service startup and configuration information
+        :return:
+        """
         try:
             self.core_tcp_user_queue_send = Queue()
             self.service_tcp_user_queue_send = Queue()
@@ -128,7 +145,11 @@ class FTS:
             logger.error('an exception has been thrown in CoT service startup ' + str(e))
             return -1
 
-    def stop_CoT_service(self):
+    def stop_cot_service(self):
+        """ terminate the cot service process and associated ISC resources
+
+        :return:
+        """
         try:
             # self.ClientDataPipe.close()
             self.CoTPoisonPill.clear()
@@ -149,6 +170,11 @@ class FTS:
         return 1
 
     def start_tcp_data_package_service(self, FTSServiceStartupConfigObject):
+        """ initiate TCP DP service and ISC resources
+
+        :param FTSServiceStartupConfigObject:
+        :return:
+        """
         try:
             self.tcp_data_package_service_pipe = Queue()
             print('start 213')
@@ -169,6 +195,10 @@ class FTS:
             return -1
 
     def stop_tcp_data_package_service(self):
+        """ stop TCP DP service and terminate ISC resources
+
+        :return:
+        """
         del self.pipeList['tcp_data_package_service_pipe']
         self.FilterGroup.remove_source(ServiceTypes.TCPDPSERVICE)
         try:
@@ -185,6 +215,11 @@ class FTS:
         return 1
 
     def start_ssl_data_package_service(self, FTSServiceStartupConfigObject):
+        """ start SSL DP service and initiate ISC resources
+
+        :param FTSServiceStartupConfigObject:
+        :return:
+        """
         try:
             print('start 213')
             self.ssl_data_package_service = Queue()
@@ -205,6 +240,10 @@ class FTS:
             return -1
 
     def stop_ssl_data_package_service(self):
+        """ stop the SSL DP service and terminate ISC resources
+
+        :return:
+        """
         del (self.pipeList['ssl_data_package_service'])
         self.FilterGroup.remove_source(ServiceTypes.SSLDPSERVICE)
         try:
@@ -220,7 +259,12 @@ class FTS:
         self.ssl_data_package_service.close()
         return 1
 
-    def start_SSL_CoT_service(self, FTSServiceStartupConfigObject):
+    def start_ssl_cot_service(self, FTSServiceStartupConfigObject):
+        """ start the SSL CoT service and the required ISC resources
+
+        :param FTSServiceStartupConfigObject:
+        :return:
+        """
         try:
             self.core_ssl_user_queue_send = Queue()
             self.service_ssl_user_queue_send = Queue()
@@ -245,7 +289,11 @@ class FTS:
             logger.error('an exception has been thrown in SSL CoT service startup ' + str(e))
             return -1
 
-    def stop_SSL_CoT_service(self):
+    def stop_ssl_cot_service(self):
+        """ stop SSL COT service and terminate ISC resources
+
+        :return:
+        """
         try:
             self.SSLClientDataPipe.close()
             self.SSLCoTPoisonPill.clear()
@@ -266,6 +314,11 @@ class FTS:
         return 1
 
     def start_federation_client_service(self, FTSServiceStartupConfigObject):
+        """ start the federation_client service and the required ISC resources
+
+        :param FTSServiceStartupConfigObject:
+        :return:
+        """
         FederationClientServicePipeFTS = Queue()
         FederationClientServicePipe = Queue()
         self.FederationClientServicePipeFTS = QueueManager(FederationClientServicePipeFTS, FederationClientServicePipe)
@@ -279,6 +332,10 @@ class FTS:
         return 1
 
     def stop_federation_client_service(self):
+        """ stop the federation_client service and terminate the ISC resources
+
+        :return:
+        """
         try:
             del (self.pipeList['FederationClientServiceFTSPipe'])
             if self.FederationClientService.is_alive():
@@ -294,6 +351,11 @@ class FTS:
             return -1
 
     def start_federation_server_service(self, FTSServiceStartupConfigObject):
+        """
+
+        :param FTSServiceStartupConfigObject:
+        :return:
+        """
         try:
             ip = FTSServiceStartupConfigObject.FederationServerService.FederationServerServiceIP
             port = FTSServiceStartupConfigObject.FederationServerService.FederationServerServicePort
@@ -379,8 +441,8 @@ class FTS:
             if FTSServiceStartupConfigObject.CoTService.CoTServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.CoTService.CoTServiceStatus = FTSServiceStartupConfigObject.CoTService.CoTServiceStatus
                 if isinstance(self.CoTService, multiprocessing.Process) and self.CoTService.is_alive(): # stop the running service and restart, this applies primarily to port changes
-                    self.stop_CoT_service()
-                self.start_CoT_service(FTSServiceStartupConfigObject)
+                    self.stop_cot_service()
+                self.start_cot_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.CoTService.CoTServicePort != "":
                     self.FTSServiceStartupConfigObject.CoTService.CoTServicePort = FTSServiceStartupConfigObject.CoTService.CoTServicePort
                 if FTSServiceStartupConfigObject.CoTService.CoTServiceIP != "":
@@ -388,15 +450,15 @@ class FTS:
 
             elif FTSServiceStartupConfigObject.CoTService.CoTServiceStatus == 'stop':
                 self.FTSServiceStartupConfigObject.CoTService.CoTServiceStatus = FTSServiceStartupConfigObject.CoTService.CoTServiceStatus
-                self.stop_CoT_service()
+                self.stop_cot_service()
             else:
                 pass
 
             if FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus == 'start':
                 self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus
                 if isinstance(self.SSLCoTService, multiprocessing.Process) and self.SSLCoTService.is_alive(): # stop the running service and restart, this applies primarily to port changes
-                    self.stop_SSL_CoT_service()
-                self.start_SSL_CoT_service(FTSServiceStartupConfigObject)
+                    self.stop_ssl_cot_service()
+                self.start_ssl_cot_service(FTSServiceStartupConfigObject)
                 if FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort != "":
                     self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort
                 if FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceIP != "":
@@ -404,7 +466,7 @@ class FTS:
 
             elif FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus == 'stop':
                 self.FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus = FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceStatus
-                self.stop_SSL_CoT_service()
+                self.stop_ssl_cot_service()
 
             else:
                 pass
@@ -552,10 +614,10 @@ class FTS:
 
     def help(self):
         print('start_all: to begin all services type')
-        print('start_CoT_service: to begin CoT service type')
+        print('start_cot_service: to begin CoT service type')
         print('start_data_package_service: to begin data package service  type')
         print('stop_all: to terminate all services type')
-        print('stop_CoT_service: to terminate CoT service type')
+        print('stop_cot_service: to terminate CoT service type')
         print('stop_data_package_service: to begin data package service type')
         print('check_service_status: to check the status of the services type')
         print('show_users: to show connected user information type')
@@ -600,23 +662,6 @@ class FTS:
             logger.error('there has been an exception in FTS verifying output ' + str(e))
             return False
 
-    def stop_all(self):
-        try:
-            DataPackageServiceOutput = self.stop_data_package_service()
-            if self.verify_output(DataPackageServiceOutput):
-                pass
-            else:
-                raise Exception('error stopping DataPackage Service')
-            CoTServiceOutput = self.stop_CoT_service()
-            if self.verify_output(CoTServiceOutput):
-                pass
-            else:
-                raise Exception('error stopping CoT Service')
-            return 1
-        except Exception as e:
-            logger.error('there has been an exception in FTS stop_all ' + str(e))
-            return -1
-
     def kill(self):
         try:
             self.killSwitch = True
@@ -625,6 +670,7 @@ class FTS:
             logger.error('error in kill function ' + str(e))
 
     def checkPipes(self):
+        """this method is used to check the contents of all pipes sharing data with the core"""
         while True:
             try:
                 for service_name, pipe in self.FilterGroup.get_sources().items():
@@ -638,11 +684,13 @@ class FTS:
                         if data == 0 or data is None:
                             continue
                         elif isinstance(data, list):
+                            self.data_from_services += len(data)
                             AddDataToCoTList().send(self.FilterGroup.receivers, data[0], service_name)
                             for client in self.user_dict.values():
                                 AddDataToCoTList().send(self.FilterGroup.receivers, client.m_presence, service_name) # send presence objects of all clients too the service with a new client
                         # this runs in all other cases in which data is received
                         elif data != 0 and data is not None:
+                            self.data_from_services += 1
                             AddDataToCoTList().send(self.FilterGroup.receivers, data, service_name)
                         # this runs when a timeout is triggered
                         else:
@@ -669,7 +717,7 @@ class FTS:
                 StartupObject.RestAPIService.RestAPIServicePort = RestAPIPort
                 StartupObject.RestAPIService.RestAPIServiceIP = RestAPIIP
                 StartupObject.RestAPIService.RestAPIServiceStatus = 'start'
-                self.start_restAPI_service(StartupObject)
+                self.start_rest_api_service(StartupObject)
 
             else:
                 StartupObject = FTSObj()
@@ -696,7 +744,7 @@ class FTS:
                 StartupObject.SSLCoTService.SSLCoTServiceStatus = 'start'
                 StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
-                self.start_restAPI_service(StartupObject)
+                self.start_rest_api_service(StartupObject)
 
                 self.start_all(StartupObject)
 
@@ -704,9 +752,11 @@ class FTS:
             threading.Thread(target=self.checkPipes).start()
             while True:
                 try:
-                    if time.time() > start_timer+60:
+                    if time.time() > start_timer+15:
                         start_timer = time.time()
                         logger.debug(str(self.user_dict))
+                        logger.debug(f"number of CoT messages received by services: {str(self.data_from_services)}")
+                        self.data_from_services = 0
                 except Exception as e:
                     logger.error("the periodic debug message has thrown an error "+str(e))
                 try:
@@ -722,7 +772,6 @@ class FTS:
 
 
 import time
-
 
 class QueueManager:
     def __init__(self, sender_queue: Queue, listener_queue: Queue):
@@ -756,6 +805,10 @@ class QueueManager:
     def empty(self, timeout=None):
         empty = self.listener_queue.empty()
         return empty
+
+    def close(self):
+        self.sender_queue.close()
+        self.listener_queue.close()
 
 
 class APIQueueManager:

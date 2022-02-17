@@ -155,12 +155,28 @@ class TestSerializers(unittest.TestCase):
         """
         test new serialization in contrast with legacy serializer to ensure compatibility
         """
-        from FreeTAKServer.model.FTSModel.Event import Event
-        # xmlstring = '<event version="2.0" uid="GeoChat.ANDROID-359975090666199.FEATHER.27d8ef23-8578-4cb4-8f53-02f5dc150cd2" type="b-t-f" how="h-g-i-g-o" start="2021-01-03T19:01:35.472Z" time="2021-01-03T19:01:35.472Z" stale="2021-01-04T19:01:35.472Z"><detail><__chat id="S-1-5-21-2720623347-3037847324-4167270909-1002" parent="RootContactGroup" chatroom="FEATHER" groupOwner="false"><chatgrp uid0="ANDROID-359975090666199" uid1="S-1-5-21-2720623347-3037847324-4167270909-1002" id="S-1-5-21-2720623347-3037847324-4167270909-1002"/></__chat><link uid="ANDROID-359975090666199" relation="p-p" type="a-f-G-E-V-A"/><remarks time="2021-01-03T19:01:35.472Z" source="BAO.F.ATAK.ANDROID-359975090666199" to="S-1-5-21-2720623347-3037847324-4167270909-1002">at VDO</remarks><__serverdestination destinations="192.168.2.66:4242:tcp:ANDROID-359975090666199"/><marti><dest callsign = "WOLF"/><dest callsign="GALLOP"/><dest callsign="FEATHER"/></marti></detail><point le="9999999.0" ce="3.2" hae="22.958679722315807" lon="-66.10803" lat="43.855711"/></event>'
-        xmlstring = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="03Z0170972" type="a-f-A-M-H-Q" time="2021-06-17T19:08:19.699Z" start="2021-06-17T19:08:19.699Z" stale="2021-06-18T19:08:23.199Z" how="m-g"><point lat="43.85566678637877" lon="-66.10800161079035" hae="0.11165844181401496" ce="0.0" le="0.0" /><detail> <contact callsign="UAS-NOVA" /><sensor elevation="0.0" vfov="66.0" north="226.70000076293945" roll="0.0" range="300" azimuth="46.0" model="Phantom 3 Advanced Camera" fov="81.0" type="r-e" version="0.6" /></detail></event>'
+        # test geochats
+        xmlstring = '<event version="2.0" uid="GeoChat.ANDROID-359975090666199.FEATHER.27d8ef23-8578-4cb4-8f53-02f5dc150cd2" type="b-t-f" how="h-g-i-g-o" start="2021-01-03T19:01:35.472Z" time="2021-01-03T19:01:35.472Z" stale="2021-01-04T19:01:35.472Z"><detail><__chat id="S-1-5-21-2720623347-3037847324-4167270909-1002" parent="RootContactGroup" chatroom="FEATHER" groupOwner="false"><chatgrp uid0="ANDROID-359975090666199" uid1="S-1-5-21-2720623347-3037847324-4167270909-1002" id="S-1-5-21-2720623347-3037847324-4167270909-1002"/></__chat><link uid="ANDROID-359975090666199" relation="p-p" type="a-f-G-E-V-A"/><remarks time="2021-01-03T19:01:35.472Z" source="BAO.F.ATAK.ANDROID-359975090666199" to="S-1-5-21-2720623347-3037847324-4167270909-1002">at VDO</remarks><__serverdestination destinations="192.168.2.66:4242:tcp:ANDROID-359975090666199"/><marti><dest callsign = "WOLF"/><dest callsign="GALLOP"/><dest callsign="FEATHER"/></marti></detail><point le="9999999.0" ce="3.2" hae="22.958679722315807" lon="-66.10803" lat="43.855711"/></event>'
+        # xmlstring = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="03Z0170972" type="a-f-A-M-H-Q" time="2021-06-17T19:08:19.699Z" start="2021-06-17T19:08:19.699Z" stale="2021-06-18T19:08:23.199Z" how="m-g"><point lat="43.85566678637877" lon="-66.10800161079035" hae="0.11165844181401496" ce="0.0" le="0.0" /><detail> <contact callsign="UAS-NOVA" /><sensor elevation="0.0" vfov="66.0" north="226.70000076293945" roll="0.0" range="300" azimuth="46.0" model="Phantom 3 Advanced Camera" fov="81.0" type="r-e" version="0.6" /></detail></event>'
 
-        # fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.GeoChat())
-        fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.DroneSensor())
+        fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.GeoChat())
+        #fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.DroneSensor())
+        obj = XmlSerializer().from_fts_object_to_format(fts_obj)
+        print(etree.tostring(obj).decode())
+        # legacyftsobj = XMLCoTController().serialize_CoT_to_model(Event.GeoChat(), etree.fromstring(xmlstring))
+        legacy_string = XMLCoTController().serialize_model_to_CoT(fts_obj)
+        self.assertEqual(legacy_string.decode(), etree.tostring(obj).decode())
+
+    def test_xml_other_serialization(self):
+        from FreeTAKServer.model.RawCoT import RawCoT
+        from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+        rc = RawCoT()
+        xmlstring = '<event version="2.0" uid="ANDROID-BC:7F:A4:0F:D2:7D" type="a-f-G-U-C-I" time="2021-12-23T16:25:08.350Z" start="2021-12-23T16:25:08.350Z" stale="2021-12-23T16:26:23.350Z" how="m-g">    <point lat="0.0" lon="0.0" hae="0.0" ce="9999999" le="9999999" />    <detail /></event>'
+        # xmlstring = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><event version="2.0" uid="03Z0170972" type="a-f-A-M-H-Q" time="2021-06-17T19:08:19.699Z" start="2021-06-17T19:08:19.699Z" stale="2021-06-18T19:08:23.199Z" how="m-g"><point lat="43.85566678637877" lon="-66.10800161079035" hae="0.11165844181401496" ce="0.0" le="0.0" /><detail> <contact callsign="UAS-NOVA" /><sensor elevation="0.0" vfov="66.0" north="226.70000076293945" roll="0.0" range="300" azimuth="46.0" model="Phantom 3 Advanced Camera" fov="81.0" type="r-e" version="0.6" /></detail></event>'
+        rc.xmlString = xmlstring
+        sendothercontroller = SendOtherController(rc)
+        fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.Other())
+        # fts_obj = XmlSerializer().from_format_to_fts_object(xmlstring, Event.DroneSensor())
         obj = XmlSerializer().from_fts_object_to_format(fts_obj)
         print(etree.tostring(obj).decode())
         # legacyftsobj = XMLCoTController().serialize_CoT_to_model(Event.GeoChat(), etree.fromstring(xmlstring))

@@ -151,7 +151,8 @@ class ServerStatusController:
                 IP = s.getsockname()[0]
             else:
                 pass
-            conn = request.urlopen(f'http://{IP}:{RestAPIPort}/Alive')
+            conn = request.urlopen(f'http://{IP}:{RestAPIPort}/Alive')  # pylint: disable=no-member
+            # request does have this method
             if conn.code == 200:
                 return "on"
             else:

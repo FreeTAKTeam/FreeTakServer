@@ -5,7 +5,7 @@ from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 import uuid
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
-from lxml.etree import tostring
+from lxml import etree
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables
 from geopy import Nominatim
@@ -20,7 +20,7 @@ class SendRouteController:
         object = SendRoute()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        object.setXmlString(tostring(XmlSerializer().from_fts_object_to_format(object.modelObject)))
+        object.setXmlString(etree.tostring(XmlSerializer().from_fts_object_to_format(object.modelObject)))
         self.setCoTObject(object)
 
     def _serializeJsonToModel(self, object: event, json):

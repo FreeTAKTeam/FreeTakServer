@@ -15,18 +15,18 @@ class ActiveThreadsController:
 
     def addClientThread(self, clientInformation, process):
         processObject = (clientInformation, process)
-        self.ActiveThreads.ThreadArray.append(processObject)
+        self.ActiveThreads.thread_array.append(processObject)
 
     def addReceiveConnectionsThread(self, ReceiveConnectionsProcess, process):
         processObject = (ReceiveConnectionsProcess, process)
-        self.ActiveThreads.ThreadArray.append(processObject)
+        self.ActiveThreads.thread_array.append(processObject)
 
     def removeClientThread(self, clientInformation):
-        for x in self.ActiveThreads.ThreadArray:
+        for x in self.ActiveThreads.thread_array:
             if x[0] == clientInformation:
-                self.ActiveThreads.ThreadArray.remove(x)
+                self.ActiveThreads.thread_array.remove(x)
 
     def removeReceiveConnectionProcess(self, ReceiveConnectionsProcess):
-        for x in self.ActiveThreads.ThreadArray:
+        for x in self.ActiveThreads.thread_array:
             if x[0] == ReceiveConnectionsProcess:
-                self.ActiveThreads.ThreadArray.remove(x)
+                self.ActiveThreads.thread_array.remove(x)

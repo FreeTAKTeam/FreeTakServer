@@ -32,7 +32,7 @@ class MainConfig:
 
         OptimizeAPI = True
 
-        MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 1))
+        MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 100))
 
         # this is the port to which clients will connect
         CoTServicePort = int(os.environ.get('FTS_COT_PORT', 8087))
@@ -297,4 +297,4 @@ class MainConfig:
     # location to backup client packages
     clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
 
-    first_start = True
+    first_start = False

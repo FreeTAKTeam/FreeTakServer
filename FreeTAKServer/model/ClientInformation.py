@@ -1,3 +1,4 @@
+# pylint: disable=trailing-whitespace
 #######################################################
 # 
 # ClientInformation.py
@@ -8,6 +9,7 @@
 # 
 #######################################################
 import copy
+
 
 class ClientInformation:
     def __init__(self):  
@@ -22,7 +24,7 @@ class ClientInformation:
         self.socket = "" 
         self.type = "clientInformation"
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=dict):
         returned = ClientInformation()
         returned.modelObject = copy.deepcopy(self.modelObject)
         returned.alive = copy.deepcopy(self.alive)

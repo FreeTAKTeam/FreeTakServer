@@ -8,6 +8,7 @@ from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendGeoChatController").getLogger()
 
+
 class SendChatController:
     def __init__(self, json):
         tempObject = event.GeoChat()

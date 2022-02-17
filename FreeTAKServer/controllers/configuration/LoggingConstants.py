@@ -22,7 +22,7 @@ class LoggingConstants:
         self.INFOLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log"))
         self.HTTPLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log"))
         self.DELIMITER = ' ? '
-        self.MAXFILESIZE = 100000
+        self.MAXFILESIZE = 100000000
         self.BACKUPCOUNT = 5
         #orchestrator logs
         
@@ -51,7 +51,7 @@ class LoggingConstants:
         self.CLIENTDISCONNECTEND = 'client disconnection has concluded '
         self.CLIENTDISCONNECTERROR = 'there has been an error in the reception of generic data'
 
-        #monitorRawCoT
+        #monitor_raw_cot
         self.MONITORRAWCOTERRORA = 'there has been an error in the reception of data in the monitoring of pipes A'
         self.MONITORRAWCOTERRORB = 'there has been an error in the reception of data in the monitoring of pipes B'
         self.MONITORRAWCOTERRORC = 'there has been an error in the reception of data in the monitoring of pipes C'

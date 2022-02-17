@@ -1,3 +1,7 @@
+"""this module is responsible for running the DataPackage service
+as it utilizes flask, each method represents an endpoint
+this web server is responsible for all HTTP queries to
+FTS from an ATAK client"""
 import logging
 import os
 import random
@@ -59,7 +63,7 @@ if not os.path.exists(MainConfig.ExCheckFilePath):
 """if not Path(log.LOGDIRECTORY).exists():
     print(f"Creating directory at {log.LOGDIRECTORY}")
     os.makedirs(log.LOGDIRECTORY)"""
-app.logger.removeHandler(default_handler)
+app.logger.removeHandler(default_handler)  # pylint: disable=no-member; member does exist
 formatter = logging.Formatter(log.LOGFORMAT)
 file_handler = RotatingFileHandler(
     log.HTTPLOG,
@@ -93,7 +97,7 @@ def get_all_video_links():
     # to store locally
     try:
         feeds = dbController.query_videostream(column=["FullXmlString"])
-        app.logger.info(f"Found {len(feeds)} video feeds in {const.DATABASE}")
+        app.logger.info(f"Found {len(feeds)} video feeds in {const.DATABASE}")  # pylint: disable=no-member; member does exist
         if len(feeds) == 0:
             return ("No video feeds found", 500)
         all_feeds = ""
@@ -102,7 +106,7 @@ def get_all_video_links():
             all_feeds += feed.FullXmlString.decode("utf-8")
         return f"<videoConnections>{all_feeds}</videoConnections>"
     except:
-        app.logger.error(traceback.format_exc())
+        app.logger.error(traceback.format_exc())  # pylint: disable=no-member; member does exist
         return "Error", 500
 
 
@@ -126,9 +130,9 @@ def insert_video_link():
             # Check that no other feeds with the same UID have been received
             streams = dbController.query_videostream(query=f'uid = "{uid}"')
             if len(streams) > 0:
-                app.logger.info(f"Already received feed with UID={uid} (alias = {alias})")
+                app.logger.info(f"Already received feed with UID={uid} (alias = {alias})")  # pylint: disable=no-member; member does exist
                 continue  # Ignore this feed if there are duplicates
-            app.logger.info(f"Inserting video feed into database: {request.data.decode('utf-8')}")
+            app.logger.info(f"Inserting video feed into database: {request.data.decode('utf-8')}")  # pylint: disable=no-member; member does exist
             dbController.create_videostream(FullXmlString=ET.tostring(xml_feed), Protocol=protocol, Alias=alias,
                                             uid=uid, Address=address, Port=port, RoverPort=rover_port,
                                             IgnoreEmbeddedKlv=ignore_klv, PreferredMacAddress=preferred_mac, Path=path,
@@ -244,7 +248,7 @@ def specificPackage():
             obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{hash}"')
             data = etree.parse(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(obj[0].data.filename))))
             data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find('checklistTasks').find("checklistTask").find("checklistUid").text
-            output = etree.tostring(data, pretty_print=False)
+            output = etree.tostring(data)
             return output
 
 

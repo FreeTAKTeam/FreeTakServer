@@ -6,7 +6,9 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendChecklistController").getLogger()
 
+
 class SendChecklistController(SendCoTAbstractController):
+    """this class is responsible for handling Checklist type cots"""
     def __init__(self, RawCoT):
         try:
             tempObject = super().Event.disconnect()

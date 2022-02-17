@@ -9,7 +9,8 @@ class SendDataController:
 
     def __init__(self):
         pass
-    def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, shareDataPipe = None):
+    def sendDataInQueue(self, sender, processedCoT, clientInformationQueue, shareDataPipe = None, messages_to_core_count = 0):
+        self.messages_to_core_count = messages_to_core_count
         try:
             pass
             # print('sending data to fts client' + str(processedCoT.xmlString))
@@ -38,6 +39,7 @@ class SendDataController:
                         logger.error('error in sending connection data ' + str(processedCoT.idData))
                 copiedProcessedCoTObject = copy.deepcopy(processedCoT)
                 copiedProcessedCoTObject.idData = copiedProcessedCoTObject.idData.encode()
+                self.messages_to_core_count += 1
                 shareDataPipe.put([copiedProcessedCoTObject])
                 return 1
             elif processedCoT.type == 'other':
@@ -77,6 +79,7 @@ class SendDataController:
                         return -1
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
+                    self.messages_to_core_count += 1
                     shareDataPipe.put(processedCoT)
                 else:
                     pass
@@ -105,6 +108,7 @@ class SendDataController:
                     return (-1, client[1])
             if shareDataPipe != None:
                 processedCoT.clientInformation = None
+                self.messages_to_core_count += 1
                 shareDataPipe.put(processedCoT)
             else:
                 pass
@@ -138,6 +142,7 @@ class SendDataController:
                         return -1
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
+                    self.messages_to_core_count += 1
                     shareDataPipe.put(processedCoT)
                 else:
                     pass

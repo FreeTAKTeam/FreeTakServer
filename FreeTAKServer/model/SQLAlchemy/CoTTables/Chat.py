@@ -21,7 +21,7 @@ class Chat(Base):
     chatroom = Column(String(100))
     # TBD, 
     groupOwner = Column(String(100))
-    # TBD: the unique ID of the sender?
+    # TBD: the unique id of the sender?
     id = Column(String(100))
     # the group where thise chat is attached
     parent = Column(String(100))

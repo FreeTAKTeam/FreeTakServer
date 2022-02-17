@@ -11,6 +11,8 @@ import time
 import socket
 import errno
 import copy
+import re
+import sys
 
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
@@ -66,19 +68,28 @@ class ClientReceptionHandler:
                         logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORA + str(e))
                         self.returnReceivedData(client, b'', queue)
                     try:
-                        sock.settimeout(0.001)
-                        part = sock.recv(BUFF_SIZE)
+                        sock.setblocking(0)  # prevents blocking if there is no data to be read
+                        part = sock.recv(1)
+                        sys.stdout.flush()
                     except socket.timeout as e:
                         continue
                     except BrokenPipeError as e:
                         print('\n\n disconnect B \n\n')
                         self.returnReceivedData(client, b'', queue)
                         continue
+                    except socket.error as e:
+                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:  # this prevents errno 11 from spontanieously disconnecting clients due to the socket blocking set to 0
+                            # logger.debug("EWOULDBLOCK error passed " + str(e))
+                            continue
+                        elif hasattr(e, "errno") and e.errno == errno.ECONNRESET:
+                            print('econ reset passed')
+                            continue
+                        else:
+                            self.returnReceivedData(client, b'', queue)
+                            continue
                     except Exception as e:
                         import traceback
-                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:  # this prevents errno 11 from spontanieously disconnecting clients due to the socket blocking set to 0
-                            logger.debug("EWOULDBLOCK error passed " + str(e))
-                            continue
+
                         print('\n\n disconnect C ' + str(e) + "\n\n")
                         logger.error(
                             "Exception other than broken pipe in monitor for data function " + str(e) + ''.join(traceback.format_exception(None, e, e.__traceback__)))
@@ -92,32 +103,13 @@ class ClientReceptionHandler:
                             continue
                         else:
                             try:
-                                timeout = time.time() + 1
-                                while time.time() < timeout:
-                                    try:
-                                        event = etree.fromstring(part)
-                                        if event.tag == "event":
-                                            self.returnReceivedData(client, part, queue)
-                                            break
-                                        else:
-                                            break
-                                    except:
-                                        try:
-                                            sock.settimeout(0.1)
-                                            part += sock.recv(BUFF_SIZE)
-                                        except socket.timeout as e:
-                                            logger.error(
-                                                'there has been an exception in client reception handler ' + str(e))
-                                            break
-                                        except BrokenPipeError as e:
-                                            self.returnReceivedData(client, b'', queue)
-                                            break
-                                        except Exception as e:
-                                            print('\n\n disconnect E \n\n')
-                                            logger.error(
-                                                "Exception other than broken pipe in monitor for data function")
-                                            self.returnReceivedData(client, b'', queue)
-                                            break
+                                client_file = sock.makefile()  # get file descriptor so socket can be read without delay
+                                xmlstring = part.decode() + client_file.read()
+                                xmlstring = "<multiEvent>" + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
+                                xmlstring = re.sub(r'\<\?xml(?s)(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
+                                events = etree.fromstring(xmlstring)  # serialize to object
+                                for event in events.findall('event'):
+                                    self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
                             except Exception as e:
                                 logger.error('error in buffer ' + str(e))
                                 # return -1 commented out so entire run isn't stopped because of one disconnect
@@ -130,7 +122,7 @@ class ClientReceptionHandler:
                         # return -1 commented out so entire run isn't stopped because of one disconnect
 
                 except Exception as e:
-                    print('\n\n disconnect G \n\n')
+                    print(f'\n\n disconnect G {str(e)} \n\n')
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
                     self.returnReceivedData(client, b'', queue)
                     # return -1 commented out so entire run isn't stopped because of one disconnect
@@ -147,7 +139,7 @@ class ClientReceptionHandler:
             RawCoT.clientInformation = clientInformation
             RawCoT.xmlString = data.replace(b'\n', b'')  # replace all newlines with empty
             self.dataPipe.append(RawCoT)
-            logger.debug("data: "+ str(data)+" received from: "+clientInformation.user_id)
+            # logger.debug("data: "+ str(data)+" received from: "+clientInformation.user_id)
             return 1
         except Exception as e:
             logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNRECEIVEDDATAERROR + str(e))

@@ -33,30 +33,29 @@ import FreeTAKServer.model.SQLAlchemy.CoTTables._Video
 import FreeTAKServer.model.SQLAlchemy.CoTTables.ConnectionEntry
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor
 
+ALLDELETE = "all, delete"
 
 
 class Detail(Base):
-# default constructor  def __init__(self):
     __tablename__ = 'Detail'
     PrimaryKey = Column(ForeignKey("Event.uid"), primary_key=True)
-    # Event = relationship("Event", back_populates="detail")
     xmlString = Column(String(100))
-    archive = relationship("Archive", uselist=False, cascade="all, delete")
-    _group = relationship("_Group", uselist=False, back_populates="Detail", cascade="all, delete")
-    chat = relationship("Chat", uselist=False, cascade="all, delete")
-    color = relationship("Color", uselist=False, cascade="all, delete")
-    contact = relationship("Contact", back_populates="Detail", uselist=False, cascade="all, delete")
-    emergency = relationship("Emergency", uselist=False, cascade="all, delete")
-    link = relationship("Link", back_populates="Detail", uselist=False, cascade="all, delete")
-    marti = relationship("Marti", uselist=False, cascade="all, delete")
-    precisionlocation = relationship("Precisionlocation", uselist=False, cascade="all, delete")
-    remarks = relationship("Remarks", uselist=False, cascade="all, delete")
-    serverdestination = relationship("Serverdestination", uselist=False, cascade="all, delete")
-    status = relationship("Status", uselist=False, cascade="all, delete")
-    summary = relationship("Summary", back_populates="Detail", uselist=False, cascade="all, delete")
-    takv = relationship("Takv", uselist=False, cascade="all, delete")
-    track = relationship("Track", uselist=False, cascade="all, delete")
-    uid = relationship("Uid", uselist=False, cascade="all, delete")
-    usericon = relationship("Usericon", uselist=False, cascade="all, delete")
-    _video = relationship("_Video", uselist=False, cascade="all, delete")
-    sensor = relationship("Sensor", uselist=False, cascade="all, delete")
+    archive = relationship("Archive", uselist=False, cascade=ALLDELETE)
+    _group = relationship("_Group", uselist=False, back_populates="Detail", cascade=ALLDELETE)
+    chat = relationship("Chat", uselist=False, cascade=ALLDELETE)
+    color = relationship("Color", uselist=False, cascade=ALLDELETE)
+    contact = relationship("Contact", back_populates="Detail", uselist=False, cascade=ALLDELETE)
+    emergency = relationship("Emergency", uselist=False, cascade=ALLDELETE)
+    link = relationship("Link", back_populates="Detail", uselist=False, cascade=ALLDELETE)
+    marti = relationship("Marti", uselist=False, cascade=ALLDELETE)
+    precisionlocation = relationship("Precisionlocation", uselist=False, cascade=ALLDELETE)
+    remarks = relationship("Remarks", uselist=False, cascade=ALLDELETE)
+    serverdestination = relationship("Serverdestination", uselist=False, cascade=ALLDELETE)
+    status = relationship("Status", uselist=False, cascade=ALLDELETE)
+    summary = relationship("Summary", back_populates="Detail", uselist=False, cascade=ALLDELETE)
+    takv = relationship("Takv", uselist=False, cascade=ALLDELETE)
+    track = relationship("Track", uselist=False, cascade=ALLDELETE)
+    uid = relationship("Uid", uselist=False, cascade=ALLDELETE)
+    usericon = relationship("Usericon", uselist=False, cascade=ALLDELETE)
+    _video = relationship("_Video", uselist=False, cascade=ALLDELETE)
+    sensor = relationship("Sensor", uselist=False, cascade=ALLDELETE)

@@ -3,6 +3,8 @@ from typing import List
 from FreeTAKServer.controllers.serializers.serializer_abstract import SerializerAbstract
 from FreeTAKServer.model.FTSModel.Event import Event
 
+# TODO: clean up this whole class
+
 class JsonSerializer(SerializerAbstract):
 
     def from_format_to_fts_object(self, object: dict, FTSObject: Event) -> Event:
@@ -13,7 +15,7 @@ class JsonSerializer(SerializerAbstract):
                 self._handle_attribute(FTSObject, key, value)
         return FTSObject
 
-    def _handle_attribute(self, FTSObject, key, value, expected_class_name = None):
+    def _handle_attribute(self, FTSObject, key, value, expected_class_name=None):
         # retrieve setter list
         setters = self._get_fts_object_var_setter(FTSObject, key)
         # get correct setter

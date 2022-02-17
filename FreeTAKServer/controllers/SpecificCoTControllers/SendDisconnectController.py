@@ -14,4 +14,3 @@ class SendDisconnectController(SendCoTAbstractController):
             self.fill_object(object, tempObject, RawCoT, addToDB=False)
         except Exception as e:
             logger.error("there has been an exception in the creation of the send disconnect object " + str(e))
-            return -1

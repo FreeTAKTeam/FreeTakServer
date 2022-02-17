@@ -17,4 +17,3 @@ class SendDropPointController(SendCoTAbstractController):
                 pass
         except Exception as e:
             logger.error("there has been an exception in the creation of the send drop point object " + str(e))
-            return -1

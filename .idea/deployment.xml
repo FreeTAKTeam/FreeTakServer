@@ -9,21 +9,28 @@
           </mappings>
         </serverdata>
       </paths>
-      <paths name="localdev">
+      <paths name="carl test">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/" local="$PROJECT_DIR$/FreeTAKServer" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="localdevRoot">
+      <paths name="localdev">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/" local="$PROJECT_DIR$/FreeTAKServer" web="/" />
           </mappings>
         </serverdata>
       </paths>
       <paths name="public">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$/FreeTAKServer" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="test">
         <serverdata>
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$/FreeTAKServer" web="/" />

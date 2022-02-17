@@ -6,22 +6,25 @@ from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 
 
 class ProtobufSerializer(SerializerAbstract):
+    """this class is responsible for serializing Federated CoT objects to FTS Domain objects
+    as well as converting FTS Domain objects to Federated CoT objects"""
+
     def __init__(self):
         self.attribute_name_mapping = {'coordSource': 'how', 'ploc': '', 'palt': '', 'sendTime': 'time',
                                        'startTime': 'start', 'staleTime': 'stale', 'groupName': '', 'groupRole': '',
                                        'screenName': '', 'phone': '', 'binary': '', 'ptpUids': '',
                                        'battery': '', 'speed': '', 'course': '', 'ptpCallsigns': ''}
 
-    def from_format_to_fts_object(self, object: type, FTSObject: Event) -> Event:
+    def from_format_to_fts_object(self, object: FederatedEvent, FTSObject: Event) -> Event:
         if hasattr(FTSObject.detail, 'marti'):
             from FreeTAKServer.model.FTSModel.Dest import Dest
 
-            for callsign in object.event.ptpCallsigns:
+            for callsign in object.event.ptpCallsigns:  # pylint: disable=no-member; member does exist
                 newdest = Dest()
                 newdest.setcallsign(callsign)
-                FTSObject.detail.marti.setdest(newdest)
+                FTSObject.detail.marti.setdest(newdest)  # pylint: disable=no-member; member does exist
 
-        for descriptor in object.event.DESCRIPTOR.fields:
+        for descriptor in object.event.DESCRIPTOR.fields:  # pylint: disable=no-member; member does exist
             attribute_name = descriptor.name
 
             if attribute_name in self.attribute_name_mapping:
@@ -34,7 +37,7 @@ class ProtobufSerializer(SerializerAbstract):
 
                 if attribute_name == 'time' or attribute_name == 'start' or attribute_name == 'stale':
                     import datetime
-                    attribute = getattr(object.event, descriptor.name)
+                    attribute = getattr(object.event, descriptor.name)  # pylint: disable=no-member; member does exist
                     try:
                         setter(datetime.datetime.strftime(
                             datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(attribute) / 1000.0)),
@@ -46,12 +49,12 @@ class ProtobufSerializer(SerializerAbstract):
                                                        "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT%H:%M:%S.%fZ"))
                         continue
                 else:
-                    setter(getattr(object.event, descriptor.name))
+                    setter(getattr(object.event, descriptor.name))  # pylint: disable=no-member; member does exist
 
-            elif attribute_name == 'other' and object.event.other != '':
-                from defusedxml import ElementTree as etree
+            elif attribute_name == 'other' and object.event.other != '':  # pylint: disable=no-member; member does exist
+                from defusedxml import ElementTree as etree  # pylint: disable=no-member; member does exist
                 from xml.etree.ElementTree import Element
-                xmldetail = etree.fromstring(object.event.other)
+                xmldetail = etree.fromstring(object.event.other)  # pylint: disable=no-member; member does exist
                 if xmldetail.find('_flow-tags_'):
                     xmldetail.remove(xmldetail.find('_flow-tags_'))
 
@@ -71,11 +74,11 @@ class ProtobufSerializer(SerializerAbstract):
                 for dest in FTSObject.detail.marti.dest:
                     callsign = dest.getcallsign()
                     if callsign and isinstance(callsign, str):
-                        obj.event.ptpCallsigns.append(callsign)
+                        obj.event.ptpCallsigns.append(callsign)  # pylint: disable=no-member; member does exist
                     else:
                         pass
 
-            for descriptor in obj.event.DESCRIPTOR.fields:
+            for descriptor in obj.event.DESCRIPTOR.fields:  # pylint: disable=no-member; member does exist
                 attribute_name = descriptor.name
 
                 if attribute_name in self.attribute_name_mapping:
@@ -89,14 +92,14 @@ class ProtobufSerializer(SerializerAbstract):
                         if attribute_name == 'time' or attribute_name == 'start' or attribute_name == 'stale':
                             import datetime
                             attribute = getter()
-                            setattr(obj.event, descriptor.name,
+                            setattr(obj.event, descriptor.name,  # pylint: disable=no-member; member does exist
                                     int(datetime.datetime.strptime(attribute, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp() * 1000))
                         elif attribute_name in ['lat', 'lon', 'hae', 'ce', 'le', 'speed', 'course']:
-                            setattr(obj.event, descriptor.name, float(getter()))
+                            setattr(obj.event, descriptor.name, float(getter()))  # pylint: disable=no-member; member does exist
                         elif attribute_name == 'battery':
-                            setattr(obj.event, descriptor.name, int(getter()))
+                            setattr(obj.event, descriptor.name, int(getter()))  # pylint: disable=no-member; member does exist
                         else:
-                            setattr(obj.event, descriptor.name, getter())
+                            setattr(obj.event, descriptor.name, getter())  # pylint: disable=no-member; member does exist
                     except Exception as e:
                         import traceback
                         import sys
@@ -111,7 +114,7 @@ class ProtobufSerializer(SerializerAbstract):
                 else:
                     from defusedxml import ElementTree as etree
                     xmldetail = etree.tostring(XmlSerializer().from_fts_object_to_format(FTSObject.detail)).decode()
-                    setattr(obj.event, 'other', xmldetail)
+                    setattr(obj.event, 'other', xmldetail)  # pylint: disable=no-member; member does exist
 
             return obj
         except Exception as e:
