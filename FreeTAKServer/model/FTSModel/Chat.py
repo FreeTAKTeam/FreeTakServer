@@ -11,8 +11,9 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.ChatVariables import ChatVariables as vars
 from FreeTAKServer.model.FTSModel.Chatgrp import Chatgrp
 
+
 class Chat(FTSProtocolObject):
-      # default constructor       
+    # default constructor
     def __init__(self):
         self.senderCallsign = None
         self.id = None
@@ -23,80 +24,90 @@ class Chat(FTSProtocolObject):
         self.messageId = None
 
     @staticmethod
-    def geochat(GROUPOWNER = vars.geochat().GROUPOWNER, ID = vars.geochat().ID, PARENT = vars.geochat().PARENT,
-                CHATROOM = vars.geochat().CHATROOM, SENDERCALLSIGN = vars.geochat().SENDERCALLSIGN, MESSAGEID = vars.geochat().MESSAGEID):
+    def geochat(group_owner=vars.geochat().GROUPOWNER, id=vars.geochat().ID, parent=vars.geochat().PARENT,
+                chatroom=vars.geochat().CHATROOM, senderCallsign=vars.geochat().SENDERCALLSIGN, # noqa
+                message_id=vars.geochat().MESSAGEID):
         chat = Chat()
-        chat.setgroupOwner(GROUPOWNER)
-        chat.setparent(PARENT)
-        chat.setid(ID)
-        chat.setchatroom(CHATROOM)
-        chat.setsenderCallsign(SENDERCALLSIGN)
+        chat.setgroupOwner(group_owner)
+        chat.setparent(parent)
+        chat.setid(id)
+        chat.setchatroom(chatroom)
+        chat.setsenderCallsign(senderCallsign)
         chat.setchatgrp(Chatgrp.geochat())
-        chat.setmessageId(MESSAGEID)
+        chat.setmessageId(message_id)
         return chat
 
-    def getparent(self): 
-        return self.parent 
+    def getparent(self):
+        return self.parent
 
-     # parent setter 
-    def setparent(self,parent=0):  
-        self.parent=parent 
+        # parent setter
 
-    def getmessageId(self):
+    def setparent(self, parent=0):
+        self.parent = parent
+
+    def getmessageId(self): # noqa
         return self.messageId
 
-     # parent setter
-    def setmessageId(self,messageId=0):
-        self.messageId=messageId
+    # parent setter
+    def setmessageId(self, message_id=0): # noqa
+        self.messageId = message_id
 
     # senderCallsign getter 
-    def getsenderCallsign(self):
-        return senderCallsign 
+    def getsenderCallsign(self): # noqa
+        return senderCallsign
 
-    # senderCallsign setter 
-    def setsenderCallsign(self,senderCallsignn):
+        # senderCallsign setter
+
+    def setsenderCallsign(self, sender_callsignn): # noqa
         global senderCallsign
-        senderCallsign=senderCallsignn 
+        senderCallsign = sender_callsignn
 
-      # chatroom getter 
-    def getchatroom(self): 
-        return self.chatroom 
+        # chatroom getter
 
-    # chatroom setter 
-    def setchatroom(self, chatroom=0):  
-        self.chatroom=chatroom 
+    def getchatroom(self):
+        return self.chatroom
+
+        # chatroom setter
+
+    def setchatroom(self, chatroom=0):
+        self.chatroom = chatroom
 
         # groupOwner getter 
-    def getgroupOwner(self): 
-        return self.groupOwner 
 
-    # groupOwner setter 
-    def setgroupOwner(self, groupOwner=0):  
-        self.groupOwner=groupOwner 
+    def getgroupOwner(self): # noqa
+        return self.groupOwner
 
-      # id getter 
-    def getid(self): 
-        return self.id 
+        # groupOwner setter
 
-    # id setter 
-    def setid(self, id=0):  
-        self.id=id
-    #chatgrp uid0 getter
+    def setgroupOwner(self, group_owner=0): # noqa
+        self.groupOwner = group_owner
+
+        # id getter
+
+    def getid(self):
+        return self.id
+
+        # id setter
+
+    def setid(self, id=0):
+        self.id = id
+
+    # chatgrp uid0 getter
     def getuid0(self):
-      self.chatgrp.getuid0()
-  
+        self.chatgrp.getuid0()
+
     def setuid0(self, uid0=0):
         self.chatgrp.setuid0(uid0)
 
     def getuid1(self):
         self.chatgrp.getuid1()
-  
+
     def setuid1(self, uid1=0):
         self.chatgrp.setuid1(uid1)
 
     def getchatgrp(self):
         return self.chatgrp
-  
+
     def setchatgrp(self, chatgrp=0):
         print(chatgrp)
         self.chatgrp = chatgrp

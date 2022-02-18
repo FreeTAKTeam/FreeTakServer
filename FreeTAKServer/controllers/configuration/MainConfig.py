@@ -30,9 +30,11 @@ class MainConfig:
 
     if not os.path.exists(yaml_path):
 
+        SecretKey = str(os.environ.get('FTS_SECRET_KEY', 'vnkdjnfjknfl1232#'))
+
         OptimizeAPI = True
 
-        MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 1))
+        MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', 100))
 
         # this is the port to which clients will connect
         CoTServicePort = int(os.environ.get('FTS_COT_PORT', 8087))
@@ -124,6 +126,7 @@ class MainConfig:
             ConnectionMessage = str(os.environ.get("FTS_CONNECTION_MESSAGE", yamlConfig["System"].get("FTS_CONNECTION_MESSAGE", f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting')))
             DataBaseType = str(os.environ.get("FTS_DATABASE_TYPE", yamlConfig["System"].get("FTS_DATABASE_TYPE", "SQLite")))
             OptimizeAPI = bool(os.environ.get("FTS_OPTIMIZE_API", yamlConfig["System"].get("FTS_OPTIMIZE_API", True)))
+            SecretKey = str(os.environ.get('FTS_SECRET_KEY', yamlConfig["System"].get("FTS_SECRET_KEY", 'vnkdjnfjknfl1232#')))
 
         else:
             MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY',  1))
@@ -297,4 +300,4 @@ class MainConfig:
     # location to backup client packages
     clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
 
-    first_start = True
+    first_start = False

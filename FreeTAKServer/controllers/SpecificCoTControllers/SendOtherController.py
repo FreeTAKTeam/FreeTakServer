@@ -7,8 +7,10 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendOtherController").getLogger()
+
+
 class SendOtherController(SendCoTAbstractController):
-    def __init__(self, RawCoT=None, addToDB = MainConfig.SaveCoTToDB):
+    def __init__(self, RawCoT=None, addToDB=MainConfig.SaveCoTToDB):
         if type(RawCoT != bytes):
             pass
         else:
@@ -23,7 +25,7 @@ class SendOtherController(SendCoTAbstractController):
                 try:
                     object = self.getObject()
                 except AttributeError as e:
-                    logger.error("invalid cot sent "+ str(xml))
+                    logger.error("invalid cot sent " + str(xml))
                     raise e
                 except Exception as e:
                     logger.error("there has been an exception getting object " + str(e))
@@ -31,10 +33,11 @@ class SendOtherController(SendCoTAbstractController):
             else:
                 pass
         except Exception as e:
-            print("exception"+str(e))
+            print("exception" + str(e))
             logger.error("there has been an exception in the creation of an"
                          "Other object " + str(e))
-    #this function modifies the CoT so only the marti and point tags are present
+
+    # this function modifies the CoT so only the marti and point tags are present
     def filter_CoT(self, event):
         try:
             from xml.etree.ElementTree import Element

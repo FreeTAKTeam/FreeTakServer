@@ -40,5 +40,5 @@ class ClientInformationController(BasicModelInstantiate):
             self.clientInformation.modelObject = XmlSerializer().from_format_to_fts_object(rawClientInformation.xmlString.encode(), tempObject)
             return self.clientInformation
         except Exception as e:
-            logger.debug('error in client information controller '+str(e))
+            logger.debug('error in client information controller '+str(e)+' '+str(rawClientInformation.xmlString))
             return -1

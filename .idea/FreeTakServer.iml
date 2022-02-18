@@ -2,17 +2,14 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/FreeTAKServer/ExCheck" />
-      <excludeFolder url="file://$MODULE_DIR$/FreeTAKServer/FreeTAKServerDataPackageFolder" />
-      <excludeFolder url="file://$MODULE_DIR$/FreeTAKServer/certs" />
-      <excludeFolder url="file://$MODULE_DIR$/FreeTAKServer/logs" />
+      <sourceFolder url="file://$MODULE_DIR$/FreeTAKServer" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">
-    <option name="format" value="PLAIN" />
-    <option name="myDocStringFormat" value="Plain" />
+    <option name="format" value="GOOGLE" />
+    <option name="myDocStringFormat" value="Google" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Nosetests" />

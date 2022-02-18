@@ -1,7 +1,12 @@
+"""this module is responsible for running the DataPackage service
+as it utilizes flask, each method represents an endpoint
+this web server is responsible for all HTTP queries to
+FTS from an ATAK client"""
 import logging
 import os
 import random
 import string
+import re
 import traceback
 import defusedxml.ElementTree as ET
 from logging.handlers import RotatingFileHandler
@@ -37,7 +42,7 @@ log = LoggingConstants()
 app = Flask(__name__)  # create the Flask app
 app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["SECRET_KEY"] = 'vnkdjnfjknfl1232#'
+app.config["SECRET_KEY"] = MainConfig.SecretKey
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -59,7 +64,7 @@ if not os.path.exists(MainConfig.ExCheckFilePath):
 """if not Path(log.LOGDIRECTORY).exists():
     print(f"Creating directory at {log.LOGDIRECTORY}")
     os.makedirs(log.LOGDIRECTORY)"""
-app.logger.removeHandler(default_handler)
+app.logger.removeHandler(default_handler)  # pylint: disable=no-member; member does exist
 formatter = logging.Formatter(log.LOGFORMAT)
 file_handler = RotatingFileHandler(
     log.HTTPLOG,
@@ -81,6 +86,7 @@ file_handler.setLevel(logging.ERROR)
 def hello():
     return 'hello world'
 
+
 @app.route('/Alive')
 def alive():
     return 'DataPackage service alive', 200
@@ -93,7 +99,8 @@ def get_all_video_links():
     # to store locally
     try:
         feeds = dbController.query_videostream(column=["FullXmlString"])
-        app.logger.info(f"Found {len(feeds)} video feeds in {const.DATABASE}")
+        app.logger.info(
+            f"Found {len(feeds)} video feeds in {const.DATABASE}")  # pylint: disable=no-member; member does exist
         if len(feeds) == 0:
             return ("No video feeds found", 500)
         all_feeds = ""
@@ -102,7 +109,7 @@ def get_all_video_links():
             all_feeds += feed.FullXmlString.decode("utf-8")
         return f"<videoConnections>{all_feeds}</videoConnections>"
     except:
-        app.logger.error(traceback.format_exc())
+        app.logger.error(traceback.format_exc())  # pylint: disable=no-member; member does exist
         return "Error", 500
 
 
@@ -126,9 +133,11 @@ def insert_video_link():
             # Check that no other feeds with the same UID have been received
             streams = dbController.query_videostream(query=f'uid = "{uid}"')
             if len(streams) > 0:
-                app.logger.info(f"Already received feed with UID={uid} (alias = {alias})")
+                app.logger.info(
+                    f"Already received feed with UID={uid} (alias = {alias})")  # pylint: disable=no-member; member does exist
                 continue  # Ignore this feed if there are duplicates
-            app.logger.info(f"Inserting video feed into database: {request.data.decode('utf-8')}")
+            app.logger.info(
+                f"Inserting video feed into database: {request.data.decode('utf-8')}")  # pylint: disable=no-member; member does exist
             dbController.create_videostream(FullXmlString=ET.tostring(xml_feed), Protocol=protocol, Alias=alias,
                                             uid=uid, Address=address, Port=port, RoverPort=rover_port,
                                             IgnoreEmbeddedKlv=ignore_klv, PreferredMacAddress=preferred_mac, Path=path,
@@ -157,6 +166,8 @@ def upload():
     from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
     logger.info('dataoackage upload started')
     file_hash = request.args.get('hash')
+    if not validate_hash(file_hash):
+        return "invalid hash sent", 500
     app.logger.info(f"Data Package hash = {str(file_hash)}")
     letters = string.ascii_letters
     uid = ''.join(random.choice(letters) for i in range(4))
@@ -189,7 +200,7 @@ def putDataPackageTool(hash):
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.GET])
-@cross_origin(send_wildcard = True)
+@cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
     from flask import make_response
     file_list = os.listdir(os.path.join(Path(str(dp_directory)), Path(str(hash))))
@@ -206,6 +217,7 @@ def retrieveData():
     packages = FlaskFunctions().getAllPackages()
     app.logger.info(f"Data packages in the database: {packages}")
     return str(packages)
+
 
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
@@ -243,8 +255,9 @@ def specificPackage():
         else:
             obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{hash}"')
             data = etree.parse(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(obj[0].data.filename))))
-            data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find('checklistTasks').find("checklistTask").find("checklistUid").text
-            output = etree.tostring(data, pretty_print=False)
+            data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find(
+                'checklistTasks').find("checklistTask").find("checklistUid").text
+            output = etree.tostring(data)
             return output
 
 
@@ -274,12 +287,12 @@ def home():
     return 'data package service is up, good job.'
 
 
-
-#exCheckStuff
+# exCheckStuff
 from flask import Flask, request
 from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
@@ -294,6 +307,7 @@ def check_changes():
     except Exception as e:
         print('exception in check changes' + str(e))
 
+
 @app.route('/Marti/api/missions/exchecktemplates/subscription', methods=['PUT'])
 def request_subscription():
     try:
@@ -305,6 +319,7 @@ def request_subscription():
     except Exception as e:
         print('exception in request_subscription' + str(e))
 
+
 @app.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
 def exchecktemplates():
     try:
@@ -314,6 +329,8 @@ def exchecktemplates():
         return templateSerializer().convert_object_to_json(DatabaseController().query_ExCheck())
     except Exception as e:
         print(e)
+
+
 @app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
     try:
@@ -324,11 +341,13 @@ def ExCheckTemplates():
     except Exception as e:
         print(e)
 
+
 @app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
 def missionupdate(templateuid):
     from flask import request
     uid = request.args.get('uid')
     return '', 200
+
 
 @app.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
@@ -358,7 +377,8 @@ def template():
         uid = object.data.uid
         temp = etree.fromstring(XMI)
         cot = etree.fromstring(xmlstring)
-        resources = cot.find('detail').find('mission').find('MissionChanges').find('MissionChange').find('contentResource')
+        resources = cot.find('detail').find('mission').find('MissionChanges').find('MissionChange').find(
+            'contentResource')
         resources.find('filename').text = temp.find('checklistDetails').find('uid').text + '.xml'
         resources.findall('keywords')[0].text = temp.find('checklistDetails').find('name').text
         resources.findall('keywords')[1].text = temp.find('checklistDetails').find('description').text
@@ -375,6 +395,7 @@ def template():
         return str(uid), 200
     except Exception as e:
         print(str(e))
+
 
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
@@ -420,7 +441,6 @@ def startList(subscription):
         taskuid = task.find('uid')
         taskuid.text = str(uuid.uuid4())
 
-
     with open(
             str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))),
             'w+') as file:
@@ -428,15 +448,21 @@ def startList(subscription):
         file.write(etree.tostring(xml).decode())
         file.close()
 
-    excheckobj = dbController.query_ExCheck(f'ExCheckData.uid = "{subscription}"', verbose=True,)[0]
-    dbController.create_Excheckchecklist(startTime=datetime.datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S.%fZ'), creatorUid = request.args.get('clientUid'), description = request.args.get('description'), callsign = request.args.get('callsign'), name = request.args.get('name'), uid = uid, filename = f'{uid}.xml', template = excheckobj)
+    excheckobj = dbController.query_ExCheck(f'ExCheckData.uid = "{subscription}"', verbose=True, )[0]
+    dbController.create_Excheckchecklist(startTime=datetime.datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S.%fZ'),
+                                         creatorUid=request.args.get('clientUid'),
+                                         description=request.args.get('description'),
+                                         callsign=request.args.get('callsign'), name=request.args.get('name'), uid=uid,
+                                         filename=f'{uid}.xml', template=excheckobj)
 
     return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
+
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>')
 def accesschecklist(checklistid):
     return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistid + '.xml'))),
-              'r').read())
+                    'r').read())
+
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
@@ -448,7 +474,6 @@ def updatetemplate(checklistid, taskid):
     from FreeTAKServer.model.RawCoT import RawCoT
     import uuid
     import hashlib
-
 
     data = request.data
 
@@ -481,16 +506,15 @@ def updatetemplate(checklistid, taskid):
     object.detail.mission.MissionChanges.MissionChange.creatorUid.setINTAG(request.args.get("clientUid"))
     object.detail.mission.MissionChanges.MissionChange.missionName.setINTAG(checklistid)
     object.detail.mission.MissionChanges.MissionChange.type.setINTAG("ADD_CONTENT")
-    object.detail.mission.MissionChanges.MissionChange.contentResource.filename.setINTAG(taskid+'.xml')
-    object.detail.mission.MissionChanges.MissionChange.contentResource.hash.setINTAG(str(hashlib.sha256(str(open(MainConfig.ExCheckChecklistFilePath + '/' + checklistid + '.xml', 'r')).encode()).hexdigest()))
+    object.detail.mission.MissionChanges.MissionChange.contentResource.filename.setINTAG(taskid + '.xml')
+    object.detail.mission.MissionChanges.MissionChange.contentResource.hash.setINTAG(str(hashlib.sha256(
+        str(open(MainConfig.ExCheckChecklistFilePath + '/' + checklistid + '.xml', 'r')).encode()).hexdigest()))
     object.detail.mission.MissionChanges.MissionChange.contentResource.keywords.setINTAG('Task')
     object.detail.mission.MissionChanges.MissionChange.contentResource.name.setINTAG(taskid)
     object.detail.mission.MissionChanges.MissionChange.contentResource.size.setINTAG(str(len(data)))
-    #TODO: change this value
+    # TODO: change this value
     object.detail.mission.MissionChanges.MissionChange.contentResource.submitter.setINTAG('atak')
     object.detail.mission.MissionChanges.MissionChange.contentResource.uid.setINTAG(taskid)
-
-
 
     '''object = etree.fromstring(templateex)
     object.uid = uuid.uuid4()
@@ -512,9 +536,10 @@ def updatetemplate(checklistid, taskid):
     rawcot.xmlString = xml
 
     PIPE.put(rawcot)
-    #PIPE.send()
+    # PIPE.send()
 
     return '', 200
+
 
 @app.route('/Marti/sync/content')
 def sync():
@@ -524,6 +549,7 @@ def sync():
     request.args.get('hash')
     uid = request.args.get('uid')
     return '', 200
+
 
 @app.route('/Marti/api/excheck/checklist/active', methods=["GET"])
 def activechecklists():
@@ -537,7 +563,8 @@ def activechecklists():
 
     for file in listdir(MainConfig.ExCheckChecklistFilePath):
         checklist = Element('checklist')
-        xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find('checklistDetails')
+        xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find(
+            'checklistDetails')
         checklist.append(xmldetails)
         checklist.append(Element('checklistColumns'))
         checklist.append(Element('checklistTasks'))
@@ -545,6 +572,21 @@ def activechecklists():
 
     xml = etree.tostring(rootxml)
     return xml
+
+
+def validate_hash(file_hash: str) -> bool:
+    """ this function takes a file hash and validates it's
+    content to avoid RCE and XSS attacks
+
+    Args:
+        file_hash:
+    """
+    if re.match("^[A-Za-z0-9_-]*$", file_hash):
+        return True
+    else:
+        return False
+
+
 class FlaskFunctions:
 
     def __init__(self):
@@ -640,6 +682,7 @@ class FlaskFunctions:
     def getSSL(self):
         global USINGSSL
         return USINGSSL
+
 
 if __name__ == "__main__":
     pass

@@ -102,7 +102,7 @@ class RestEnumerations:
         "atoms": "a-"}
 
     '''
-    the base types without an ID
+    the base types without an id
     '''
     geoObject = {
         "Air Air Track": "a-.-A",

@@ -1,8 +1,7 @@
 from FreeTAKServer.model.RestMessages.Chat import Chat
 
+
 class ChatPost(Chat):
-    def __init__(self):
-        pass
 
     def setmessage(self, message):
         self.message = message

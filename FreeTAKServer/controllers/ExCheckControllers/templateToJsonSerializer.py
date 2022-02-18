@@ -45,9 +45,9 @@ class templateSerializer:
 
     def create_DB_object(self, templateObject):
         self.DataBase = DatabaseController()
-        output = self.DataBase.create_ExCheck(templateObject)
+        self.DataBase.create_ExCheck(templateObject)
         self.DataBase.shutdown_Connection()
-        return output
+
     def convert_object_to_json(self, DBObject):
         templateJsonMessage = template()
         templateJsonMessage.data.append(templateInstance())

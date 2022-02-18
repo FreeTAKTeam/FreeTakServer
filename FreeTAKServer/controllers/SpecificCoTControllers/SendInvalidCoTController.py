@@ -14,6 +14,5 @@ class SendInvalidCoTController:
         except Exception as e:
             logger.error("there has been an exception in the creation"
                          " of the send Invalid CoT object " + str(e))
-            return -1
     def getObject(self):
         return self.SendInvalidCoT

@@ -1,10 +1,11 @@
 import shutil
 from sqlalchemy.sql import text
+from FreeTAKServer.model.SQLAlchemy.Root import Base
 
 class TableController:
     # default constructor  def __init__(self):
     def __init__(self):
-        self.table = None
+        self.table: Base = object  # all inheriting methods MUST implement this variable
 
 
     def delete(self, session, query):

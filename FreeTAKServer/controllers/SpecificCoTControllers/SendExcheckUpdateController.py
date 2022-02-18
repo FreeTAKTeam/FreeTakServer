@@ -14,4 +14,3 @@ class SendExcheckUpdateController(SendCoTAbstractController):
             self.fill_object(object, tempObject, RawCoT, addToDB=False)
         except Exception as e:
             logger.error("there has been an exception in the creation of the send Emergency object " + str(e))
-            return -1

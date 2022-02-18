@@ -20,7 +20,7 @@ logger = CreateLoggerController("XMLCoTController").getLogger()
 loggingConstants = LoggingConstants()
 
 class XMLCoTController:
-    def __init__(self, logger = logger):
+    def __init__(self, logger=logger):
         self.logger = logger
 
     def determineCoTGeneral(self, data):
@@ -189,12 +189,12 @@ class XMLCoTController:
     def findUID(self):
         pass
 
-    def serialize_model_to_CoT(self, modelObject, tagName = 'event', level = 0):
-        from lxml.etree import Element
+    def serialize_model_to_CoT(self, modelObject, tagName = 'event', level=0):
+        from lxml.etree import Element  # pylint: disable=no-name-in-module
         xml = Element(tagName)
         for attribName, value in modelObject.__dict__.items():
             if hasattr(value, '__dict__'):
-                tagElement = self.serialize_model_to_CoT(value, attribName, level = level + 1)
+                tagElement = self.serialize_model_to_CoT(value, attribName, level=level + 1)
                 # TODO: modify so double underscores are handled differently
                 try:
                     if attribName[0] == '_':

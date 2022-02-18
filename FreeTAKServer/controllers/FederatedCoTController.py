@@ -5,6 +5,7 @@ from FreeTAKServer.model.FTSModel.Event import Event
 from defusedxml import ElementTree as etree
 import datetime
 
+
 class FederatedCoTController:
     def __init__(self):
         pass
@@ -20,21 +21,31 @@ class FederatedCoTController:
 
             # the following try and except statements format milliseconds to CoT compatible DT
             try:
-                datetime.datetime.strftime(datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.sendTime) / 1000.0)), "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT %H:%M:%S.%fZ")
+                datetime.datetime.strftime(
+                    datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.sendTime) / 1000.0)),
+                                               "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT %H:%M:%S.%fZ")
             except:
-                datetime.datetime.strftime(datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.sendTime) / 1000.0)), "%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%dT %H:%M:%S.%fZ")
+                datetime.datetime.strftime(
+                    datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.sendTime) / 1000.0)),
+                                               "%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%dT %H:%M:%S.%fZ")
 
             try:
                 formatedDatatime = str(datetime.datetime.fromtimestamp(float(event.startTime) / 1000.0))
-                datetime.datetime.strftime(datetime.datetime.strptime(formatedDatatime, "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT %H:%M:%S.%fZ")
+                datetime.datetime.strftime(datetime.datetime.strptime(formatedDatatime, "%Y-%m-%d %H:%M:%S"),
+                                           "%Y-%m-%dT %H:%M:%S.%fZ")
             except Exception as e:
                 formatedDatatime = str(datetime.datetime.fromtimestamp(float(event.startTime) / 1000.0))
-                datetime.datetime.strftime(datetime.datetime.strptime(formatedDatatime, "%Y-%m-%d %H:%M:%S.%f"),"%Y-%m-%dT %H:%M:%S.%fZ")
+                datetime.datetime.strftime(datetime.datetime.strptime(formatedDatatime, "%Y-%m-%d %H:%M:%S.%f"),
+                                           "%Y-%m-%dT %H:%M:%S.%fZ")
 
             try:
-                datetime.datetime.strftime(datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.staleTime) / 1000.0)), "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT %H:%M:%S.%fZ")
+                datetime.datetime.strftime(
+                    datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.staleTime) / 1000.0)),
+                                               "%Y-%m-%d %H:%M:%S"), "%Y-%m-%dT %H:%M:%S.%fZ")
             except:
-                datetime.datetime.strftime(datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.staleTime) / 1000.0)), "%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%dT %H:%M:%S.%fZ")
+                datetime.datetime.strftime(
+                    datetime.datetime.strptime(str(datetime.datetime.fromtimestamp(float(event.staleTime) / 1000.0)),
+                                               "%Y-%m-%d %H:%M:%S.%f"), "%Y-%m-%dT %H:%M:%S.%fZ")
 
             ftsobject.setuid(event.uid)
             ftsobject.settype(event.type)
@@ -62,6 +73,7 @@ class FederatedCoTController:
         except Exception as e:
             print(e)
             return -1
+
     def serialize_from_FTS_modelv1(self, federatedevent, ftsobject):
         try:
             xml = ftsobject.xmlString
@@ -79,15 +91,18 @@ class FederatedCoTController:
             try:
                 event.sendTime = int(model.gettime())
             except:
-                event.sendTime = int(datetime.datetime.strptime(model.gettime(), "%Y-%m-%dT%H:%M:%S.%fZ").timestamp() * 1000)
+                event.sendTime = int(
+                    datetime.datetime.strptime(model.gettime(), "%Y-%m-%dT%H:%M:%S.%fZ").timestamp() * 1000)
             try:
                 event.startTime = int(model.getstart())
             except:
-                event.startTime = int(datetime.datetime.strptime(model.getstart(), "%Y-%m-%dT%H:%M:%S.%fZ").timestamp() * 1000)
+                event.startTime = int(
+                    datetime.datetime.strptime(model.getstart(), "%Y-%m-%dT%H:%M:%S.%fZ").timestamp() * 1000)
             try:
                 event.staleTime = int(model.getstale())
             except:
-                event.staleTime = int(datetime.datetime.strptime(model.getstale(), "%Y-%m-%dT%H:%M:%S.%fZ").timestamp() * 1000)
+                event.staleTime = int(
+                    datetime.datetime.strptime(model.getstale(), "%Y-%m-%dT%H:%M:%S.%fZ").timestamp() * 1000)
             event.uid = model.getuid()
             event.type = model.gettype()
             event.coordSource = model.gethow()
@@ -105,34 +120,35 @@ class FederatedCoTController:
             print('exception in serialize from FTS')
             print(e)
             return -1
-    def serialize_to_FTS_modelv1(self,protoobject ,ftsobject):
+
+    def serialize_to_FTS_modelv1(self, protoobject, ftsobject):
         pass
 
-    def serialize_to_FTS_modelv2(self, protoobject, ftsobject):
+    def serialize_to_FTS_model(self, protoobject, ftsobject):
 
         for field in protoobject.DESCRIPTOR.fields:
             if field.message_type != None:
-                #get the getter associated with the field
+                # get the getter associated with the field
                 FTSgetter = getattr(ftsobject, 'get' + field.name)
 
-                #get the content of the associate FTSobject nested attribute
+                # get the content of the associate FTSobject nested attribute
                 newftsobject = FTSgetter()
 
-                #get the protobuf objects nested message
+                # get the protobuf objects nested message
                 protoObjectValue = getattr(protoobject, field.name)
 
-                #call serializer with both nested value from protoObject and newftsobject
+                # call serializer with both nested value from protoObject and newftsobject
                 nestedObject = self.serialize_to_FTS_model(protoObjectValue, newftsobject)
 
-                #get setter for associated fts object attribute
+                # get setter for associated fts object attribute
                 ftssetter = getattr(ftsobject, 'set' + field.name)
 
                 # call the fts setter
                 ftssetter(nestedObject)
 
             else:
-                #get setter for associated fts object attribute
-                FTSSetter = getattr(ftsobject, 'set'+field.name)
+                # get setter for associated fts object attribute
+                FTSSetter = getattr(ftsobject, 'set' + field.name)
 
                 # get the protobuf objects nested message
                 protoObjectValue = getattr(protoobject, field.name)
@@ -141,6 +157,7 @@ class FederatedCoTController:
                 FTSSetter(protoObjectValue)
 
         return ftsobject
+
 
 if __name__ == "__main__":
     ftsobj = Event.FederatedCoT()

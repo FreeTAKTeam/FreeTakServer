@@ -44,10 +44,12 @@ class SqlAlchemyObjectController:
             except Exception as e:
                 print(str(e))
         return modelObject
+
+
 if __name__ == "__main__":
     from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
     from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-    from lxml.etree import tostring
+    from lxml.etree import tostring   # pylint: disable=no-name-in-module; member does exist
     contr = DatabaseController()
     from FreeTAKServer.model.FTSModel.Event import Event
 

@@ -1,4 +1,5 @@
-from FreeTAKServer.model.sockets import MainSocket
+from FreeTAKServer.model.sockets.MainSocket import MainSocket
+
 
 class TCPServerSocket(MainSocket):
     pass

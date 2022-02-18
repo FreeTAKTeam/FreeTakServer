@@ -5,10 +5,11 @@ from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from sqlalchemy import DateTime
 
-class APICalls(Base, Root):
+
+class APICalls(Base, Root):  # pylint: disable=too-few-public-methods
     __tablename__ = 'APICalls'
 
-    call_id = Column(Integer, primary_key = True, autoincrement=True)
+    call_id = Column(Integer, primary_key=True, autoincrement=True)
 
     content = Column(String(10000), nullable=False)
 

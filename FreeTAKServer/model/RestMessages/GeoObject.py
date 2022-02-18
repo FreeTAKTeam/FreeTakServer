@@ -37,7 +37,7 @@ class GeoObject:
     # the angular distance of the geoobject from the meridian of the greenwich, UK
     # expressed in positive or negative float. (e.g -76.107.7998)
     longitude = ""
-    # A string to ID the GeoObject on a map.
+    # A string to id the GeoObject on a map.
     name = ""
     # the length, expressed in seconds  until the point will stale out. Default is
     # 300 seconds or 5 minutes.

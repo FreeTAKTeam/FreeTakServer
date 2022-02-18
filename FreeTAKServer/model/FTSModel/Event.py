@@ -32,13 +32,6 @@ class Event(FTSProtocolObject):
         self.detail = None
         self.point = None
         self.start = None
-        case = {
-
-            'default': self.defaultFunc,
-
-            'timeout': self.timeoutFunc
-            
-            }
 
 
         # flag to determin e if this event is a geo chcat if so, will be added as a
@@ -393,37 +386,6 @@ class Event(FTSProtocolObject):
         event.point = Point()
         event.detail = Detail.BitsImageryVideo()
         return event
-
-    def defaultFunc(self, DATETIME_FMT,  version, uid, type, how, isGeochat, isPing):
-        self.how = how
-
-        timer = dt.datetime
-        now = timer.utcnow()
-        zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 2)
-        stale_part = stale_part.strftime(DATETIME_FMT)
-        self.setstale(str(stale_part))
-        self.setstart(zulu)
-        self.settime(zulu)
-        self.type = type
-        self.setuid(isGeochat=isGeochat, isPing=isPing)
-        self.version = version
-
-    def timeoutFunc(self, DATETIME_FMT, version, uid, type, how, isGeochat, isPing):
-        self.how = how
-
-        timer = dt.datetime
-        now = timer.utcnow()
-        zulu = now.strftime(DATETIME_FMT)
-        stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + dt.timedelta(minutes = 2)
-        stale_part = stale_part.strftime(DATETIME_FMT)
-        self.setstale(str(stale_part))
-        self.setstart(zulu)
-        self.settime(zulu)
-        self.type = type
-        self.setuid(isGeochat=isGeochat, isPing=isPing)
-        self.version = version
-        #start getter
 
     def getstart(self): 
         return self.start 

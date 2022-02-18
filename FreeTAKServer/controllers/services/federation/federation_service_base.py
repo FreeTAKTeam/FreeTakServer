@@ -1,4 +1,9 @@
 from abc import ABC, abstractmethod
+import logging
+import selectors
+import multiprocessing
+
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
 
@@ -10,8 +15,14 @@ from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
+from FreeTAKServer.model.federate import Federate
+
 
 class FederationServiceBase(ServerServiceInterface, ServiceBase):
+    def __init__(self):
+        self.federates: {str: Federate}
+        self.logger: logging.Logger
+        self.sel: selectors.select
 
     def _process_protobuff_to_object(self, protobuf_object: FederatedEvent):
         """ this method will convert the protobuf object to a FTS model object and xml string
@@ -23,7 +34,7 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
         Returns:
 
         """
-        modelObject = XMLCoTController().determine_model_object_type(protobuf_object.event.type)
+        modelObject = XMLCoTController().determine_model_object_type(protobuf_object.event.type)  # pylint: disable=no-member; member does exist
         fts_obj = ProtobufSerializer().from_format_to_fts_object(protobuf_object, modelObject())
         event = XmlSerializer().from_fts_object_to_format(fts_obj)
         """xmlstring = event
@@ -48,6 +59,7 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
         Returns boolean: True if the federate has any dest client otherwise false
 
         """
+
     def send_data_to_clients(self, data):
         from defusedxml import ElementTree as etree
         try:
@@ -57,13 +69,13 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
                 if detail:
                     protobuf = ProtobufSerializer().from_fts_object_to_format(data.modelObject)
                     try:
-                        protobuf.event.other = etree.tostring(detail)
+                        protobuf.event.other = etree.tostring(detail)  # pylint: disable=no-member; member does exist
                         protobufstring = protobuf.SerializeToString()
                         header = self._generate_header(len(protobufstring))
                         protobufstring = header + protobufstring
                         print(protobufstring)
                     except Exception as e:
-                        self.logger.warning("creating protobuf message failed "+str(e))
+                        self.logger.warning("creating protobuf message failed " + str(e))
                         return None
                     for client in self.federates.values():
                         client.conn.send(protobufstring)
@@ -74,15 +86,15 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
         except Exception as e:
             import traceback
             trace = traceback.format_exc()
-            self.logger.warning("sending data to federates failed "+str(e))
+            self.logger.warning("sending data to federates failed " + str(e))
 
     def send_connection_data(self, CoT: ClientInformation) -> None:
         try:
             if self.federates:
                 proto_obj = FederatedEvent()
-                proto_obj.contact.uid = str(CoT.modelObject.uid)
-                proto_obj.contact.callsign = str(CoT.modelObject.detail.contact.callsign)
-                proto_obj.contact.operation = 1
+                proto_obj.contact.uid = str(CoT.modelObject.uid)  # pylint: disable=no-member; member does exist
+                proto_obj.contact.callsign = str(CoT.modelObject.detail.contact.callsign)  # pylint: disable=no-member; member does exist
+                proto_obj.contact.operation = 1  # pylint: disable=no-member; member does exist
                 proto_str = proto_obj.SerializeToString()
                 header = self._generate_header(len(proto_str))
                 for fed in self.federates.values():
@@ -104,12 +116,12 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
         for client in clients:
             try:
                 proto_obj = FederatedEvent()
-                proto_obj.contact.uid = str(client.uid)
-                proto_obj.contact.callsign = str(client.CoT.detail.contact.callsign)
-                proto_obj.contact.operation = 1
+                proto_obj.contact.uid = str(client.uid)  # pylint: disable=no-member; member does exist
+                proto_obj.contact.callsign = str(client.CoT.detail.contact.callsign)  # pylint: disable=no-member; member does exist
+                proto_obj.contact.operation = 1  # pylint: disable=no-member; member does exist
                 proto_str = proto_obj.SerializeToString()
                 header = self._generate_header(len(proto_str))
-                connection.send(header+proto_str)
+                connection.send(header + proto_str)
             except Exception as e:
                 self.logger.warning("error thrown sending federate data to newly connected federate " + str(e))
                 continue
@@ -141,9 +153,9 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
     def send_disconnection_data(self, CoT: SendDisconnect) -> None:
         if self.federates:
             proto_obj = FederatedEvent()
-            proto_obj.contact.uid = str(CoT.modelObject.detail.link.uid)
-            proto_obj.contact.callsign = str(CoT.modelObject.detail.link.type)
-            proto_obj.contact.operation = 4
+            proto_obj.contact.uid = str(CoT.modelObject.detail.link.uid)  # pylint: disable=no-member; member does exist
+            proto_obj.contact.callsign = str(CoT.modelObject.detail.link.type)  # pylint: disable=no-member; member does exist
+            proto_obj.contact.operation = 4  # pylint: disable=no-member; member does exist
             proto_str = proto_obj.SerializeToString()
             header = self._generate_header(len(proto_str))
             for fed in self.federates.values():
@@ -151,3 +163,10 @@ class FederationServiceBase(ServerServiceInterface, ServiceBase):
             return None
         else:
             return None
+
+    def start(self, pipe):
+        """this is an abstract start method, and should be implemented by any child classes.
+        the following hinted vars should be implemented and create_context and main methods
+        should be called."""
+        self.db: DatabaseController
+        self.pipe: multiprocessing.Pipe

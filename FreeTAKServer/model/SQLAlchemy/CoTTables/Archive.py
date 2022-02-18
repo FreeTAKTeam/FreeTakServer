@@ -12,7 +12,7 @@ from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy.orm import relationship
 
 
-class Archive(Base):
+class Archive(Base):  # pylint: disable=too-few-public-methods
 
     __tablename__ = 'Archive'
     PrimaryKey = Column(ForeignKey("Detail.PrimaryKey"), primary_key=True)

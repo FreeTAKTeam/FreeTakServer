@@ -2,7 +2,7 @@ from FreeTAKServer.controllers.serializers.serializer_abstract import Serializer
 from FreeTAKServer.model.FTSModel.Event import Event
 from typing import NewType, List
 from defusedxml import ElementTree as etree
-from lxml.etree import Element
+from lxml.etree import Element   # pylint: disable=no-name-in-module
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -17,7 +17,7 @@ loggingConstants = LoggingConstants()
 
 
 class XmlSerializer(SerializerAbstract):
-
+    """this class is responsible for converting XML to domain objects"""
     __exception_mapping_dict = {'_group': '__group', '_serverdestination': '__serverdestination', '__group': "_group", '__serverdestination': "_serverdestination", "chat": "__chat", "_chat": "__chat", "__chat": "_chat", "_video": "__video", "__video":"_video", "connectionentry":"ConnectionEntry"}
     __exception_mapping_dict_objs = {'_group': '__group', '__group': "_group", "chat": "__chat", "_chat": "__chat", '_serverdestination': '__serverdestination', "_video": "__video", "__video":"_video"}
 

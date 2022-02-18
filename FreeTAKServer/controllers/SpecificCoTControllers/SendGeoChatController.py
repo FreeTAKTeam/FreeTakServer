@@ -18,4 +18,3 @@ class SendGeoChatController(SendCoTAbstractController):
         except Exception as e:
             logger.error("there has been an exception in the creation"
                          " of the send Geo Chat object " + str(e))
-            return -1
