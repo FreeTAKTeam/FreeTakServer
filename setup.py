@@ -50,7 +50,8 @@ setup(
         'SQLAlchemy==1.3.20',
         'tabulate==0.8.7',
         'Werkzeug==2.0.3',
-        'WTForms==2.3.3'
+        'WTForms==2.3.3',
+        'pyOpenSSL==22.0.0'
     ],
     extras_require = {'ui': ['FreeTAKServer_UI']},
     classifiers=[
