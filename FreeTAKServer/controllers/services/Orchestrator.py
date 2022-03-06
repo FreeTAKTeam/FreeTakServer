@@ -87,9 +87,6 @@ class Orchestrator:
         # instantiate controllers
         self.ActiveThreadsController = ActiveThreadsController()
         self.ClientInformationController = ClientInformationController()
-        self.ClientInformationQueueController = ClientInformationQueueController()
-        self.ClientSendHandler = ClientSendHandler()
-        self.DataQueueController = DataQueueController()
         self.ReceiveConnections = ReceiveConnections()
         self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
         self.MainSocketController = MainSocketController()
@@ -743,7 +740,7 @@ class Orchestrator:
                     CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
                     if CoTOutput == 1:
                         continue
-                    elif self.checkOutput(CoTOutput) and isinstance(CoTOutput, RawCoT):
+                    elif self.checkOutput(CoTOutput):
                         self.get_client_information()
                         self.sent_message_count += 1
                         self.messages_to_core_count += 1
