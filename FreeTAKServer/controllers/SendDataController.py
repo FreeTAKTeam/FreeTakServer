@@ -1,5 +1,7 @@
+from typing import Dict
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.model.RawCoT import RawCoT
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendDataController").getLogger()
 import copy
@@ -20,6 +22,7 @@ class SendDataController:
             if processedCoT.type == 'GeoChat':
                 self.returnData = self.geochat_sending(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return self.returnData
+            
             elif sender == processedCoT:
                 for user_id, client in clientInformationQueue.items():
                     try:
@@ -42,19 +45,22 @@ class SendDataController:
                 self.messages_to_core_count += 1
                 shareDataPipe.put([copiedProcessedCoTObject])
                 return 1
-            elif processedCoT.type == 'other':
+            
+            elif (hasattr(processedCoT.modelObject.detail, "marti") and len(processedCoT.modelObject.detail.marti.dest) > 1) or (hasattr(processedCoT.modelObject.detail, "_chat") and processedCoT.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms"): # this needs to check that val is greater than one because parsing automatically adds 1 dest value
                 self.returnData = self.send_to_specific_client(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return self.returnData
+            
             else:
                 self.returnData = self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return self.returnData
+
         except Exception as e:
             logger.error(loggingConstants.SENDDATACONTROLLERSENDDATAINQUEUEERROR+str(e))
             return Exception(e)
 
     def send_to_specific_client(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
-            if processedCoT.martiPresent == False:
+            if not (hasattr(processedCoT.modelObject.detail, "marti") and len(processedCoT.modelObject.detail.marti.dest) > 1) or (hasattr(processedCoT.modelObject.detail, "_chat") and processedCoT.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms"):
                 # print('marti not present')
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
 
@@ -118,15 +124,15 @@ class SendDataController:
 
             logger.error('error in send to all ' + str(e)+str(traceback.format_exc()) +" "+ str(clientInformationQueue))
             raise Exception(e)
-    def geochat_sending(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
+    def geochat_sending(self, clientInformationQueue: Dict[str, list], processedCoT: RawCoT, sender, shareDataPipe):
         try:
             if processedCoT.modelObject.detail._chat.chatgrp.uid1 == 'All Chat Rooms':
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
     
             else:
-                for client in clientInformationQueue.values():
+                for uid, client in clientInformationQueue.items():
                     try:
-                        if client[1].user_id == processedCoT.modelObject.detail._chat.chatgrp.uid1:
+                        if uid == processedCoT.modelObject.detail._chat.chatgrp.uid1:
                             sock = client[0]
                             try:
                                 sock.send(processedCoT.xmlString)
@@ -142,7 +148,8 @@ class SendDataController:
                         return -1
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
-                    self.messages_to_core_count += 1
+                    if hasattr(self, 'messages_to_core_count'):
+                        self.messages_to_core_count += 1
                     shareDataPipe.put(processedCoT)
                 else:
                     pass
