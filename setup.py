@@ -13,7 +13,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='FreeTAKTeam',
-    author_email='your.email@domain.com',
+    author_email='FreeTakTeam@gmail.com.com',
     url='https://github.com/FreeTAKTeam/FreeTakServer',
     download_url='https://github.com/Tapawingo/FreeTakServer/archive/v0.8.4-Beta.tar.gz',
     keywords=['TAK', 'OPENSOURCE'],
