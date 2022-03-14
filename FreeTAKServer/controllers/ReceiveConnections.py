@@ -18,7 +18,6 @@ import os
 from typing import Union
 
 from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
-
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -31,6 +30,7 @@ logger = CreateLoggerController("FTS_ReceiveConnections", logging_constants=logg
 loggingConstants = ClientReceptionLoggingConstants()
 
 TEST_SUCCESS = "success"
+END_OF_MESSAGE = b"</event>"
 
 # TODO: move health check values to constants and create controller for HealthCheck data
 
@@ -44,7 +44,7 @@ class ReceiveConnections:
             client (socket.socket): _description_
 
         Raises:
-            Exception: _description_
+            Exception: if data returned by client is empty
 
         Returns:
             Union[etree.Element, str]: in case of real connection an etree Element should be returned containing client connection data
@@ -53,12 +53,10 @@ class ReceiveConnections:
         print('receiving')
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         part = client.recv(1)
-        client.settimeout(None)
-        client.setblocking(False)  # blocking must be false for
+        client.settimeout(10)
+        client.setblocking(True)  # blocking must be false for
 
-        client_file = client.makefile()  # get file descriptor so socket can be read without delay
-        print('reading')
-        xmlstring = ''.join(client_file.read())
+        xmlstring = self.recv_until(client, b"</event>").decode()
         print(xmlstring)
         if not xmlstring: raise Exception('empty data')
         elif part.decode()+xmlstring == ReceiveConnectionsConstants().TESTDATA: return TEST_SUCCESS
@@ -125,3 +123,10 @@ class ReceiveConnections:
         raw_connection_information.socket = client
         raw_connection_information.xmlString = etree.tostring(events.findall('event')[0]).decode('utf-8')
         return raw_connection_information
+
+    def recv_until(self, client, delimiter):
+        message = b""
+        start_receive_time = time.time()
+        while delimiter not in message and time.time() - start_receive_time <= ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT:
+            message = message + client.recv(ReceiveConnectionsConstants().CONNECTION_DATA_BUFFER)
+        return message

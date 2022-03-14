@@ -7,7 +7,16 @@ import socket
 class SSLSocketController(MainSocketController):
     def __init__(self):
         self.MainSocket = SSLServerSocket()
-
+    def createContext(self):
+        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
+        context.load_verify_locations(cafile=self.MainSocket.CA)
+        context.options |= ssl.OP_NO_SSLv3
+        context.options |= ssl.OP_NO_SSLv2
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.verify_flags = ssl.VERIFY_CRL_CHECK_LEAF
+        context.load_cert_chain(certfile=self.MainSocket.pemDir, keyfile=self.MainSocket.keyDir,
+                                password=self.MainSocket.password, )
+        return context
     def createSocket(self):
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
         context.load_verify_locations(cafile=self.MainSocket.CA)
