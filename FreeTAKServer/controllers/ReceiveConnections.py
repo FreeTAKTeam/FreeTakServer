@@ -15,6 +15,8 @@ from lxml import etree
 import ssl
 import time
 import os
+from typing import Union
+
 from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
@@ -28,18 +30,26 @@ logger = CreateLoggerController("FTS_ReceiveConnections", logging_constants=logg
 
 loggingConstants = ClientReceptionLoggingConstants()
 
+TEST_SUCCESS = "success"
 
 # TODO: move health check values to constants and create controller for HealthCheck data
 
 class ReceiveConnections:
     connections_received = 0
 
-    def receive_connection_data(self, client):
-        """ this method is responsible for receiving connection data from the client
+    def receive_connection_data(self, client) -> Union[etree.Element, str]:
+        """this method is responsible for receiving connection data from the client
 
-        :param client:
-        :return:
-        """
+        Args:
+            client (socket.socket): _description_
+
+        Raises:
+            Exception: _description_
+
+        Returns:
+            Union[etree.Element, str]: in case of real connection an etree Element should be returned containing client connection data
+                                        in case of test connection TEST_SUCCESS const should be returned
+        """        
         print('receiving')
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         part = client.recv(1)
@@ -51,6 +61,7 @@ class ReceiveConnections:
         xmlstring = ''.join(client_file.read())
         print(xmlstring)
         if not xmlstring: raise Exception('empty data')
+        elif part.decode()+xmlstring == ReceiveConnectionsConstants().TESTDATA: return TEST_SUCCESS
         client.setblocking(True)
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         print(xmlstring)
@@ -83,14 +94,13 @@ class ReceiveConnections:
             # wait to receive client
             try:
                 events = self.receive_connection_data(client=client)
-            except (IndexError, Exception) as e:
-                if events.text == ReceiveConnectionsConstants().TESTDATA:
-                    client.send(b'success')
-                else:
-                    try:
-                        events = self.receive_connection_data(client=client)
-                    except Exception as e:
-                        return -1
+            except Exception as e:
+                try:
+                    events = self.receive_connection_data(client=client)
+                except Exception as e:
+                    return -1
+            if events == TEST_SUCCESS:
+                client.send(b'success')
             client.settimeout(0)
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
             # establish the socket array containing important information about the client
