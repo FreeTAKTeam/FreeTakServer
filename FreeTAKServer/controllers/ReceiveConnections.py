@@ -53,13 +53,12 @@ class ReceiveConnections:
         print('receiving')
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         part = client.recv(1)
+        if part == b"": raise Exception('empty data')
         client.settimeout(10)
-        client.setblocking(True)  # blocking must be false for
-
+        client.setblocking(True)
         xmlstring = self.recv_until(client, b"</event>").decode()
-        print(xmlstring)
-        if not xmlstring: raise Exception('empty data')
-        elif part.decode()+xmlstring == ReceiveConnectionsConstants().TESTDATA: return TEST_SUCCESS
+        #print(xmlstring)
+        if part.decode()+xmlstring == ReceiveConnectionsConstants().TESTDATA: return TEST_SUCCESS
         client.setblocking(True)
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         print(xmlstring)
@@ -124,9 +123,22 @@ class ReceiveConnections:
         raw_connection_information.xmlString = etree.tostring(events.findall('event')[0]).decode('utf-8')
         return raw_connection_information
 
-    def recv_until(self, client, delimiter):
+    def recv_until(self, client, delimiter) -> bytes:
+        """receive data until a delimiter has been reached
+
+        Args:
+            client (socket.socket): client socket
+            delimiter (bytes): bytestring representing the delimiter
+
+        Returns:
+            Union[None, bytes]: None if no data was received otherwise send received data
+        """        
         message = b""
         start_receive_time = time.time()
+        client.settimeout(4)
         while delimiter not in message and time.time() - start_receive_time <= ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT:
-            message = message + client.recv(ReceiveConnectionsConstants().CONNECTION_DATA_BUFFER)
+            try:
+                message = message + client.recv(ReceiveConnectionsConstants().CONNECTION_DATA_BUFFER)
+            except:
+                return message
         return message

@@ -92,7 +92,7 @@ class ClientReceptionHandler:
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
                     self.returnReceivedData(client, b'', queue)
                     # return -1 commented out so entire run isn't stopped because of one disconnect
-                return 1
+            return 1
         except Exception as e:
             logger.error('exception in monitor for data ' + str(e))
             return -1
