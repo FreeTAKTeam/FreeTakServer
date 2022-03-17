@@ -8,6 +8,7 @@ setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
     version='1.9.8.8',
+
     license='Eclipse License',
     description='An open source server for the TAK family of applications.',
     long_description=long_description,
