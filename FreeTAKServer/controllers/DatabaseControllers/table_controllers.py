@@ -33,6 +33,11 @@ class TableController:
                 *tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(
                 text(query)).all()
             return output
+        elif isinstance(query, object):
+            output = session.query(
+                *tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(
+                query).all()
+            return output
         elif isinstance(query, list):
             output = session.query(
                 *tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(

@@ -662,17 +662,16 @@ def getGeoObject():
         import re
         radius_in_deg = (geopy.units.degrees(arcseconds=geopy.units.nautical(meters=radius))) / 2
         if lat_abs >= 0 and lon_abs >= 0:
-            results = dbController.query_CoT(query=[Event.point.has(and_(
+            results = dbController.query_CoT(query=Event.point.has(and_(
                 Point.lon >= 0,
                 Point.lat >= 0,
                 or_(
                     and_(
                         (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) <= radius + 10,
-                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) > 0),
+                        (((Point.lon - lon_abs) * 111302.62) + ((Point.lat - lat_abs) * 110574.61)) >= 0),
                     and_((
-                                 ((lon_abs - Point.lon) * 111302.62) + (
-                                     (lon_abs - Point.lat) * 110574.61)) <= radius + 10,
-                         (((lon_abs - Point.lon) * 111302.62) + ((lon_abs - Point.lat) * 110574.61)) > 0))))])
+                        ((lon_abs - Point.lon) * 111302.62) + ((lon_abs - Point.lat) * 110574.61)) <= radius + 10,
+                        (((lon_abs - Point.lon) * 111302.62) + ((lon_abs - Point.lat) * 110574.61)) >= 0)))))
         elif lon_abs < 0 and lat_abs < 0:
             results = dbController.query_CoT(query=[Event.point.has(and_(
                 Point.lon < 0,
@@ -688,7 +687,7 @@ def getGeoObject():
             ))])
 
         elif lon_abs < 0 and lat_abs > 0:
-            results = dbController.query_CoT(query=[Event.point.has(and_(
+            results = dbController.query_CoT(query=Event.point.has(and_(
                 Point.lon < 0,
                 Point.lat >= 0,
                 or_(
@@ -698,7 +697,7 @@ def getGeoObject():
                     and_(
                         (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) <= radius + 10,
                         (((lon_abs - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) > 0)
-                )))])
+                ))))
 
         elif lon_abs > 0 and lat_abs < 0:
             results = dbController.query_CoT(query=[Event.point.has(and_(
