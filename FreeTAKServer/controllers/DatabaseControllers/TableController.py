@@ -22,8 +22,12 @@ class TableController:
 
     def query(self, session, query, columns):
         # query needs to be applicable to datapackage object tuple(['DataPackage.'+x for x in columns])
-        output = session.query(*tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(
-            text(query)).all()
+        if isinstance(query, str): 
+            output = session.query(*tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(
+                text(query)).all()
+        elif isinstance(query, object):
+            output = session.query(*tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter(
+                query).all()
         return output
 
 

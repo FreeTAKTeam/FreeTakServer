@@ -7,14 +7,13 @@ class counter:
     count = 0
     getter_called = False
 
-
 class Marti(FTSProtocolObject):
     __counter = counter()
 
     def __init__(self):
         # self.__dest = [DestObject(self.__counter)]
         # self.__tempdest = self.__dest
-        self.dest = [DestObject(self.__counter)]
+        self.dest = [DestObject()]
         self.__index = 0
         # self.__firstrun = True
 
