@@ -17,7 +17,6 @@ class SSLDataPackageService(FlaskFunctions):
             import ssl
             from FreeTAKServer.controllers.MainSocketController import MainSocketController
             from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
-            eventlet.monkey_patch(socket=True)
             global IP, HTTPPORT
             self.MainSocket = SSLServerSocket()
             IP = ip
