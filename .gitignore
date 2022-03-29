@@ -176,3 +176,6 @@ logs/
 /test users/__init__.py
 /test users/basic_user.py
 /FreeTAKServer/controllers/serializers/federation_protobuf_serializer.py
+FreeTAKServer/controllers/configuration/MainConfig.py
+python
+/.idea/deployment.xml
