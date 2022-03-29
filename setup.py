@@ -7,7 +7,8 @@ with open(path.join(this_directory, 'README.md')) as f:
 setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
-    version='1.9.8',
+    version='1.9.9',
+
     license='Eclipse License',
     description='An open source server for the TAK family of applications.',
     long_description=long_description,
@@ -15,7 +16,7 @@ setup(
     author='FreeTAKTeam',
     author_email='FreeTakTeam@gmail.com.com',
     url='https://github.com/FreeTAKTeam/FreeTakServer',
-    download_url='https://github.com/Tapawingo/FreeTakServer/archive/v0.8.4-Beta.tar.gz',
+    download_url='https://github.com/FreeTAKTeam/FreeTakServer/releases',
     keywords=['TAK', 'OPENSOURCE'],
     install_requires=[
         'click==8.0.4',
@@ -33,6 +34,7 @@ setup(
         'geopy==2.2.0',
         'greenlet==1.1.2',
         'itsdangerous==2.0.1',
+         'testresources==2.0.1', 
         'Jinja2==2.11.2',
         'lxml==4.6.5',
         'MarkupSafe==2.0.1',

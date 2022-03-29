@@ -15,8 +15,9 @@ from lxml import etree
 import ssl
 import time
 import os
-from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
+from typing import Union
 
+from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -28,29 +29,36 @@ logger = CreateLoggerController("FTS_ReceiveConnections", logging_constants=logg
 
 loggingConstants = ClientReceptionLoggingConstants()
 
+TEST_SUCCESS = "success"
+END_OF_MESSAGE = b"</event>"
 
 # TODO: move health check values to constants and create controller for HealthCheck data
 
 class ReceiveConnections:
     connections_received = 0
 
-    def receive_connection_data(self, client):
-        """ this method is responsible for receiving connection data from the client
+    def receive_connection_data(self, client) -> Union[etree.Element, str]:
+        """this method is responsible for receiving connection data from the client
 
-        :param client:
-        :return:
-        """
+        Args:
+            client (socket.socket): _description_
+
+        Raises:
+            Exception: if data returned by client is empty
+
+        Returns:
+            Union[etree.Element, str]: in case of real connection an etree Element should be returned containing client connection data
+                                        in case of test connection TEST_SUCCESS const should be returned
+        """        
         print('receiving')
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         part = client.recv(1)
-        client.settimeout(None)
-        client.setblocking(False)  # blocking must be false for
-
-        client_file = client.makefile()  # get file descriptor so socket can be read without delay
-        print('reading')
-        xmlstring = ''.join(client_file.read())
-        print(xmlstring)
-        if not xmlstring: raise Exception('empty data')
+        if part == b"": raise Exception('empty data')
+        client.settimeout(10)
+        client.setblocking(True)
+        xmlstring = self.recv_until(client, b"</event>").decode()
+        #print(xmlstring)
+        if part.decode()+xmlstring == ReceiveConnectionsConstants().TESTDATA: return TEST_SUCCESS
         client.setblocking(True)
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         print(xmlstring)
@@ -83,14 +91,13 @@ class ReceiveConnections:
             # wait to receive client
             try:
                 events = self.receive_connection_data(client=client)
-            except (IndexError, Exception) as e:
-                if events.text == ReceiveConnectionsConstants().TESTDATA:
-                    client.send(b'success')
-                else:
-                    try:
-                        events = self.receive_connection_data(client=client)
-                    except Exception as e:
-                        return -1
+            except Exception as e:
+                try:
+                    events = self.receive_connection_data(client=client)
+                except Exception as e:
+                    return -1
+            if events == TEST_SUCCESS:
+                client.send(b'success')
             client.settimeout(0)
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
             # establish the socket array containing important information about the client
@@ -115,3 +122,23 @@ class ReceiveConnections:
         raw_connection_information.socket = client
         raw_connection_information.xmlString = etree.tostring(events.findall('event')[0]).decode('utf-8')
         return raw_connection_information
+
+    def recv_until(self, client, delimiter) -> bytes:
+        """receive data until a delimiter has been reached
+
+        Args:
+            client (socket.socket): client socket
+            delimiter (bytes): bytestring representing the delimiter
+
+        Returns:
+            Union[None, bytes]: None if no data was received otherwise send received data
+        """        
+        message = b""
+        start_receive_time = time.time()
+        client.settimeout(4)
+        while delimiter not in message and time.time() - start_receive_time <= ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT:
+            try:
+                message = message + client.recv(ReceiveConnectionsConstants().CONNECTION_DATA_BUFFER)
+            except:
+                return message
+        return message

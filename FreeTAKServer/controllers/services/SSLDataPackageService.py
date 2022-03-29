@@ -39,7 +39,7 @@ class SSLDataPackageService(FlaskFunctions):
             self.setSSL(True)
             wsgi.server(sock=wrap_ssl(listen((DataPackageServerConstants().IP, int(HTTPPORT))), keyfile=MainConfig.unencryptedKey,
                                       certfile=MainConfig.pemDir,
-                                      server_side=True, ca_certs=MainConfig.CA), site=app)
+                                      server_side=True, ca_certs=MainConfig.CA, cert_reqs=ssl.CERT_REQUIRED), site=app)
         except Exception as e:
             logger.error('there has been an exception in Data Package service startup ' + str(e))
             return -1

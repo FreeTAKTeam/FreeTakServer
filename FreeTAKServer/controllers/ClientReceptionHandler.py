@@ -12,8 +12,8 @@ import socket
 import errno
 import copy
 import re
-import sys
 
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from defusedxml import ElementTree as etree
@@ -23,7 +23,7 @@ logger = CreateLoggerController("FTS_ClientReceptionHandler", logging_constants=
 from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 
 loggingConstants = ClientReceptionLoggingConstants()
-
+BUFF_SIZE = MainConfig.DataReceptionBuffer
 
 class ClientReceptionHandler:
     def __init__(self):
@@ -58,71 +58,37 @@ class ClientReceptionHandler:
             keys = copy.deepcopy(list(self.clientInformationArray.keys()))  # this prevents changes to the clientInformationArray from having any severe effects on this method
             for user_id in keys:
                 sock = self.clientInformationArray[user_id][0]
-                client = self.clientInformationArray[user_id][1]
+                client = user_id
+                #client = self.clientInformationArray[user_id][1]
                 try:
+                    sock.settimeout(0.001)
                     try:
-                        BUFF_SIZE = 8087
-                        data = b''
-                    except Exception as e:
-                        print('\n\n disconnect A \n\n')
-                        logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORA + str(e))
-                        self.returnReceivedData(client, b'', queue)
-                    try:
-                        sock.setblocking(0)  # prevents blocking if there is no data to be read
-                        part = sock.recv(1)
-                        sys.stdout.flush()
+                        xmlstring = self.recv_until(sock).decode()
+                        if xmlstring == b'' or xmlstring is None: 
+                            self.returnReceivedData(client, b'', queue)
+                            logger.debug("empty string sent, standard disconnect")
+                            continue
+                        xmlstring = "<multiEvent>" + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
+                        xmlstring = re.sub(r'\<\?xml(?s)(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
+                        events = etree.fromstring(xmlstring)  # serialize to object
+                        for event in events.findall('event'):
+                            self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
                     except socket.timeout as e:
                         continue
                     except BrokenPipeError as e:
-                        print('\n\n disconnect B \n\n')
                         self.returnReceivedData(client, b'', queue)
                         continue
-                    except socket.error as e:
-                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:  # this prevents errno 11 from spontanieously disconnecting clients due to the socket blocking set to 0
-                            # logger.debug("EWOULDBLOCK error passed " + str(e))
-                            continue
-                        elif hasattr(e, "errno") and e.errno == errno.ECONNRESET:
-                            print('econ reset passed')
-                            continue
-                        else:
-                            self.returnReceivedData(client, b'', queue)
-                            continue
                     except Exception as e:
                         import traceback
-
-                        print('\n\n disconnect C ' + str(e) + "\n\n")
+                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:  # this prevents errno 11 from spontanieously disconnecting clients due to the socket blocking set to 0
+                            logger.debug("EWOULDBLOCK error passed " + str(e))
+                            continue
                         logger.error(
                             "Exception other than broken pipe in monitor for data function " + str(e) + ''.join(traceback.format_exception(None, e, e.__traceback__)))
                         self.returnReceivedData(client, b'', queue)
                         continue
-                    try:
-                        if part == b'' or part is None:
-                            print('\n\n disconnect D \n\n')
-                            logger.debug("empty string sent, standard disconnect")
-                            self.returnReceivedData(client, b'', queue)
-                            continue
-                        else:
-                            try:
-                                client_file = sock.makefile()  # get file descriptor so socket can be read without delay
-                                xmlstring = part.decode() + client_file.read()
-                                xmlstring = "<multiEvent>" + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
-                                xmlstring = re.sub(r'\<\?xml(?s)(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
-                                events = etree.fromstring(xmlstring)  # serialize to object
-                                for event in events.findall('event'):
-                                    self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
-                            except Exception as e:
-                                logger.error('error in buffer ' + str(e))
-                                # return -1 commented out so entire run isn't stopped because of one disconnect
-
-                    except Exception as e:
-                        print('\n\n disconnect F \n\n')
-                        logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORC + str(e))
-                        self.returnReceivedData(client, b'', queue)
-                        # self.clientInformationArray.remove(client) commented out so size doesnt change during iteration
-                        # return -1 commented out so entire run isn't stopped because of one disconnect
 
                 except Exception as e:
-                    print(f'\n\n disconnect G {str(e)} \n\n')
                     logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
                     self.returnReceivedData(client, b'', queue)
                     # return -1 commented out so entire run isn't stopped because of one disconnect
@@ -144,3 +110,13 @@ class ClientReceptionHandler:
         except Exception as e:
             logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNRECEIVEDDATAERROR + str(e))
             return -1
+
+    def recv_until(self, client):
+        start_receive_time = time.time()
+        message = client.recv(BUFF_SIZE)
+        while time.time() - start_receive_time <= MainConfig.MaxReceptionTime:
+            try:
+                message = message + client.recv(BUFF_SIZE)
+            except Exception as e:
+                break
+        return message
