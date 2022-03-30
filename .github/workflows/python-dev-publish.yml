@@ -30,7 +30,7 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
       run: |
         python setup.py sdist bdist_wheel
-        twine upload dist/* --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
+        twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
     - name: install on server
       uses: appleboy/ssh-action@v0.1.2
       with:
