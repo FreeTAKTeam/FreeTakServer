@@ -31,3 +31,16 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload dist/* --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
+    - name: install on server
+      uses: appleboy/ssh-action@v0.1.2
+      with:
+        host: ${{ secrets.DEV_SERVER_ADDRESS }}
+        key: ${{ secrets.DEV_SERVER_SSH_KEY }}
+        username: ${{ secrets.DEV_SERVER_USERNAME }}
+        
+        script: |
+          sudo systemctl stop fts
+          sudo rm -r /usr/local/lib/python3.8/dist-packages/FreeTAKServer
+          sudo python3 -m pip uninstall FreeTAKServer -y
+          sudo python3 -m pip install --index-url http://${{ secrets.DEV_PYPI_USERNAME }}:${{ secrets.DEV_PYPI_PASSWORD }}@${{ secrets.DEV_PYPI_ADDRESS }}:8080 FreeTAKServer --trusted-host ${{ secrets.DEV_PYPI_ADDRESS }}:8080
+          sudo systemctl start fts
