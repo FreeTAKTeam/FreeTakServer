@@ -164,15 +164,17 @@ def clientEndPoint():
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
     from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
-    logger.info('dataoackage upload started')
+    logger.info('datapackage upload started')
     file_hash = request.args.get('hash')
-    if not validate_hash(file_hash):
+    if not sanitize_path_input(file_hash):
         return "invalid hash sent", 500
     app.logger.info(f"Data Package hash = {str(file_hash)}")
     letters = string.ascii_letters
     uid = ''.join(random.choice(letters) for i in range(4))
     uid = 'uid-' + str(uid)
     filename = request.args.get('filename')
+    if not sanitize_path_input(filename):
+        return "invalid hash sent", 500
     creatorUid = request.args.get('creatorUid')
     file = request.files.getlist('assetfile')[0]
     directory = Path(dp_directory, file_hash)
@@ -203,6 +205,8 @@ def putDataPackageTool(hash):
 @cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
     from flask import make_response
+    if not sanitize_path_input(hash):
+        return "invalid hash sent", 500
     file_list = os.listdir(os.path.join(Path(str(dp_directory)), Path(str(hash))))
     path = PurePath(dp_directory, str(hash), file_list[0])
     app.logger.info(f"Sending data package from {str(path)}")
@@ -212,7 +216,7 @@ def getDataPackageTool(hash):
 
 @app.route('/Marti/sync/search', methods=[const.GET])
 def retrieveData():
-    logger.info('sync search tirggerd')
+    logger.info('sync search triggered')
     keyword = request.args.get('keyword')
     packages = FlaskFunctions().getAllPackages()
     app.logger.info(f"Data packages in the database: {packages}")
@@ -369,6 +373,8 @@ def template():
         serializer.create_DB_object(object)
         xml = etree.fromstring(XMI)
         tasks = xml.find('checklistTasks')
+        if not sanitize_path_input(object.data.uid):
+            return "invalid uid sent", 500
         path = str(PurePath(Path(MainConfig.ExCheckFilePath), Path(f'{object.data.uid}.xml')))
         with open(path, 'w+') as file:
             file.write(XMI)
@@ -399,6 +405,7 @@ def template():
 
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
+
     import uuid
     from defusedxml import ElementTree as etree
     from xml.etree.ElementTree import Element
@@ -415,6 +422,9 @@ def startList(subscription):
     startTime = request.args.get('startTime')
     # callsign of submission user
     request.args.get('callsign')
+
+    if not sanitize_path_input(subscription):
+        return "invalid subscription sent", 500
 
     with open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(f'{uid}.xml'))), 'w+') as file:
         file.write(str(open(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(f'{subscription}.xml'))), 'r').read()))
@@ -457,9 +467,32 @@ def startList(subscription):
 
     return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
 
+@app.route('/Marti/api/excheck/checklist/', methods=["POST"])
+def update_checklist():
+    import uuid
+    from defusedxml import ElementTree as etree
+    from xml.etree.ElementTree import Element
+    import datetime
+    r = request
+    excheck_xml = etree.fromstring(request.data)
+    uid = excheck_xml.find('checklistDetails').find('uid').text
+
+    # client uid
+    request.args.get('clientUid')
+
+    if not sanitize_path_input(uid):
+        return "uid", 500
+
+    with open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(f'{uid}.xml'))), 'wb+') as file:
+        file.write(request.data)
+        file.close()
+
+    return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>')
 def accesschecklist(checklistid):
+    if not sanitize_path_input(checklistid):
+        return "invalid checklistid sent", 500
     return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistid + '.xml'))),
                     'r').read())
 
@@ -476,7 +509,8 @@ def updatetemplate(checklistid, taskid):
     import hashlib
 
     data = request.data
-
+    if not sanitize_path_input(checklistid):
+        return "invalid checklistid sent", 500
     xml = etree.parse(
         str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistid + '.xml')))).getroot()
     updatedTask = etree.fromstring(data)
@@ -574,14 +608,14 @@ def activechecklists():
     return xml
 
 
-def validate_hash(file_hash: str) -> bool:
+def sanitize_path_input(user_input: str) -> bool:
     """ this function takes a file hash and validates it's
     content to avoid RCE and XSS attacks
 
     Args:
-        file_hash:
+        user_input: any user input which is used to write a path
     """
-    if re.match("^[A-Za-z0-9_-]*$", file_hash):
+    if re.match("^[A-Za-z0-9_-]*$", user_input):
         return True
     else:
         return False
