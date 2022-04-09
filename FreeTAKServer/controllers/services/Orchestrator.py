@@ -530,6 +530,7 @@ class Orchestrator:
                 cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data)
                 handler = getattr(self, cot[0])
                 output = handler(cot[1])
+                output.clientInformation = self.clientInformationQueue[data.clientInformation][1]
                 return output
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
