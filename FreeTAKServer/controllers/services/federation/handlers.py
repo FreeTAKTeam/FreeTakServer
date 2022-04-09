@@ -119,7 +119,7 @@ class DestinationValidationHandler(HandlerBase):
             user_callsigns = [user.contact.callsign for user in user_list]
             cot_dest_callsigns = [dest.callsign for dest in command.modelObject.detail.marti.dest]
 
-            if bool(set(user_callsigns) & set(cot_dest_callsigns)):
+            if bool(set(user_callsigns) & set(cot_dest_callsigns)) or cot_dest_callsigns==[None]:
                 self.callNextHandler(obj, command)
             else:
                 raise Exception("this service has none of the desired clients for this CoT")

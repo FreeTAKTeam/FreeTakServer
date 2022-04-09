@@ -14,6 +14,13 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.SpecificCoTControllers import *
 
+from FreeTAKServer.model.SpecificCoT.SendPing import SendPing
+from FreeTAKServer.model.SpecificCoT.SendTakPong import SendTakPong
+from FreeTAKServer.model.SpecificCoT.SendUserUpdate import SendUserUpdate
+from FreeTAKServer.model.SpecificCoT.SendDropPoint import SendDropPoint
+from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
+from FreeTAKServer.model.SpecificCoT.SendGeoChat import SendGeoChat
+
 from FreeTAKServer.model.FTSModel.Event import Event
 
 logger = CreateLoggerController("XMLCoTController").getLogger()
@@ -55,17 +62,17 @@ class XMLCoTController:
 
     def determine_model_object_type(self, type_id):
         if type_id == "t-x-c-t":
-            return Event.Ping
+            return Event.Ping, SendPing
         elif type_id == "t-x-c-t-r":
-            return Event.takPong
+            return Event.takPong, SendTakPong
         elif type_id == "b-t-f":
-            return Event.GeoChat
+            return Event.GeoChat, SendGeoChat
         elif re.match('^a-f-G-', type_id):
-            return Event.UserUpdate
+            return Event.UserUpdate, SendUserUpdate
         elif re.match('^a-.-.$', type_id):
-            return Event.dropPoint
+            return Event.dropPoint, SendDropPoint
         else:
-            return Event.Other
+            return Event.Other, SendOther
         CoTTypes = {
             "t-x-c-t": Event.Ping,
             "t-x-c-t-r": Event.takPong,
@@ -74,7 +81,7 @@ class XMLCoTController:
         }
 
     def determineCoTType(self, RawCoT):
-        # this function is to establish which specific controller applys to the CoT if any
+        # this function is to establish which specific controller apply to the CoT if any
         try:
             xml = RawCoT.xmlString
             if type(xml) != type(b''):
