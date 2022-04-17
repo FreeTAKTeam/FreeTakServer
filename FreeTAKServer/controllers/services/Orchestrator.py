@@ -613,16 +613,6 @@ class Orchestrator:
                             from multiprocessing.pool import ThreadPool
                             try:
                                 pass
-                                # print('\n\nresetting\n\n')
-                                # pool.terminate()
-                                # pool = ThreadPool(processes=2)
-                                # self.pool = pool
-                                # receiveconntimeoutcount = datetime.datetime.now()
-                                # lastprint = datetime.datetime.now()
-                                # self.get_client_information()
-                                # clientData = pool.apply_async(ClientReceptionHandler().startup,
-                                #                              (self.clientInformationQueue,))
-                                # receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock, ssl,))
                             except Exception as e:
                                 print(str(e))
                         elif ssl == True and (datetime.datetime.now() - lastprint) > datetime.timedelta(seconds=30):
@@ -738,6 +728,7 @@ class Orchestrator:
                     if clientDataOutputSingle == -1:
                         continue
                     CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
+                    self.logger.info("cot serialized " + str(CoTOutput.modelObject.uid) )
                     if CoTOutput == 1:
                         continue
                     elif self.checkOutput(CoTOutput):
@@ -830,14 +821,14 @@ class Orchestrator:
         while True:
             time.sleep(15)
             try:
-                self.logger.info(f"messages sent to clients in {logging_interval} seconds: {self.sent_message_count}")
-                self.logger.info(
+                self.logger.debug(f"messages sent to clients in {logging_interval} seconds: {self.sent_message_count}")
+                self.logger.debug(
                     f"messages received from clients in {logging_interval} seconds: {self.received_message_count}")
-                self.logger.info(
+                self.logger.debug(
                     f"messages shared with core in {logging_interval} seconds: {self.messages_to_core_count}")
-                self.logger.info(
+                self.logger.debug(
                     f"messages shared with core in {logging_interval} seconds: {self.messages_from_core_count}")
-                self.logger.info(f"number of connected client: {str(len(self.clientInformationQueue.keys()))}")
+                self.logger.debug(f"number of connected client: {str(len(self.clientInformationQueue.keys()))}")
                 self.sent_message_count = 0
                 self.received_message_count = 0
                 self.messages_to_core_count = 0

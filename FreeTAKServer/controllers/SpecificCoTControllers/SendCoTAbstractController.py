@@ -5,8 +5,8 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from abc import ABC
 from FreeTAKServer.controllers.serializers import xml_serializer
 
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("SendCoTAbstract").getLogger()
+loggingConstants = LoggingConstants(log_name="FTS_SendCoTAbstract")
+logger = CreateLoggerController("FTS_SendCoTAbstract", logging_constants=loggingConstants).getLogger()
 
 
 class SendCoTAbstractController(ABC):

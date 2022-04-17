@@ -2,8 +2,8 @@ from typing import Dict
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.RawCoT import RawCoT
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("SendDataController").getLogger()
+loggingConstants = LoggingConstants(log_name="FTS_SendDataController")
+logger = CreateLoggerController("FTS_SendDataController", logging_constants=loggingConstants).getLogger()
 import copy
 #TODO: the part handling new connection from seperate process needs to be cleaned up
 
@@ -68,11 +68,12 @@ class SendDataController:
                 # print('marti present')
                 for dest in processedCoT.modelObject.detail.marti.dest:
                     try:
-                        for client in clientInformationQueue.values():
+                        for client_id, client in clientInformationQueue.items():
                             if client[1].m_presence.modelObject.detail.contact.callsign == dest.callsign:
                                 sock = client[0]
                                 try:
                                     sock.send(processedCoT.xmlString)
+                                    logger.info(str(processedCoT.xmlString)+" sent to client "+client_id)
                                 except Exception as e:
                                     logger.error('error sending data with marti to client data ' + str(
                                         processedCoT.xmlString) + 'error is ' + str(e))
@@ -95,7 +96,7 @@ class SendDataController:
             return -1
     def send_to_all(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
-            for client in clientInformationQueue.values():
+            for client_id, client in clientInformationQueue.items():
                 sock = client[0]
                 try:
                     if hasattr(processedCoT, 'xmlString'):
@@ -104,11 +105,13 @@ class SendDataController:
                             sock.send(processedCoT.xmlString)
                         except TypeError:
                             sock.send(processedCoT.xmlString.encode())
+                        logger.info(str(processedCoT.xmlString)+" sent to client "+client_id)
                     else:
                         try:
                             sock.send(processedCoT.idData)
                         except TypeError:
                             sock.send(processedCoT.idData.encode())
+                        logger.info(str(processedCoT.idData)+" sent to client "+client_id)
                 except Exception as e:
                     logger.error('error in sending of data ' + str(e))
                     return (-1, client[1])
@@ -146,6 +149,7 @@ class SendDataController:
                         logger.error('error sending data with marti to client within if data is ' + str(
                             processedCoT.xmlString) + 'error is ' + str(e))
                         return -1
+                logger.info("CoT sent "+str(processedCoT.modelObject.uid))
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
                     if hasattr(self, 'messages_to_core_count'):
