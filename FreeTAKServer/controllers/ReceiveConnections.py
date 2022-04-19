@@ -72,6 +72,7 @@ class ReceiveConnections:
         try:
             # establish the socket variables
             if sslstatus == True:
+                socket.setdefaulttimeout(60)
                 sock.settimeout(60)
             # logger.debug('receive connection started')
             try:
