@@ -211,7 +211,7 @@ def generate_zip(server_address: str = None, server_filename: str = "server.p12"
     with open('./MANIFEST/manifest.xml', 'w') as manifest_file:
         manifest_file.write(man)
     copyfile(MainConfig.p12Dir, "./" + folder + "/" + server_filename)
-    copyfile(MainConfig.certsPath + "/" + user_filename, "./" + folder + "/" + user_filename)
+    copyfile(pathlib.Path(MainConfig.certsPath, user_filename), pathlib.Path(folder, user_filename))
     zipf = zipfile.ZipFile(f"{username}.zip", 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk('./' + folder):
         for file in files:
@@ -229,7 +229,7 @@ def generate_zip(server_address: str = None, server_filename: str = "server.p12"
         os.makedirs("./MANIFEST")
     with open('./MANIFEST/manifest.xml', 'w') as manifest_parent:
         manifest_parent.write(man_parent)
-    copyfile(f"./{username}.zip", f"./{parentfolder}/{username}.zip")
+    copyfile(f"{username}.zip", pathlib.Path(parentfolder, f"{username}.zip"))
     zipp = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(MainConfig.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk('./' + parentfolder):
         for file in files:
@@ -377,13 +377,13 @@ class AtakOfTheCerts:
         :param cert: Type of cert being created "user" or "server"
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        keypath = MainConfig.certsPath+f"/{common_name}.key"
-        pempath = MainConfig.certsPath+f"/{common_name}.pem"
-        p12path = MainConfig.certsPath+f"/{common_name}.p12"
+        keypath = pathlib.Path(MainConfig.certsPath,f"{common_name}.key")
+        pempath = pathlib.Path(MainConfig.certsPath,f"{common_name}.pem")
+        p12path = pathlib.Path(MainConfig.certsPath,f"{common_name}.p12")
         self._generate_key(keypath)
         self._generate_certificate(common_name=common_name, pempath=pempath, p12path=p12path, expiry_time_secs=expiry_time_secs)
         if cert.lower() == "server":
-            copyfile(keypath, keypath + ".unencrypted")
+            copyfile(keypath, str(keypath) + ".unencrypted")
 
     @staticmethod
     def copy_server_certs(server_name: str = "server") -> None:
