@@ -14,6 +14,7 @@ class SystemUser(Base, UserMixin):
     token = Column(String(30), nullable=True)
     password = Column(String(30), nullable=True)
     group = Column(String(15), default=True, nullable=True)
+    device_type = Column(String(30), nullable=False)
     certificate_package_name = Column(String(30), nullable=True, default=None)
     api_calls = relationship("APICalls")
 

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from flask_httpauth import HTTPTokenAuth
@@ -7,9 +7,16 @@ import threading
 from functools import wraps
 import uuid
 import datetime as dt
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import datetime
 from defusedxml import ElementTree as etree
+import os
+import shutil
+import json
+from flask_cors import CORS
+import qrcode
+import io
+
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
 from FreeTAKServer.controllers.ApplyFullJsonController import ApplyFullJsonController
@@ -23,10 +30,6 @@ from FreeTAKServer.controllers.RestMessageControllers.SendChatController import 
 from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import \
     SendDeleteVideoStreamController
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-import os
-import shutil
-import json
-from flask_cors import CORS
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, \
     UpdateSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController, \
@@ -284,6 +287,7 @@ def systemUsers(empty=None):
         userjson["Password"] = user.password
         userjson["Certs"] = user.certificate_package_name
         userjson["Uid"] = user.uid
+        userjson["DeviceType"] = user.device_type
         jsondata["SystemUsers"].append(userjson)
 
     emit('systemUsersUpdate', json.dumps(jsondata))
@@ -331,7 +335,10 @@ def addSystemUser(jsondata):
                 cert_name = systemuser["Name"] + user_id
                 # create certs
                 certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
-                certificate_generation.generate_zip(user_filename=cert_name + '.p12')
+                if systemuser["DeviceType"] == "wintak":
+                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
+                elif systemuser["DeviceType"] == "mobile":
+                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
                 # add DP
                 import string
                 import random
@@ -356,7 +363,7 @@ def addSystemUser(jsondata):
                 dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
                                                token=systemuser["Token"], password=systemuser["Password"],
                                                uid=user_id,
-                                               certificate_package_name=cert_name + '.zip')
+                                               certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
                 import datetime as dt
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
@@ -381,11 +388,10 @@ def addSystemUser(jsondata):
             else:
                 dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
                                                token=systemuser["Token"], password=systemuser["Password"],
-                                               uid=user_id)
+                                               uid=user_id, device_type = systemuser["DeviceType"])
     except Exception as e:
         print(e)
         return str(e), 500
-
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
@@ -416,6 +422,21 @@ def events(empty=None):
     # socketio.emit(json.dumps([current_notifications.logErrors, current_notifications.emergencys]))
     emit("eventsUpdate", {"events": current_notifications.logErrors + current_notifications.emergencys})
 
+@app.route('/GenerateQR', methods=["GET"])
+def generate_qr():
+    datapackage_id = request.args.get('datapackage_id')
+    dp = dbController.query_datapackage(query=f"PrimaryKey={datapackage_id}")[0]
+    qr = qrcode.QRCode(
+        version=1,
+        box_size=10,
+        border=5)
+    qr.add_data(f'http://{MainConfig.DataPackageServiceDefaultIP}:{8080}/Marti/api/sync/metadata/{dp.Hash}/tool')
+    qr.make(fit=True)
+    img = qr.make_image(fill='black', back_color='white')
+    img_io = io.BytesIO()
+    img.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
 
 @app.route('/ManageNotification/getNotification', methods=["GET"])
 def notification():
