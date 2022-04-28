@@ -36,7 +36,7 @@ class XmlSerializer(SerializerAbstract):
         return self._xml_attribs_to_fts_properties(FTSObject, element)
 
     def _xml_attribs_to_fts_properties(self, FTSObject, element):
-        if element.text is not None and element.text != " ":  # this statement handles instances where tags have text eg. <example> text </example>
+        if element.text is not None and not element.text.isspace():  # this statement handles instances where tags have text eg. <example> text </example>
             try:
                 setters = self._get_fts_object_var_setter(FTSObject, "INTAG")
                 setter = self._get_method_in_method_list(setters, element.tag)

@@ -60,13 +60,15 @@ class SendDataController:
 
     def send_to_specific_client(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
+            dests = [dest.callsign for dest in processedCoT.modelObject.detail.marti.dest]
             if not (hasattr(processedCoT.modelObject.detail, "marti") and len(processedCoT.modelObject.detail.marti.dest) > 1) or (hasattr(processedCoT.modelObject.detail, "_chat") and processedCoT.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms"):
                 # print('marti not present')
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
-
+            elif dests == [None] or [None, None]:
+                return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
             else:
                 # print('marti present')
-                for dest in processedCoT.modelObject.detail.marti.dest:
+                for dest in dests:
                     try:
                         for client_id, client in clientInformationQueue.items():
                             if client[1].m_presence.modelObject.detail.contact.callsign == dest.callsign:
@@ -97,6 +99,8 @@ class SendDataController:
     def send_to_all(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             for client_id, client in clientInformationQueue.items():
+                if hasattr(sender, "user_id") and client_id == sender.user_id:
+                    continue
                 sock = client[0]
                 try:
                     if hasattr(processedCoT, 'xmlString'):

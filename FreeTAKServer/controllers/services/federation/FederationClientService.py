@@ -208,8 +208,7 @@ class FederationClientServiceController(FederationServiceBase):
         inbound_data_thread.join()
 
     def serialize_data(self, data_object: FederatedEvent):
-        specific_obj, xmlstring = self._process_protobuff_to_object(data_object)
-        specific_obj.xmlString = etree.tostring(xmlstring)
+        specific_obj = self._process_protobuff_to_object(data_object)
         return specific_obj
 
     def outbound_data_handler(self):
