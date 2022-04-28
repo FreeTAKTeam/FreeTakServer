@@ -231,8 +231,10 @@ def specificPackage():
         data = request.data
         taskuid = request.args.get('uid')
         for file in listdir(MainConfig.ExCheckChecklistFilePath):
-            xml = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot()
-
+            try:
+                xml = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot()
+            except Exception as e:
+                logger.error(e)
             tasks = xml.find('checklistTasks')
             for task in tasks:
                 uid = task.find('uid')
@@ -241,10 +243,12 @@ def specificPackage():
                 else:
                     pass
         for file in listdir(MainConfig.ExCheckFilePath):
-            xml = etree.parse(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(file)))).getroot()
-            if xml.find("checklistDetails").find('uid').text == str(taskuid):
-                return etree.tostring(xml)
-
+            try:
+                xml = etree.parse(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(file)))).getroot()
+                if xml.find("checklistDetails").find('uid').text == str(taskuid):
+                    return etree.tostring(xml)
+            except Exception as e:
+                logger.error(str(e))
     else:
         hash = request.args.get('hash')
         import hashlib
@@ -596,14 +600,17 @@ def activechecklists():
     rootxml = Element('checklists')
 
     for file in listdir(MainConfig.ExCheckChecklistFilePath):
-        checklist = Element('checklist')
-        xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find(
-            'checklistDetails')
-        checklist.append(xmldetails)
-        checklist.append(Element('checklistColumns'))
-        checklist.append(Element('checklistTasks'))
-        rootxml.append(checklist)
-
+        try:
+            checklist = Element('checklist')
+            xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find(
+                'checklistDetails')
+            checklist.append(xmldetails)
+            checklist.append(Element('checklistColumns'))
+            checklist.append(Element('checklistTasks'))
+            rootxml.append(checklist)
+        except Exception as e:
+            logger.info(str(e))
+            continue
     xml = etree.tostring(rootxml)
     return xml
 

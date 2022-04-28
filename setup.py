@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md')) as f:
 setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
-    version='1.9.9.1.8',
+    version='1.9.9.0.0.4',
 
     license='Eclipse License',
     description='An open source server for the TAK family of applications.',
@@ -53,7 +53,8 @@ setup(
         'tabulate==0.8.7',
         'Werkzeug==2.0.3',
         'WTForms==2.3.3',
-        'pyOpenSSL==22.0.0'
+        'pyOpenSSL==22.0.0',
+        'qrcode==7.3.1'
     ],
     extras_require = {'ui': ['FreeTAKServer_UI']},
     classifiers=[

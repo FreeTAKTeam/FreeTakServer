@@ -46,7 +46,7 @@ class SendDataController:
                 shareDataPipe.put([copiedProcessedCoTObject])
                 return 1
             
-            elif (hasattr(processedCoT.modelObject.detail, "marti") and len(processedCoT.modelObject.detail.marti.dest) > 1) or (hasattr(processedCoT.modelObject.detail, "_chat") and processedCoT.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms"): # this needs to check that val is greater than one because parsing automatically adds 1 dest value
+            elif hasattr(processedCoT, "modelObject") and ((hasattr(processedCoT.modelObject.detail, "marti") and len(processedCoT.modelObject.detail.marti.dest) > 1) or (hasattr(processedCoT.modelObject.detail, "_chat") and processedCoT.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms")): # this needs to check that val is greater than one because parsing automatically adds 1 dest value
                 self.returnData = self.send_to_specific_client(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return self.returnData
             
