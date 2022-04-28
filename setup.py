@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md')) as f:
 setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
-    version='1.9.9.dev1',
+    version='1.9.9.0.dev1',
 
     license='Eclipse License',
     description='An open source server for the TAK family of applications.',
