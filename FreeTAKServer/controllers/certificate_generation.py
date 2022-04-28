@@ -130,8 +130,79 @@ def send_data_package(server: str, dp_name: str = "user.zip") -> bool:
             print("Something went wrong uploading DataPackage!")
             return False
 
+def generate_standard_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
+                 cert_password: str = MainConfig.password, ssl_port: str = "8089") -> None:
+    """
+    A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
+    working directory.
+    :param server_address: A string based ip address or FQDN that clients will use to connect to the server
+    :param server_filename: The filename of the server p12 file default is pubserver.p12
+    :param user_filename: The filename of the server p12 file default is user.p12
+    :param cert_password: The password for the certificate files
+    :param ssl_port: The port used for SSL CoT, defaults to 8089
+    """
+    pref_file_template = Template("""<?xml version='1.0' encoding='ASCII' standalone='yes'?>
+    <preferences>
+        <preference version="1" name="cot_streams">
+            <entry key="count" class="class java.lang.Integer">1</entry>
+            <entry key="description0" class="class java.lang.String">FreeTAKServer_{{ server }}</entry>
+            <entry key="enabled0" class="class java.lang.Boolean">false</entry>
+            <entry key="connectString0" class="class java.lang.String">{{ server }}:{{ port }}:ssl</entry>
+        </preference>
+        <preference version="1" name="com.atakmap.app_preferences">
+            <entry key="displayServerConnectionWidget" class="class java.lang.Boolean">true</entry>
+            <entry key="caLocation" class="class java.lang.String">/cert/{{ server_filename }}</entry>
+            <entry key="caPassword" class="class java.lang.String">{{ cert_password }}</entry>
+            <entry key="clientPassword" class="class java.lang.String">{{ cert_password }}</entry>
+            <entry key="certificateLocation" class="class java.lang.String">/cert/{{ user_filename }}</entry>
+        </preference>
+    </preferences>
+    """)
 
-def generate_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
+    manifest_file_template = Template("""<MissionPackageManifest version="2">
+       <Configuration>
+          <Parameter name="uid" value="{{ uid }}"/>
+          <Parameter name="name" value="FreeTAKServer_{{ server }}"/>
+          <Parameter name="onReceiveDelete" value="true"/>
+       </Configuration>
+       <Contents>
+          <Content ignore="false" zipEntry="cert/fts.pref"/>
+          <Content ignore="false" zipEntry="cert/{{ server_filename }}"/>
+          <Content ignore="false" zipEntry="cert/{{ user_filename }}"/>	  
+       </Contents>
+    </MissionPackageManifest>
+    """)
+
+    username = user_filename[:-4]
+    random_id = uuid.uuid4()
+    parentfolder = "80b828699e074a239066d454a76284eb"
+    if MainConfig.UserConnectionIP == "0.0.0.0":
+        hostname = socket.gethostname()
+        server_address = socket.gethostbyname(hostname)
+    else:
+        server_address = MainConfig.UserConnectionIP
+    pref = pref_file_template.render(server=server_address, server_filename=server_filename,
+                                     user_filename=user_filename, cert_password=cert_password,
+                                     port=str(MainConfig.SSLCoTServicePort))
+    man = manifest_file_template.render(uid=random_id, server=server_address, server_filename=server_filename,
+                                        user_filename=user_filename)
+    with open('fts.pref', 'w') as pref_file:
+        pref_file.write(pref)
+    with open('manifest.xml', 'w') as manifest_file:
+        manifest_file.write(man)
+    copyfile(MainConfig.p12Dir, server_filename)
+    copyfile(pathlib.Path(MainConfig.certsPath, user_filename), pathlib.Path(user_filename))
+    zipf = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(MainConfig.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
+    zipf.write('fts.pref')
+    zipf.write('manifest.xml')
+    zipf.write('manifest.xml', 'MANIFEST/')
+    zipf.write(user_filename)
+    zipf.write(server_filename)
+    zipf.close()
+    os.remove('fts.pref')
+    os.remove('manifest.xml')
+
+def generate_wintak_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
                  cert_password: str = MainConfig.password, ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
@@ -211,7 +282,7 @@ def generate_zip(server_address: str = None, server_filename: str = "server.p12"
     with open('./MANIFEST/manifest.xml', 'w') as manifest_file:
         manifest_file.write(man)
     copyfile(MainConfig.p12Dir, "./" + folder + "/" + server_filename)
-    copyfile(MainConfig.certsPath + "/" + user_filename, "./" + folder + "/" + user_filename)
+    copyfile(pathlib.Path(MainConfig.certsPath, user_filename), pathlib.Path(folder, user_filename))
     zipf = zipfile.ZipFile(f"{username}.zip", 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk('./' + folder):
         for file in files:
@@ -229,7 +300,7 @@ def generate_zip(server_address: str = None, server_filename: str = "server.p12"
         os.makedirs("./MANIFEST")
     with open('./MANIFEST/manifest.xml', 'w') as manifest_parent:
         manifest_parent.write(man_parent)
-    copyfile(f"./{username}.zip", f"./{parentfolder}/{username}.zip")
+    copyfile(f"{username}.zip", pathlib.Path(parentfolder, f"{username}.zip"))
     zipp = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(MainConfig.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk('./' + parentfolder):
         for file in files:
@@ -377,13 +448,13 @@ class AtakOfTheCerts:
         :param cert: Type of cert being created "user" or "server"
         :param expiry_time_secs: length of time in seconds that the certificate is valid for, defaults to 1 year
         """
-        keypath = MainConfig.certsPath+f"/{common_name}.key"
-        pempath = MainConfig.certsPath+f"/{common_name}.pem"
-        p12path = MainConfig.certsPath+f"/{common_name}.p12"
+        keypath = pathlib.Path(MainConfig.certsPath,f"{common_name}.key")
+        pempath = pathlib.Path(MainConfig.certsPath,f"{common_name}.pem")
+        p12path = pathlib.Path(MainConfig.certsPath,f"{common_name}.p12")
         self._generate_key(keypath)
         self._generate_certificate(common_name=common_name, pempath=pempath, p12path=p12path, expiry_time_secs=expiry_time_secs)
         if cert.lower() == "server":
-            copyfile(keypath, keypath + ".unencrypted")
+            copyfile(keypath, str(keypath) + ".unencrypted")
 
     @staticmethod
     def copy_server_certs(server_name: str = "server") -> None:
@@ -406,7 +477,7 @@ class AtakOfTheCerts:
         copyfile("./" + server_name + ".key", MainConfig.unencryptedKey)
         copyfile("./" + server_name + ".pem", MainConfig.pemDir)
 
-    def generate_auto_certs(self, ip: str, copy: bool = False, expiry_time_secs: int = 31536000) -> None:
+    def generate_auto_certs(self, ip: str, copy: bool = False, expiry_time_secs: int = 31536000, wintak_zip=False) -> None:
         """
         Generate the basic files needed for a new install of FTS
         :param ip: A string based ip address or FQDN that clients will use to connect to the server
@@ -417,4 +488,7 @@ class AtakOfTheCerts:
         self.bake("Client", "user", expiry_time_secs)
         if copy is True:
             self.copy_server_certs()
-        generate_zip(server_address=ip)
+        if wintak_zip:
+            generate_wintak_zip(server_address=ip)
+        else:
+            generate_standard_zip(server_address=ip)

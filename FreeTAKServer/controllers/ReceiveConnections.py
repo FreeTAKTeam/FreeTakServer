@@ -50,18 +50,15 @@ class ReceiveConnections:
             Union[etree.Element, str]: in case of real connection an etree Element should be returned containing client connection data
                                         in case of test connection TEST_SUCCESS const should be returned
         """        
-        print('receiving')
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         part = client.recv(1)
         if part == b"": raise Exception('empty data')
         client.settimeout(10)
         client.setblocking(True)
         xmlstring = self.recv_until(client, b"</event>").decode()
-        #print(xmlstring)
         if part.decode()+xmlstring == ReceiveConnectionsConstants().TESTDATA: return TEST_SUCCESS
         client.setblocking(True)
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
-        print(xmlstring)
         xmlstring = "<multiEvent>" + part.decode() + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
         xmlstring = re.sub(r'\<\?xml(?s)(.*)\?\>', '',
                            xmlstring)  # replace xml definition tag with empty string as it breaks serilization
@@ -75,6 +72,7 @@ class ReceiveConnections:
         try:
             # establish the socket variables
             if sslstatus == True:
+                socket.setdefaulttimeout(60)
                 sock.settimeout(60)
             # logger.debug('receive connection started')
             try:

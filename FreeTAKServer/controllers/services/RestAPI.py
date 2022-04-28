@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from flask_httpauth import HTTPTokenAuth
@@ -7,9 +7,16 @@ import threading
 from functools import wraps
 import uuid
 import datetime as dt
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 import datetime
 from defusedxml import ElementTree as etree
+import os
+import shutil
+import json
+from flask_cors import CORS
+import qrcode
+import io
+
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
 from FreeTAKServer.controllers.ApplyFullJsonController import ApplyFullJsonController
@@ -23,10 +30,6 @@ from FreeTAKServer.controllers.RestMessageControllers.SendChatController import 
 from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import \
     SendDeleteVideoStreamController
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-import os
-import shutil
-import json
-from flask_cors import CORS
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, \
     UpdateSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController, \
@@ -284,6 +287,7 @@ def systemUsers(empty=None):
         userjson["Password"] = user.password
         userjson["Certs"] = user.certificate_package_name
         userjson["Uid"] = user.uid
+        userjson["DeviceType"] = user.device_type
         jsondata["SystemUsers"].append(userjson)
 
     emit('systemUsersUpdate', json.dumps(jsondata))
@@ -324,13 +328,17 @@ def updateSystemUser(jsondata):
 @socket_auth(session=session)
 def addSystemUser(jsondata):
     from FreeTAKServer.controllers import certificate_generation
-    import uuid
     try:
         for systemuser in json.loads(jsondata)['systemUsers']:
             if systemuser["Certs"] == "true":
+                user_id = str(uuid.uuid4())
+                cert_name = systemuser["Name"] + user_id
                 # create certs
-                certificate_generation.AtakOfTheCerts().bake(common_name=systemuser["Name"])
-                certificate_generation.generate_zip(user_filename=systemuser["Name"] + '.p12')
+                certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
+                if systemuser["DeviceType"] == "wintak":
+                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
+                elif systemuser["DeviceType"] == "mobile":
+                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
                 # add DP
                 import string
                 import random
@@ -340,22 +348,22 @@ def addSystemUser(jsondata):
                 import shutil
                 import os
                 dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
-                openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))),
+                openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
                                 mode='rb')
                 file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
                 openfile.close()
                 newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
                 os.mkdir(newDirectory)
-                shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), systemuser["Name"] + '.zip'))),
-                            str(PurePath(Path(newDirectory), Path(systemuser["Name"] + '.zip'))))
-                fileSize = Path(str(newDirectory), systemuser["Name"] + '.zip').stat().st_size
-                dbController.create_datapackage(uid=str(uuid.uuid4()), Name=systemuser["Name"] + '.zip', Hash=file_hash,
+                shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
+                            str(PurePath(Path(newDirectory), Path(cert_name + '.zip'))))
+                fileSize = Path(str(newDirectory), cert_name + '.zip').stat().st_size
+                dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,
                                                 SubmissionUser='server',
                                                 CreatorUid='server-uid', Size=fileSize, Privacy=1)
                 dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
                                                token=systemuser["Token"], password=systemuser["Password"],
-                                               uid=str(uuid.uuid4()),
-                                               certificate_package_name=systemuser["Name"] + '.zip')
+                                               uid=user_id,
+                                               certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
                 import datetime as dt
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
@@ -372,7 +380,7 @@ def addSystemUser(jsondata):
                 from FreeTAKServer.model.RawCoT import RawCoT
                 cot = RawCoT()
                 DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
-                clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{str(uuid.uuid4())}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{systemuser["Name"]}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{systemuser["Name"] + ".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{systemuser["Name"] + ".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
+                clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{user_id}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{cert_name}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{cert_name + ".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{cert_name + ".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
                 cot.xmlString = clientXML.encode()
                 newCoT = SendOtherController(cot, addToDB=False)
                 APIPipe.put(newCoT.getObject())
@@ -380,11 +388,10 @@ def addSystemUser(jsondata):
             else:
                 dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
                                                token=systemuser["Token"], password=systemuser["Password"],
-                                               uid=str(uuid.uuid4()))
+                                               uid=user_id, device_type = systemuser["DeviceType"])
     except Exception as e:
         print(e)
         return str(e), 500
-
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
@@ -395,7 +402,7 @@ def removeSystemUser(jsondata):
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
         na = systemUser.name
-        revoke_certificate(username=na)
+        revoke_certificate(username=na+uid)
         certificate_package_name = systemUser.certificate_package_name
         dbController.remove_systemUser(f'uid = "{uid}"')
         obj = dbController.query_datapackage(f'Name = "{certificate_package_name}"')
@@ -403,9 +410,9 @@ def removeSystemUser(jsondata):
         currentPath = MainConfig.DataPackageFilePath
         shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
         dbController.remove_datapackage(f'Hash = "{obj[0].Hash}"')
-        os.remove(MainConfig.certsPath + f"/{na}.pem")
-        os.remove(MainConfig.certsPath + f"/{na}.key")
-        os.remove(MainConfig.certsPath + f"/{na}.p12")
+        os.remove(MainConfig.certsPath + f"/{na}{uid}.pem")
+        os.remove(MainConfig.certsPath + f"/{na}{uid}.key")
+        os.remove(MainConfig.certsPath + f"/{na}{uid}.p12")
 
 
 @socketio.on("events")
@@ -415,6 +422,21 @@ def events(empty=None):
     # socketio.emit(json.dumps([current_notifications.logErrors, current_notifications.emergencys]))
     emit("eventsUpdate", {"events": current_notifications.logErrors + current_notifications.emergencys})
 
+@app.route('/GenerateQR', methods=["GET"])
+def generate_qr():
+    datapackage_id = request.args.get('datapackage_id')
+    dp = dbController.query_datapackage(query=f"PrimaryKey={datapackage_id}")[0]
+    qr = qrcode.QRCode(
+        version=1,
+        box_size=10,
+        border=5)
+    qr.add_data(f'http://{MainConfig.DataPackageServiceDefaultIP}:{8080}/Marti/api/sync/metadata/{dp.Hash}/tool')
+    qr.make(fit=True)
+    img = qr.make_image(fill='black', back_color='white')
+    img_io = io.BytesIO()
+    img.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
 
 @app.route('/ManageNotification/getNotification', methods=["GET"])
 def notification():

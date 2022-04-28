@@ -5,8 +5,8 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from abc import ABC
 from FreeTAKServer.controllers.serializers import xml_serializer
 
-loggingConstants = LoggingConstants()
-logger = CreateLoggerController("SendCoTAbstract").getLogger()
+loggingConstants = LoggingConstants(log_name="FTS_SendCoTAbstract")
+logger = CreateLoggerController("FTS_SendCoTAbstract", logging_constants=loggingConstants).getLogger()
 
 
 class SendCoTAbstractController(ABC):
@@ -40,6 +40,7 @@ class SendCoTAbstractController(ABC):
             logger.warning(
                 'there has been an exception in the creation of a database instance of this object ' + str(e))
             raise Exception(e)
+        logger.info("serialized CoT "+str(RawCoT.xmlString)+" to type "+str(self))
         self.setObject(object)
 
     def create_model_object(self, tempObject, xmlString):

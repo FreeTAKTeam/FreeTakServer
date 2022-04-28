@@ -82,7 +82,7 @@ class DatabaseController:
         if engine.dialect.has_table(engine, 'SystemUser') == False:
             Base.metadata.create_all(engine)
             tempsession = sessionmaker(bind=engine)()
-            tempsession.add(FreeTAKServer.model.SQLAlchemy.system_user.SystemUser(uid="1", name="admin", password="password", token="token"))
+            tempsession.add(FreeTAKServer.model.SQLAlchemy.system_user.SystemUser(uid="1", name="admin", password="password", token="token", device_type="mobile"))
             tempsession.commit()
             tempsession.close()
             return engine

@@ -100,12 +100,11 @@ class ClientReceptionHandler:
     def returnReceivedData(self, clientInformation, data, queue):
         try:
             from FreeTAKServer.model.RawCoT import RawCoT
-            # print(data)
             RawCoT = RawCoT()
             RawCoT.clientInformation = clientInformation
             RawCoT.xmlString = data.replace(b'\n', b'')  # replace all newlines with empty
             self.dataPipe.append(RawCoT)
-            # logger.debug("data: "+ str(data)+" received from: "+clientInformation.user_id)
+            logger.debug("data received "+ str(data))
             return 1
         except Exception as e:
             logger.error(loggingConstants.CLIENTRECEPTIONHANDLERRETURNRECEIVEDDATAERROR + str(e))

@@ -2,6 +2,7 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from logging.handlers import RotatingFileHandler
 import logging
 import os
+import sys
 loggingConstants = LoggingConstants()
 class CreateLoggerController:
     def __init__(self, loggername, logging_constants = loggingConstants):
@@ -12,6 +13,7 @@ class CreateLoggerController:
         self.logger.addHandler(self.newHandler(logging_constants.DEBUGLOG, logging.DEBUG, log_format, logging_constants))
         self.logger.addHandler(self.newHandler(logging_constants.ERRORLOG, logging.ERROR, log_format, logging_constants))
         self.logger.addHandler(self.newHandler(logging_constants.INFOLOG, logging.INFO, log_format, logging_constants))
+        self.logger.addHandler(logging.StreamHandler(sys.stdout))
         """console = logging.StreamHandler(sys.stdout)
         console.setFormatter(log_format)
         console.setLevel(logging.DEBUG)
