@@ -42,5 +42,5 @@ jobs:
           sudo systemctl stop fts
           sudo rm -r /usr/local/lib/python3.8/dist-packages/FreeTAKServer
           sudo python3 -m pip uninstall FreeTAKServer -y
-          sudo python3 -m pip install --index-url http://${{ secrets.DEV_PYPI_USERNAME }}:${{ secrets.DEV_PYPI_PASSWORD }}@${{ secrets.DEV_PYPI_ADDRESS }}:8080 FreeTAKServer --trusted-host ${{ secrets.DEV_PYPI_ADDRESS }}:8080
+          sudo python3 -m pip install --index-url http://${{ secrets.DEV_PYPI_USERNAME }}:${{ secrets.DEV_PYPI_PASSWORD }}@${{ secrets.DEV_PYPI_ADDRESS }}:8080 FreeTAKServer --trusted-host ${{ secrets.DEV_PYPI_ADDRESS }}:8080 --pre
           sudo systemctl start fts
