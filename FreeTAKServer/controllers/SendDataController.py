@@ -46,7 +46,7 @@ class SendDataController:
                 shareDataPipe.put([copiedProcessedCoTObject])
                 return 1
             
-            elif hasattr(processedCoT, "modelObject") and ((hasattr(processedCoT.modelObject.detail, "marti") and len(processedCoT.modelObject.detail.marti.dest) > 1) or (hasattr(processedCoT.modelObject.detail, "_chat") and processedCoT.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms")): # this needs to check that val is greater than one because parsing automatically adds 1 dest value
+            elif self.has_valid_marti(processedCoT): # this needs to check that val is greater than one because parsing automatically adds 1 dest value
                 self.returnData = self.send_to_specific_client(clientInformationQueue, processedCoT, sender, shareDataPipe)
                 return self.returnData
             
@@ -64,14 +64,14 @@ class SendDataController:
             if not (hasattr(processedCoT.modelObject.detail, "marti") and len(processedCoT.modelObject.detail.marti.dest) > 1) or (hasattr(processedCoT.modelObject.detail, "_chat") and processedCoT.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms"):
                 # print('marti not present')
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
-            elif dests == [None] or [None, None]:
+            elif dests == [None] or dests == [None, None]:
                 return self.send_to_all(clientInformationQueue, processedCoT, sender, shareDataPipe)
             else:
                 # print('marti present')
                 for dest in dests:
                     try:
                         for client_id, client in clientInformationQueue.items():
-                            if client[1].m_presence.modelObject.detail.contact.callsign == dest.callsign:
+                            if client[1].m_presence.modelObject.detail.contact.callsign == dest:
                                 sock = client[0]
                                 try:
                                     sock.send(processedCoT.xmlString)
@@ -164,3 +164,14 @@ class SendDataController:
                 return 1
         except Exception as e:
             logger.error('there has been an exception in sending geochat ' + str(e))
+
+    def has_valid_marti(self, message):
+        if hasattr(message, "modelObject"):
+            if hasattr(message.modelObject.detail, "marti") and len(message.modelObject.detail.marti.dest) > 1:
+                return True
+            elif hasattr(message.modelObject.detail, "marti"):
+                if message.modelObject.detail.marti.dest[0].callsign != None and message.modelObject.detail.marti.dest[0].callsign != "":
+                    return True
+            elif hasattr(message.modelObject.detail, "_chat") and message.modelObject.detail._chat.chatgrp.uid1 != "All Chat Rooms":
+                return True
+            return False
