@@ -195,7 +195,6 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
     zipf = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(MainConfig.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
     zipf.write('fts.pref')
     zipf.write('manifest.xml')
-    zipf.write('manifest.xml', 'MANIFEST/')
     zipf.write(user_filename)
     zipf.write(server_filename)
     zipf.close()
