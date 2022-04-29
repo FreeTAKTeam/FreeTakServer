@@ -99,7 +99,7 @@ class SendDataController:
     def send_to_all(self, clientInformationQueue, processedCoT, sender, shareDataPipe):
         try:
             for client_id, client in clientInformationQueue.items():
-                if hasattr(sender, "user_id") and client_id == sender.user_id:
+                if processedCoT.type != "TakPong" and hasattr(sender, "user_id") and client_id == sender.user_id:
                     continue
                 sock = client[0]
                 try:
