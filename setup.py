@@ -21,6 +21,8 @@ setup(
     install_requires=[
         'click==8.0.4',
         'colorama==0.4.4',
+        'cryptography==36.0.2',
+        'bcrypt==3.1.7',
         'defusedxml==0.7.1',
         'dnspython==1.16.0',
         'eventlet==0.29.0',
