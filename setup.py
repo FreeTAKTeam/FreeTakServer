@@ -64,7 +64,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: Eclipse Public License v2.0',
+        'License :: osi approved :: ECLIPSE PUBLIC LICENSE 2.0 (EPL-2.0)',
         'Programming Language :: Python :: 3.8',
     ],
 )
