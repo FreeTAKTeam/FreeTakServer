@@ -34,6 +34,7 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 USINGSSL = False
+ALLOWED_EXTENSIONS = set(['zip'])
 
 sql = SQLcommands()
 const = DataPackageServerConstants()
@@ -622,11 +623,16 @@ def sanitize_path_input(user_input: str) -> bool:
     Args:
         user_input: any user input which is used to write a path
     """
-    if re.match("^[A-Za-z0-9_-]*$", user_input):
-        return True
-    else:
-        return False
+    return True
+    # temporarily removed as it broke some tak clients
+    #if re.match("^[A-Za-z0-9_-]*$", user_input):
+    #    return True
+    #else:
+    #    return False
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class FlaskFunctions:
 
