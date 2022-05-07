@@ -296,6 +296,8 @@ def systemUsers(empty=None):
 @socketio.on('updateSystemUser')
 @socket_auth(session=session)
 def updateSystemUserWebsocket(jsondata):
+    """ wrapper around the updateSystemUser function for websockets
+    """
     try:
         return updateSystemUser(jsondata)
     except Exception as e:
@@ -305,26 +307,23 @@ def updateSystemUserWebsocket(jsondata):
 @app.route('/ManageSystemUser/putSystemUser', methods=["PUT"])
 @auth.login_required
 def updateSystemUserRest():
+    """ wrapper around the updateSystemUser function for Rest API
+    """
     try:
-        return updateSystemUser(request.json)
+        updateSystemUser(request.json)
+        return 'user updated', 200
     except Exception as e:
         print(e)
         return str(e), 500
 
 def updateSystemUser(jsondata):
-    """ this socket event updates an existing system user entry in the database. User id must be provided if user with specified id doesnt
+    """ this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
     exist operation will return an error
-
-    example request:
-    {"systemUsers": [
-            {"uid": "existing user id", "password": "new user password", "token": "new user token", "group": "new user group"}
-        ]
-    }
-
+    
     Args:
         jsondata: dict
 
-    Returns:
+    Returns: None
 
     """
     for systemuser in json.loads(jsondata)['systemUsers']:
@@ -337,32 +336,40 @@ def updateSystemUser(jsondata):
         if "group" in systemuser:
             update_column["group"] = str(systemuser["group"])
         dbController.update_systemUser(query=f'uid = "{systemuser["uid"]}"', column_value=update_column)
-        return 200
 
 
 @socketio.on('addSystemUser')
 @socket_auth(session=session)
 def addSystemUserWebsocket(jsondata):
+    """ wrapper around the addSystemUser function for websockets
+    """
     try:
         addSystemUser(jsondata)
     except Exception as e:
         print(e)
         return str(e), 500
 
-@app.route('/SystemUser/postSystemUser', methods=["POST"])
+@app.route('/ManageSystemUser/postSystemUser', methods=["POST"])
 @auth.login_required
 def addSystemUserRest():
+    """ wrapper around the addSystemUser function for Rest API
+    """
     try:
         addSystemUser(request.json)
-        return 'user created', 200
+        return 'user created', 201
     except Exception as e:
         print(e)
         return str(e), 500
 
 def addSystemUser(jsondata):
+    """ method which adds new system user
+    """
     for systemuser in json.loads(jsondata)['systemUsers']:
+        user_id = str(uuid.uuid4())
         if systemuser["Certs"] == "true":
-            user_id = str(uuid.uuid4())
+            # if certs are to be generated the certificate generation is called DP is created and CoT is sent to
+            # client resulting in an automatic download of the certificate
+
             cert_name = systemuser["Name"] + user_id
             # create certs
             certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
@@ -417,6 +424,7 @@ def addSystemUser(jsondata):
             APIPipe.put(newCoT.getObject())
 
         else:
+            # in the event no certificate is to be generated simply create a system user
             dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
                                             token=systemuser["Token"], password=systemuser["Password"],
                                             uid=user_id, device_type = systemuser["DeviceType"])
@@ -424,22 +432,30 @@ def addSystemUser(jsondata):
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
 def removeSystemUserWebsocket(jsondata):
+    """ wrapper around the removeSystemUser function for websockets
+    """
     try:
         removeSystemUser(jsondata)
     except Exception as e:
         print(e)
         return str(e), 500
 
-@app.route('/SystemUser/deleteSystemUser', methods=["DELETE"])
+@app.route('/ManageSystemUser/deleteSystemUser', methods=["DELETE"])
 @auth.login_required
 def removeSystemUserRest():
+    """ wrapper around the removeSystemUser function for Rest API
+    """
     try:
         removeSystemUser(request.json)
+        return 'user deleted', 200
     except Exception as e:
         print(e)
         return str(e), 500
 
 def removeSystemUser(jsondata):
+    """ iterates through a list of system users and removes them in addition to revoking and
+    deleting their certificates.
+    """
     from FreeTAKServer.controllers.certificate_generation import revoke_certificate
     jsondata = json.loads(jsondata)
     for systemUser in jsondata["systemUsers"]:
@@ -457,7 +473,7 @@ def removeSystemUser(jsondata):
         os.remove(MainConfig.certsPath + f"/{na}{uid}.pem")
         os.remove(MainConfig.certsPath + f"/{na}{uid}.key")
         os.remove(MainConfig.certsPath + f"/{na}{uid}.p12")
-
+    return '', 200
 
 @socketio.on("events")
 @socket_auth(session=session)
