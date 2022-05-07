@@ -40,7 +40,7 @@ class Test_putSystemUser(TestCase):
     def test_basic_request(self):
         """ this method tests the use case of a simple request to update a user
         """
-        response = self.client.put('/ManageSystemUser/putSystemUser', headers={"Authorization": "Bearer token"}, json=json.dumps({"systemUsers":[{"uid": 1, "Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true"}]}), content_type='application/json')
+        response = self.client.put('/ManageSystemUser/putSystemUser', headers={"Authorization": "Bearer token"}, json={"systemUsers":[{"uid": 1, "Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true"}]}, content_type='application/json')
         #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
         assert response.status_code == 200
         FreeTAKServer.controllers.services.RestAPI.dbController.update_systemUser.assert_called_once()        

@@ -299,7 +299,7 @@ def updateSystemUserWebsocket(jsondata):
     """ wrapper around the updateSystemUser function for websockets
     """
     try:
-        return updateSystemUser(jsondata)
+        return updateSystemUser(json.loads(jsondata))
     except Exception as e:
         print(e)
         return str(e), 500
@@ -326,7 +326,7 @@ def updateSystemUser(jsondata):
     Returns: None
 
     """
-    for systemuser in json.loads(jsondata)['systemUsers']:
+    for systemuser in jsondata['systemUsers']:
         update_column = {}
 
         if "token" in systemuser:
@@ -344,7 +344,7 @@ def addSystemUserWebsocket(jsondata):
     """ wrapper around the addSystemUser function for websockets
     """
     try:
-        addSystemUser(jsondata)
+        addSystemUser(json.loads(jsondata))
     except Exception as e:
         print(e)
         return str(e), 500
@@ -364,7 +364,7 @@ def addSystemUserRest():
 def addSystemUser(jsondata):
     """ method which adds new system user
     """
-    for systemuser in json.loads(jsondata)['systemUsers']:
+    for systemuser in jsondata['systemUsers']:
         user_id = str(uuid.uuid4())
         if systemuser["Certs"] == "true":
             # if certs are to be generated the certificate generation is called DP is created and CoT is sent to
@@ -435,7 +435,7 @@ def removeSystemUserWebsocket(jsondata):
     """ wrapper around the removeSystemUser function for websockets
     """
     try:
-        removeSystemUser(jsondata)
+        removeSystemUser(json.loads(jsondata))
     except Exception as e:
         print(e)
         return str(e), 500
@@ -457,7 +457,6 @@ def removeSystemUser(jsondata):
     deleting their certificates.
     """
     from FreeTAKServer.controllers.certificate_generation import revoke_certificate
-    jsondata = json.loads(jsondata)
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]

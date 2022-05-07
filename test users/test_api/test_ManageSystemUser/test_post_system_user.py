@@ -54,17 +54,17 @@ class Test_postSystemUser(TestCase):
     def test_basic_request_with_cert(self):
         """ this method tests the use case of a simple request to create a user with a certificate
         """
-        response = self.client.post('/ManageSystemUser/postSystemUser', headers={"Authorization": "Bearer token"}, json=json.dumps({"systemUsers":[{"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile" }]}), content_type='application/json')
+        response = self.client.post('/ManageSystemUser/postSystemUser', headers={"Authorization": "Bearer token"}, json={"systemUsers":[{"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile" }]}, content_type='application/json')
+        assert response.status_code == 201
         #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
         FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called_once()
         FreeTAKServer.controllers.services.RestAPI.dbController.create_datapackage.assert_called_once()
-        assert response.status_code == 200
 
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
     def test_basic_request_without_cert(self):
         """ this method tests the use case of a simple request to create a user without a certificate
         """
-        response = self.client.post('/ManageSystemUser/postSystemUser', headers={"Authorization": "Bearer token"}, json=json.dumps({"systemUsers":[{"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"false", "DeviceType": "mobile" }]}), content_type='application/json')
+        response = self.client.post('/ManageSystemUser/postSystemUser', headers={"Authorization": "Bearer token"}, json={"systemUsers":[{"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"false", "DeviceType": "mobile" }]}, content_type='application/json')
+        assert response.status_code == 201
         #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
         FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called_once()
-        assert response.status_code == 200

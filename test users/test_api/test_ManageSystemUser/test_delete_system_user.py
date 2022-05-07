@@ -51,7 +51,7 @@ class Test_deleteSystemUser(TestCase):
     def test_basic_request(self):
         """ this method tests the use case of a simple request to delete a user
         """
-        response = self.client.delete('/ManageSystemUser/deleteSystemUser', headers={"Authorization": "Bearer token"}, json=json.dumps({"systemUsers":[{"uid": 1}]}), content_type='application/json')
+        response = self.client.delete('/ManageSystemUser/deleteSystemUser', headers={"Authorization": "Bearer token"}, json={"systemUsers":[{"uid": 1}]}, content_type='application/json')
         FreeTAKServer.controllers.services.RestAPI.dbController.remove_systemUser.assert_called_once()
         FreeTAKServer.controllers.services.RestAPI.dbController.remove_datapackage.assert_called_once()
         assert response.status_code == 200
