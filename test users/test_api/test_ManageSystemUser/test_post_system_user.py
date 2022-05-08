@@ -68,3 +68,54 @@ class Test_postSystemUser(TestCase):
         assert response.status_code == 201
         #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
         FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called_once()
+
+    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
+    def test_basic_request_with_many_users(self):
+        """ this method tests the use case of a simple request to create a user with a certificate
+        """
+        request_body = {"systemUsers":[
+            {"Name":"user1", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile"}, 
+            {"Name":"user2", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "wintak"},
+            {"Name":"user3", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "Mobile"},
+            {"Name":"user4", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "Wintak"},
+            {"Name":"user5", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile"},
+            {"Name":"user6", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile"},
+            {"Name":"user7", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "WinTAK"}]}
+        response = self.client.post('/ManageSystemUser/postSystemUser', headers={"Authorization": "Bearer token"}, json=request_body, content_type='application/json')
+        assert response.status_code == 201
+        #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
+        FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called()
+        FreeTAKServer.controllers.services.RestAPI.dbController.create_datapackage.assert_called()
+
+    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
+    def test_partially_invalid_request(self):
+        """ this method tests the use case of a user sending a request which contains some invalid users and
+        some valid users
+        """
+        request_body = {"systemUsers":[
+            {"Name":"user1", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile"}, 
+            {"Name":"user2", "Group":"Yellow", "Token":"token", "Certs":"true", "DeviceType": "wintak"},
+            {"Name":"user3", "Token":"token", "Password": "psw1", "Certs":"false", "DeviceType": "Mobile"},
+            {"Name":"user4", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "Wintak"},
+            {"Name":"user5", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile"},
+            {"Name":"user6", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "mobile"},
+            {"Name":"user7", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true", "DeviceType": "WinTAK"}]}
+        response = self.client.post('/ManageSystemUser/postSystemUser', headers={"Authorization": "Bearer token"}, json=request_body, content_type='application/json')
+        assert response.status_code == 201
+        #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
+        FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called()
+        FreeTAKServer.controllers.services.RestAPI.dbController.create_datapackage.assert_called()
+
+    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
+    def test_request_missing_parameter(self):
+        """ this method tests the use case of an invalid request to create a user
+        """
+        response = self.client.post('/ManageSystemUser/postSystemUser', headers={"Authorization": "Bearer token"}, json={"systemUsers":[{"Name":"dan", "Group":"Yellow", "Token":"token", "Password": "psw1", "Certs":"true"}]}, content_type='application/json')
+        assert response.status_code == 500
+        #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
+        FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_not_called()
+        FreeTAKServer.controllers.services.RestAPI.dbController.create_datapackage.assert_not_called()
+

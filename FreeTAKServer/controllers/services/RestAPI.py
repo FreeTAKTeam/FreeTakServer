@@ -355,8 +355,7 @@ def addSystemUserRest():
     """ wrapper around the addSystemUser function for Rest API
     """
     try:
-        addSystemUser(request.json)
-        return 'user created', 201
+        return addSystemUser(request.json)
     except Exception as e:
         print(e)
         return str(e), 500
@@ -364,70 +363,87 @@ def addSystemUserRest():
 def addSystemUser(jsondata):
     """ method which adds new system user
     """
+    errors = []
     for systemuser in jsondata['systemUsers']:
-        user_id = str(uuid.uuid4())
-        if systemuser["Certs"] == "true":
-            # if certs are to be generated the certificate generation is called DP is created and CoT is sent to
-            # client resulting in an automatic download of the certificate
+        try:
+            user_id = str(uuid.uuid4())
+            if systemuser["Certs"] == "true":
 
-            cert_name = systemuser["Name"] + user_id
-            # create certs
-            certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
-            if systemuser["DeviceType"] == "wintak":
-                certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
-            elif systemuser["DeviceType"] == "mobile":
-                certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
-            # add DP
-            import string
-            import random
-            from pathlib import PurePath, Path
-            import hashlib
-            from defusedxml import ElementTree as etree
-            import shutil
-            import os
-            dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
-            openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
-                            mode='rb')
-            file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-            openfile.close()
-            newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
-            os.mkdir(newDirectory)
-            shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
-                        str(PurePath(Path(newDirectory), Path(cert_name + '.zip'))))
-            fileSize = Path(str(newDirectory), cert_name + '.zip').stat().st_size
-            dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,
-                                            SubmissionUser='server',
-                                            CreatorUid='server-uid', Size=fileSize, Privacy=1)
-            dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                            token=systemuser["Token"], password=systemuser["Password"],
-                                            uid=user_id,
-                                            certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
-            import datetime as dt
-            DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-            timer = dt.datetime
-            now = timer.utcnow()
-            zulu = now.strftime(DATETIME_FMT)
-            add = dt.timedelta(seconds=600)
-            stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-            stale = stale_part.strftime(DATETIME_FMT)
-            timer = dt.datetime
-            now = timer.utcnow()
-            zulu = now.strftime(DATETIME_FMT)
-            time = zulu
-            from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
-            from FreeTAKServer.model.RawCoT import RawCoT
-            cot = RawCoT()
-            DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
-            clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{user_id}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{cert_name}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{cert_name + ".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{cert_name + ".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
-            cot.xmlString = clientXML.encode()
-            newCoT = SendOtherController(cot, addToDB=False)
-            APIPipe.put(newCoT.getObject())
+                # if certs are to be generated the certificate generation is called DP is created and CoT is sent to
+                # client resulting in an automatic download of the certificate
 
-        else:
-            # in the event no certificate is to be generated simply create a system user
-            dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                            token=systemuser["Token"], password=systemuser["Password"],
-                                            uid=user_id, device_type = systemuser["DeviceType"])
+                cert_name = systemuser["Name"] + user_id
+                # create certs
+                certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
+                if systemuser["DeviceType"].lower() == "wintak":
+                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
+                elif systemuser["DeviceType"].lower() == "mobile":
+                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
+                else:
+                    raise Exception("invalid device type, must be either mobile or wintak")
+                # add DP
+                import string
+                import random
+                from pathlib import PurePath, Path
+                import hashlib
+                from defusedxml import ElementTree as etree
+                import shutil
+                import os
+                dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
+                openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
+                                mode='rb')
+                file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
+                openfile.close()
+                newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
+                os.mkdir(newDirectory)
+                shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
+                            str(PurePath(Path(newDirectory), Path(cert_name + '.zip'))))
+                fileSize = Path(str(newDirectory), cert_name + '.zip').stat().st_size
+                dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,
+                                                SubmissionUser='server',
+                                                CreatorUid='server-uid', Size=fileSize, Privacy=1)
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                token=systemuser["Token"], password=systemuser["Password"],
+                                                uid=user_id,
+                                                certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
+                import datetime as dt
+                DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                timer = dt.datetime
+                now = timer.utcnow()
+                zulu = now.strftime(DATETIME_FMT)
+                add = dt.timedelta(seconds=600)
+                stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+                stale = stale_part.strftime(DATETIME_FMT)
+                timer = dt.datetime
+                now = timer.utcnow()
+                zulu = now.strftime(DATETIME_FMT)
+                time = zulu
+                from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+                from FreeTAKServer.model.RawCoT import RawCoT
+                cot = RawCoT()
+                DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
+                clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{user_id}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{cert_name}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{cert_name + ".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{cert_name + ".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
+                cot.xmlString = clientXML.encode()
+                newCoT = SendOtherController(cot, addToDB=False)
+                APIPipe.put(newCoT.getObject())
+        
+            else:
+                # in the event no certificate is to be generated simply create a system user
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                token=systemuser["Token"], password=systemuser["Password"],
+                                                uid=user_id, device_type = systemuser["DeviceType"])
+        except Exception as e:
+            if isinstance(systemuser, dict) and "Name" in systemuser:
+                errors.append(f"operation failed for user {systemuser['Name']} with error {str(e)}")
+            else:
+                errors.append(f"operation failed for user missing name parameter with error {str(e)}")
+        
+    if len(errors) == 0:
+        return "all users created", 201 
+    elif len(errors)<len(jsondata['systemUsers']):
+        return ", ".join(errors), 201
+    else:
+        return "all users failed to create "+", ".join(errors), 500
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
