@@ -67,7 +67,7 @@ See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for vari
   - `Flask-SQLAlchemy`
 
 ## Installing and using FreeTakServer
-For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/PyPi/Linux/Install/).
+For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Linux/1_Install/).
 
 ##  Project Structure
 - [FreeTakServer](./FreeTAKServer/)
