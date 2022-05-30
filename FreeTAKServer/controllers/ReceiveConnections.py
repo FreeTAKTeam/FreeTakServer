@@ -79,7 +79,7 @@ class ReceiveConnections:
             try:
                 client, address = sock.accept()
                 if sslstatus == True:
-                    client = asyncio.run(asyncio.wait_for(SSLSocketController().wrap_client_socket(client), timeout=5.0))
+                    client = asyncio.run(asyncio.wait_for(SSLSocketController().wrap_client_socket(client), timeout=ReceiveConnectionsConstants().WRAP_SSL_TIMEOUT))
             except ssl.SSLError as e:
                 print(e)
                 client.close()
