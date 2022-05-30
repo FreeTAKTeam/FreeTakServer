@@ -7,6 +7,7 @@
 # Original author: Natha Paquette
 # 
 #######################################################
+import asyncio
 import socket
 import logging
 import logging.handlers
@@ -78,12 +79,18 @@ class ReceiveConnections:
             try:
                 client, address = sock.accept()
                 if sslstatus == True:
-                    client = SSLSocketController().wrap_client_socket(client)
+                    loop = asyncio.get_event_loop()
+                    client = loop.run_until_complete(asyncio.wait_for(SSLSocketController().wrap_client_socket(client), timeout=5.0))
             except ssl.SSLError as e:
                 print(e)
                 client.close()
                 logger.warning('ssl error thrown in connection attempt ' + str(e))
                 return -1
+
+            except asyncio.TimeoutError as e:
+                logger.warning('timeout error thrown in connection attempt '+str(e))
+                return -1
+
             if sslstatus == True:
                 logger.info('client connected over ssl ' + str(address) + ' ' + str(time.time()))
             # wait to receive client

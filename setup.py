@@ -57,7 +57,8 @@ setup(
         'WTForms==2.3.3',
         'pyOpenSSL==22.0.0',
         'qrcode==7.3.1',
-        'pillow==9.1.0'
+        'pillow==9.1.0',
+        'asyncio'
     ],
     extras_require = {'ui': ['FreeTAKServer_UI']},
     classifiers=[
