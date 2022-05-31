@@ -444,8 +444,10 @@ class Orchestrator:
         import traceback
         print('disconnecting client')
         try:
-            if hasattr(client_information, "clientInformation"):
-                client_information = client_information.clientInformation
+            if isinstance(client_information, str):
+                client_information = self.clientInformationQueue[client_information][1]
+            elif isinstance(client_information, RawCoT):
+                client_information = self.clientInformationQueue[client_information.clientInformation][1]
             sock = self.clientInformationQueue[client_information.user_id][0]
         except Exception as e:
             self.logger.critical("getting sock from client information queue failed " + str(e))
@@ -469,7 +471,6 @@ class Orchestrator:
             self.remove_service_user(client_information=client_information)
             # working
             # time.sleep(1)
-            print('stage 1 c')
             self.disconnect_socket(sock)
 
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
@@ -530,7 +531,8 @@ class Orchestrator:
                 cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data)
                 handler = getattr(self, cot[0])
                 output = handler(cot[1])
-                output.clientInformation = self.clientInformationQueue[data.clientInformation][1]
+                if output != 1: # when the process is a disconnect the output is 1
+                    output.clientInformation = self.clientInformationQueue[data.clientInformation][1]
                 return output
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
@@ -617,7 +619,7 @@ class Orchestrator:
                             except Exception as e:
                                 print(str(e))
                         elif ssl == True and (datetime.datetime.now() - lastprint) > datetime.timedelta(seconds=30):
-                            print('time since last reset ' + str(datetime.datetime.now() - receiveconntimeoutcount))
+                            self.logger.debug('time since last reset ' + str(datetime.datetime.now() - receiveconntimeoutcount))
                             lastprint = datetime.datetime.now()
                         else:
                             pass
@@ -729,7 +731,6 @@ class Orchestrator:
                     if clientDataOutputSingle == -1:
                         continue
                     CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
-                    self.logger.info("cot serialized " + str(CoTOutput.modelObject.uid) )
                     if CoTOutput == 1:
                         continue
                     elif self.checkOutput(CoTOutput):

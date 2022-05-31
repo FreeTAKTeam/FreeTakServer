@@ -116,7 +116,7 @@ class LoggingConstants:
 
         #ReceiveConnections
         #listen
-        self.RECEIVECONNECTIONSLISTENINFO = 'client connected'
+        self.RECEIVECONNECTIONSLISTENINFO = 'client data accepted'
         self.RECEIVECONNECTIONSLISTENERROR = 'error in Receive connections listen function '
 
         #send client data
