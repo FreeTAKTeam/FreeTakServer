@@ -11,7 +11,8 @@ class MainConfig:
     """
 
     # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.9.9.5 Public'
+    version_spec = '1.9.9.5.5'
+    version = f'FreeTAKServer-{version_spec} Public'
     #
     yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
 
@@ -306,4 +307,4 @@ class MainConfig:
     # location to backup client packages
     clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
 
-    first_start = False
+    first_start = True
