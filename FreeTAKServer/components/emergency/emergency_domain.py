@@ -3,6 +3,7 @@ from . import domain
 from digitalpy.model.load_configuration import LoadConfiguration
 from digitalpy.model.node import Node
 
+
 class _EmergencyDomain:
     
     def __init__(self):
