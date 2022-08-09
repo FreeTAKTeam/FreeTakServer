@@ -32,7 +32,17 @@ class XMLCoTController:
 
     def determineCoTGeneral(self, data):
         # this will establish the CoTs general type
-        if data.type == 'RawConnectionInformation':
+        
+        event = etree.fromstring(data.xmlString)
+        
+        if re.match("b-a-o.*", event.attrib['type']):
+            try:
+                return ("emergency_received", data)
+            except Exception as e:
+                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
+
+        
+        elif data.type == 'RawConnectionInformation':
             #this handels the event of a connection CoT
             try:
                 return ("clientConnected", data)

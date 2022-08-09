@@ -1,0 +1,92 @@
+{
+  "EmergencyOn": {
+    "event": {
+      "relationships": [
+        {
+          "source_properties": {
+            "element_name": "event",
+            "min_occurs": 1,
+            "max_occurs": 1,
+            "relation_type": "aggregation",
+            "aggregation": "composite",
+            "navigable": true
+          },
+          "target_properties": {
+            "element_name": "detail",
+            "min_occurs": 1,
+            "max_occurs": 1,
+            "relation_type": "aggregation",
+            "aggregation": "composite",
+            "navigable": true
+          }
+        }
+      ],
+      "children": {
+        "detail": {
+          "children": {
+            "link": {
+              "relationships": [
+                {
+                  "source_properties": {
+                    "element_name": "detail",
+                    "min_occurs": 1,
+                    "max_occurs": 1,
+                    "relation_type": "aggregation",
+                    "aggregation": "composite",
+                    "navigable": true
+                  },
+                  "target_properties": {
+                    "element_name": "link",
+                    "min_occurs": 1,
+                    "max_occurs": 1,
+                    "relation_type": "aggregation",
+                    "aggregation": "composite",
+                    "navigable": true
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "relationships": [
+          {
+            "source_properties": {
+              "element_name": "detail",
+              "min_occurs": 1,
+              "max_occurs": 1,
+              "relation_type": "aggregation",
+              "aggregation": "composite",
+              "navigable": true
+            },
+            "target_properties": {
+              "element_name": "link",
+              "min_occurs": 1,
+              "max_occurs": 1,
+              "relation_type": "aggregation",
+              "aggregation": "composite",
+              "navigable": true
+            }
+          },
+          {
+            "source_properties": {
+              "element_name": "event",
+              "min_occurs": 1,
+              "max_occurs": 1,
+              "relation_type": "aggregation",
+              "aggregation": "composite",
+              "navigable": true
+            },
+            "target_properties": {
+              "element_name": "detail",
+              "min_occurs": 1,
+              "max_occurs": 1,
+              "relation_type": "aggregation",
+              "aggregation": "composite",
+              "navigable": true
+            }
+          }
+        ]
+      }
+    }
+  }
+}

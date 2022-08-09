@@ -132,3 +132,4 @@ class LoggingConstants:
         #determine CoT general
         self.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA = "exception XMLCoTController in determining general CoT type A "
         self.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB = "exception XMLCoTController in determining general CoT type B "
+        self.XMLCOTCONTROLLERDETERMINECOTGENERALERRORC = "exception XMLCoTController in determining general CoT type C "

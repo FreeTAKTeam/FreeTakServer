@@ -39,6 +39,7 @@ from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.model.TCPConnection import TCPConnection
 from FreeTAKServer.model.User import User
 from FreeTAKServer.model.ClientInformation import ClientInformation
+from digitalpy.core.object_factory import ObjectFactory
 
 ascii = AsciiController().ascii
 from logging.handlers import RotatingFileHandler
@@ -295,6 +296,7 @@ class Orchestrator:
             # self.check_for_dead_sockets()
             from FreeTAKServer.controllers.DatabaseControllers.EventTableController import EventTableController
             clientPipe = None
+            
             self.logger.info(loggingConstants.CLIENTCONNECTED)
             clientInformation = self.ClientInformationController.intstantiateClientInformationModelFromConnection(
                 raw_connection_information, clientPipe)
@@ -334,13 +336,27 @@ class Orchestrator:
             print("client added")
             self.send_user_connection_geo_chat(clientInformation)
             self.logger.debug("client conn C")
+            
+            request = ObjectFactory.get_new_instance('request')
+            request.set_action("BroadcastEmergency")
+            request.set_value("clients", {clientInformation.modelObject.uid: [clientInformation.socket, clientInformation]})
+            request.set_value("model_object_parser", "ParseModelObjectToXML")
+            request.set_value("sender", "")
+            actionmapper = ObjectFactory.get_instance('actionMapper')
+            response = ObjectFactory.get_new_instance('response')
+            actionmapper.process_action(request, response)
+            
             return clientInformation
         except Exception as e:
             self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR + str(e))
             return -1
 
+    def emergency_received(self, emergency, sender, clients):
+        pass
+    
     def emergencyReceived(self, processedCoT):
         try:
+            self.emergency_received(processedCoT)
             if processedCoT.status == loggingConstants.ON:
                 self.internalCoTArray.append(processedCoT)
                 self.logger.debug(loggingConstants.EMERGENCYCREATED)
@@ -374,7 +390,7 @@ class Orchestrator:
                 self.update_client_information(client_information=processedCoT)
             sender = processedCoT.clientInformation
             # this will send the processed object to a function which will send it to connected clients
-            '''try:
+            try:
                 # TODO: method of determining if CoT should be added to the internal array should
                 #  be improved
                 if processedCoT.type == "Emergency":
@@ -382,7 +398,7 @@ class Orchestrator:
                 else:
                     pass
             except Exception as e:
-                return -1'''
+                return -1
             return processedCoT
         except Exception as e:
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))

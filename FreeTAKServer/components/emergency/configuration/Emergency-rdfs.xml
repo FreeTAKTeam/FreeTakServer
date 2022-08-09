@@ -1,0 +1,366 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:base="org.fts">
+	<rdf:Description rdf:about="#Event">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#Event</rdfs:label>
+		<rdfs:comment>represents a TAK event: this class is instantiated with a standard set of values.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.access">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>access</rdfs:label>
+		<rdfs:comment>Specifies access controls that should be applied to the event</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.detail">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>detail</rdfs:label>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="#detail"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.how">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>how</rdfs:label>
+		<rdfs:comment>Gives a hint about how the coordinates were generated.  It is used specifically to relay a hint about the types of errors that may be expected in the data and to weight the data in systems that fuse  multiple inputs.</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.opex">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>opex</rdfs:label>
+		<rdfs:comment>OPTIONAL: Specifies whether the event is part of a live operation, an exercise, or a simulation.</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.point">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>point</rdfs:label>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="#point"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.qos">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>qos</rdfs:label>
+		<rdfs:comment>OPTIONAL: Specifies a quality of service desired from applications processing or routing the event</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.stale">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>stale</rdfs:label>
+		<rdfs:comment>ending time when an event should no longer be considered valid l (with respect to Zulu time in extended ISO 8601 format)
+
+In protobuff is in milliseconds</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#long"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.start">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>start</rdfs:label>
+		<rdfs:comment>starting time of the event's validity interval (with respect to Zulu time in extended ISO 8601 format) 
+. As different from the moment in which the element was generated
+
+in protobuff this is expressed in milliseconds</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#long"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.time">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>time</rdfs:label>
+		<rdfs:comment>time stamp with respect to Zulu time indicating when an event was generated in extended ISO 8601 format 
+
+in ProtoBuff expressed is in milliseconds</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#long"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.type">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>type</rdfs:label>
+		<rdfs:comment>Defines what the event is about. An event may describe a physical object, a set of raw, unprocessed bits, or a tasking. 
+# Hierarchically organized hint about event type (&lt;b&gt;default &lt;/b&gt;is is 'a-f-G-I' for infrastructure)
+The "type" attribute is a composite of components delimited by the semi-colon character. The first component of this composite attribute is defined below.
+   Future versions of this schema will define other components which we expect    will aid in machine filtering. Despite the exclusion of definitions
+   for additional components in this version of the schema, users of    this schema should expect and design an optional trailing field    delimited by the semi-colon character. This field can be ignored.
+&lt;ul&gt;
+	&lt;li&gt;   &lt;font color="#a52a2a"&gt;&lt;i&gt;component1&lt;/i&gt;&lt;/font&gt;;&lt;font color="#32cd32"&gt;optional field&lt;/font&gt;&lt;/li&gt;
+&lt;/ul&gt;
+  
+   The first component (&lt;font color="#a52a2a"&gt;component1&lt;/font&gt;) is a hierarchically organized hint about type.
+   The intention is that this hierarchy be flexible and extensible and facilitate simple filtering, translation and display.  To  facilitate  filtering, the hierarchy needs to present key    fields in an easily parsed and logical order.  To facilitate    this, this component is a composite of fields separated by the "-" punctuation   character, so a valid type would be: x-x-X-X-x.  Using a punctuation for field separation allows arbitrary expansion of the  type space, 
+e.g., a-fzp-mlk-gm-...
+
+   Field meanings are type specific.  That is, the third field of an  "&lt;u&gt;atom&lt;/u&gt;" type may represent air vs. ground while the same field for a    "&lt;u&gt;reservation&lt;/u&gt;" type may represent purpose. 
+   The "Atoms" portion of the type tree requires some additional explanation past the taxonomy defined below. The "Atoms" portion of    the type tree contains CoT defined fields and part of the &lt;b&gt;MIL-STD-2525&lt;/b&gt;    type definition. &lt;u&gt;To distinguish MIL-STD-2525 type strings from CoT defined    fields, the MIL-STD-2525 types must be represented in all upper    case&lt;/u&gt;. Differentiation of type namespace with upper/lower case   facilitates extension of CoT types and MIL-STD-2525 types without    name space conflict. An example:
+   a-f-A-B-C-x 
+   The organization of CoT and MIL-STD-2525 types can be determined   from the taxonomy below, but additional details are provided here.
+
+   The "Atoms" portion of the "type" tree contains the "Battle    Dimension" and  "Function ID" fields taken from MIL-STD-2525.
+   "Battle Dimension" is a single character taken from   MIL-STD-2525. 
+
+   The typical 2525 representation for "Function ID" is three groups of    two characters separated by a space (e.g. "12 34 56"). The CoT  schema maps this to a "-" delimited list of characters. (e.g. "1-2-3-4-5-6").
+   The concatenation of the "Battle Dimension" and "Function ID" fields    from the MIL-STD-2525 specification represented in the CoT schema
+   will be as follows:
+   battle dimension-func id char1-func id char2- ... -func id char6
+
+   When an appropriate MIL-STD-2525 type exists, it should be used. If  there is a MIL-STD-2525 representation which is close, but may be   refined, a CoT extension to the 2525 type can be appended.
+   for example: 
+a-h-X-X-X-X-X-&lt;b&gt;i&lt;/b&gt; might represent hostile MIL-STD-2525 type X-X-X-X-X  of   &lt;b&gt;Israeli &lt;/b&gt;(the 'i'&lt;b&gt;) &lt;/b&gt;manufacture. Again, the&lt;u&gt; CoT extension uses lower case&lt;/u&gt;. 
+   Conceptually, this extension defines further branching from the   nearest MIL-STD-2525 tree point.
+
+   If no appropriate 2525 representation exists, a type definition can be added to the CoT tree defined here. The resulting definition    would be represented in all lower case. For example
+   a-h-G-p-i
+   might define atoms-hostile-Ground-photon cannon-infrared.
+   The taxonomy currently looks like this: Note that the coding of the  sub fields are determined entirely by the preceding fields!) The
+   current type tree is defined here. 
+
+       &lt;b&gt;+--- First position, this event describes&lt;/b&gt;
+&lt;ul&gt;
+	&lt;li&gt;       a - Atoms - this event describes an actual "thing"&lt;/li&gt;
+&lt;/ul&gt;
+
+      &lt;b&gt;     +--- 2nd CoT affiliation of these atoms&lt;/b&gt;
+&lt;ul&gt;
+	&lt;li&gt;&lt;b&gt;     &lt;/b&gt;           p - Pending&lt;/li&gt;
+	&lt;li&gt;           u - Unknown&lt;/li&gt;
+	&lt;li&gt;           a - Assumed friend&lt;/li&gt;
+	&lt;li&gt;           f - Friend&lt;/li&gt;
+	&lt;li&gt;           n - Neutral&lt;/li&gt;
+	&lt;li&gt;           s - Suspect&lt;/li&gt;
+	&lt;li&gt;           h - Hostile&lt;/li&gt;
+	&lt;li&gt;           j - Joker&lt;/li&gt;
+	&lt;li&gt;           k - Faker&lt;/li&gt;
+	&lt;li&gt;           o - None specified&lt;/li&gt;
+	&lt;li&gt;           x - Other&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;b&gt;               +--- Battle dimension&lt;/b&gt;
+&lt;b&gt;               |    Taken from MIL-STD-2525 "Battle Dimension" (upper case)&lt;/b&gt;
+&lt;b&gt;      &lt;/b&gt;
+           &lt;i&gt;    See MIL-STD-2525B specification for single character battle dimension&lt;/i&gt;
+
+          &lt;b&gt;         +--- Function (dimension specific!)&lt;/b&gt;
+&lt;b&gt;              &lt;/b&gt;&lt;i&gt;See MIL-STD-2525B specification for  function fields (must be upper case)    &lt;/i&gt;
+                   ...
+
+&lt;b&gt;       +--- The event describes ...&lt;/b&gt;
+&lt;b&gt;    &lt;/b&gt;       b - Bits - Events in the "Bit" group carry meta information about raw data sources.  For example, range-doppler
+                  radar returns or SAR imagery represent classes of information that are "bits".  However, tracks derived from such sources represent objects on the battlespace and this have event type "A-..."
+
+                  The intention with the "Bit" type is to facilitate the identification of germane information products.
+                  This hierarchy is not intended to replace more detailed domain-specific meta information (such as that contained in NITF image headers or the GMTI data formats), rather it is intended to provide a domain-neutral mechanism for rapid filtering of information products.
+
+&lt;b&gt;           +--- Dimension     &lt;/b&gt;
+&lt;ul&gt;
+	&lt;li&gt;           i - Imagery&lt;/li&gt;
+	&lt;li&gt;               e - Electro-optical&lt;/li&gt;
+	&lt;li&gt;               i - Infra red&lt;/li&gt;
+	&lt;li&gt;               s - SAR&lt;/li&gt;
+	&lt;li&gt;               v - video&lt;/li&gt;
+	&lt;li&gt;               ...&lt;/li&gt;
+	&lt;li&gt;           r - Radar&lt;/li&gt;
+	&lt;li&gt;               m - MTI data&lt;/li&gt;
+	&lt;li&gt;               ...&lt;/li&gt;
+	&lt;li&gt;           d - Sensor detection events&lt;/li&gt;
+	&lt;li&gt;               s - Seismic&lt;/li&gt;
+	&lt;li&gt;               d - Doppler&lt;/li&gt;
+	&lt;li&gt;               a - Acoustic&lt;/li&gt;
+	&lt;li&gt;               m - Motion (e.g., IR)&lt;/li&gt;
+	&lt;li&gt;           m - Mapping&lt;/li&gt;
+	&lt;li&gt;               p - Designated point (rally point, etc.)&lt;/li&gt;
+	&lt;li&gt;                   i - initial points&lt;/li&gt;
+	&lt;li&gt;                   r - rally points&lt;/li&gt;
+	&lt;li&gt;                   ...&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;b&gt;       r - Reservation/Restriction/References &lt;/b&gt;
+                  Events in this category are generally "notices" about specific areas.  These events are used for deconfliction and conveyance of significant "area" conditions.  Generally, the "point" entity will describe a conical region that completely encloses the affected area.  The details entity will provide more specific bounds on precisely the region affected.
+&lt;ul&gt;
+	&lt;li&gt;           u - Unsafe (hostile capability)&lt;/li&gt;
+	&lt;li&gt;           o - Occupied (e.g., SOF forces on ground)&lt;/li&gt;
+	&lt;li&gt;           c - Contaminated (NBC event)&lt;/li&gt;
+	&lt;li&gt;               c - chemical&lt;/li&gt;
+	&lt;li&gt;                   x - agents, direction,&lt;/li&gt;
+	&lt;li&gt;                   y&lt;/li&gt;
+	&lt;li&gt;                   z&lt;/li&gt;
+	&lt;li&gt;           f - Flight restrictions&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;b&gt;       t - Tasking (requests/orders)&lt;/b&gt;
+Events in this category are generalized requests for service.  These may be used to request for data collection, request mesuration of a specific object, order an asset to take action against a specific point.  Generally, the "details" entity will identify the general or specific entity being tasked.
+&lt;ul&gt;
+	&lt;li&gt;           s - Surveillance&lt;/li&gt;
+	&lt;li&gt;           r - Relocate&lt;/li&gt;
+	&lt;li&gt;           e - Engage&lt;/li&gt;
+	&lt;li&gt;           m - Mensurate&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ul&gt;
+	&lt;li&gt; &lt;b&gt;      c - Capability (applied to an area)&lt;/b&gt;&lt;/li&gt;
+	&lt;li&gt;           s - Surveillance&lt;/li&gt;
+	&lt;li&gt;           r - Rescue&lt;/li&gt;
+	&lt;li&gt;           f - Fires&lt;/li&gt;
+	&lt;li&gt;           d - Direct fires&lt;/li&gt;
+	&lt;li&gt;            i - Indirect fires&lt;/li&gt;
+	&lt;li&gt;           l - Logistics (supply)&lt;/li&gt;
+	&lt;li&gt;            f - Fuel&lt;/li&gt;
+&lt;/ul&gt;
+               ...
+           c - Communications</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.uid">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>uid</rdfs:label>
+		<rdfs:comment>Globally unique name for this information on this event.
+can have additional information attached.
+[EventTYPE].[MACHINESENDERID].Nichname.UniqueID
+
+e.g. -&lt;i&gt;ping &lt;/i&gt;means that this event is a ping, 
+&lt;i&gt;
+&lt;/i&gt;&lt;i&gt;GeoChat &lt;/i&gt;indicates a chat type structure.
+The &lt;b&gt;UID&lt;/b&gt; should be in the following format: GeoChat.&amp;lt;sender uid&amp;gt;.&amp;lt;recipient callsign or name of the group&amp;gt;.&amp;lt;random string for uniqueness&amp;gt;.  Diverging from this format should not cause significant issues; however, the UID is used as a fallback if other information cannot be parsed from the message, so issues may still be experienced.  If uid does not contain any “.” characters, the chat room will default to “All Chat Rooms”.
+
+GeoChat.ANDROID-7C:91:22:E8:6E:4D.DIPPER.44bf77cd-289e-4ea4-8756-ce295de168ca</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#Event.version">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>version</rdfs:label>
+		<rdfs:comment>Schema version of this event instance (e.g. 2.0)</rdfs:comment>
+		<rdfs:domain rdf:resource="#Event"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#contact">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#contact</rdfs:label>
+		<rdfs:comment>This is a Cursor On Target Class representing communications parameters for contacting a friendly element for human-to-human communications. The objective of this Class is to carry the essential information needed to contact this entity by a variety of means.   Multiple ways of establishing contact can be specified;
+noThe attributes  callsign, phone, and email should be self-explanatory.  particular mode of contact is required. Other attributes, freq, dsn, modulation, and hostname, are also available.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#detail">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#detail</rdfs:label>
+		<rdfs:comment>An optional element used to hold CoT sub-schema. Detail has no special properties</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#detail.contact">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>contact</rdfs:label>
+		<rdfs:domain rdf:resource="#detail"/>
+		<rdfs:range rdf:resource="#contact"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#detail.emergency">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>emergency</rdfs:label>
+		<rdfs:domain rdf:resource="#detail"/>
+		<rdfs:range rdf:resource="#emergency"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#detail.link">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>link</rdfs:label>
+		<rdfs:domain rdf:resource="#detail"/>
+		<rdfs:range rdf:resource="#link"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#emergency">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#emergency</rdfs:label>
+		<rdfs:comment>An emergency beacon the is continually send to all the connected clients until deactivated from the original creator</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#emergency.Alert">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>Alert</rdfs:label>
+		<rdfs:domain rdf:resource="#emergency"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#emergency.cancel">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>cancel</rdfs:label>
+		<rdfs:comment>if true the emergency beacon is canceled</rdfs:comment>
+		<rdfs:domain rdf:resource="#emergency"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#emergency.type">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>type</rdfs:label>
+		<rdfs:comment>default constructor  def __init__(self):</rdfs:comment>
+		<rdfs:domain rdf:resource="#emergency"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#link">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#link</rdfs:label>
+		<rdfs:comment>This is a Cursor On Target Class for linking to either another CoT event or an arbitrary Internet resource. The objective of this class is to provide an abstract way to express a relationship between a CoT object and other object.  This allows, for example, a sensor point of interest to be linked back to its source, or a PPLI from a wingman to be associated with his flight lead.  Linkages are always unidirectional.  
+One entity may have multiple links (i.e., it may be related to multiples other entities).  For processing simplicity, it is required that the relationship graphs will directed and acyclic (no cycles).  The link, itself, names the relationship (using a hierarchy similar to the CoT type), the UID of the related object (whether CoT or not), possibly provides a URL for retrieving that object.
+links are used for example in routes.</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#link.production_time">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>production_time</rdfs:label>
+		<rdfs:comment>the time in which this link has been produced (e.g. "2020-11-26T14:19:02Z")</rdfs:comment>
+		<rdfs:domain rdf:resource="#link"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#link.relation">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>relation</rdfs:label>
+		<rdfs:comment>The type of relationship (e.g, subject, object, indirect object) that this link describes.  This is a hierarchy much like the event type field.
+Common values: "c"</rdfs:comment>
+		<rdfs:domain rdf:resource="#link"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#link.type">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>type</rdfs:label>
+		<rdfs:comment>The CoT type of the referenced MIL 2525 object.  This is included because it is generally the key item needed in a tasking. Common types are:
+&lt;ul&gt;
+	&lt;li&gt;&lt;b&gt;Control Point:&lt;/b&gt; "b-m-p-c" &lt;/li&gt;
+	&lt;li&gt;  &lt;b&gt;Waypoint&lt;/b&gt;: "b-m-p-w" &lt;/li&gt;
+&lt;/ul&gt;</rdfs:comment>
+		<rdfs:domain rdf:resource="#link"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#link.uid">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>uid</rdfs:label>
+		<rdfs:domain rdf:resource="#link"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#point">
+		<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+		<rdfs:label>#point</rdfs:label>
+		<rdfs:comment>class COTPOINT</rdfs:comment>
+	</rdf:Description>
+	<rdf:Description rdf:about="#point.ce">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>ce</rdfs:label>
+		<rdfs:comment>Circular area around the point defined by lat and lon fields in meters. When used to represent error, the value represents the one sigma point for a zero mean normal (Gaussian) distribution.</rdfs:comment>
+		<rdfs:domain rdf:resource="#point"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#point.hae">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>hae</rdfs:label>
+		<rdfs:comment>Height above Ellipsoid based on WGS-84 ellipsoid (measured in meters)</rdfs:comment>
+		<rdfs:domain rdf:resource="#point"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#point.lat">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>lat</rdfs:label>
+		<rdfs:comment>Latitude referred to the WGS 84 ellipsoid in degrees</rdfs:comment>
+		<rdfs:domain rdf:resource="#point"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#point.le">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>le</rdfs:label>
+		<rdfs:comment>A height range about the event point in meters associated with the HAE field. When used to represent error, the value represents the one sigma point for a zero mean normal (Gaussian) distribution.</rdfs:comment>
+		<rdfs:domain rdf:resource="#point"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+	</rdf:Description>
+	<rdf:Description rdf:about="#point.lon">
+		<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+		<rdfs:label>lon</rdfs:label>
+		<rdfs:comment>Longitude referred to the WGS 84 in degrees</rdfs:comment>
+		<rdfs:domain rdf:resource="#point"/>
+		<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+	</rdf:Description>
+</rdf:RDF>

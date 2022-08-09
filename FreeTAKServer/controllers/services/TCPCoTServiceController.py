@@ -3,6 +3,9 @@ from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHand
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.TCPSocketController import TCPSocketController
 import os
+from digitalpy.core.impl.default_factory import DefaultFactory
+from digitalpy.config.impl.inifile_configuration import InifileConfiguration
+from digitalpy.core.object_factory import ObjectFactory
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -11,8 +14,25 @@ loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
 logger = CreateLoggerController("FTS-TCP_CoT_Service", logging_constants=loggingConstants).getLogger()
 
 class TCPCoTServiceController(Orchestrator):
+
+    def emergency_received(self, emergency):
+        request = ObjectFactory.get_new_instance('request')
+        request.set_action("EmergencyReceived")
+        request.set_value("emergency", emergency)
+
+        actionmapper = ObjectFactory.get_instance('actionMapper')
+        response = ObjectFactory.get_new_instance('response')
+        actionmapper.process_action(request, response)
+
     def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe, clientDataRecvPipe):
         try:
+            # define routing
+            config = InifileConfiguration("")
+            config.add_configuration(r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini")
+            
+            ObjectFactory.configure(DefaultFactory(config))
+            ObjectFactory.register_instance('configuration', config)
+            
             self.logger = logger
             self.dbController = DatabaseController()
             # self.clear_user_table()
