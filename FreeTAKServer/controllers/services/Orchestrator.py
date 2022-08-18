@@ -337,8 +337,9 @@ class Orchestrator:
             self.send_user_connection_geo_chat(clientInformation)
             self.logger.debug("client conn C")
             
+            # TODO: find some way to indirectly call EmergencyBroadcastAll
             request = ObjectFactory.get_new_instance('request')
-            request.set_action("BroadcastEmergency")
+            request.set_action("EmergencyBroadcastAll")
             request.set_value("clients", {clientInformation.modelObject.uid: [clientInformation.socket, clientInformation]})
             request.set_value("model_object_parser", "ParseModelObjectToXML")
             request.set_value("sender", "")
@@ -544,7 +545,7 @@ class Orchestrator:
             if isinstance(data, int):
                 return None
             else:
-                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data)
+                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data, self.clientInformationQueue)
                 handler = getattr(self, cot[0])
                 output = handler(cot[1])
                 if output != 1: # when the process is a disconnect the output is 1
@@ -792,7 +793,7 @@ class Orchestrator:
                 return None
 
             CoTOutput = self.monitor_raw_cot(receive_connection_output)
-            if CoTOutput != -1 and CoTOutput != None:
+            if CoTOutput != -1 and CoTOutput != None and CoTOutput != 1:
                 self.sent_message_count += 1
                 output = SendDataController().sendDataInQueue(CoTOutput, CoTOutput,
                                                               self.clientInformationQueue, self.CoTSharePipe)

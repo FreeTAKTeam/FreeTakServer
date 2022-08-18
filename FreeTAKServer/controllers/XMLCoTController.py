@@ -9,6 +9,7 @@
 #######################################################
 from defusedxml import ElementTree as etree
 import re
+from digitalpy.core.object_factory import ObjectFactory
 
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -30,19 +31,9 @@ class XMLCoTController:
     def __init__(self, logger=logger):
         self.logger = logger
 
-    def determineCoTGeneral(self, data):
+    def determineCoTGeneral(self, data, client_information_queue):
         # this will establish the CoTs general type
-        
-        event = etree.fromstring(data.xmlString)
-        
-        if re.match("b-a-o.*", event.attrib['type']):
-            try:
-                return ("emergency_received", data)
-            except Exception as e:
-                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA+str(e))
-
-        
-        elif data.type == 'RawConnectionInformation':
+        if data.type == 'RawConnectionInformation':
             #this handels the event of a connection CoT
             try:
                 return ("clientConnected", data)
@@ -54,12 +45,21 @@ class XMLCoTController:
             #this handeles a client dissconection CoT
             return ("clientDisconnected", data)
         else:
-            #this is the default in the event of an generic CoT or a CoT without a specific associated use case in the orchestrator
-            try:
-                return ("dataReceived", data)
-
-            except Exception as e:
-                self.logger.error(loggingConstants.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB+str(e))
+            event = etree.fromstring(data.xmlString)
+        
+            request = ObjectFactory.get_new_instance('request')
+            request.set_action(event.attrib['type'])
+            request.set_context('COT')
+            request.set_value("message", data)
+            request.set_value("clients", client_information_queue)
+            request.set_value("sender", client_information_queue[data.clientInformation])
+            request.set_value("model_object_parser", "ParseModelObjectToXML")
+            
+            actionmapper = ObjectFactory.get_instance('actionMapper')
+            response = ObjectFactory.get_new_instance('response')
+            actionmapper.process_action(request, response)
+            
+            return ('component_processed', data)
 
     def convert_model_to_row(self, modelObject, rowObject):
         for attribName, attribValue in modelObject.__dict__.items():

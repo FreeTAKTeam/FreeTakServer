@@ -6,6 +6,7 @@ import os
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
 from digitalpy.core.object_factory import ObjectFactory
+from FreeTAKServer.components.core.registration_component.registration_main import Registration
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -14,6 +15,9 @@ loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
 logger = CreateLoggerController("FTS-TCP_CoT_Service", logging_constants=loggingConstants).getLogger()
 
 class TCPCoTServiceController(Orchestrator):
+
+    def component_processed(self, data):
+        return 1
 
     def emergency_received(self, emergency):
         request = ObjectFactory.get_new_instance('request')
@@ -32,6 +36,10 @@ class TCPCoTServiceController(Orchestrator):
             
             ObjectFactory.configure(DefaultFactory(config))
             ObjectFactory.register_instance('configuration', config)
+            
+            config.add_configuration(r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\components\core\cot_router\configuration\cot_router_action_mapping.ini")
+            Registration().register_components(config)
+
             
             self.logger = logger
             self.dbController = DatabaseController()
