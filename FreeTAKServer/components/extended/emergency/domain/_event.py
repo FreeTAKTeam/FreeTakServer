@@ -60,7 +60,7 @@ class Event(CoTNode):
 
     @CoTProperty
     def start(self): 
-        return self.cot_attributes["start"]
+        return self.cot_attributes.get("start", None)
     
     @start.setter
     def start(self, start=0):
@@ -69,23 +69,23 @@ class Event(CoTNode):
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
-            self.start = zulu
+            self.cot_attributes["start"]=zulu 
         else:
             self.cot_attributes["start"]=start
 
     
     @CoTProperty
     def how(self): 
-        return self.cot_attributes["how"]
+        return self.cot_attributes.get("how", None)
     
         
-    @how.set
+    @how.setter
     def how(self, how=0):  
         self.cot_attributes["how"]=how 
 
     @CoTProperty
     def uid(self): 
-        return self.cot_attributes["uid"]
+        return self.cot_attributes.get("uid", None)
     
     @uid.setter
     def uid(self, uid):
@@ -97,7 +97,7 @@ class Event(CoTNode):
 
     @CoTProperty
     def version(self): 
-        return self.cot_attributes["version"]
+        return self.cot_attributes.get("version", None)
     
     @version.setter
     def version(self, version):  
@@ -105,7 +105,7 @@ class Event(CoTNode):
 
     @CoTProperty
     def time(self): 
-        return self.cot_attributes["time"]
+        return self.cot_attributes.get("time", None)
     
     @time.setter
     def time(self, time=0):
@@ -120,7 +120,7 @@ class Event(CoTNode):
         
     @CoTProperty
     def stale(self): 
-        return self.cot_attributes["stale"]
+        return self.cot_attributes.get("stale", None)
     
     @stale.setter
     def stale(self, stale = None,staletime=60):
@@ -136,16 +136,19 @@ class Event(CoTNode):
             self.cot_attributes["stale"]=stale
 
     @CoTProperty
-    def type(self): 
-        return self.cot_attributes["type"]
-    
+    def type(self, internal=False):
+        if not internal:
+            return self.cot_attributes.get("type", None)
+        else:
+           pass 
+        
     @type.setter
     def type(self, type=0):  
         self.cot_attributes["type"]=type
 
     @CoTProperty
     def point(self):
-        return self.cot_attributes["point"]
+        return self.cot_attributes.get("point", None)
 
     @point.setter
     def point(self, point=None):
@@ -153,7 +156,7 @@ class Event(CoTNode):
 
     @CoTProperty
     def detail(self):
-        return self.cot_attributes["detail"]
+        return self.cot_attributes.get("detail", None)
 
     @detail.setter
     def detail(self, detail=None):

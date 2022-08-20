@@ -22,24 +22,24 @@ class detail(CoTNode):
 
     @CoTProperty
     def link(self):
-        return self.cot_attributes["link"]
+        return self.cot_attributes.get("link", None)
 
     @link.setter
-    def setlink(self, link):
+    def link(self, link):
         self.cot_attributes["link"] = link
 
     @CoTProperty
     def contact(self):
-        return self.cot_attributes["contact"]
+        return self.cot_attributes.get("contact", None)
 
     @contact.setter
-    def setcontact(self, contact):
+    def contact(self, contact):
         self.cot_attributes["contact"] = contact
 
     @CoTProperty
     def emergency(self):
-        return self.cot_attributes["emergency"]
+        return self.cot_attributes.get("emergency", None)
 
     @emergency.setter
-    def setemergency(self, emergency):
+    def emergency(self, emergency):
         self.cot_attributes["emergency"] = emergency

@@ -25,32 +25,32 @@ class emergency(CoTNode):
 
     @CoTProperty
     def type(self):
-        return self.cot_attributes["type"]
+        return self.cot_attributes.get("type", None)
 
     @type.setter
-    def settype(self, type=None):
+    def type(self, type=None):
         self.type = type
 
     @CoTProperty
     def Alert(self):
-        return self.cot_attributes["alert"]
+        return self.cot_attributes.get("alert", None)
     
     @Alert.setter
-    def setAlert(self, alert=None):
+    def Alert(self, alert=None):
         self.alert = alert
 
     @CoTProperty
     def cancel(self):
-        return self.cot_attributes["cancel"]
+        return self.cot_attributes.get("cancel", None)
     
     @cancel.setter
-    def setcancel(self, cancel=None):
+    def cancel(self, cancel=None):
         self.cancel = cancel
 
     @CoTProperty
     def INTAG(self):
-        return self.cot_attributes["INTAG"]
+        return self.cot_attributes.get("INTAG", None)
 
     @INTAG.setter
-    def setINTAG(self, INTAG=None):
+    def INTAG(self, INTAG=None):
         self.INTAG = INTAG

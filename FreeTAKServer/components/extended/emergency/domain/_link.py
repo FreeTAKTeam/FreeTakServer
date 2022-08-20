@@ -1,5 +1,6 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from datetime import datetime as dt
+from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
 class link(CoTNode):
     def __init__(self, configuration, model):
@@ -10,47 +11,53 @@ class link(CoTNode):
         self.cot_attributes["type"] = None
         self.cot_attributes["parent_callsign"] = None
 
-    def getremarks(self):
-        return self.cot_attributes["remarks"]
+    @CoTProperty
+    def remarks(self):
+        return self.cot_attributes.get("remarks", None)
 
-    def setremarks(self, remarks):
+    @remarks.setter
+    def remarks(self, remarks):
         self.__modified = True
         self.remarks = remarks
 
-    def getcallsign(self):
-        return self.cot_attributes["callsign"]
+    @CoTProperty
+    def callsign(self):
+        return self.cot_attributes.get("callsign", None)
 
-    def setcallsign(self, callsign):
+    @callsign.setter
+    def callsign(self, callsign):
         self.__modified = True
         self.callsign = callsign
 
-    def getpoint(self):
-        return self.cot_attributes["point"]
+    @CoTProperty
+    def point(self):
+        return self.cot_attributes.get("point", None)
 
-    def setpoint(self, point):
+    @point.setter
+    def point(self, point):
         self.__modified = True
         self.point = point
 
-    # uid getter 
-    def getuid(self):
+    @CoTProperty 
+    def uid(self):
         import uuid
         if "uid" in self.cot_attributes:
-            return self.cot_attributes["uid"]
+            return self.cot_attributes.get("uid", None)
         else:
             self.cot_attributes["uid"] = uuid.uuid1()
-            return self.cot_attributes["uid"]
+            return self.cot_attributes.get("uid", None)
 
-    # uid setter 
-    def setuid(self, uid=0):
+    @uid.setter 
+    def uid(self, uid=0):
         self.__modified = True
         self.cot_attributes["uid"]=uid 
 
-    # production_time getter 
-    def getproduction_time(self): 
-        return self.cot_attributes["production_time"]
+    @CoTProperty 
+    def production_time(self): 
+        return self.cot_attributes.get("production_time", None)
 
-    # production_time setter 
-    def setproduction_time(self, production_time=0):
+    @production_time.setter
+    def production_time(self, production_time=0):
         self.__modified = True
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         if production_time == None:
@@ -63,35 +70,38 @@ class link(CoTNode):
         else:
             self.production_time = production_time
 
-    # relation getter 
-    def getrelation(self): 
-        return self.cot_attributes["relation"]
+    @CoTProperty
+    def relation(self): 
+        return self.cot_attributes.get("relation", None)
 
-    # relation setter 
-    def setrelation(self, relation=0):
+    @relation.setter
+    def relation(self, relation=0):
         self.__modified = True
         self.cot_attributes["relation"]=relation 
 
-    # type getter 
-    def gettype(self): 
-        return self.cot_attributes["type"]
+    @CoTProperty 
+    def type(self): 
+        return self.cot_attributes.get("type", None)
 
-    # type setter 
-    def settype(self, type=0):
+    @type.setter 
+    def type(self, type=0):
         self.__modified = True
         self.cot_attributes["type"]=type 
 
-    # parent_callsign getter 
-    def getparent_callsign(self): 
-        return self.cot_attributes["parent_callsign"]
+    @CoTProperty 
+    def parent_callsign(self): 
+        return self.cot_attributes.get("parent_callsign", None)
 
-    # parent_callsign setter 
-    def setparent_callsign(self, parent_callsign=0):
+    @parent_callsign.setter 
+    def parent_callsign(self, parent_callsign=0):
         self.__modified = True
         self.cot_attributes["parent_callsign"]=parent_callsign 
 
-    def setrelationship(self, relationship):
+    @CoTProperty
+    def relationship(self):
+        return self.cot_attributes.get("relationship", None)
+
+    @relationship.setter
+    def relationship(self, relationship):
         self.cot_attributes["relationship"]=relationship
 
-    def getrelationship(self):
-        return self.cot_attributes["relationship"]

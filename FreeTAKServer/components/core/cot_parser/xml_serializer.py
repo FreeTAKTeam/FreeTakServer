@@ -82,22 +82,19 @@ class XmlSerializer(SerializerAbstract):
         return self._fts_object_attrib_to_xml_attrib(FTSObject, root)
 
     def _fts_object_nested_to_xml_tags(self, FTSObject, root):
-        for key, value in FTSObject.cot_attributes.items():
+        for property_name in FTSObject.get_all_properties():
+            value = getattr(FTSObject, property_name)
             if issubclass(type(value), FTSProtocolObject):
-                # get all getters associated with key
-                getters = self._get_fts_object_var_getter(FTSObject, key)
-                getter = self._get_method_in_method_list(getters, root.tag)
-                fts_obj = getter()
-                updatedValue = self.from_fts_object_to_format(fts_obj, root.find(key))
+                updatedValue = self.from_fts_object_to_format(value, root.find(property_name))
                 # required to map the names with underscores
-                if key in self.__exception_mapping_dict_objs:
-                    key = self.__exception_mapping_dict_objs[key]
-                root.remove(root.find(key))
+                if property_name in self.__exception_mapping_dict_objs:
+                    property_name = self.__exception_mapping_dict_objs[property_name]
+                root.remove(root.find(property_name))
                 root.append(updatedValue)
-            elif isinstance(value, list) and not '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
+            elif isinstance(value, list) and not '_'+FTSObject.__class__.__name__.lower()+'__' in property_name.lower():
                 index = 0
                 for obj in value:
-                    self.from_fts_object_to_format(obj, root.findall(key)[index])
+                    self.from_fts_object_to_format(obj, root.findall(property_name)[index])
                     index += 1
 
     def _fts_object_attrib_to_xml_attrib(self, FTSObject, root):
@@ -111,13 +108,8 @@ class XmlSerializer(SerializerAbstract):
             root = FTSObject.xml_string
 
         for key, val in root.attrib.items():
-            """if key in self.__exception_mapping_dict:
-                key = self.__exception_mapping_dict[key]"""
-            getters = self._get_fts_object_var_getter(FTSObject, key)
-            getter = self._get_method_in_method_list(getters, root.tag)
-            tempvar = getter()
-            if tempvar != None:
-                root.attrib[key] = str(tempvar)
+
+            root.attrib[key] = getattr(FTSObject, key)
         return root
 
     def _get_method_in_method_list(self, method_list: List[callable], expected_class_name: str) -> callable:
