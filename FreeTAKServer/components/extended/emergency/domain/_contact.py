@@ -1,4 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
+from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
 
 class contact(CoTNode):
@@ -13,73 +14,76 @@ class contact(CoTNode):
         self.cot_attributes["xmppUsername"] = None
         self.cot_attributes["sipAddress"] = None
         
-    # iconsetpath getter 
-    def geticonsetpath(self): 
-        return self.cot_attributes["iconsetpath"]
+    @CoTProperty
+    def iconsetpath(self): 
+        return self.cot_attributes.get("iconsetpath", None)
  
-    # iconsetpath setter 
-    def seticonsetpath(self, iconsetpath=None):
+    @iconsetpath.setter
+    def iconsetpath(self, iconsetpath=None):
         self.cot_attributes["iconsetpath"]=iconsetpath 
 
-    # sipAddress getter
-    def getsipAddress(self):
-        return self.cot_attributes["sipAddress"]
+    @CoTProperty
+    def sipAddress(self):
+        return self.cot_attributes.get("sipAddress", None)
 
-    # sipAddress setter
-    def setsipAddress(self, sipAddress=None):
+    @sipAddress.setter
+    def sipAddress(self, sipAddress=None):
         self.cot_attributes["sipAddress"]=sipAddress
 
-    # emailAddress setter
-    def getemailAddress(self):
-        return self.cot_attributes["emailAddress"]
+    @CoTProperty
+    def emailAddress(self):
+        return self.cot_attributes.get("emailAddress", None)
 
-    # emailAddress getter
-    def setemailAddress(self, emailAddress=None):
+    @emailAddress.setter
+    def emailAddress(self, emailAddress=None):
         self.cot_attributes["emailAddress"]=emailAddress
 
-    # emailAddress setter
-    def getxmppUsername(self):
-        return self.cot_attributes["xmppUsername"]
+    @CoTProperty
+    def xmppUsername(self):
+        return self.cot_attributes.get("xmppUsername", None)
 
-    # emailAddress getter
-    def setxmppUsername(self, xmppUsername=None):
+    @xmppUsername.setter
+    def xmppUsername(self, xmppUsername=None):
         self.cot_attributes["xmppUsername"]=xmppUsername
 
-    # callsign getter 
-    def getcallsign(self): 
-        return self.cot_attributes["callsign"]
+    @CoTProperty
+    def callsign(self): 
+        return self.cot_attributes.get("callsign", None)
  
-    # callsign setter 
-    def setcallsign(self, callsign=None):
+    @callsign.setter
+    def callsign(self, callsign=None):
         self.cot_attributes["callsign"]=callsign 
  
      
-    # endpoint getter 
-    def getendpoint(self): 
-        return self.cot_attributes["endpoint"]
+    @CoTProperty
+    def endpoint(self): 
+        return self.cot_attributes.get("endpoint", None)
  
-    # endpoint setter 
-    def setendpoint(self, endpoint=None):
+    @endpoint.setter
+    def endpoint(self, endpoint=None):
         self.cot_attributes["endpoint"]=endpoint
 
-    def getuid(self):
-        return self.cot_attributes["uid"]
+    @CoTProperty
+    def uid(self):
+        return self.cot_attributes.get("uid", None)
 
         # uid setter 
-
-    def setuid(self, uid=None):
+    @uid.setter
+    def uid(self, uid=None):
         self.uid = uid 
         
-    def getname(self):
-        return self.cot_attributes["name"]
-
-        # name setter 
-
-    def setname(self, name=None):
+    @CoTProperty
+    def name(self):
+        return self.cot_attributes.get("name", None)
+     
+    @name.setter
+    def name(self, name=None):
         self.name = name
 
-    def getphone(self):
-        return self.cot_attributes["phone"]
+    @CoTProperty
+    def phone(self):
+        return self.cot_attributes.get("phone", None)
 
-    def setphone(self, phone=None):
+    @phone.setter
+    def phone(self, phone=None):
         self.phone = phone

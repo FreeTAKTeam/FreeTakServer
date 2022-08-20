@@ -32,7 +32,7 @@ class Emergency(EmergencyRuleEngine):
             emergency_uid (str): the uid of the emergency to be broadcasted
         """
         try:
-            self.request.get_value('logger').debug('broadcasting emergency %s', emergency.getuid())
+            self.request.get_value('logger').debug('broadcasting emergency %s', emergency.uid)
             
             self.response.set_values(kwargs)
             self.response.set_action('Broadcast')
@@ -47,7 +47,7 @@ class Emergency(EmergencyRuleEngine):
             emergency (Event): the new emergency model object
         """
         try:
-            emergency_uid = emergency.getuid()
+            emergency_uid = emergency.uid
             self.emergencies[emergency_uid] = emergency
             self.request.get_value('logger').debug('added emergency: %s to emergencies: %s', emergency_uid, self.emergencies)
         except Exception as error:
@@ -59,7 +59,7 @@ class Emergency(EmergencyRuleEngine):
         Args:
             emergency (Event): the emergency delete model object
         """
-        del self.emergencies[emergency.getuid()]
+        del self.emergencies[emergency.uid]
     
     def emergency_received(self, message, logger, facade, **kwargs):
         """this method is called to handle an emergency received

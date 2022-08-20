@@ -3,6 +3,7 @@ from .model_constants import EventVariables as vars
 import uuid
 from datetime import datetime as dt
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
+from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
 class Event(CoTNode):
     # TODO: fix emergency methods
@@ -57,56 +58,57 @@ class Event(CoTNode):
         
         # flag to determine if this event is a Ping, in this case append to the UID
 
-    def getstart(self): 
-        return self.cot_attributes["start"]
+    @CoTProperty
+    def start(self): 
+        return self.cot_attributes.get("start", None)
     
-    # start setter
-    def setstart(self, start=0):
+    @start.setter
+    def start(self, start=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if start == None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
-            self.start = zulu
+            self.cot_attributes["start"]=zulu 
         else:
             self.cot_attributes["start"]=start
 
     
-    # how getter
-    def gethow(self): 
-        return self.cot_attributes["how"]
+    @CoTProperty
+    def how(self): 
+        return self.cot_attributes.get("how", None)
     
         
-    # how setter
-    def sethow(self, how=0):  
+    @how.setter
+    def how(self, how=0):  
         self.cot_attributes["how"]=how 
 
-    # uid getter
-    def getuid(self): 
-        return self.cot_attributes["uid"]
+    @CoTProperty
+    def uid(self): 
+        return self.cot_attributes.get("uid", None)
     
-    # uid setter
-    def setuid(self, uid):
+    @uid.setter
+    def uid(self, uid):
         if uid == None:
             self.uid = str(uuid.uuid1())
 
         else:
             self.cot_attributes["uid"]=uid
 
-    # version getter
-    def getversion(self): 
-        return self.cot_attributes["version"]
+    @CoTProperty
+    def version(self): 
+        return self.cot_attributes.get("version", None)
     
-    # version setter
-    def setversion(self, version):  
+    @version.setter
+    def version(self, version):  
         self.cot_attributes["version"]=version 
 
-    # time getter
-    def gettime(self): 
-        return self.cot_attributes["time"]
+    @CoTProperty
+    def time(self): 
+        return self.cot_attributes.get("time", None)
     
-    # time setter
-    def settime(self, time=0):
+    @time.setter
+    def time(self, time=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if time == None:
             timer = dt.datetime
@@ -116,12 +118,12 @@ class Event(CoTNode):
         else:
             self.cot_attributes["time"]=time
         
-    # stale getter
-    def getstale(self): 
-        return self.cot_attributes["stale"]
+    @CoTProperty
+    def stale(self): 
+        return self.cot_attributes.get("stale", None)
     
-    # stale setter
-    def setstale(self, stale = None,staletime=60):
+    @stale.setter
+    def stale(self, stale = None,staletime=60):
         if stale == None:
             DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt.datetime
@@ -133,24 +135,29 @@ class Event(CoTNode):
         else:
             self.cot_attributes["stale"]=stale
 
-    # type getter
-    def gettype(self): 
-        return self.cot_attributes["type"]
-    
-    # type setter
-    def settype(self, type=0):  
+    @CoTProperty
+    def type(self, internal=False):
+        if not internal:
+            return self.cot_attributes.get("type", None)
+        else:
+           pass 
+        
+    @type.setter
+    def type(self, type=0):  
         self.cot_attributes["type"]=type
 
-    def getpoint(self):
-        return self.cot_attributes["point"]
+    @CoTProperty
+    def point(self):
+        return self.cot_attributes.get("point", None)
 
-    # type setter
-    def setpoint(self, point=None):
+    @point.setter
+    def point(self, point=None):
         self.cot_attributes["point"]=point
 
-    def getdetail(self):
-        return self.cot_attributes["detail"]
+    @CoTProperty
+    def detail(self):
+        return self.cot_attributes.get("detail", None)
 
-    # type setter
-    def setdetail(self, detail=None):
+    @detail.setter
+    def detail(self, detail=None):
         self.cot_attributes["detail"]=detail
