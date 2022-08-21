@@ -49,8 +49,9 @@ class XMLCoTController:
         else:
             event = etree.fromstring(data.xmlString)
 
+            # this convert the machine readable type to a human readable type
             request = ObjectFactory.get_new_instance('request')
-            request.set_action("get_human_readable_type")
+            request.set_action("ConvertMachineReadableToHumanReadable")
             request.set_context('MEMORY')
             request.set_value("machine_readable_type", event.attrib['type'])
             request.set_value("default", event.attrib['type'])
@@ -61,6 +62,9 @@ class XMLCoTController:
             
             event.attrib['type'] = response.get_value('human_readable_type')
             
+            data.xmlString = etree.tostring(event)
+            
+            # this calls the responsible controller
             request = ObjectFactory.get_new_instance('request')
             request.set_action(event.attrib['type'])
             request.set_context('COT')
