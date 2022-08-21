@@ -33,8 +33,7 @@ jobs:
         twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
     - uses: actions/checkout@master
       with:
-        name: FreeTAKTeam/FreeTAKHub-Installation     <-- clone https://github.com/org1/repo1
-        ref: refs/heads/release
+        repository: FreeTAKTeam/FreeTAKHub-Installation
         
     - name: Run Ansible playbook
       # You may pin to the exact commit or the version.
