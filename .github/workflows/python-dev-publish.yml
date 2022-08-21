@@ -53,7 +53,6 @@ jobs:
         # Extra options that should be passed to ansible-playbook command
         options: |
           --inventory .hosts
-          --limit group1
           --verbose
         # Set to "true" if root is required for running your playbook
         sudo: true
