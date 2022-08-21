@@ -1,14 +1,17 @@
 from digitalpy.model.node import Node
 from digitalpy.model.load_configuration import LoadConfiguration
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
+from digitalpy.routing.impl.default_action_mapper import DefaultActionMapper
+from digitalpy.core.object_factory import ObjectFactory
 
 class Facade:
     
-    def __init__(self, config_path_template, domain, action_mapping_path, logger):
+    def __init__(self, config_path_template, domain, action_mapping_path, logger, type_mapping = None):
         self.config_loader = LoadConfiguration(config_path_template)
         self.domain = domain
         self.action_mapping_path = action_mapping_path
         self.logger = logger
+        self.type_mapping = type_mapping
 
     def initialize(self, request, response):
         self.request = request
@@ -27,7 +30,29 @@ class Facade:
     
     def register(self, config: InifileConfiguration):
         config.add_configuration(self.action_mapping_path)
-    
+        self._register_type_mapping()
+        
+    def _register_type_mapping(self):
+        """any component may or may not have a type mapping defined, 
+        if it does then it should be registered"""
+        if self.type_mapping is not None:
+            request = ObjectFactory.get_new_instance('request')
+            request.set_action("RegisterMachineToHumanMapping")
+            request.set_value("machine_to_human_mapping", self.type_mapping)
+                        
+            actionmapper = ObjectFactory.get_instance('actionMapper')
+            response = ObjectFactory.get_new_instance('response')
+            actionmapper.process_action(request, response)
+            
+            request = ObjectFactory.get_new_instance('request')
+            request.set_action("RegisterHumanToMachineMapping")
+            # reverse the mapping and save the reversed mapping
+            request.set_value("human_to_machine_mapping", {k: v for v, k in self.type_mapping.items()})
+                        
+            actionmapper = ObjectFactory.get_instance('actionMapper')
+            response = ObjectFactory.get_new_instance('response')
+            actionmapper.process_action(request, response)
+        
     def get_metrics(self):
         pass
     

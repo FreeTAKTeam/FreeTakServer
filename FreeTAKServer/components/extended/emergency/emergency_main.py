@@ -133,21 +133,21 @@ class Emergency(EmergencyRuleEngine):
             logger.error('exception in emergency delete: %s', error)
         
     def apply_rules(self, model_object, **kwargs):
-        if self.create_emergency_alert_rule.matches(model_object.cot_attributes):
+        if self.create_emergency_alert_rule.matches(model_object):
             self._add_emergency_to_emergencies(model_object)
             self.emergency_broadcast(model_object, **kwargs)
         
-        elif self.create_emergency_contact_rule.matches(model_object.cot_attributes):
+        elif self.create_emergency_contact_rule.matches(model_object):
             self._add_emergency_to_emergencies(model_object)
             self.emergency_broadcast(model_object, **kwargs)
             
-        elif self.create_emergency_ring_the_bell_rule.matches(model_object.cot_attributes):
+        elif self.create_emergency_ring_the_bell_rule.matches(model_object):
             self.emergency_broadcast(model_object, **kwargs)
             
-        elif self.create_emergency_geofence_breached_rule.matches(model_object.cot_attributes):
+        elif self.create_emergency_geofence_breached_rule.matches(model_object):
             self._add_emergency_to_emergencies(model_object)
             self.emergency_broadcast(model_object, **kwargs)
             
-        elif self.delete_emergency_rule.matches(model_object.cot_attributes):
+        elif self.delete_emergency_rule.matches(model_object):
             self.emergency_broadcast(model_object, **kwargs)
             self._remove_emergency_from_emergencies(model_object)

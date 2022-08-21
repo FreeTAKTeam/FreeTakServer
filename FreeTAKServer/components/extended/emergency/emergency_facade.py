@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.facade import Facade
-from FreeTAKServer.components.extended.emergency.emergency_constants import CONFIGURATION_PATH_TEMPLATE, ACTION_MAPPING_PATH
+from FreeTAKServer.components.extended.emergency.emergency_constants import CONFIGURATION_PATH_TEMPLATE, ACTION_MAPPING_PATH, TYPE_MAPPINGS
 from . import domain
 
 from .emergency_main import Emergency
@@ -15,7 +15,7 @@ class EmergencyFacade(Facade):
         if self.state is None:
             self.emergency = Emergency()
             self.emergency_logs = EmergencyLogs()
-            super().__init__(CONFIGURATION_PATH_TEMPLATE, domain, ACTION_MAPPING_PATH, self.emergency_logs)
+            super().__init__(CONFIGURATION_PATH_TEMPLATE, domain, ACTION_MAPPING_PATH, self.emergency_logs, TYPE_MAPPINGS)
             EmergencyFacade.state = self.__dict__
         else:
             self.__dict__ = EmergencyFacade.state

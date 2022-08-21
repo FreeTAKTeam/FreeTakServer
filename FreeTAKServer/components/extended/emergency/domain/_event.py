@@ -136,12 +136,9 @@ class Event(CoTNode):
             self.cot_attributes["stale"]=stale
 
     @CoTProperty
-    def type(self, internal=False):
-        if not internal:
-            return self.cot_attributes.get("type", None)
-        else:
-           pass 
-        
+    def type(self):
+        return self.cot_attributes.get("type", None)
+    
     @type.setter
     def type(self, type=0):  
         self.cot_attributes["type"]=type

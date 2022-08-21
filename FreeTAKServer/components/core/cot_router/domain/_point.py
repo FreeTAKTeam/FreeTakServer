@@ -36,7 +36,7 @@ class point(CoTNode):
         return self.cot_attributes.get("le", None)
 
     @le.setter
-    def setle(self,le):  
+    def le(self,le):  
         self.cot_attributes["le"]=le
 
     @CoTProperty
@@ -44,7 +44,7 @@ class point(CoTNode):
         return self.cot_attributes.get("lat", None)
 
     @lat.setter
-    def setlat(self, lat):  
+    def lat(self, lat):  
         self.cot_attributes["lat"]=lat
 
     @CoTProperty
@@ -52,7 +52,7 @@ class point(CoTNode):
         return self.cot_attributes.get("lon", None)
 
     @lon.setter
-    def setlon(self,lon):
+    def lon(self,lon):
         self.cot_attributes["lon"]=lon
 
     @CoTProperty
@@ -60,5 +60,5 @@ class point(CoTNode):
         return self.cot_attributes.get("hae", None)
 
     @hae.setter
-    def sethae(self,hae):
+    def hae(self,hae):
         self.cot_attributes["hae"] = hae
