@@ -2,5 +2,6 @@
     "b-a-o-tbl": "EmergencyAlert",
     "b-a-o-opn": "EmergencyInContact",
     "b-a-o-pan": "EmergencyRingTheBell",
-    "b-a-g": "EmergencyGeoFenceBreached"
+    "b-a-g": "EmergencyGeoFenceBreached",
+    "b-a-o-can": "EmergencyCancelled"
 }
