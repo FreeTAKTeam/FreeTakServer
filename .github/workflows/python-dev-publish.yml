@@ -34,10 +34,7 @@ jobs:
     - uses: actions/checkout@master
       with:
         repository: FreeTAKTeam/FreeTAKHub-Installation
-    - name: list and cd
-      run: |
-        ls
-        cd FreeTAKHub-Installation
+        
     - name: Run Ansible playbook
       # You may pin to the exact commit or the version.
       # uses: dawidd6/action-ansible-playbook@671974ed60e946e11964cb0c26e69caaa4b1f559
