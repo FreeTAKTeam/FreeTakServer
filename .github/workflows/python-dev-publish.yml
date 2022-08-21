@@ -47,8 +47,7 @@ jobs:
         # Custom content to write into hosts
         inventory: |
           [all]
-          ${{secrets.DEV_SERVER_ADDRESS}}
-        known_hosts: .known_hosts
+          ${{secrets.DEV_SERVER_ADDRESS}}    ansible_connection=ssh        ansible_user=${{secrets.DEV_SERVER_USERNAME}}
         # Extra options that should be passed to ansible-playbook command
         options: |
           --inventory .hosts
