@@ -31,16 +31,29 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
-    - name: install on server
-      uses: appleboy/ssh-action@v0.1.2
+    - uses: actions/checkout@master
       with:
-        host: ${{ secrets.DEV_SERVER_ADDRESS }}
-        key: ${{ secrets.DEV_SERVER_SSH_KEY }}
-        username: ${{ secrets.DEV_SERVER_USERNAME }}
+        name: FreeTAKTeam/FreeTAKHub-Installation     <-- clone https://github.com/org1/repo1
+        ref: refs/heads/release
         
-        script: |
-          sudo systemctl stop fts
-          sudo rm -r /usr/local/lib/python3.8/dist-packages/FreeTAKServer
-          sudo python3 -m pip uninstall FreeTAKServer -y
-          sudo python3 -m pip install --index-url http://${{ secrets.DEV_PYPI_USERNAME }}:${{ secrets.DEV_PYPI_PASSWORD }}@${{ secrets.DEV_PYPI_ADDRESS }}:8080 FreeTAKServer --trusted-host ${{ secrets.DEV_PYPI_ADDRESS }}:8080 --pre
-          sudo systemctl start fts
+    - name: Run Ansible playbook
+      # You may pin to the exact commit or the version.
+      # uses: dawidd6/action-ansible-playbook@671974ed60e946e11964cb0c26e69caaa4b1f559
+      uses: dawidd6/action-ansible-playbook@v2.5.0
+      with:
+        # Ansible playbook filepath
+        playbook: FreeTAKHub-Installation/install_all.yml
+        # SSH private key used to connect to the host
+        key: ${{secrets.DEV_SERVER_SSH_KEY}}
+        # Custom content to write into hosts
+        inventory: |
+          [all]
+          ${{secrets.DEV_SERVER_ADDRESS}}
+        known_hosts: .known_hosts
+        # Extra options that should be passed to ansible-playbook command
+        options: |
+          --inventory .hosts
+          --limit group1
+          --verbose
+        # Set to "true" if root is required for running your playbook
+        sudo: true
