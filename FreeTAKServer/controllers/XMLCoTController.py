@@ -27,6 +27,8 @@ from FreeTAKServer.model.FTSModel.Event import Event
 logger = CreateLoggerController("XMLCoTController").getLogger()
 loggingConstants = LoggingConstants()
 
+TYPE_MAPPING_FORMAT = "MEMORY"
+
 class XMLCoTController:
     def __init__(self, logger=logger):
         self.logger = logger
@@ -46,7 +48,19 @@ class XMLCoTController:
             return ("clientDisconnected", data)
         else:
             event = etree.fromstring(data.xmlString)
-        
+
+            request = ObjectFactory.get_new_instance('request')
+            request.set_action("get_human_readable_type")
+            request.set_context('MEMORY')
+            request.set_value("machine_readable_type", event.attrib['type'])
+            request.set_value("default", event.attrib['type'])
+            
+            actionmapper = ObjectFactory.get_instance('actionMapper')
+            response = ObjectFactory.get_new_instance('response')
+            actionmapper.process_action(request, response)
+            
+            event.attrib['type'] = response.get_value('human_readable_type')
+            
             request = ObjectFactory.get_new_instance('request')
             request.set_action(event.attrib['type'])
             request.set_context('COT')

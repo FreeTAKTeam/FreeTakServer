@@ -7,6 +7,8 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 
+from digitalpy.core.object_factory import ObjectFactory
+
 import time
 
 
@@ -75,6 +77,20 @@ class XmlSerializer(SerializerAbstract):
         :param root:
         :return:
         """
+        # this function is responsible for converting the base type from
+        # human readable back to machine readable
+        if FTSObject.__class__.__name__ == "Event":
+            request = ObjectFactory.get_new_instance('request')
+            request.set_action("ConvertHumanReadableToMachineReadable")
+            request.set_context('MEMORY')
+            request.set_value("human_readable_type", FTSObject.type)
+            request.set_value("default", FTSObject.type)
+            
+            actionmapper = ObjectFactory.get_instance('actionMapper')
+            response = ObjectFactory.get_new_instance('response')
+            actionmapper.process_action(request, response)
+            FTSObject.type = response.get_value('machine_readable_type')
+        
         if root is None:
             object_body = self._from_fts_object_to_format_body(FTSObject)
             root = object_body
@@ -100,6 +116,7 @@ class XmlSerializer(SerializerAbstract):
     def _fts_object_attrib_to_xml_attrib(self, FTSObject, root):
         if FTSObject.text != "":
             root.text = FTSObject.text
+            
         # this if statement is meant to handle the edge case where the cot has no
         # defined model thus it has defaulted to an xml string in particular the 
         # core component called cot_router which acts as the default case for all
@@ -150,10 +167,11 @@ class XmlSerializer(SerializerAbstract):
             name = self.__exception_mapping_dict[name.lower()]
         # create object and get attributes as dict
         xmlobj = Element(name)
-        variables = FTSObject.cot_attributes
+        
         # iterate variables and create attributes
-        for key, value in variables.items():
-            if '_'+FTSObject.__class__.__name__.lower()+'__' in key.lower():
+        for property_name in FTSObject.get_all_properties():
+            value = getattr(FTSObject, property_name)
+            if '_'+FTSObject.__class__.__name__.lower()+'__' in property_name.lower():
                 continue
             if issubclass(type(value), FTSProtocolObject):
                 try:
@@ -166,7 +184,7 @@ class XmlSerializer(SerializerAbstract):
                     xmlobj.append(self._from_fts_object_to_format_body(obj))
             # handles all other regular attributes
             elif value is not None:
-                xmlobj.attrib[key] = ""
+                xmlobj.attrib[property_name] = ""
         z = etree.tostring(xmlobj)
         return xmlobj
 
