@@ -34,7 +34,9 @@ jobs:
     - uses: actions/checkout@master
       with:
         repository: FreeTAKTeam/FreeTAKHub-Installation
-        
+    - name: create inventory
+      run: |
+        echo "${{secrets.DEV_SERVER_ADDRESS}}    ansible_connection=ssh        ansible_user=${{secrets.DEV_SERVER_USERNAME}}" > inventory
     - name: Run Ansible playbook
       # You may pin to the exact commit or the version.
       # uses: dawidd6/action-ansible-playbook@671974ed60e946e11964cb0c26e69caaa4b1f559
@@ -50,7 +52,7 @@ jobs:
           ${{secrets.DEV_SERVER_ADDRESS}}    ansible_connection=ssh        ansible_user=${{secrets.DEV_SERVER_USERNAME}}
         # Extra options that should be passed to ansible-playbook command
         options: |
-          --inventory .hosts
+          --inventory inventory
           --verbose
         # Set to "true" if root is required for running your playbook
         sudo: true
