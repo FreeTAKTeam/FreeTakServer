@@ -11,7 +11,6 @@ on:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -25,6 +24,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
     - name: Build and publish
+      continue-on-error: true
       env:
         TWINE_USERNAME: ${{ secrets.DEV_PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
