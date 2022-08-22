@@ -52,7 +52,7 @@ jobs:
           ${{secrets.DEV_SERVER_ADDRESS}}    ansible_connection=ssh        ansible_user=${{secrets.DEV_SERVER_USERNAME}}
         # Extra options that should be passed to ansible-playbook command
         options: |
-          --inventory inventory
+          --inventory-file inventory
           --verbose
         # Set to "true" if root is required for running your playbook
         sudo: true
