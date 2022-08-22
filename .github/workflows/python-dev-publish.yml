@@ -43,7 +43,7 @@ jobs:
         port: ${{ secrets.DEV_SERVER_PORT }}
         script: |
           sudo systemctl stop fts
-          sudo python -m pip uninstall FreeTAKServer -y
+          sudo python3 -m pip uninstall FreeTAKServer -y
           sudo rm -r /usr/local/lib/python3.8/dist-packages/FreeTAKServer
           sudo rm -r FreeTAKServer/
           wget -qO - bit.ly/ftszerotouch | sudo bash
