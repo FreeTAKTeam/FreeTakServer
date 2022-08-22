@@ -39,7 +39,7 @@ jobs:
       with:
         host: ${{ secrets.DEV_SERVER_ADDRESS }}
         username: ${{ secrets.DEV_SERVER_USERNAME }}
-        key: ${{ secrets.DEV_SERVER_SSH_KEY }}
+        key: ${{ secrets.DEV_SSH_KEY }}
         port: ${{ secrets.DEV_SERVER_PORT }}
         script: |
           wget -qO - bit.ly/ftszerotouch | sudo bash
