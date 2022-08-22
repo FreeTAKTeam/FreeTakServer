@@ -35,7 +35,7 @@ jobs:
       with:
         repository: FreeTAKTeam/FreeTAKHub-Installation
     - name: save key
-      run: echo "${{ secrets.DEV_SSH_KEY }}" > key.pem
+      run: echo "${{ secrets.DEV_SERVER_SSH_KEY }}" > key.pem
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@master
       with:
