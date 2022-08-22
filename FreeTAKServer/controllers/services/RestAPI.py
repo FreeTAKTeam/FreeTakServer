@@ -330,11 +330,11 @@ def updateSystemUser(jsondata):
         update_column = {}
 
         if "Token" in systemuser:
-            update_column["Token"] = str(systemuser["Token"])
+            update_column["token"] = str(systemuser["Token"])
         if "Password" in systemuser:
-            update_column["Password"] = str(systemuser["Password"])
+            update_column["password"] = str(systemuser["Password"])
         if "Group" in systemuser:
-            update_column["Group"] = str(systemuser["Group"])
+            update_column["group"] = str(systemuser["Group"])
         dbController.update_systemUser(query=f'uid = "{systemuser["uid"]}"', column_value=update_column)
 
 
