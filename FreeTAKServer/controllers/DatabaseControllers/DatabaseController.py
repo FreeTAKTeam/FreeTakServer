@@ -132,6 +132,9 @@ class DatabaseController:
     def _update(self, controller, column_value, query):
         return controller.update(session = self.session, column_value=column_value, query=query)
 
+    def _query_by(self, controller, columns, **kwargs):
+        return controller.query_by(session=self.session,columns=columns,**kwargs)
+
     def create_user(self, **args):
         try:
             return self._create(controller=self.UserTableController, **args)
@@ -208,6 +211,9 @@ class DatabaseController:
     def remove_systemUser(self, query="1=1"):
         return self._remove(controller=self.SystemUserTableController, query=query)
 
+    def query_by_systemUser(self, columns=['*'], **kwargs):
+        return self._query_by(controller= self.SystemUserTableController, columns=columns, **kwargs)
+    
     def query_systemUser(self, query="1=1", column=['*']):
         return self._query(controller=self.SystemUserTableController, query=query, columns=column)
 

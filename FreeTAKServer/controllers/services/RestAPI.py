@@ -16,6 +16,8 @@ from flask_cors import CORS
 import qrcode
 import io
 
+from FreeTAKServer.model.SQLAlchemy.system_user import SystemUser
+
 from FreeTAKServer.controllers import certificate_generation
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
@@ -278,6 +280,23 @@ def updateSystemStatus(update):
 @socketio.on('systemUsers')
 @socket_auth(session=session)
 def systemUsers(empty=None):
+    jsondata = get_system_users()
+
+    emit('systemUsersUpdate', json.dumps(jsondata))
+
+@app.route('/ManageSystemUser/getAll', methods=["GET"])
+@auth.login_required
+def getSystemUsersRest():
+    """ wrapper around the updateSystemUser function for Rest API
+    """
+    try:
+        jsondata = get_system_users()
+        return json.dumps(jsondata), 200
+    except Exception as e:
+        print(e)
+        return str(e), 500
+
+def get_system_users():
     systemUserArray = DatabaseController().query_systemUser()
     jsondata = {"SystemUsers": []}
     for user in systemUserArray:
@@ -290,8 +309,43 @@ def systemUsers(empty=None):
         userjson["Uid"] = user.uid
         userjson["DeviceType"] = user.device_type
         jsondata["SystemUsers"].append(userjson)
+    return jsondata
+
+
+@socketio.on('systemUser')
+@socket_auth(session=session)
+def systemUsers(empty=None):
+    jsondata = get_system_users()
 
     emit('systemUsersUpdate', json.dumps(jsondata))
+
+@app.route('/ManageSystemUser/getSystemUser', methods=["GET"])
+@auth.login_required
+def getSystemUserRest():
+    """ wrapper around the updateSystemUser function for Rest API
+    """
+    try:
+        jsondata = get_system_user(request.json)
+        return json.dumps(jsondata), 200
+    except Exception as e:
+        print(e)
+        return str(e), 500
+
+def get_system_user(jsondata):
+    systemUserArray = DatabaseController().query_by_systemUser(**jsondata)
+    jsondata = {"SystemUsers": []}
+    for user in systemUserArray:
+        userjson = {}
+        userjson['Name'] = user.name
+        userjson["Group"] = user.group
+        userjson["Token"] = user.token
+        userjson["Password"] = user.password
+        userjson["Certs"] = user.certificate_package_name
+        userjson["Uid"] = user.uid
+        userjson["DeviceType"] = user.device_type
+        jsondata["SystemUsers"].append(userjson)
+    return jsondata
+
 
 @socketio.on('updateSystemUser')
 @socket_auth(session=session)
@@ -336,6 +390,7 @@ def updateSystemUser(jsondata):
         if "Group" in systemuser:
             update_column["group"] = str(systemuser["Group"])
         dbController.update_systemUser(query=f'uid = "{systemuser["uid"]}"', column_value=update_column)
+    get_system_users()
 
 
 @socketio.on('addSystemUser')

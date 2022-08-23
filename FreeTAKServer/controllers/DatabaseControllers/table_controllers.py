@@ -26,6 +26,11 @@ class TableController:
         session.add(newobj)
         session.commit()
 
+    def query_by(self, session, columns, **kwargs):
+        output = session.query(
+                *tuple([getattr(self.table, x) if x != '*' else self.table for x in columns])).filter_by(**kwargs).all()
+        return output
+    
     def query(self, session, query, columns):
         # query needs to be applicable to datapackage object tuple(['DataPackage.'+x for x in columns])
         if isinstance(query, str):
@@ -47,11 +52,13 @@ class TableController:
     def update(self, session, query, column_value):
         DataPackages = session.query(self.table).filter(
             text(query)).all()  # self.query(session, query, [column for column, value in column_value.items()])
-        for dp in DataPackages:
-            for column, value in column_value.items():
-                setattr(dp, column, value)
-        session.commit()
-
+        if len(DataPackages) >0:
+            for dp in DataPackages:
+                for column, value in column_value.items():
+                    setattr(dp, column, value)
+            session.commit()
+        else:
+            raise ValueError(f"no database entries which meet filter criteria {query}")
 
 class ActiveFederationsController(TableController):
     def __init__(self):
