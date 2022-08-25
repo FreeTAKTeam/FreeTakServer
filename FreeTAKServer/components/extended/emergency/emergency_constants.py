@@ -2,6 +2,8 @@ from string import Template
 import pathlib
 import json
 
+COMPONENT_NAME = 'Emergency'
+
 CREATE_EMERGENCY_TYPE = "b-a-o-tbl"
 
 DELETE_EMERGENCY_TYPE = "b-a-o-can"
