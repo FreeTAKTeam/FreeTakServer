@@ -66,8 +66,9 @@ class XMLCoTController:
             
             # this calls the responsible controller
             request = ObjectFactory.get_new_instance('request')
-            request.set_action(event.attrib['type'])
-            request.set_context('COT')
+            request.set_action('Received')
+            request.set_context(event.attrib['type'])
+            request.set_sender(self.__class__.__name__.lower())
             request.set_value("message", data)
             request.set_value("clients", client_information_queue)
             request.set_value("sender", client_information_queue[data.clientInformation])
