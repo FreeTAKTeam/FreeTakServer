@@ -8,7 +8,6 @@ setup(
     name='FreeTAKServer',
     packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
     version='1.9.9.6',
-
     license='EPL-2.0',
     description='An open source server for the TAK family of applications.',
     long_description=long_description,
@@ -57,8 +56,7 @@ setup(
         'WTForms==2.3.3',
         'pyOpenSSL==22.0.0',
         'qrcode==7.3.1',
-        'pillow==9.1.0',
-        'asyncio'
+        'pillow==9.1.1'
     ],
     extras_require = {'ui': ['FreeTAKServer_UI']},
     classifiers=[
