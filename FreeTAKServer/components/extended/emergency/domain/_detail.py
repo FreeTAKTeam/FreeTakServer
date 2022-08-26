@@ -9,29 +9,37 @@
 #######################################################
 
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
+from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
 
 class detail(CoTNode):
-    """An optional element used to hold CoT sub-schema. empty element
-    """
+    """An optional element used to hold CoT sub-schema. empty element"""
+
     __index = -1
+
     def __init__(self, configuration, model):
         super().__init__(self.__class__.__name__, configuration, model)
-        
-    def setlink(self, link):
-        self.cot_attributes["link"]=link
 
-    def getlink(self):
-        return self.cot_attributes["link"]
-    
-    def setcontact(self, contact):
+    @CoTProperty
+    def link(self):
+        return self.cot_attributes.get("link", None)
+
+    @link.setter
+    def link(self, link):
+        self.cot_attributes["link"] = link
+
+    @CoTProperty
+    def contact(self):
+        return self.cot_attributes.get("contact", None)
+
+    @contact.setter
+    def contact(self, contact):
         self.cot_attributes["contact"] = contact
 
-    def getcontact(self):
-        return self.cot_attributes["contact"]
-    
-    def setemergency(self, emergency):
-        self.cot_attributes["emergency"] = emergency
+    @CoTProperty
+    def emergency(self):
+        return self.cot_attributes.get("emergency", None)
 
-    def getemergency(self):
-        return self.cot_attributes["emergency"]
+    @emergency.setter
+    def emergency(self, emergency):
+        self.cot_attributes["emergency"] = emergency

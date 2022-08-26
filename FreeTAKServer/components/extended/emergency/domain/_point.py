@@ -10,6 +10,7 @@
 # Latitude referred to the WGS 84 ellipsoid in degrees
 from .model_constants.PointVariables import PointVariables as vars
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
+from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
 
 class point(CoTNode):
@@ -22,40 +23,42 @@ class point(CoTNode):
         self.cot_attributes["lon"] = lon
         self.cot_attributes["lat"] = lat
 
-    # ce getter 
-    def getce(self): 
-        return self.cot_attributes["ce"]
+    @CoTProperty
+    def ce(self): 
+        return self.cot_attributes.get("ce", None)
 
-    # ce setter 
-    def setce(self, ce):
+    @ce.setter
+    def ce(self, ce):
         self.cot_attributes["ce"]=ce 
 
-    # le getter 
-    def getle(self): 
-        return self.cot_attributes["le"]
+    @CoTProperty
+    def le(self): 
+        return self.cot_attributes.get("le", None)
 
-    # le setter 
-    def setle(self,le):  
+    @le.setter
+    def le(self,le):  
         self.cot_attributes["le"]=le
 
-    # lat getter 
-    def getlat(self):
-        return self.cot_attributes["lat"]
+    @CoTProperty
+    def lat(self):
+        return self.cot_attributes.get("lat", None)
 
-    # lat setter 
-    def setlat(self, lat):  
+    @lat.setter
+    def lat(self, lat):  
         self.cot_attributes["lat"]=lat
 
-        # lon getter 
-    def getlon(self):
-        return self.cot_attributes["lon"]
+    @CoTProperty
+    def lon(self):
+        return self.cot_attributes.get("lon", None)
 
-    # lon setter 
-    def setlon(self,lon):
+    @lon.setter
+    def lon(self,lon):
         self.cot_attributes["lon"]=lon
-  
-    def gethae(self):
-        return self.cot_attributes["hae"]
 
-    def sethae(self,hae):
+    @CoTProperty
+    def hae(self):
+        return self.cot_attributes.get("hae", None)
+
+    @hae.setter
+    def hae(self,hae):
         self.cot_attributes["hae"] = hae

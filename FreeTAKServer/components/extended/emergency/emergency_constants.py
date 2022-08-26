@@ -1,5 +1,8 @@
 from string import Template
 import pathlib
+import json
+
+COMPONENT_NAME = 'Emergency'
 
 CREATE_EMERGENCY_TYPE = "b-a-o-tbl"
 
@@ -14,6 +17,8 @@ CONFIGURATION_PATH_TEMPLATE = Template(str(pathlib.PurePath(CURRENT_COMPONENT_PA
 LOGGING_CONFIGURATION_PATH = str(pathlib.PurePath(CURRENT_COMPONENT_PATH, 'configuration/logging.conf'))
 
 ACTION_MAPPING_PATH = str(pathlib.PurePath(CURRENT_COMPONENT_PATH, 'configuration/emergency_action_mapping.ini'))
+
+TYPE_MAPPINGS = json.load(open(str(pathlib.PurePath(CURRENT_COMPONENT_PATH, 'configuration/emergency_type_mapping.json')), 'r'))
 
 BASE_OBJECT_NAME = 'Event'
 

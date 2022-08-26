@@ -5,16 +5,18 @@ from .xml_serializer import XmlSerializer
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from .xml_element import ExtendedElement
 from lxml import etree
+from digitalpy.routing.action_mapper import ActionMapper
+from digitalpy.config.configuration import Configuration
 
 class TargetXMLToModel_object:
 
-    def __init__(self, model_object, facade):
+    def __init__(self, model_object, parent_getter):
         self.internal_parser = etree.XMLParser()
         lookup = etree.ElementDefaultClassLookup(element=ExtendedElement)
         self.internal_parser.set_element_class_lookup(lookup)
         self.model_object = model_object
         self.current_model_object = model_object
-        self.facade = facade
+        self.parent_getter = parent_getter
 
     def start(self, tag: str, attrib: dict):
         
@@ -35,7 +37,7 @@ class TargetXMLToModel_object:
             
             if hasattr(self.current_model_object, "xml_string"):
                 etree_element = self.internal_parser.makeelement(tag, attrib)
-                etree_element.set_parent(self.facade.get_parent(self.current_model_object))
+                etree_element.set_parent(self.parent_getter(self.current_model_object))
                 setattr(self.current_model_object, "xml_string", etree_element)
                 self.current_model_object = etree_element
                 return
@@ -52,11 +54,10 @@ class TargetXMLToModel_object:
             self.current_model_object = self.current_model_object.getparent()
         
         elif isinstance(self.current_model_object, FTSProtocolObject):
-            self.current_model_object = self.facade.get_parent(self.current_model_object)
+            self.current_model_object = self.parent_getter(self.current_model_object)
         
         else:
             raise TypeError("an invalid type was passed as the current_model_object")
-        
         
     def data(self, data):
         if isinstance(self.current_model_object, FTSProtocolObject):
@@ -71,12 +72,9 @@ class TargetXMLToModel_object:
         return self.model_object
     
 class COTParser(Controller):
-    def __init__(self):
-        pass
-    
-    def initialize(self, request: Request, response: Response):
-        self.request = request
-        self.response = response
+        
+    def __init__(self, request: Request, response: Response, action_mapper: ActionMapper, configuration: Configuration):
+        super().__init__(request = request, response=response, action_mapper = action_mapper, configuration = configuration)
         
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -90,10 +88,15 @@ class COTParser(Controller):
             messages.append(etree.tostring(message))
         self.response.set_value('messages', messages)
         
-    def parse_cot_to_object(self, message, model_object, facade, **kwargs):
+    def parse_cot_to_object(self, message, model_object, **kwargs):
         self.response.set_values(kwargs)
         xml = message
-        target_xml_to_model_object = TargetXMLToModel_object(model_object, facade)
+        target_xml_to_model_object = TargetXMLToModel_object(model_object, self._get_parent)
         parser = etree.XMLParser(target = target_xml_to_model_object)
         model_object = etree.XML(xml, parser)
         self.response.set_value("model_object", model_object)
+        
+    def _get_parent(self, node):
+        self.request.set_value('node', node)
+        sub_response = self.execute_sub_action('GetNodeParent')
+        return sub_response.get_value('parent')

@@ -5,10 +5,13 @@ from .domain import Event
 import rule_engine
 
 class EmergencyRuleEngine(Controller):
-    def __init__(self):
-        self.create_emergency_alert_rule = rule_engine.Rule('type == "b-a-o-tbl"')
-        self.create_emergency_contact_rule = rule_engine.Rule('type == "b-a-o-opn"')
-        self.create_emergency_ring_the_bell_rule = rule_engine.Rule('type == "b-a-o-pan"')
-        self.create_emergency_geofence_breached_rule = rule_engine.Rule('type == "b-a-g"')
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         
-        self.delete_emergency_rule = rule_engine.Rule('type == "b-a-o-can"')
+        context = rule_engine.Context(resolver=rule_engine.resolve_attribute)
+        self.create_emergency_alert_rule = rule_engine.Rule('type == "EmergencyAlert"', context=context)
+        self.create_emergency_contact_rule = rule_engine.Rule('type == "EmergencyInContact"', context=context)
+        self.create_emergency_ring_the_bell_rule = rule_engine.Rule('type == "EmergencyRingTheBell"', context=context)
+        self.create_emergency_geofence_breached_rule = rule_engine.Rule('type == "EmergencyGeoFenceBreached"', context=context)
+        self.delete_emergency_rule = rule_engine.Rule('type == "EmergencyCancelled"', context=context)
+        

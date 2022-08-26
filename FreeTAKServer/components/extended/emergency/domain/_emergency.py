@@ -9,6 +9,7 @@
 #######################################################
 from .model_constants import EmergencyVariables as vars
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
+from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
 class emergency(CoTNode):
     """An Emergency beacon the is continually send to all the connected clients until
@@ -22,26 +23,34 @@ class emergency(CoTNode):
         self.cot_attributes["cancel"] = None
         self.cot_attributes["INTAG"] = None
 
-    def settype(self, type=None):
-        self.type = type
-    
-    def gettype(self):
-        return self.cot_attributes["type"]
+    @CoTProperty
+    def type(self):
+        return self.cot_attributes.get("type", None)
 
-    def setAlert(self, alert=None):
+    @type.setter
+    def type(self, type=None):
+        self.type = type
+
+    @CoTProperty
+    def Alert(self):
+        return self.cot_attributes.get("alert", None)
+    
+    @Alert.setter
+    def Alert(self, alert=None):
         self.alert = alert
 
-    def getAlert(self):
-        return self.cot_attributes["alert"]
-
-    def setcancel(self, cancel=None):
+    @CoTProperty
+    def cancel(self):
+        return self.cot_attributes.get("cancel", None)
+    
+    @cancel.setter
+    def cancel(self, cancel=None):
         self.cancel = cancel
 
-    def getcancel(self):
-        return self.cot_attributes["cancel"]
+    @CoTProperty
+    def INTAG(self):
+        return self.cot_attributes.get("INTAG", None)
 
-    def setINTAG(self, INTAG=None):
+    @INTAG.setter
+    def INTAG(self, INTAG=None):
         self.INTAG = INTAG
-
-    def getINTAG(self):
-        return self.cot_attributes["INTAG"]
