@@ -9,3 +9,9 @@ LOGGING_CONFIGURATION_PATH = str(
 ACTION_MAPPING_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/type_action_mapping.ini")
 )
+
+INTERNAL_ACTION_MAPPING_PATH = str(
+    pathlib.PurePath(
+        CURRENT_COMPONENT_PATH, "configuration/internal_action_mapping.ini"
+    )
+)
