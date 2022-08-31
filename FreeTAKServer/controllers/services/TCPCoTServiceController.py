@@ -1,3 +1,4 @@
+import pathlib
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
@@ -54,11 +55,16 @@ class TCPCoTServiceController(Orchestrator):
 
             ObjectFactory.configure(DefaultFactory(config))
             ObjectFactory.register_instance("configuration", config)
-
-            config.add_configuration(
-                r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\components\core\cot_router\configuration\cot_router_action_mapping.ini"
-            )
             Registration().register_components(config)
+            Registration().register_components(
+                config,
+                component_folder_path=pathlib.Path(
+                    pathlib.Path(__file__).parent.parent.parent.absolute(),
+                    "component",
+                    "core",
+                ),
+                import_root="FreeTakServer.components.core",
+            )
 
             self.logger = logger
             self.dbController = DatabaseController()
