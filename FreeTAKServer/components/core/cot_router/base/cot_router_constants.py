@@ -6,7 +6,11 @@ CONFIGURATION_FORMAT = "json"
 CURRENT_COMPONENT_PATH = pathlib.Path(__file__).parent.parent.absolute()
 
 CONFIGURATION_PATH_TEMPLATE = Template(
-    str(pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/$message_type"))
+    str(
+        pathlib.PurePath(
+            CURRENT_COMPONENT_PATH, "configuration/model_definitions/$message_type"
+        )
+    )
     + f".{CONFIGURATION_FORMAT}"
 )
 
