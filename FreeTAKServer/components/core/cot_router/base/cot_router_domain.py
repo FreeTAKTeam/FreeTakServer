@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.domain import Domain
-from .cot_router_constants import CONFIGURATION_PATH_TEMPLATE
+from ..configuration.cot_router_constants import CONFIGURATION_PATH_TEMPLATE
 from .. import domain
 
 

@@ -5,7 +5,7 @@ from digitalpy.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
 from ..domain import Event
-from ..base.emergency_constants import (
+from ..configuration.emergency_constants import (
     BASE_OBJECT_NAME,
     EMERGENCY_OFF,
     EMERGENCY_ALERT,

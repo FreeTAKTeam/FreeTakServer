@@ -2,7 +2,7 @@ from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
 from digitalpy.core.object_factory import ObjectFactory
 from unittest.mock import MagicMock
-from FreeTAKServer.components.extended.emergency.base.emergency_constants import (
+from FreeTAKServer.components.extended.emergency.configuration.emergency_constants import (
     TYPE_MAPPINGS,
 )
 from FreeTAKServer.components.extended.emergency.emergency_facade import Emergency

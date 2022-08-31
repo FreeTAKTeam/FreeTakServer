@@ -2,7 +2,7 @@ from digitalpy.routing.controller import Controller
 from digitalpy.routing.request import Request
 from digitalpy.routing.response import Response
 from digitalpy.core.object_factory import ObjectFactory
-from FreeTAKServer.components.core.cot_router.base.cot_router_constants import (
+from FreeTAKServer.components.core.cot_router.configuration.cot_router_constants import (
     BASE_OBJECT_NAME,
     BASE_COT,
 )

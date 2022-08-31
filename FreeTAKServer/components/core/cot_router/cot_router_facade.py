@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.facade import Facade
-from FreeTAKServer.components.core.cot_router.base.cot_router_constants import (
+from FreeTAKServer.components.core.cot_router.configuration.cot_router_constants import (
     CONFIGURATION_PATH_TEMPLATE,
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,

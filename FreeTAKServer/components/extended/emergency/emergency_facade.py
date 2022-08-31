@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.facade import Facade
-from FreeTAKServer.components.extended.emergency.base.emergency_constants import (
+from FreeTAKServer.components.extended.emergency.configuration.emergency_constants import (
     CONFIGURATION_PATH_TEMPLATE,
     ACTION_MAPPING_PATH,
     TYPE_MAPPINGS,

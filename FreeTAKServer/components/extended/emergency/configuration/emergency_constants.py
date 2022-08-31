@@ -22,23 +22,17 @@ LOGGING_CONFIGURATION_PATH = str(
 )
 
 ACTION_MAPPING_PATH = str(
-    pathlib.PurePath(
-        CURRENT_COMPONENT_PATH, "configuration/emergency_action_mapping.ini"
-    )
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/action_mapping.ini")
 )
 
 INTERNAL_ACTION_MAPPING_PATH = str(
-    pathlib.PurePath(
-        CURRENT_COMPONENT_PATH, "configuration/internal_emergency_action_mapping.ini"
-    )
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/action_mapping.ini")
 )
 
 TYPE_MAPPINGS = json.load(
     open(
         str(
-            pathlib.PurePath(
-                CURRENT_COMPONENT_PATH, "configuration/emergency_type_mapping.json"
-            )
+            pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/type_mapping.json")
         ),
         "r",
         encoding="utf-8",

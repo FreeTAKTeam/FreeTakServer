@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.domain import Domain
-from .emergency_constants import CONFIGURATION_PATH_TEMPLATE
+from ..configuration.emergency_constants import CONFIGURATION_PATH_TEMPLATE
 from .. import domain
 
 
