@@ -5,71 +5,21 @@ from digitalpy.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
 from ..domain import Event
-from ..base.emergency_constants import BASE_OBJECT_NAME, EMERGENCY_OFF, EMERGENCY_ALERT
+from ..base.emergency_constants import (
+    BASE_OBJECT_NAME,
+    EMERGENCY_OFF,
+    EMERGENCY_ALERT,
+    BUSINESS_RULES_PATH,
+)
 
 
 class EmergencyMain(DefaultBusinessRuleController):
     emergencies = {}
 
     def __init__(self, request, response, action_mapper, configuration):
-        business_rules = {
-            "rules": {
-                'type != "EmergencyDelete"': {
-                    "callbacks": [self._parse_emergency_on],
-                    "matchable": "model_object",
-                    "rules": {
-                        'type == "EmergencyAlert"': {
-                            "callbacks": [
-                                self._add_emergency_to_emergencies,
-                                self.emergency_broadcast,
-                            ]
-                        },
-                        'type == "EmergencyInContact"': {
-                            "callbacks": [
-                                self._add_emergency_to_emergencies,
-                                self.emergency_broadcast,
-                            ]
-                        },
-                        'type == "EmergencyRingTheBell"': {
-                            "callbacks": [
-                                self._add_emergency_to_emergencies,
-                                self.emergency_broadcast,
-                            ]
-                        },
-                        'type == "EmergencyGeoFenceBreached"': {
-                            "callbacks": [
-                                self._add_emergency_to_emergencies,
-                                self.emergency_broadcast,
-                            ]
-                        },
-                        'type == "EmergencyCancelled"': {
-                            "callbacks": [
-                                self._add_emergency_to_emergencies,
-                                self.emergency_broadcast,
-                            ]
-                        },
-                    },
-                },
-                'type == "EmergencyDelete"': {
-                    "callbacks": [self._parse_emergency_on],
-                    "matchable": "model_object",
-                    "rules": {
-                        'type == "EmergencyDelete"': {
-                            "callbacks": [
-                                self._remove_emergency_from_emergencies,
-                                self.emergency_broadcast,
-                            ]
-                        }
-                    },
-                },
-                'type == "ClientConnected"': {
-                    "callbacks": [self.emergency_broadcast_all]
-                },
-            },
-            "matchable": "xml_element",
-        }
+
         super().__init__(
-            business_rules=business_rules,
+            business_rules_path=BUSINESS_RULES_PATH,
             request=request,
             response=response,
             configuration=configuration,

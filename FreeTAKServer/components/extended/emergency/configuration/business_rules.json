@@ -1,0 +1,62 @@
+{
+    "rules": {
+        "type != 'EmergencyDelete'": {
+            "callbacks": [
+                "_parse_emergency_on"
+            ],
+            "matchable": "model_object",
+            "rules": {
+                "type == 'EmergencyAlert'": {
+                    "callbacks": [
+                        "_add_emergency_to_emergencies",
+                        "emergency_broadcast"
+                    ]
+                },
+                "type == 'EmergencyInContact'": {
+                    "callbacks": [
+                        "_add_emergency_to_emergencies",
+                        "emergency_broadcast"
+                    ]
+                },
+                "type == 'EmergencyRingTheBell'": {
+                    "callbacks": [
+                        "_add_emergency_to_emergencies",
+                        "emergency_broadcast"
+                    ]
+                },
+                "type == 'EmergencyGeoFenceBreached'": {
+                    "callbacks": [
+                        "_add_emergency_to_emergencies",
+                        "emergency_broadcast"
+                    ]
+                },
+                "type == 'EmergencyCancelled'": {
+                    "callbacks": [
+                        "_add_emergency_to_emergencies",
+                        "emergency_broadcast"
+                    ]
+                }
+            }
+        },
+        "type == 'EmergencyDelete'": {
+            "callbacks": [
+                "_parse_emergency_on"
+            ],
+            "matchable": "model_object",
+            "rules": {
+                "type == 'EmergencyDelete'": {
+                    "callbacks": [
+                        "_remove_emergency_from_emergencies",
+                        "emergency_broadcast"
+                    ]
+                }
+            }
+        },
+        "type == 'ClientConnected'": {
+            "callbacks": [
+                "emergency_broadcast_all"
+            ]
+        }
+    },
+    "matchable": "xml_element"
+}
