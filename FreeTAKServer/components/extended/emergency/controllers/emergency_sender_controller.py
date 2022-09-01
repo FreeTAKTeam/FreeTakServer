@@ -1,8 +1,11 @@
+"""this file contains the emergency sender controller responsible for transmitting all emergencies"""
 from digitalpy.routing.controller import Controller
 from ..domain import Event
 
 
 class EmergencySenderController(Controller):
+    """this class is responsible for transmitting emergencies"""
+
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
         return self.response

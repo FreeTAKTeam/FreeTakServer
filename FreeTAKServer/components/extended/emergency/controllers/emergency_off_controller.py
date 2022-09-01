@@ -1,15 +1,19 @@
+"""this file contains the class with the logic responsible for emergency off events"""
+from digitalpy.logic.impl.default_business_rule_controller import (
+    DefaultBusinessRuleController,
+)
+
 from ..configuration.emergency_constants import (
     EMERGENCY_OFF_BUSINESS_RULES_PATH,
     EMERGENCY_OFF,
     BASE_OBJECT_NAME,
 )
 
-from digitalpy.logic.impl.default_business_rule_controller import (
-    DefaultBusinessRuleController,
-)
-
 
 class EmergencyOffController(DefaultBusinessRuleController):
+    """this controller is responsible for executing the business logic required
+    for proper handling of all Emergency Off events"""
+
     def __init__(
         self, request, response, action_mapper, configuration, emergency_action_mapper
     ):

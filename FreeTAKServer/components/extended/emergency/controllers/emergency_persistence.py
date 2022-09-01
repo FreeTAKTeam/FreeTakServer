@@ -1,7 +1,10 @@
+"""this file contains the emergency component's persistency layer"""
 from digitalpy.routing.controller import Controller
 
 
 class EmergencyPersistence(Controller):
+    """this class is responsible for managing saved emergencies"""
+
     emergencies = {}
 
     def execute(self, method=None):

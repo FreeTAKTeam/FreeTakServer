@@ -1,3 +1,4 @@
+"""this file contains the class with the logic responsible for emergency on events"""
 from ..configuration.emergency_constants import (
     EMERGENCY_ON_BUSINESS_RULES_PATH,
     EMERGENCY_ALERT,
@@ -10,16 +11,29 @@ from digitalpy.logic.impl.default_business_rule_controller import (
 
 
 class EmergencyOnController(DefaultBusinessRuleController):
+    """this controller is responsible for executing the business logic required
+    for proper handling of all Emergency On events"""
+
     def __init__(
         self, request, response, action_mapper, configuration, emergency_action_mapper
     ):
 
         super().__init__(
+            # the path to the business rules used by this controller
             business_rules_path=EMERGENCY_ON_BUSINESS_RULES_PATH,
+            # the request object (passed by constructor)
             request=request,
+            # the response object (passed by constructor)
             response=response,
+            # the configuration object (passed by constructor)
             configuration=configuration,
+            # the general action mapper (passed by constructor)
             action_mapper=action_mapper,
+            # the component action mapper (passed by constructor).
+            # the component or internal action mapper is configured
+            # to use the internal action mapping configuration.
+            # it is this internal action mapper that is used by
+            # the DefaultBusinessRuleController evaluate_requ
             internal_action_mapper=emergency_action_mapper,
         )
 
