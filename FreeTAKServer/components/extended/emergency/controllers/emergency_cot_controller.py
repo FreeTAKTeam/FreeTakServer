@@ -76,31 +76,6 @@ class EmergencyMain(DefaultBusinessRuleController):
                 f"error broadcasting emergency {error}"
             )
 
-    def _add_emergency_to_emergencies(self, model_object, **kwargs) -> None:
-        """this method adds a new emergency to the list of emergencies
-
-        Args:
-            emergency (Event): the new emergency model object
-        """
-        try:
-            emergency_uid = model_object.uid
-            self.emergencies[emergency_uid] = model_object
-            self.request.get_value("logger").debug(
-                f"added emergency: {emergency_uid} to emergencies: {self.emergencies}"
-            )
-        except Exception as error:
-            self.request.get_value("logger").error(
-                f"error adding emergency to emergencies {error}"
-            )
-
-    def _remove_emergency_from_emergencies(self, emergency) -> None:
-        """this method removes the specified emergency from the list of emergencies
-
-        Args:
-            emergency (Event): the emergency delete model object
-        """
-        del self.emergencies[emergency.uid]
-
     def emergency_received(self, logger, **kwargs):
         """this method is called to handle an emergency received
         Args:
