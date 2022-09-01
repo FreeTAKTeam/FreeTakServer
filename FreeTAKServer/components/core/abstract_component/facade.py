@@ -16,14 +16,12 @@ import importlib
 class Facade(Controller):
     def __init__(
         self,
-        config_path_template,
         action_mapping_path,
         internal_action_mapping_path,
         logger_configuration,
         component_name=None,
         type_mapping=None,
         action_mapper=None,
-        controllers=object,
         base=object,
         request=None,
         response=None,
@@ -40,20 +38,7 @@ class Facade(Controller):
         self.action_mapping_path = action_mapping_path
         self.internal_action_mapping_path = internal_action_mapping_path
         self.type_mapping = type_mapping
-        self.controllers = controllers
         self.action_mapper = action_mapper
-
-        # dynamically initialize all controllers in controllers package
-        """controller_classes = [
-            member
-            for member in inspect.getmembers(controllers)
-            if inspect.isclass(member)
-        ]
-        for controller_class in controller_classes:
-            controller_instance = controller_class(**kwargs)
-            self.controllers.append(controller_instance)
-            setattr(self, controller_class.__class__.__name__, controller_instance)
-        """
         if component_name is not None:
             self.component_name = component_name
         else:
@@ -71,11 +56,6 @@ class Facade(Controller):
 
     def initialize(self, request, response):
         super().initialize(request, response)
-
-        # initialize all used controllers
-        # for controller in self.controllers:
-        #    controller.initialize(request, response)
-
         self.request.set_sender(self.__class__.__name__)
 
     def execute(self, method):
