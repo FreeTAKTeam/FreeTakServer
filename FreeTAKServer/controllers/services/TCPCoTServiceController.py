@@ -55,16 +55,16 @@ class TCPCoTServiceController(Orchestrator):
 
             ObjectFactory.configure(DefaultFactory(config))
             ObjectFactory.register_instance("configuration", config)
-            Registration().register_components(config)
             Registration().register_components(
                 config,
                 component_folder_path=pathlib.Path(
                     pathlib.Path(__file__).parent.parent.parent.absolute(),
-                    "component",
+                    "components",
                     "core",
                 ),
-                import_root="FreeTakServer.components.core",
+                import_root="FreeTAKServer.components.core",
             )
+            Registration().register_components(config)
 
             self.logger = logger
             self.dbController = DatabaseController()

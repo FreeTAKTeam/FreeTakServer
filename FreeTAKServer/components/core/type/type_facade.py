@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.facade import Facade
-from .type_constants import (
+from .configuration.type_constants import (
     ACTION_MAPPING_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,

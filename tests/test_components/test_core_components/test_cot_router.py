@@ -1,4 +1,4 @@
-from FreeTAKServer.components.core.cot_router.cot_router_facade import COTRouter
+from FreeTAKServer.components.core.COT_router.COT_router_facade import COTRouter
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
 from digitalpy.core.object_factory import ObjectFactory
@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 from lxml import etree
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.components.core.type.type_facade import Type
-from FreeTAKServer.components.core.cot_router.cot_router_facade import COTRouter
+from FreeTAKServer.components.core.COT_router.COT_router_facade import COTRouter
 
 
 def setup_module(module):
