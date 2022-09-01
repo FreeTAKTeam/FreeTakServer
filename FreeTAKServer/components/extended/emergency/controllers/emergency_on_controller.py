@@ -35,6 +35,16 @@ class EmergencyOnController(DefaultBusinessRuleController):
         self.request.set_value("message_type", EMERGENCY_ALERT)
         self.request.set_value("object_class_name", BASE_OBJECT_NAME)
 
+        # here we are setting the context to be the action, this allows us to create action keys
+        # which are not subject to the calling controller. This is particularly important in the
+        # context of the CreateNode action because what happens is that when the EmergencyDomain controller
+        # is initialized the response sender becomes EmergencyDomain. In the case of the CreateNode action
+        # this means that the next action key found is ??CreateNode instead of EmergencyOnController??CreateNode
+        # resulting in a failing call to ??CreateNode. By setting the context to be the action,
+        # we can now set the routing key to be ?[previous action]?CreateNode which is not impacted by the sender
+        # and therefore ends after being called without any subsequent actions.
+        self.request.set_context(self.request.get_action())
+
         response = self.execute_sub_action("CreateNode")
 
         self.request.set_value("model_object", response.get_value("model_object"))
