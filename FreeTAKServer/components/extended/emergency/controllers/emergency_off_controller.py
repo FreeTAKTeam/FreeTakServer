@@ -28,6 +28,8 @@ class EmergencyOffController(DefaultBusinessRuleController):
         return self.response
 
     def parse_emergency_off(self, **kwargs):
+        """this method creates the model object outline and proceeds to pass
+        it to the parser to fill the model object with the xml data"""
         self.request.get_value("logger").debug("parsing emergency off")
 
         self.response.set_values(kwargs)

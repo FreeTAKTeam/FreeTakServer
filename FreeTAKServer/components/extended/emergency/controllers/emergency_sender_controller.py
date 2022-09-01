@@ -27,9 +27,7 @@ class EmergencySenderController(Controller):
             )
 
     def broadcast_all_emergencies(self, **kwargs):
-        """this method will broadcast all emergencies
-        Args:
-        """
+        """this method will broadcast all emergencies"""
         self.response.set_values(kwargs)
         emergencies = self.execute_sub_action("GetAllEmergencies").get_value(
             "emergencies"
