@@ -1,11 +1,11 @@
 {
-    "callbacks": [
+    "actions": [
         "ParseEmergencyOff"
     ],
     "matchable": "model_object",
     "rules": {
-        "type == 'EmergencyDelete'": {
-            "callbacks": [
+        "type == 'EmergencyCancelled'": {
+            "actions": [
                 "DeleteEmergency",
                 "BroadcastEmergency"
             ]

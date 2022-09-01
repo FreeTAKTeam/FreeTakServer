@@ -25,13 +25,15 @@ class EmergencyPersistence(Controller):
                 f"error adding emergency to emergencies {error}"
             )
 
-    def delete_emergency(self, emergency) -> None:
+    def delete_emergency(self, model_object, **kwargs) -> None:
         """this method removes the specified emergency from the list of emergencies
 
         Args:
             emergency (Event): the emergency delete model object
         """
-        del self.emergencies[emergency.uid]
+        del self.emergencies[model_object.uid]
 
-    def get_emergecies(self) -> None:
-        self.response.set_value("emergencies", self.emergencies)
+    def get_all_emergencies(self, **kwargs) -> None:
+        """this method is gets all the saved emergency objects and returns them
+        as a list of emergency objects"""
+        self.response.set_value("emergencies", list(self.emergencies.values()))

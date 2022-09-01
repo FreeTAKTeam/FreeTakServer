@@ -31,8 +31,8 @@ class EmergencySenderController(Controller):
         Args:
         """
         self.response.set_values(kwargs)
-        self.response.set_action("Broadcast")
-        emergencies = self.execute_sub_action("EmergencyGetAll").get_value(
+        emergencies = self.execute_sub_action("GetAllEmergencies").get_value(
             "emergencies"
         )
-        self.response.set_value("model_objects", list(emergencies))
+        self.request.set_value("model_objects", list(emergencies))
+        self.execute_sub_action("Broadcast")
