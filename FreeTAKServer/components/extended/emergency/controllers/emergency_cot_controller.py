@@ -38,6 +38,9 @@ class EmergencyMain(DefaultBusinessRuleController):
         return self.response
 
     def _parse_emergency_on(self, **kwargs):
+
+        self.request.get_value("logger").debug("parsing emergency on")
+
         self.response.set_values(kwargs)
 
         self.request.set_value("message_type", EMERGENCY_ALERT)
