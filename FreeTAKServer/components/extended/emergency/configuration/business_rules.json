@@ -40,7 +40,7 @@
         },
         "type == 'EmergencyDelete'": {
             "callbacks": [
-                "_parse_emergency_on"
+                "_parse_emergency_off"
             ],
             "matchable": "model_object",
             "rules": {
