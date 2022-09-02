@@ -1,56 +1,43 @@
 from FreeTAKServer.components.core.abstract_component.facade import Facade
-from FreeTAKServer.components.extended.emergency.emergency_constants import (
-    CONFIGURATION_PATH_TEMPLATE,
+from FreeTAKServer.components.extended.emergency.configuration.emergency_constants import (
     ACTION_MAPPING_PATH,
     TYPE_MAPPINGS,
     LOGGING_CONFIGURATION_PATH,
+    INTERNAL_ACTION_MAPPING_PATH,
 )
-from . import domain
-from .emergency_main import EmergencyMain
+from . import base
 
 
-class EmergencyFacade(Facade):
+# th
+class Emergency(Facade):
+    """This is the facade class for the emergency component, it is responsible
+    for handling all public routing and forwards all requests to the internal routing
+    """
 
-    state = None
-
-    def __init__(self, action_mapper, request, response, configuration):
-        self.emergency = EmergencyMain(
-            action_mapper=action_mapper,
-            request=request,
-            response=response,
-            configuration=configuration,
-        )
+    def __init__(
+        self,
+        emergency_action_mapper,
+        request,
+        response,
+        configuration,
+    ):
         super().__init__(
-            config_path_template=CONFIGURATION_PATH_TEMPLATE,
-            domain=domain,
+            # the path to the external action mapping
             action_mapping_path=ACTION_MAPPING_PATH,
+            # the path to the internal action mapping
+            internal_action_mapping_path=INTERNAL_ACTION_MAPPING_PATH,
+            # the type mapping in dictionary form
             type_mapping=TYPE_MAPPINGS,
+            # the path to the logger configuration
             logger_configuration=LOGGING_CONFIGURATION_PATH,
-            controllers=[self.emergency],
-            action_mapper=action_mapper,
+            # the package containing the base classes
+            base=base,
+            # the component specific action mapper (passed by constructor)
+            action_mapper=emergency_action_mapper,
+            # the request object (passed by constructor)
             request=request,
+            # the response object (passed by constructor)
             response=response,
+            # the configuration object (passed by constructor)
             configuration=configuration,
         )
-        EmergencyFacade.state = self.__dict__
-
-    def emergency_alert(self, **kwargs):
-        self.emergency.emergency_received(**self.request.get_values())
-
-    def emergency_in_contact(self, **kwargs):
-        self.emergency.emergency_received(**self.request.get_values())
-
-    def emergency_geofence_breached(self, **kwargs):
-        self.emergency.emergency_received(**self.request.get_values())
-
-    def emergency_ring_the_bell(self, **kwargs):
-        self.emergency.emergency_received(**self.request.get_values())
-
-    def emergency_delete(self, **kwargs):
-        self.emergency.emergency_delete(**self.request.get_values())
-
-    def emergency_broadcast(self, **kwargs):
-        self.emergency.emergency_broadcast(**self.request.get_values())
-
-    def emergency_broadcast_all(self, **kwargs):
-        self.emergency.emergency_broadcast_all(**self.request.get_values())

@@ -1,0 +1,38 @@
+{
+    "actions": [
+        "ParseEmergencyOn"
+    ],
+    "matchable": "model_object",
+    "rules": {
+        "type == 'EmergencyAlert'": {
+            "actions": [
+                "SaveEmergency",
+                "BroadcastEmergency"
+            ]
+        },
+        "type == 'EmergencyInContact'": {
+            "actions": [
+                "SaveEmergency",
+                "BroadcastEmergency"
+            ]
+        },
+        "type == 'EmergencyRingTheBell'": {
+            "actions": [
+                "SaveEmergency",
+                "BroadcastEmergency"
+            ]
+        },
+        "type == 'EmergencyGeoFenceBreached'": {
+            "actions": [
+                "SaveEmergency",
+                "BroadcastEmergency"
+            ]
+        },
+        "type == 'EmergencyCancelled'": {
+            "actions": [
+                "SaveEmergency",
+                "BroadcastEmergency"
+            ]
+        }
+    }
+}
