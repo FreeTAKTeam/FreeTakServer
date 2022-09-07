@@ -1,0 +1,2 @@
+recursive-include FreeTAKServer *.json
+recursive-include FreeTAKServer *.ini

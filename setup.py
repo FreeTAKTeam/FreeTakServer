@@ -1,3 +1,4 @@
+import glob
 from setuptools import find_packages, setup
 from os import path
 
@@ -6,8 +7,10 @@ with open(path.join(this_directory, "README.md")) as f:
     long_description = f.read()
 setup(
     name="FreeTAKServer",
-    packages=find_packages(include=["FreeTAKServer", "FreeTAKServer.*"]),
-    version="1.9.9.12",
+    packages=find_packages(
+        include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini"]
+    ),
+    version="1.9.9.13",
     license="EPL-2.0",
     description="An open source server for the TAK family of applications.",
     long_description=long_description,
@@ -17,6 +20,7 @@ setup(
     url="https://github.com/FreeTAKTeam/FreeTakServer",
     download_url="https://github.com/FreeTAKTeam/FreeTakServer/releases",
     keywords=["TAK", "OPENSOURCE"],
+    include_package_data=True,
     install_requires=[
         "click==8.0.4",
         "colorama==0.4.4",
