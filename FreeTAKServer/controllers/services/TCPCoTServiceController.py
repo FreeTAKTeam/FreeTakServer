@@ -3,6 +3,7 @@ from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.TCPSocketController import TCPSocketController
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 import os
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
@@ -50,21 +51,19 @@ class TCPCoTServiceController(Orchestrator):
             # define routing
             config = InifileConfiguration("")
             config.add_configuration(
-                r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"
+                pathlib.PurePath(
+                    MainConfig.MainPath, "configuration", "action_mapping.ini"
+                ),
             )
 
             ObjectFactory.configure(DefaultFactory(config))
             ObjectFactory.register_instance("configuration", config)
             Registration().register_components(
                 config,
-                component_folder_path=pathlib.Path(
-                    pathlib.Path(__file__).parent.parent.parent.absolute(),
-                    "components",
-                    "core",
-                ),
+                component_folder_path="core",
                 import_root="FreeTAKServer.components.core",
             )
-            Registration().register_components(config)
+            Registration().register_components(config, component_folder_path="external")
 
             self.logger = logger
             self.dbController = DatabaseController()
