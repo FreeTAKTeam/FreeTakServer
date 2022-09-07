@@ -51,8 +51,13 @@ class TCPCoTServiceController(Orchestrator):
             # define routing
             config = InifileConfiguration("")
             config.add_configuration(
-                pathlib.PurePath(
-                    MainConfig.MainPath, "configuration", "action_mapping.ini"
+                str(
+                    pathlib.PurePath(
+                        str(MainConfig.MainPath),
+                        "configuration",
+                        "routing",
+                        "action_mapping.ini",
+                    )
                 ),
             )
 
@@ -63,7 +68,7 @@ class TCPCoTServiceController(Orchestrator):
                 component_folder_path="core",
                 import_root="FreeTAKServer.components.core",
             )
-            Registration().register_components(config, component_folder_path="external")
+            Registration().register_components(config, component_folder_path="extended")
 
             self.logger = logger
             self.dbController = DatabaseController()
