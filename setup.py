@@ -8,9 +8,9 @@ with open(path.join(this_directory, "README.md")) as f:
 setup(
     name="FreeTAKServer",
     packages=find_packages(
-        include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini"]
+        include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini", "*.conf"]
     ),
-    version="1.9.9.15",
+    version="1.9.9.16",
     license="EPL-2.0",
     description="An open source server for the TAK family of applications.",
     long_description=long_description,
