@@ -1,12 +1,13 @@
 """this file contains the class with the logic responsible for emergency on events"""
+
+from digitalpy.logic.impl.default_business_rule_controller import (
+    DefaultBusinessRuleController,
+)
+
 from ..configuration.emergency_constants import (
     EMERGENCY_ON_BUSINESS_RULES_PATH,
     EMERGENCY_ALERT,
     BASE_OBJECT_NAME,
-)
-
-from digitalpy.logic.impl.default_business_rule_controller import (
-    DefaultBusinessRuleController,
 )
 
 
@@ -40,6 +41,13 @@ class EmergencyOnController(DefaultBusinessRuleController):
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
         return self.response
+
+    def add_call_police_remark(self, **kwargs):
+        """this method is to be called by the rule engine to add
+        a remark to a given emergency CoT containing the text value
+        CALL 911 NOW"""
+        self.response.set_values(kwargs)
+        self.request.get_value("model_object").detail.remarks.text = "CALL 911 NOW"
 
     def parse_emergency_on(self, **kwargs):
         """this method creates the model object outline and proceeds to pass

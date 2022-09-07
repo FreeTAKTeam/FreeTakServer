@@ -8,3 +8,4 @@ from ._link import link as link
 from ._contact import contact as contact
 from ._emergency import emergency as emergency
 from ._point import point as point
+from ._remarks import remarks as remarks

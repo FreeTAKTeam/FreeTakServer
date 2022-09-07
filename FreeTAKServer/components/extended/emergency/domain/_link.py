@@ -2,6 +2,7 @@ from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from datetime import datetime as dt
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
+
 class link(CoTNode):
     def __init__(self, configuration, model):
         super().__init__(self.__class__.__name__, configuration, model)
@@ -18,7 +19,7 @@ class link(CoTNode):
     @remarks.setter
     def remarks(self, remarks):
         self.__modified = True
-        self.remarks = remarks
+        self.cot_attributes["remarks"] = remarks
 
     @CoTProperty
     def callsign(self):
@@ -26,8 +27,7 @@ class link(CoTNode):
 
     @callsign.setter
     def callsign(self, callsign):
-        self.__modified = True
-        self.callsign = callsign
+        self.cot_attributes["callsign"] = callsign
 
     @CoTProperty
     def point(self):
@@ -35,25 +35,25 @@ class link(CoTNode):
 
     @point.setter
     def point(self, point):
-        self.__modified = True
-        self.point = point
+        self.cot_attributes["point"] = point
 
-    @CoTProperty 
+    @CoTProperty
     def uid(self):
         import uuid
+
         if "uid" in self.cot_attributes:
             return self.cot_attributes.get("uid", None)
         else:
             self.cot_attributes["uid"] = uuid.uuid1()
             return self.cot_attributes.get("uid", None)
 
-    @uid.setter 
+    @uid.setter
     def uid(self, uid=0):
         self.__modified = True
-        self.cot_attributes["uid"]=uid 
+        self.cot_attributes["uid"] = uid
 
-    @CoTProperty 
-    def production_time(self): 
+    @CoTProperty
+    def production_time(self):
         return self.cot_attributes.get("production_time", None)
 
     @production_time.setter
@@ -71,31 +71,31 @@ class link(CoTNode):
             self.production_time = production_time
 
     @CoTProperty
-    def relation(self): 
+    def relation(self):
         return self.cot_attributes.get("relation", None)
 
     @relation.setter
     def relation(self, relation=0):
         self.__modified = True
-        self.cot_attributes["relation"]=relation 
+        self.cot_attributes["relation"] = relation
 
-    @CoTProperty 
-    def type(self): 
+    @CoTProperty
+    def type(self):
         return self.cot_attributes.get("type", None)
 
-    @type.setter 
+    @type.setter
     def type(self, type=0):
         self.__modified = True
-        self.cot_attributes["type"]=type 
+        self.cot_attributes["type"] = type
 
-    @CoTProperty 
-    def parent_callsign(self): 
+    @CoTProperty
+    def parent_callsign(self):
         return self.cot_attributes.get("parent_callsign", None)
 
-    @parent_callsign.setter 
+    @parent_callsign.setter
     def parent_callsign(self, parent_callsign=0):
         self.__modified = True
-        self.cot_attributes["parent_callsign"]=parent_callsign 
+        self.cot_attributes["parent_callsign"] = parent_callsign
 
     @CoTProperty
     def relationship(self):
@@ -103,5 +103,4 @@ class link(CoTNode):
 
     @relationship.setter
     def relationship(self, relationship):
-        self.cot_attributes["relationship"]=relationship
-
+        self.cot_attributes["relationship"] = relationship
