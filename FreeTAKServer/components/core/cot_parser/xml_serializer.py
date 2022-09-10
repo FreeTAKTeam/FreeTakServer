@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pyexpat import model
 from .abstract_serializer import SerializerAbstract
 from FreeTAKServer.model.FTSModel.Event import Event
@@ -67,6 +68,7 @@ class XmlSerializer(SerializerAbstract):
         # handles text data within tag
         if hasattr(modelObject, "text"):
             xml.text = modelObject.text
+
         for attribName in modelObject.get_all_properties():
             # below line is required because get_all_properties function returns only cot property names
             value = getattr(modelObject, attribName)
@@ -112,11 +114,36 @@ class XmlSerializer(SerializerAbstract):
                     pass
                 else:
                     xml.attrib[attribName] = str(value)
-
+        if hasattr(modelObject, "xml_string"):
+            # this method combines the xml object parsed from
+            # the model object with the xml_string found in the modelObject
+            # directly, giving priority to the xml object parsed from the model object
+            xml = self.xml_merge(modelObject.xml_string, xml)
         if level == 0:
             return etree.tostring(xml)
         else:
             return xml
+
+    def xml_merge(self, a, b):
+        """credits: https://gist.github.com/dirkjot/bd25b037b33bba6187e99d76792ceb90
+        this function merges two xml etree elements
+
+        Args:
+            a (_type_): _description_
+            b (_type_): _description_
+        """
+
+        def inner(aparent, bparent):
+            for bchild in bparent:
+                achild = aparent.xpath("./" + bchild.tag)
+                if not achild:
+                    aparent.append(bchild)
+                elif bchild.getchildren():
+                    inner(achild[0], bchild)
+
+        res = deepcopy(a)
+        inner(res, b)
+        return res
 
     def from_format_to_fts_object(self, object: str, FTSObject: Event) -> Event:
         """convert xmlstring to fts_object

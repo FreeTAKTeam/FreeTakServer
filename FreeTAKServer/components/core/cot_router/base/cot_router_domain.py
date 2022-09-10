@@ -1,9 +1,9 @@
 from FreeTAKServer.components.core.abstract_component.domain import Domain
-from ..configuration.COT_router_constants import CONFIGURATION_PATH_TEMPLATE
+from ..configuration.cot_router_constants import CONFIGURATION_PATH_TEMPLATE
 from .. import domain
 
 
-class CoTRouterDomain(Domain):
+class CotRouterDomain(Domain):
     def __init__(self, request, response, configuration, action_mapper):
         super().__init__(
             CONFIGURATION_PATH_TEMPLATE,
