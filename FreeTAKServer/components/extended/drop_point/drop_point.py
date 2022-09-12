@@ -3,6 +3,12 @@ from digitalpy.routing.controller import Controller
 
 class DropPoint(Controller):
 
+    """
+        Facade
+        Domain
+
+        
+    """
     def accept_visitor(self, visitor):
         pass
 
@@ -16,6 +22,7 @@ class DropPoint(Controller):
     
     def drop_point_broadcast(self, message, **kwargs):
         self.response.set_values(kwargs)
+
         domain = _DropPointDomain()
         request = ObjectFactory.get_new_instance('request')
         request.set_action('ParseCoT')
@@ -29,4 +36,4 @@ class DropPoint(Controller):
         
     def drop_point_recieve(self, **kwargs):
         self.response.set_values(kwargs)
-        self.response.set_action("oint_broadcast")
+        self.response.set_action("point_broadcast")
