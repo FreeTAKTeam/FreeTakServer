@@ -105,8 +105,9 @@ class COTParser(Controller):
         self.response.set_values(kwargs)
         messages = []
         for model_object in model_objects:
-            message = XmlSerializer().from_fts_object_to_format(model_object)
-            messages.append(etree.tostring(message))
+            # TODO: Direct calls shouldnt be made!!!!! this must be changed ASAP
+            message = XmlSerializer().serialize_model_to_CoT(model_object)
+            messages.append(message)
         self.response.set_value("messages", messages)
 
     def parse_cot_to_object(self, message, model_object, **kwargs):

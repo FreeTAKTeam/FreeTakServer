@@ -5,17 +5,20 @@ from digitalpy.routing.response import Response
 from pathlib import PurePath
 import importlib
 import os
+from .registration_constants import ROOT_COMPONENT_PATH
 
 
 class Registration:
     def register_components(
         self,
         config,
-        component_folder_path=pathlib.Path(
-            pathlib.Path(__file__).parent.parent.parent.absolute(), "extended"
-        ),
+        component_folder_path,
         import_root="FreeTAKServer.components.extended",
     ):
+        if not os.path.isabs(component_folder_path):
+            component_folder_path = str(
+                pathlib.PurePath(ROOT_COMPONENT_PATH, component_folder_path)
+            )
         components = os.scandir(component_folder_path)
         for component in components:
             try:

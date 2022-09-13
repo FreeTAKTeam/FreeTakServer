@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.facade import Facade
-from FreeTAKServer.components.core.COT_router.configuration.COT_router_constants import (
+from FreeTAKServer.components.core.cot_router.configuration.cot_router_constants import (
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
@@ -7,7 +7,7 @@ from FreeTAKServer.components.core.COT_router.configuration.COT_router_constants
 from . import base
 
 
-class COTRouter(Facade):
+class CotRouter(Facade):
     def __init__(
         self,
         cotrouter_action_mapper,

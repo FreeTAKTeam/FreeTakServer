@@ -2,13 +2,13 @@ from digitalpy.routing.controller import Controller
 from digitalpy.routing.request import Request
 from digitalpy.routing.response import Response
 from digitalpy.core.object_factory import ObjectFactory
-from FreeTAKServer.components.core.COT_router.configuration.COT_router_constants import (
+from FreeTAKServer.components.core.cot_router.configuration.cot_router_constants import (
     BASE_OBJECT_NAME,
     BASE_COT,
 )
 
 
-class COTRouter(Controller):
+class CotRouter(Controller):
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
 

@@ -43,3 +43,11 @@ class detail(CoTNode):
     @emergency.setter
     def emergency(self, emergency):
         self.cot_attributes["emergency"] = emergency
+
+    @CoTProperty
+    def remarks(self):
+        return self.cot_attributes.get("remarks", None)
+
+    @remarks.setter
+    def remarks(self, remarks):
+        self.cot_attributes["remarks"] = remarks

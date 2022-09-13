@@ -1,3 +1,5 @@
+from copy import deepcopy
+from pyexpat import model
 from .abstract_serializer import SerializerAbstract
 from FreeTAKServer.model.FTSModel.Event import Event
 from typing import NewType, List
@@ -46,6 +48,102 @@ class XmlSerializer(SerializerAbstract):
     }
 
     __ftsObjectType = NewType("ftsObject", FTSProtocolObject)
+
+    def serialize_model_to_CoT(self, modelObject, tagName="event", level=0):
+        from lxml.etree import Element  # pylint: disable=no-name-in-module
+
+        if modelObject.__class__.__name__ == "Event":
+            request = ObjectFactory.get_new_instance("request")
+            request.set_action("ConvertHumanReadableToMachineReadable")
+            request.set_context("MEMORY")
+            request.set_value("human_readable_type", modelObject.type)
+            request.set_value("default", modelObject.type)
+
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            response = ObjectFactory.get_new_instance("response")
+            actionmapper.process_action(request, response)
+            modelObject.type = response.get_value("machine_readable_type")
+
+        xml = Element(tagName)
+        # handles text data within tag
+        if hasattr(modelObject, "text"):
+            xml.text = modelObject.text
+
+        for attribName in modelObject.get_all_properties():
+            # below line is required because get_all_properties function returns only cot property names
+            value = getattr(modelObject, attribName)
+            if hasattr(value, "__dict__"):
+                tagElement = self.serialize_model_to_CoT(
+                    value, attribName, level=level + 1
+                )
+                # TODO: modify so double underscores are handled differently
+                try:
+                    if attribName[0] == "_":
+                        tagElement.tag = "_" + tagElement.tag
+                        xml.append(tagElement)
+                except:
+                    pass
+                else:
+                    xml.append(tagElement)
+
+            elif value == None:
+                continue
+
+            elif isinstance(value, list):
+                for element in value:
+                    tagElement = self.serialize_model_to_CoT(
+                        element, attribName, level=level + 1
+                    )
+                    # TODO: modify so double underscores are handled differently
+                    try:
+                        if attribName[0] == "_":
+                            tagElement.tag = "_" + tagElement.tag
+                            xml.append(tagElement)
+                    except:
+                        pass
+                    else:
+                        xml.append(tagElement)
+
+            else:
+                # TODO: modify so double underscores are handled differently
+                # handles instances in which attribute name begins with double underscore
+                try:
+                    if attribName[0] == "_":
+                        xml.attrib["_" + attribName] = value
+                except:
+                    pass
+                else:
+                    xml.attrib[attribName] = str(value)
+        if hasattr(modelObject, "xml_string"):
+            # this method combines the xml object parsed from
+            # the model object with the xml_string found in the modelObject
+            # directly, giving priority to the xml object parsed from the model object
+            xml = self.xml_merge(modelObject.xml_string, xml)
+        if level == 0:
+            return etree.tostring(xml)
+        else:
+            return xml
+
+    def xml_merge(self, a, b):
+        """credits: https://gist.github.com/dirkjot/bd25b037b33bba6187e99d76792ceb90
+        this function merges two xml etree elements
+
+        Args:
+            a (_type_): _description_
+            b (_type_): _description_
+        """
+
+        def inner(aparent, bparent):
+            for bchild in bparent:
+                achild = aparent.xpath("./" + bchild.tag)
+                if not achild:
+                    aparent.append(bchild)
+                elif bchild.getchildren():
+                    inner(achild[0], bchild)
+
+        res = deepcopy(a)
+        inner(res, b)
+        return res
 
     def from_format_to_fts_object(self, object: str, FTSObject: Event) -> Event:
         """convert xmlstring to fts_object
