@@ -8,31 +8,31 @@
             "actions": [
                 "AddCallPoliceRemark",
                 "SaveEmergency",
-                "BroadcastEmergency"
+                "SerializeEmergency"
             ]
         },
         "type == 'EmergencyInContact'": {
             "actions": [
                 "SaveEmergency",
-                "BroadcastEmergency"
+                "SerializeEmergency"
             ]
         },
         "type == 'EmergencyRingTheBell'": {
             "actions": [
                 "SaveEmergency",
-                "BroadcastEmergency"
+                "SerializeEmergency"
             ]
         },
         "type == 'EmergencyGeoFenceBreached'": {
             "actions": [
                 "SaveEmergency",
-                "BroadcastEmergency"
+                "SerializeEmergency"
             ]
         },
         "type == 'EmergencyCancelled'": {
             "actions": [
                 "SaveEmergency",
-                "BroadcastEmergency"
+                "SerializeEmergency"
             ]
         }
     }
