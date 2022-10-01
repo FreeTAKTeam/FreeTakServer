@@ -79,4 +79,4 @@ class EmergencyOnController(DefaultBusinessRuleController):
         sub_response = self.execute_sub_action("ParseCoT")
 
         for key, value in sub_response.get_values().items():
-            self.response.set_value(key, value)
+            self.request.set_value(key, value)

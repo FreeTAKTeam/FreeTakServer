@@ -23,7 +23,8 @@ class EmergencySenderController(Controller):
 
             self.response.set_values(kwargs)
             self.request.set_value("model_objects", [model_object])
-            self.execute_sub_action("Broadcast")
+            self.response.set_action(self.request.get_value("model_object_parser"))
+
         except Exception as error:
             self.request.get_value("logger").error(
                 f"error broadcasting emergency {error}"
