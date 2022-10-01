@@ -68,6 +68,39 @@ class MainConfig:
         # this should be set before startup
         DBFilePath = str(os.environ.get("FTS_DB_PATH", r"/opt/FTSDataBase.db"))
 
+        # the number of routing workers to use
+        NumRoutingWorkers = int(os.environ.get("FTS_NUM_ROUTING_WORKERS", 6))
+
+        # port to subscribe to requests by the routing proxy
+        RoutingProxySubscriberPort = int(
+            os.environ.get("FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19030)
+        )
+
+        # ip to subscribe to requests by the routing proxy
+        RoutingProxySubscriberIP = str(
+            os.environ.get("FTS_ROUTING_PROXY_SUBSCRIBE_IP", "127.0.0.1")
+        )
+
+        # port to publish responses by the routing proxy
+        RoutingProxyPublisherPort = int(
+            os.environ.get("FTS_ROUTING_PROXY_PUBLISHER_PORT", 19032)
+        )
+
+        # ip to publish responses by the routing proxy
+        RoutingProxyPublisherIP = str(
+            os.environ.get("FTS_ROUTING_PROXY_PUBLISHER_IP", "127.0.0.1")
+        )
+
+        # port to send requests from the routing proxy to the routing workers
+        RoutingProxyRequestServerPort = int(
+            os.environ.get("FTS_ROUTING_PROXY_SERVER_PORT", 19031)
+        )
+
+        # port to send requests from the routing proxy to the routing workers
+        RoutingProxyRequestServerIP = str(
+            os.environ.get("FTS_ROUTING_PROXY_SERVER_IP", "127.0.0.1")
+        )
+
         MainPath = str(
             os.environ.get(
                 "FTS_MAINPATH",
@@ -270,6 +303,75 @@ class MainConfig:
                     yamlConfig["Addresses"].get("FTS_API_ADDRESS", "0.0.0.0"),
                 )
             )
+
+            # the number of routing workers to use
+            NumRoutingWorkers = int(
+                os.environ.get(
+                    "FTS_NUM_ROUTING_WORKERS",
+                    yamlConfig["Addresses"].get("FTS_NUM_ROUTING_WORKERS", 6),
+                )
+            )
+
+            # port to subscribe to requests by the routing proxy
+            RoutingProxySubscriberPort = int(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SUBSCRIBE_PORT",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19030
+                    ),
+                )
+            )
+
+            # ip to subscribe to requests by the routing proxy
+            RoutingProxySubscriberIP = str(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SUBSCRIBE_IP",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SUBSCRIBE_IP", "127.0.0.1"
+                    ),
+                )
+            )
+
+            # port to publish responses by the routing proxy
+            RoutingProxyPublisherPort = int(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_PUBLISHER_PORT",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19032
+                    ),
+                )
+            )
+
+            # ip to publish responses by the routing proxy
+            RoutingProxyPublisherIP = str(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_PUBLISHER_IP",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_PUBLISHER_IP", "127.0.0.1"
+                    ),
+                )
+            )
+
+            # port to send requests from the routing proxy to the routing workers
+            RoutingProxyRequestServerPort = int(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SERVER_PORT",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19031
+                    ),
+                )
+            )
+
+            # port to send requests from the routing proxy to the routing workers
+            RoutingProxyRequestServerIP = str(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SERVER_IP",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SERVER_IP", "127.0.0.1"
+                    ),
+                )
+            )
+
         else:
 
             # this is the port to which clients will connect
