@@ -103,10 +103,8 @@ class COTParser(Controller):
 
     def parse_object_to_cot(self, model_object, **kwargs):
         self.response.set_values(kwargs)
-        print("beginning parsing")
         # TODO: Direct calls shouldnt be made!!!!! this must be changed ASAP
         message = XmlSerializer().serialize_model_to_CoT(model_object)
-        print("parsing completed")
         self.response.set_value("serialized_message", message)
 
     def parse_cot_to_object(self, message, model_object, **kwargs):
