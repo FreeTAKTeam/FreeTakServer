@@ -38,7 +38,7 @@ class EmergencyPersistence(Controller):
         """this method adds a new emergency to the list of emergencies
 
         Args:
-            emergency (Event): the new emergency model object
+            model_object (Event): the new emergency model object
         """
         try:
             emergency_uid = model_object.uid
@@ -71,10 +71,12 @@ class EmergencyPersistence(Controller):
         self.response.set_value("emergencies", list(emergencies))
 
     def _sync_persistence(self):
+        """synchronize the current, in-memory state, with the persistence"""
         with open(PERSISTENCE_PATH, mode="r", encoding="utf-8") as f:
             self._persistence = json.load(f)
 
     def _update_persistence(self):
+        """update the persistence with the in memory state"""
         # TODO: this form of persistence runs the risk of causing deletions
         # if it is being written to at the same time, to avoid this we
         # should be using a real database or at least a recognized

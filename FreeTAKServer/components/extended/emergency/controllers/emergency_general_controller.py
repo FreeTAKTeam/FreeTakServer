@@ -20,7 +20,7 @@ class EmergencyGeneralController(Controller):
         return self.response
 
     def serialize_emergency(self, **kwargs):
-
+        """this is the general method used to serialize the emergency to a given format"""
         # serialize the emergency model object in a sub-action
         response = self.execute_sub_action(
             self.request.get_value("model_object_parser")
@@ -28,4 +28,8 @@ class EmergencyGeneralController(Controller):
         # add the serialized model object to the controller response as a value
         self.response.set_value(
             "serialized_message", response.get_value("serialized_message")
+        )
+        self.request.get_value("logger").debug(
+            "serialized emergency message to format "
+            + self.request.get_value("model_object_parser")
         )

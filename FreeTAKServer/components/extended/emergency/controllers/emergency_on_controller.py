@@ -80,3 +80,5 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
         for key, value in sub_response.get_values().items():
             self.request.set_value(key, value)
+
+        self.request.get_value("logger").debug("emergency on parsed")
