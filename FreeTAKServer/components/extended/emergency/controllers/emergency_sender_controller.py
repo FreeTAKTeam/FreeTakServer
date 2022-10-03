@@ -4,7 +4,8 @@ from ..domain import Event
 
 
 class EmergencySenderController(Controller):
-    """this class is responsible for transmitting emergencies"""
+    """this class is responsible for transmitting emergencies, however it is not used as all routing
+    should be going through the main"""
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
