@@ -1,6 +1,7 @@
 import os
 import yaml
-currentPath = os.path.dirname(os.path.abspath(__file__))
+import random
+from string import ascii_letters, digits, punctuation
 from pathlib import Path
 from uuid import uuid4
 
@@ -100,7 +101,6 @@ class MainConfig:
     CRLFile = Path(fr"{certsPath}/FTS_CRL.json")
 
     ## Federation Settings ##
-    federationKeyPassword = 'defaultpass'
     federationCert = Path(fr'{certsPath}/server.pem')
     federationKey = Path(fr'{certsPath}/server.key')
     federationKeyPassword = 'defaultpass'
@@ -108,7 +108,7 @@ class MainConfig:
     ## Secrets ##
     password = 'supersecret'
     websocketkey = "YourWebsocketKey"
-    SecretKey = 'vnkdjnfjknfl1232#'
+    SecretKey = ''.join(random.choice(ascii_letters + digits + punctuation) for i in range(18))
 
     # Overlay the settings from the YAML config if it exists
     if os.path.exists(yaml_path):
