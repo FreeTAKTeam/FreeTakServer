@@ -698,7 +698,8 @@ class Orchestrator:
         be handled (parsed and manipulated) by a specific component it is
         responsible for calling the routing (via the async action mapper)
         of the CoT data"""
-
+        if not hasattr(cot, "xmlString"):
+            raise ValueError("cot missing required attribute 'xmlString'")
         # serialize the XML to an etree object
         event = etree.fromstring(cot.xmlString)
 
