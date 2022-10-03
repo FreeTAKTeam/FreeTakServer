@@ -6,13 +6,18 @@ import os
 
 
 class MemoryMapping(MappingInterface, Controller):
+    """this class is responsible for mapping machine readable type to human readable types and vica versa, based on an in-memory map"""
+
     def __init__(self, request, response, sync_action_mapper, configuration):
+        # initialize the parrent class with the passed parameters
         super().__init__(
             request=request,
             response=response,
             action_mapper=sync_action_mapper,
             configuration=configuration,
         )
+
+        # define the basic persistence mapping
         self._persistence = {
             "machine_to_human_mapping": {},
             "human_to_machine_mapping": {},
@@ -37,12 +42,14 @@ class MemoryMapping(MappingInterface, Controller):
         getattr(self, method)(**self.request.get_values())
 
     def get_machine_readable_type(self, human_readable_type, default=None, **kwargs):
+        """get the machine readable type from the given human readable type"""
         self.response.set_value(
             "machine_readable_type",
             self.human_to_machine_mapping.get(human_readable_type, default),
         )
 
     def get_human_readable_type(self, machine_readable_type, default=None, **kwargs):
+        """get the human readable type from the given machine readable type"""
         self.response.set_value(
             "human_readable_type",
             self.machine_to_human_mapping.get(machine_readable_type, default),
@@ -51,15 +58,23 @@ class MemoryMapping(MappingInterface, Controller):
     def register_machine_to_human_mapping(
         self, machine_to_human_mapping: dict, **kwargs
     ):
+        """register a machine to human mapping in the map"""
+        # update the in-memory mapping
         self.machine_to_human_mapping.update(machine_to_human_mapping)
+        # update the persistence to reflect the in-memory mapping
         self._update_persistence()
 
     def register_human_to_machine_mapping(
         self, human_to_machine_mapping: dict, **kwargs
     ):
+        """register a human to machine mapping in the map"""
+        # update the in memory mapping
         self.human_to_machine_mapping.update(human_to_machine_mapping)
+        # update the persistence to reflect the in-memory mapping
         self._update_persistence()
 
     def _update_persistence(self):
+        """update the persistence to reflect the in-memory mapping"""
+
         with open(PERSISTENCE_PATH, mode="w", encoding="utf-8") as f:
             json.dump(self._persistence, f)
