@@ -33,4 +33,5 @@ class Registration:
                     )
                     component_facade(None, None, None, None).register(config)
             except Exception as e:
+                # must use a print because logger may not be available
                 print(f"failed to register component: {component}, with error: {e}")
