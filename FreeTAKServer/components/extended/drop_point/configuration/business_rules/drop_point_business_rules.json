@@ -1,0 +1,20 @@
+{
+    "actions": [
+        "ParseDropPoint"
+    ],
+    "matchable": "model_object",
+    "rules": {
+        "type == 'Unknown'": {
+            "actions": []
+        },
+        "type == 'Neutral'": {
+            "actions": []
+        },
+        "type == 'Friendly'": {
+            "actions": []
+        },
+        "type == 'Hostile'": {
+            "actions": []
+        }
+    }
+}

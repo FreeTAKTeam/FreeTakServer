@@ -43,26 +43,16 @@ TYPE_MAPPINGS = json.load(
     )
 )
 
+# TODO not needed?
 BUSINESS_RULES_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/business_rules.json")
 )
 
-# EMERGENCY_OFF_BUSINESS_RULES_PATH = str(
-#     pathlib.PurePath(
-#         CURRENT_COMPONENT_PATH,
-#         "configuration/business_rules/emergency_off_business_rules.json",
-#     )
-# )
-
-# EMERGENCY_ON_BUSINESS_RULES_PATH = str(
-#     pathlib.PurePath(
-#         CURRENT_COMPONENT_PATH,
-#         "configuration/business_rules/emergency_on_business_rules.json",
-#     )
-# )
+DROP_POINT_BUSINESS_RULES_PATH = str(
+    pathlib.PurePath(
+        CURRENT_COMPONENT_PATH,
+        "configuration/business_rules/drop_point_business_rules.json",
+    )
+)
 
 BASE_OBJECT_NAME = "Event"
-
-# EMERGENCY_OFF = "emergency_delete"
-
-# EMERGENCY_ALERT = "emergency_alert"
