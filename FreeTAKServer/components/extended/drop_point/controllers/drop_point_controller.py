@@ -5,6 +5,7 @@ from digitalpy.logic.impl.default_business_rule_controller import (
 
 from ..configuration.drop_point_constants import (
     DROP_POINT_BUSINESS_RULES_PATH,
+    DROP_POINT,
     BASE_OBJECT_NAME
 )
 
@@ -45,8 +46,7 @@ class DropPointController(DefaultBusinessRuleController):
 
         self.response.set_values(kwargs)
 
-        # TODO
-        # self.request.set_value("message_type", EMERGENCY_ALERT)
+        self.request.set_value("message_type", DROP_POINT)
         self.request.set_value("object_class_name", BASE_OBJECT_NAME)
 
         self.request.set_context(self.request.get_action())

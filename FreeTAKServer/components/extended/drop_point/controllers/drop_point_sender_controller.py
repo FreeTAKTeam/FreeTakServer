@@ -4,7 +4,7 @@ from ..domain import Event
 
 
 class DropPointSenderController(Controller):
-    """this class is responsible for transmitting drop points"""
+    """this class is responsible for transmitting points"""
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -15,7 +15,7 @@ class DropPointSenderController(Controller):
         """
         try:
             self.request.get_value("logger").debug(
-                f"broadcasting emergency {model_object.uid}"
+                f"broadcasting point {model_object.uid}"
             )
 
             self.response.set_values(kwargs)
@@ -23,5 +23,5 @@ class DropPointSenderController(Controller):
             self.execute_sub_action("Broadcast")
         except Exception as error:
             self.request.get_value("logger").error(
-                f"error broadcasting emergency {error}"
+                f"error broadcasting point {error}"
             )

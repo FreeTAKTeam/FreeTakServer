@@ -56,3 +56,5 @@ DROP_POINT_BUSINESS_RULES_PATH = str(
 )
 
 BASE_OBJECT_NAME = "Event"
+
+DROP_POINT = "drop_point"

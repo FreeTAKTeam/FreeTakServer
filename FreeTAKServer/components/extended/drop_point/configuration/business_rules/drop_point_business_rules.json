@@ -5,16 +5,24 @@
     "matchable": "model_object",
     "rules": {
         "type == 'Unknown'": {
-            "actions": []
+            "actions": [
+                "BroadcastDropPoint"
+            ]
         },
         "type == 'Neutral'": {
-            "actions": []
+            "actions": [
+                "BroadcastDropPoint"
+            ]
         },
         "type == 'Friendly'": {
-            "actions": []
+            "actions": [
+                "BroadcastDropPoint"
+            ]
         },
         "type == 'Hostile'": {
-            "actions": []
+            "actions": [
+                "BroadcastDropPoint"
+            ]
         }
     }
 }
