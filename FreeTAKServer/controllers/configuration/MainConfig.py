@@ -94,7 +94,7 @@ class MainConfig:
     pemDir = Path(fr'{certsPath}/server.pem') # or crt
     testPem = ''
     testKey = ''
-    unencryptedKey = Path(fr'certsPath}/server.key.unencrypted')
+    unencryptedKey = Path(fr'{certsPath}/server.key.unencrypted')
     p12Dir = Path(fr'{certsPath}/server.p12')
     CA = Path(fr'{certsPath}/ca.pem')
     CAkey = Path(fr'{certsPath}/ca.key')
