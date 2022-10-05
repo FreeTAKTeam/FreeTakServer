@@ -29,7 +29,7 @@ def setup_module(module):
 
 def test_emergency_alert():
 
-    test_data = '<event version="2.0" uid="S-1-5-21-2720623347-3037847324-4167270909-1002-9-1-1" type="b-a-o-tbl" time="2022-08-13T01:30:40.83Z" start="2022-08-13T01:30:40.83Z" stale="2022-08-13T01:40:40.83Z" how="h-e"><point lat="27.0196007365431" lon="-41.1839609383656" hae="9999999" ce="9999999" le="9999999" /><detail><link type="a-f-G-U-C-I" uid="S-1-5-21-2720623347-3037847324-4167270909-1002" relation="p-p" /><contact callsign="DATA-Alert" /><emergency type="Alert">DATA</emergency></detail></event>'
+    test_data = '<event version="2.0" uid="S-1-5-21-2720623347-3037847324-4167270909-1002-9-1-1" type="b-a-o-tbl" time="2022-08-13T01:30:40.83Z" start="2022-08-13T01:30:40.83Z" stale="2022-08-13T01:40:40.83Z" how="h-e"><point lat="27.0196007365431" lon="-41.1839609383656" hae="9999999" ce="9999999" le="9999999" /><detail><remarks>CALL 911 NOW</remarks><link type="a-f-G-U-C-I" uid="S-1-5-21-2720623347-3037847324-4167270909-1002" relation="p-p" /><contact callsign="DATA-Alert" /><emergency type="Alert">DATA</emergency></detail></event>'
     mock_message = MagicMock()
     mock_message.xmlString = test_data
     mock_message.clientInformation = "test"
@@ -40,23 +40,7 @@ def test_emergency_alert():
         mock_message, {"test": [mock_client, MagicMock()]}
     )
 
-    assert len(mock_client.send.call_args[0][0].decode()) == len(
-        etree.tostring(etree.fromstring(test_data))
-    )
+    test_case_len = len(''.join(mock_client.send.call_args[0][0].decode().split()))
+    test_data_len = len(''.join(etree.tostring(etree.fromstring(test_data)).decode().split()))
 
-
-def test_emergency_broadcast():
-    test_data = '<event version="2.0" uid="S-1-5-21-2720623347-3037847324-4167270909-1002-9-1-1" type="b-a-o-tbl" time="2022-08-13T01:30:40.83Z" start="2022-08-13T01:30:40.83Z" stale="2022-08-13T01:40:40.83Z" how="h-e"><point lat="27.0196007365431" lon="-41.1839609383656" hae="9999999" ce="9999999" le="9999999" /><detail><link type="a-f-G-U-C-I" uid="S-1-5-21-2720623347-3037847324-4167270909-1002" relation="p-p" /><contact callsign="DATA-Alert" /><emergency type="Alert">DATA</emergency></detail></event>'
-    mock_message = MagicMock()
-    mock_message.xmlString = test_data
-    mock_message.clientInformation = "test"
-
-    mock_client = MagicMock()
-
-    XMLCoTController(MagicMock()).determineCoTGeneral(
-        mock_message, {"test": [mock_client, MagicMock()]}
-    )
-
-    assert len(mock_client.send.call_args[0][0].decode()) == len(
-        etree.tostring(etree.fromstring(test_data))
-    )
+    assert test_case_len == test_data_len
