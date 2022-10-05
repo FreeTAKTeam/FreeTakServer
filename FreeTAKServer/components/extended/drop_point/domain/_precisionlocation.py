@@ -12,7 +12,7 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 #######################################################
 from FreeTAKServer.model.FTSModelVariables.PrecisionlocationVariables import PrecisionlocationVariables as vars
 
-class Precisionlocation(CoTNode):
+class precisionlocation(CoTNode):
     """some type of location?
     """
     
@@ -37,6 +37,6 @@ class Precisionlocation(CoTNode):
         return self.cot_attributes.get('altsrc', None)
  
     @altsrc.setter
-    def setaltsrc(self, altsrc=0):  
+    def altsrc(self, altsrc=0):  
         self.cot_attributes['altsrc'] = altsrc
  

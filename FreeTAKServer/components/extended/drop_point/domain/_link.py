@@ -8,8 +8,12 @@ class link(CoTNode):
         super().__init__(self.__class__.__name__, configuration, model)
         self.cot_attributes["uid"] = None
         self.cot_attributes["relation"] = None
+        self.cot_attributes["relationship"] = None
+        self.cot_attributes["remarks"] = None
         self.cot_attributes["production_time"] = None
         self.cot_attributes["type"] = None
+        self.cot_attributes["callsign"] = None
+        self.cot_attributes["point"] = None
         self.cot_attributes["parent_callsign"] = None
 
     @CoTProperty
@@ -66,9 +70,9 @@ class link(CoTNode):
             zulu = now.strftime(DATETIME_FMT)
             add = dt.timedelta(minutes=1)
             production_time_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-            self.production_time = production_time_part.strftime(DATETIME_FMT)
+            self.cot_attributes["production_time"] = production_time_part.strftime(DATETIME_FMT)
         else:
-            self.production_time = production_time
+            self.cot_attributes["production_time"] = production_time
 
     @CoTProperty
     def relation(self):

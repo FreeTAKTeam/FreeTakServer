@@ -70,7 +70,7 @@ class contact(CoTNode):
         # uid setter 
     @uid.setter
     def uid(self, uid=None):
-        self.uid = uid 
+        self.cot_attributes["uid"] = uid 
         
     @CoTProperty
     def name(self):
@@ -78,7 +78,7 @@ class contact(CoTNode):
      
     @name.setter
     def name(self, name=None):
-        self.name = name
+        self.cot_attributes["name"] = name
 
     @CoTProperty
     def phone(self):
@@ -86,4 +86,4 @@ class contact(CoTNode):
 
     @phone.setter
     def phone(self, phone=None):
-        self.phone = phone
+        self.cot_attributes["phone"] = phone

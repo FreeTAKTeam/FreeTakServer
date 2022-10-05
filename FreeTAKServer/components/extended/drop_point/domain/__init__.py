@@ -7,5 +7,5 @@ from ._detail import detail as detail
 from ._event import Event as Event
 from ._link import link as link
 from ._point import point as point
-from ._precisionlocation import Precisionlocation as Precisionlocation
+from ._precisionlocation import precisionlocation as precisionlocation
 from ._usericon import usericon as usericon

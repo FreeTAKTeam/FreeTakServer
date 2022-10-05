@@ -19,9 +19,9 @@ class usericon(CoTNode):
 
     @CoTProperty
     def iconsetpath(self): 
-        return self.iconsetpath 
+        return self.cot_attributes.get("iconsetpath", None)
  
     @iconsetpath.setter
     def iconsetpath(self, iconsetpath=0):  
-        self.iconsetpath=iconsetpath 
+        self.cot_attributes["iconsetpath"]=iconsetpath 
      

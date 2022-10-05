@@ -45,12 +45,12 @@ class detail(CoTNode):
         self.cot_attributes["usericon"] = usericon
 
     @CoTProperty
-    def Precisionlocation(self):
-        return self.cot_attributes.get("Precisionlocation", None)
+    def precisionlocation(self):
+        return self.cot_attributes.get("precisionlocation", None)
 
-    @Precisionlocation.setter
-    def Precisionlocation(self, precisionlocation):
-        self.cot_attributes["Precisionlocation"] = precisionlocation
+    @precisionlocation.setter
+    def precisionlocation(self, precisionlocation):
+        self.cot_attributes["precisionlocation"] = precisionlocation
 
     @CoTProperty
     def remarks(self):
