@@ -9,12 +9,14 @@ from FreeTAKServer.components.extended.emergency.emergency_facade import Emergen
 from FreeTAKServer.components.core.type.type_facade import Type
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from lxml import etree
+import pathlib
 
 
 def setup_module(module):
     config = InifileConfiguration("")
     config.add_configuration(
-        r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"
+        str(pathlib.PurePath(pathlib.Path(__file__).parent.parent.parent.parent.absolute(), "FreeTAKServer/configuration/routing/action_mapping.ini"))
+        # r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"
     )
 
     ObjectFactory.configure(DefaultFactory(config))
@@ -48,8 +50,6 @@ def test_emergency_broadcast():
     mock_message = MagicMock()
     mock_message.xmlString = test_data
     mock_message.clientInformation = "test"
-
-    mock_client = MagicMock()
 
     mock_client = MagicMock()
 
