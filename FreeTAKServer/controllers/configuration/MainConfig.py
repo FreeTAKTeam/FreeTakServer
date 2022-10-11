@@ -17,7 +17,6 @@ class MainConfig:
     yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
     python_version = 'python3.8'
     userpath = '/usr/local/lib/'
-    first_start = True
 
     try:
         import socket
@@ -206,3 +205,5 @@ class MainConfig:
     password = os.environ.get("FTS_CLIENT_CERT_PASSWORD", password)
     websocketkey = os.environ.get("FTS_WEBSOCKET_KEY", websocketkey)
     CRLFile = os.environ.get("FTS_CRLDIR", CRLFile)
+
+    first_start = True
