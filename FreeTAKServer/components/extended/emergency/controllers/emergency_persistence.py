@@ -1,4 +1,5 @@
 """this file contains the emergency component's persistency layer"""
+import codecs
 from ..configuration.emergency_constants import PERSISTENCE_PATH
 from digitalpy.routing.controller import Controller
 import json
@@ -42,7 +43,10 @@ class EmergencyPersistence(Controller):
         """
         try:
             emergency_uid = model_object.uid
-            self.emergencies[emergency_uid] = str(pickle.dumps(model_object))
+            self.emergencies[emergency_uid] = codecs.encode(
+                pickle.dumps(model_object), "base64"
+            ).decode()
+
             self.request.get_value("logger").debug(
                 f"added emergency: {emergency_uid} to emergencies: {self.emergencies}"
             )
@@ -66,7 +70,8 @@ class EmergencyPersistence(Controller):
         as a list of emergency objects"""
         self._sync_persistence()
         emergencies = [
-            pickle.dumps(bytes(value)) for value in self.emergencies.values()
+            pickle.loads(codecs.decode(emergency.encode(), "base-64"))
+            for emergency in self.emergencies.values()
         ]
         self.response.set_value("emergencies", list(emergencies))
 

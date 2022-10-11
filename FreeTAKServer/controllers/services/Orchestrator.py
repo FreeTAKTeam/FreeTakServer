@@ -437,24 +437,15 @@ class Orchestrator:
             self.send_user_connection_geo_chat(clientInformation)
             self.logger.debug("client conn C")
 
-            """# TODO: find some way to indirectly call EmergencyBroadcastAll
             request = ObjectFactory.get_new_instance("request")
-            request.set_action("BroadcastAllEmergencies")
-            request.set_value(
-                "clients",
-                {
-                    clientInformation.modelObject.uid: [
-                        clientInformation.socket,
-                        clientInformation,
-                    ]
-                },
-            )
+            request.set_action("SendEmergenciesToClient")
+            request.set_sender(self.__class__.__name__.lower())
+            request.set_value("client_uid", clientInformation.modelObject.uid)
             request.set_value("model_object_parser", "ParseModelObjectToXML")
-            request.set_value("sender", "")
             request.set_format("pickled")
             actionmapper = ObjectFactory.get_instance("actionMapper")
             response = ObjectFactory.get_new_instance("response")
-            actionmapper.process_action(request, response, False)"""
+            actionmapper.process_action(request, response, False)
 
             return clientInformation
         except Exception as e:
@@ -752,7 +743,8 @@ class Orchestrator:
         the routing proxy, this method is largely encapsulated and essentially
         just needs to be called and forgotten, it retrieves the responses
         through the component_receiver and converts the response into
-        a format that cn be accepted by the SendDataController."""
+        a format that cn be accepted by the SendDataController.
+        """
 
         # TODO: This is bad practice but I didn't want to include this import
         # at the beginning of the file so it's going to be here until we work
@@ -767,24 +759,41 @@ class Orchestrator:
             try:
                 # get the sender of the initial cot data
                 sender = response.get_value("sender")
+                if isinstance(response.get_value("model_object"), list):
+                    for model_object in response.get_value("model_object"):
+                        # define the specific cot object
+                        cot_object = SendOther()
+                        cot_object.modelObject = model_object
+                        # TODO: decide where the serialization should be preformed.
+                        # for now it's preformed within the actions called by the routing worker
+                        # to reduce the cpu consumption in the current process.
+                        cot_object.xmlString = response.get_value(
+                            "serialized_message"
+                        ).pop()
+                        SendDataController().sendDataInQueue(
+                            sender,
+                            cot_object,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
+                            self.clientInformationQueue,
+                            self.CoTSharePipe,
+                        )
+                else:
+                    # get the model object from the response
+                    model_object = response.get_value("model_object")
 
-                # get the model object from the response
-                model_object = response.get_value("model_object")
+                    # define the specific cot object
+                    cot_object = SendOther()
+                    cot_object.modelObject = model_object
+                    # TODO: decide where the serialization should be preformed.
+                    # for now it's preformed within the actions called by the routing worker
+                    # to reduce the cpu consumption in the current process.
+                    cot_object.xmlString = response.get_value("serialized_message")
 
-                # define the specific cot object
-                cot_object = SendOther()
-                cot_object.modelObject = model_object
-                # TODO: decide where the serialization should be preformed.
-                # for now it's preformed within the actions called by the routing worker
-                # to reduce the cpu consumption in the current process.
-                cot_object.xmlString = response.get_value("serialized_message")
-
-                SendDataController().sendDataInQueue(
-                    sender,
-                    cot_object,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
-                    self.clientInformationQueue,
-                    self.CoTSharePipe,
-                )
+                    SendDataController().sendDataInQueue(
+                        sender,
+                        cot_object,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
+                        self.clientInformationQueue,
+                        self.CoTSharePipe,
+                    )
             except Exception as e:
                 self.logger.error(
                     f"there was an exception sending a single response\nsender:{sender}\nmodel_object:{model_object}\source:{response.get_source()}\ncontext:{response.get_context()}\naction:{response.get_action()}"
