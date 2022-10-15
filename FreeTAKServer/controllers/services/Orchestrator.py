@@ -837,22 +837,6 @@ class Orchestrator:
     def loadAscii(self):
         ascii()
 
-    def testzmqConn(self):
-        request = ObjectFactory.get_new_instance("request")
-        request.set_format("pickled")
-        request.set_action("HelloWorld")
-        # must get a new instance of the async action mapper for each request
-        # to prevent run conditions and to prevent responses going to the wrong
-        # callers
-        actionmapper = ObjectFactory.get_instance("actionMapper")
-        response = ObjectFactory.get_new_instance("response")
-        response.set_format("pickled")
-        listener = actionmapper.process_action(
-            request, response, return_listener=True
-        )
-        resp = actionmapper.get_response(response, request, listener)
-        print(resp)
-
     def mainRunFunction(
         self,
         clientData,
