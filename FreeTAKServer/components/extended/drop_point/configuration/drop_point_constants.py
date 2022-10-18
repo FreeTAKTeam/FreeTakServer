@@ -43,7 +43,8 @@ TYPE_MAPPINGS = json.load(
     )
 )
 
-# TODO not needed?
+
+# TODO delete this?
 BUSINESS_RULES_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/business_rules.json")
 )

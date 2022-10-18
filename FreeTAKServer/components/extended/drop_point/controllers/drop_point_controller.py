@@ -61,3 +61,5 @@ class DropPointController(DefaultBusinessRuleController):
 
         for key, value in sub_response.get_values().items():
             self.response.set_value(key, value)
+
+        self.request.get_value("logger").debug("drop point parsed")
