@@ -39,6 +39,7 @@ class Facade(Controller):
         self.internal_action_mapping_path = internal_action_mapping_path
         self.type_mapping = type_mapping
         self.action_mapper = action_mapper
+
         if component_name is not None:
             self.component_name = component_name
         else:
@@ -60,8 +61,14 @@ class Facade(Controller):
 
     def execute(self, method):
         self.request.set_value("logger", self.logger)
-        response = self.execute_sub_action(self.request.get_action())
-        self.response.set_values(response.get_values())
+        sub_response = self.execute_sub_action(self.request.get_action())
+        # here we essentially copy the properties of the sub action response
+        # to the current response so the further external responses can be sent
+        self.response.set_values(sub_response.get_values())
+        self.response.set_sender(sub_response.get_sender())
+        self.response.set_context(sub_response.get_context())
+        self.response.set_action(sub_response.get_action())
+        self.response.set_format(sub_response.get_format())
 
     def get_logs(self):
         self.log_manager.get_logs()
@@ -86,21 +93,24 @@ class Facade(Controller):
         if it does then it should be registered"""
         if self.type_mapping is not None:
             request = ObjectFactory.get_new_instance("request")
+            request.set_format("pickled")
             request.set_action("RegisterMachineToHumanMapping")
             request.set_value("machine_to_human_mapping", self.type_mapping)
 
-            actionmapper = ObjectFactory.get_instance("actionMapper")
+            # the sync action mapper is being used so that we don't run
+            # into a situation where a request to a routing worker is made by a routing
+            # worker which could potentially freeze the whole process
+            actionmapper = ObjectFactory.get_instance("syncactionmapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
 
             request = ObjectFactory.get_new_instance("request")
+            request.set_format("pickled")
             request.set_action("RegisterHumanToMachineMapping")
             # reverse the mapping and save the reversed mapping
             request.set_value(
                 "human_to_machine_mapping", {k: v for v, k in self.type_mapping.items()}
             )
-
-            actionmapper = ObjectFactory.get_instance("actionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
 

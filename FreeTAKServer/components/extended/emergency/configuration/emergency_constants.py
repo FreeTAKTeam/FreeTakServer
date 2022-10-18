@@ -61,6 +61,10 @@ EMERGENCY_ON_BUSINESS_RULES_PATH = str(
     )
 )
 
+PERSISTENCE_PATH = str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/emergencies.json")
+)
+
 BASE_OBJECT_NAME = "Event"
 
 EMERGENCY_OFF = "emergency_delete"

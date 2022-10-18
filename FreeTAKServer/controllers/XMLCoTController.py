@@ -50,41 +50,38 @@ class XMLCoTController:
             # this handeles a client dissconection CoT
             return ("clientDisconnected", data)
         else:
+            # serialize the XML to an etree object
             event = etree.fromstring(data.xmlString)
 
             # this convert the machine readable type to a human readable type
             request = ObjectFactory.get_new_instance("request")
+            request.set_format("pickled")
             request.set_action("ConvertMachineReadableToHumanReadable")
             request.set_context("MEMORY")
             request.set_value("machine_readable_type", event.attrib["type"])
             request.set_value("default", event.attrib["type"])
 
+            # must get a new instance of the async action mapper for each request
+            # to prevent run conditions and to prevent responses going to the wrong
+            # callers
             actionmapper = ObjectFactory.get_instance("actionMapper")
             response = ObjectFactory.get_new_instance("response")
-            actionmapper.process_action(request, response)
-
-            event.attrib["type"] = response.get_value("human_readable_type")
-
-            data.xmlString = etree.tostring(event)
-
-            # this calls the responsible controller
-            request = ObjectFactory.get_new_instance("request")
-            request.set_action(event.attrib["type"])
-            request.set_context("XML")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_value("message", data)
-            request.set_value("clients", client_information_queue)
-            request.set_value(
-                "sender", client_information_queue[data.clientInformation]
+            response.set_format("pickled")
+            listener = actionmapper.process_action(
+                request, response, return_listener=True
             )
-            request.set_value("model_object_parser", "ParseModelObjectToXML")
-            request.set_value("xml_element", event.attrib)
-
-            actionmapper = ObjectFactory.get_instance("actionMapper")
-            response = ObjectFactory.get_new_instance("response")
-            actionmapper.process_action(request, response)
-
-            return ("component_processed", data)
+            actionmapper.get_response(response, request, listener)
+            # handle the case where the human readable type is not registered and there is no specific
+            # component meant to handle the cot type
+            if event.attrib["type"] == response.get_value("human_readable_type"):
+                # return to call the legacy handler method
+                return ("dataReceived", data)
+            # handle the case where there is a specific component meant to handle the cot type
+            else:
+                # assign the human readable type to prevent the duplication of work
+                event.attrib["type"] = response.get_value("human_readable_type")
+                data.xmlString = etree.tostring(event)
+                return ("component_handler", data)
 
     def convert_model_to_row(self, modelObject, rowObject):
         for attribName, attribValue in modelObject.__dict__.items():

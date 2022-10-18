@@ -17,3 +17,7 @@ INTERNAL_ACTION_MAPPING_PATH = str(
         CURRENT_COMPONENT_PATH, "configuration/internal_action_mapping.ini"
     )
 )
+
+PERSISTENCE_PATH = str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/type_mappings.json")
+)
