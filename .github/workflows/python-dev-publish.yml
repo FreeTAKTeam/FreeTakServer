@@ -31,10 +31,11 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
-    - uses: actions/checkout@master
+    - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
+      uses: GuillaumeFalourd/clone-github-repo-action@v2
       with:
-        name: https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
-        ref: master
+        owner: 'FreeTAKTeam'
+        repository: 'FreeTAKHub-Installation'
         
     - name: Run Ansible playbook
       # You may pin to the exact commit or the version.
