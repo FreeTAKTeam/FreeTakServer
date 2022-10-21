@@ -50,7 +50,6 @@ jobs:
         inventory: |
           [all]
           ${{secrets.DEV_SERVER_ADDRESS}}     ansible_connection=ssh    ansible_user=${{secrets.DEV_SERVER_USERNAME}}
-        known_hosts: .known_hosts
         # Extra options that should be passed to ansible-playbook command
         options: |
           --verbose
