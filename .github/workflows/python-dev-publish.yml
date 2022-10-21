@@ -53,7 +53,6 @@ jobs:
         known_hosts: .known_hosts
         # Extra options that should be passed to ansible-playbook command
         options: |
-          --inventory .hosts
           --verbose
         # Set to "true" if root is required for running your playbook
         sudo: true
