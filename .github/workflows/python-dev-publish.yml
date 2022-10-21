@@ -34,7 +34,7 @@ jobs:
     - uses: actions/checkout@master
       with:
         name: FreeTAKTeam/FreeTAKHub-Installation     <-- clone https://github.com/org1/repo1
-        ref: refs/heads/release
+        ref: master
         
     - name: Run Ansible playbook
       # You may pin to the exact commit or the version.
