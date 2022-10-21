@@ -49,7 +49,7 @@ jobs:
         # Custom content to write into hosts
         inventory: |
           [all]
-          ${{secrets.DEV_SERVER_ADDRESS}}    ansible_sudo_pass=${{DEV_SERVER_PASSWORD}}     ansible_connection=ssh    ansible_user=${{secrets.DEV_SERVER_USERNAME}}
+          ${{secrets.DEV_SERVER_ADDRESS}}    ansible_sudo_pass=${{secrets.DEV_SERVER_PASSWORD}}     ansible_connection=ssh    ansible_user=${{secrets.DEV_SERVER_USERNAME}}
         # Extra options that should be passed to ansible-playbook command
         options: |
           --verbose
