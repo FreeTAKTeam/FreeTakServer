@@ -26,6 +26,7 @@ class Facade(Controller):
         request=None,
         response=None,
         configuration=None,
+        configuration_path_template=None,
         **kwargs,
     ):
         super().__init__(
@@ -53,6 +54,10 @@ class Facade(Controller):
             )
         )
         self.logger = self.log_manager.get_logger()
+        if configuration_path_template:
+            self.config_loader = LoadConfiguration(configuration_path_template)
+        else:
+            self.config_loader = None
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -60,6 +65,7 @@ class Facade(Controller):
 
     def execute(self, method):
         self.request.set_value("logger", self.logger)
+        self.request.set_value("config_loader", self.config_loader)
         response = self.execute_sub_action(self.request.get_action())
         self.response.set_values(response.get_values())
 
