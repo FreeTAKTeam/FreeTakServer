@@ -78,6 +78,10 @@ class XMLCoTController:
                 "sender", client_information_queue[data.clientInformation]
             )
             request.set_value("model_object_parser", "ParseModelObjectToXML")
+
+            # this request value is used by the serializer components rule engine logic to determine which serializer should be used
+            request.set_value("source_format", "xml")
+
             request.set_value("xml_element", event.attrib)
 
             actionmapper = ObjectFactory.get_instance("actionMapper")
