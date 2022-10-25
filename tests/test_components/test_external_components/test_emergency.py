@@ -7,6 +7,7 @@ from FreeTAKServer.components.extended.emergency.configuration.emergency_constan
 )
 from FreeTAKServer.components.extended.emergency.emergency_facade import Emergency
 from FreeTAKServer.components.core.type.type_facade import Type
+from FreeTAKServer.components.core.domain.domain_facade import Domain
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from lxml import etree
 
@@ -21,6 +22,8 @@ def setup_module(module):
     ObjectFactory.register_instance("configuration", config)
 
     Type(None, None, None, None).register(config)
+
+    Domain(None, None, None, None).register(config)
 
     Emergency(None, None, None, None).register(config)
 
