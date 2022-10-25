@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<event how="h-e"
+       stale="2022-10-18T13:31:52.224Z"
+       start="2022-10-18T13:31:42.224Z"
+       time="2022-10-18T13:31:42.224Z"
+       type="b-a-o-tbl"
+       uid="ANDROID-352614100054990-9-1-1"
+       version="2.0">
+	<detail>
+		<contact callsign="testClient1-Alert"/>
+		<emergency type="911 Alert">helioClient1</emergency>
+		<link relation="p-p"
+		      type="a-f-G-U-C"
+		      uid="ANDROID-352614100054990"/>
+		<remarks>CALL 911 NOW</remarks>
+	</detail>
+	<point ce="9999999.0"
+	       hae="162.119"
+	       lat="55.7555821"
+	       le="9999999.0"
+	       lon="37.6270905"/>
+</event>

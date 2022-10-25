@@ -31,10 +31,11 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
-    - uses: actions/checkout@master
+    - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
+      uses: GuillaumeFalourd/clone-github-repo-action@v2
       with:
-        name: FreeTAKTeam/FreeTAKHub-Installation     <-- clone https://github.com/org1/repo1
-        ref: refs/heads/release
+        owner: 'FreeTAKTeam'
+        repository: 'FreeTAKHub-Installation'
         
     - name: Run Ansible playbook
       # You may pin to the exact commit or the version.
@@ -48,11 +49,9 @@ jobs:
         # Custom content to write into hosts
         inventory: |
           [all]
-          ${{secrets.DEV_SERVER_ADDRESS}}
-        known_hosts: .known_hosts
+          ${{secrets.DEV_SERVER_ADDRESS}}    ansible_sudo_pass=${{secrets.DEV_SERVER_PASSWORD}}     ansible_connection=ssh    ansible_user=${{secrets.DEV_SERVER_USERNAME}}
         # Extra options that should be passed to ansible-playbook command
         options: |
-          --inventory .hosts
           --verbose
         # Set to "true" if root is required for running your playbook
         sudo: true

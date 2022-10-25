@@ -7,7 +7,7 @@ class SpecificCoTAbstract(ABC):
     connection protocol classes
     """
 
-    typ = None
+    type = None
     clientInformation = None
     modelObject = None
     xmlString = None

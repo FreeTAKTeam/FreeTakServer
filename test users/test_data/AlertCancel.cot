@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<event how="h-e"
+       stale="2022-10-18T13:35:09.841Z"
+       start="2022-10-18T13:34:59.841Z"
+       time="2022-10-18T13:34:59.841Z"
+       type="b-a-o-can"
+       uid="ANDROID-352614100054990-9-1-1"
+       version="2.0">
+	<detail>
+		<emergency cancel="true">helioClient1</emergency>
+	</detail>
+	<point ce="9999999.0"
+	       hae="162.119"
+	       lat="55.7555821"
+	       le="9999999.0"
+	       lon="37.6270905"/>
+</event>
