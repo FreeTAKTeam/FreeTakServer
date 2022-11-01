@@ -56,9 +56,20 @@ setup(
         'WTForms==2.3.3',
         'pyOpenSSL==22.0.0',
         'qrcode==7.3.1',
-        'pillow==9.1.1'
+        'pillow==9.1.1',
+        'asyncio==3.4.3',
+        'pytak==5.4.1',
     ],
-    extras_require = {'ui': ['FreeTAKServer_UI']},
+    extras_require = {
+        'ui': [
+            'FreeTAKServer_UI'
+        ],
+        'dev': [
+            'pytak==5.4.1',
+            'pytest==7.2.0',
+            'pytest-asyncio==0.20.1'
+        ]
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
