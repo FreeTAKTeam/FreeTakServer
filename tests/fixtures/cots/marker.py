@@ -2,7 +2,7 @@ import pytest
 import xml.etree.ElementTree as ET
 
 @pytest.fixture
-def marker_2525() -> ET.Element:
+def marker_2525_cot() -> ET.Element:
     event = ET.Element("event", {
         'version': "2.0",
         'type': "a-u-G",
@@ -68,7 +68,3 @@ def marker_2525() -> ET.Element:
     ET.SubElement(event, detail.tag, detail.attrib)
 
     return event
-
-@pytest.fixture
-def marker_2525_as_str(marker_2525):
-    return ET.tostring(marker_2525).decode()

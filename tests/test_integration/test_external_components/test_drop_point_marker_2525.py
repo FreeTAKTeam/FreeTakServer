@@ -1,8 +1,9 @@
 import time
 import pytest
 import multiprocessing
+import xml.etree.ElementTree as ET
 from tests.fixtures.classes.pytak_client import PytakClient
-from tests.fixtures.cots.marker import marker_2525
+from tests.fixtures.cots.marker import marker_2525_cot
 from FreeTAKServer.controllers.services import FTS as fts
 from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSObj
 
@@ -35,11 +36,11 @@ def fts_server():
     yield p
     p.terminate()
 
-@pytest.mark.asyncio
-async def test_drop_point_marker_2525(fts_server, marker_2525):
-    client_one = PytakClient()
+class TestDropPointComponent:
 
-    # Create clients
-    await client_one.create()
-
-    await client_one.send_message(marker_2525)
+    @pytest.mark.asyncio
+    async def test_drop_point_marker_2525(self, marker_2525_cot):
+        client = PytakClient()
+        result = await client.create_and_send_message(marker_2525_cot)
+        assert len(result) == 1
+        assert ''.join(result[0].decode().split()) == ''.join(ET.tostring(marker_2525_cot).decode().split())
