@@ -1,9 +1,7 @@
 import time
-import pytest
 import multiprocessing
-import xml.etree.ElementTree as ET
-from tests.fixtures.classes.pytak_client import PytakClient
-from tests.fixtures.cots.marker import marker_2525_cot
+import pytest
+
 from FreeTAKServer.controllers.services import FTS as fts
 from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSObj
 
@@ -25,7 +23,7 @@ def server_process():
         False #UI
     )
 
-@pytest.fixture(scope="session")
+@pytest.fixture(autouse=True, scope="session")
 def fts_server():
     # Start FTS server process
     p = multiprocessing.Process(target=server_process)
@@ -33,14 +31,7 @@ def fts_server():
 
     # Wait for server to spin up
     time.sleep(10)
-    yield p
-    p.terminate()
+    yield
 
-class TestDropPointComponent:
-
-    @pytest.mark.asyncio
-    async def test_drop_point_marker_2525(self, marker_2525_cot):
-        client = PytakClient()
-        result = await client.create_and_send_message(marker_2525_cot)
-        assert len(result) == 1
-        assert ''.join(result[0].decode().split()) == ''.join(ET.tostring(marker_2525_cot).decode().split())
+    for child in multiprocessing.active_children():
+        child.terminate()
