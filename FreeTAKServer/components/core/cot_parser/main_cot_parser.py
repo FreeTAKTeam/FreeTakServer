@@ -87,13 +87,13 @@ class COTParser(Controller):
         self,
         request: Request,
         response: Response,
-        action_mapper: ActionMapper,
+        sync_action_mapper: ActionMapper,
         configuration: Configuration,
     ):
         super().__init__(
             request=request,
             response=response,
-            action_mapper=action_mapper,
+            action_mapper=sync_action_mapper,
             configuration=configuration,
         )
 
@@ -101,14 +101,11 @@ class COTParser(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
 
-    def parse_objects_to_cots(self, model_objects, **kwargs):
+    def parse_object_to_cot(self, model_object, **kwargs):
         self.response.set_values(kwargs)
-        messages = []
-        for model_object in model_objects:
-            # TODO: Direct calls shouldnt be made!!!!! this must be changed ASAP
-            message = XmlSerializer().serialize_model_to_CoT(model_object)
-            messages.append(message)
-        self.response.set_value("messages", messages)
+        # TODO: Direct calls shouldnt be made!!!!! this must be changed ASAP
+        message = XmlSerializer().serialize_model_to_CoT(model_object)
+        self.response.set_value("serialized_message", message)
 
     def parse_cot_to_object(self, message, model_object, **kwargs):
         self.response.set_values(kwargs)

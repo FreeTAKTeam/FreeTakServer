@@ -15,7 +15,12 @@ class EmergencyOffController(DefaultBusinessRuleController):
     for proper handling of all Emergency Off events"""
 
     def __init__(
-        self, request, response, action_mapper, configuration, emergency_action_mapper
+        self,
+        request,
+        response,
+        sync_action_mapper,
+        configuration,
+        emergency_action_mapper,
     ):
 
         super().__init__(
@@ -23,7 +28,7 @@ class EmergencyOffController(DefaultBusinessRuleController):
             request=request,
             response=response,
             configuration=configuration,
-            action_mapper=action_mapper,
+            action_mapper=sync_action_mapper,
             internal_action_mapper=emergency_action_mapper,
         )
 
@@ -53,3 +58,5 @@ class EmergencyOffController(DefaultBusinessRuleController):
 
         for key, value in response.get_values().items():
             self.response.set_value(key, value)
+
+        self.request.get_value("logger").debug("emergency off parsed")

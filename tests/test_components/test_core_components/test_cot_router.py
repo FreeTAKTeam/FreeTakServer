@@ -2,14 +2,18 @@ from FreeTAKServer.components.core.cot_router.cot_router_facade import CotRouter
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
 from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.routing.routing_proxy import RoutingProxy
 from unittest.mock import MagicMock
 from lxml import etree
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.components.core.type.type_facade import Type
 from FreeTAKServer.components.core.cot_router.cot_router_facade import CotRouter
+from multiprocessing import Process
 
 
 def setup_module(module):
+    Process(target=RoutingProxy().begin_routing).start()
+
     config = InifileConfiguration("")
     config.add_configuration(
         r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"

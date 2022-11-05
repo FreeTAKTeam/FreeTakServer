@@ -6,6 +6,8 @@ from .RestAPIService import RestAPIService
 from .SSLCoTService import SSLCoTService
 from .FederationClientService import FederationClientService
 from .FederationServerService import FederationServerService
+from .RoutingProxyService import RoutingProxyService
+
 
 class FTS:
     def __init__(self):
@@ -16,3 +18,4 @@ class FTS:
         self.SSLCoTService = SSLCoTService()
         self.FederationClientService = FederationClientService()
         self.FederationServerService = FederationServerService()
+        self.RoutingProxyService = RoutingProxyService()

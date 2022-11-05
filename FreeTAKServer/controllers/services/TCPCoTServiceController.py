@@ -1,3 +1,4 @@
+from digitalpy.core.object_factory import ObjectFactory
 import pathlib
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
@@ -7,7 +8,6 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 import os
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
-from digitalpy.core.object_factory import ObjectFactory
 from FreeTAKServer.components.core.registration_component.registration_main import (
     Registration,
 )
@@ -28,15 +28,6 @@ class TCPCoTServiceController(Orchestrator):
     def component_processed(self, data):
         return 1
 
-    def emergency_received(self, emergency):
-        request = ObjectFactory.get_new_instance("request")
-        request.set_action("EmergencyReceived")
-        request.set_value("emergency", emergency)
-
-        actionmapper = ObjectFactory.get_instance("actionMapper")
-        response = ObjectFactory.get_new_instance("response")
-        actionmapper.process_action(request, response)
-
     def start(
         self,
         IP,
@@ -46,29 +37,16 @@ class TCPCoTServiceController(Orchestrator):
         ReceiveConnectionKillSwitch,
         RestAPIPipe,
         clientDataRecvPipe,
+        factory,
     ):
         try:
-            # define routing
-            config = InifileConfiguration("")
-            config.add_configuration(
-                str(
-                    pathlib.PurePath(
-                        str(MainConfig.MainPath),
-                        "configuration",
-                        "routing",
-                        "action_mapping.ini",
-                    )
-                ),
+            # configure the object factory with the passed factory instance
+            ObjectFactory.configure(factory)
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            # subscribe to responses originating from this controller
+            actionmapper.add_topic(
+                f"/routing/response/{self.__class__.__name__.lower()}"
             )
-
-            ObjectFactory.configure(DefaultFactory(config))
-            ObjectFactory.register_instance("configuration", config)
-            Registration().register_components(
-                config,
-                component_folder_path="core",
-                import_root="FreeTAKServer.components.core",
-            )
-            Registration().register_components(config, component_folder_path="extended")
 
             self.logger = logger
             self.dbController = DatabaseController()
