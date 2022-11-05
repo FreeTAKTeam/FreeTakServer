@@ -1,23 +1,21 @@
-from FreeTAKServer.components.core.abstract_component.facade import Facade
-from FreeTAKServer.components.extended.emergency.configuration.emergency_constants import (
+from digitalpy.component.impl.default_facade import DefaultFacade
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.components.core.domain.configuration.domain_constants import (
     ACTION_MAPPING_PATH,
-    TYPE_MAPPINGS,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
-    CONFIGURATION_PATH_TEMPLATE,
 )
 from . import base
 
 
-# th
-class Emergency(Facade):
-    """This is the facade class for the emergency component, it is responsible
+class Domain(DefaultFacade):
+    """This is the facade class for the domain component, it is responsible
     for handling all public routing and forwards all requests to the internal routing
     """
 
     def __init__(
         self,
-        emergency_action_mapper,
+        domain_action_mapper,
         request,
         response,
         configuration,
@@ -28,19 +26,19 @@ class Emergency(Facade):
             # the path to the internal action mapping
             internal_action_mapping_path=INTERNAL_ACTION_MAPPING_PATH,
             # the type mapping in dictionary form
-            type_mapping=TYPE_MAPPINGS,
+            type_mapping={},
             # the path to the logger configuration
             logger_configuration=LOGGING_CONFIGURATION_PATH,
             # the package containing the base classes
             base=base,
             # the component specific action mapper (passed by constructor)
-            action_mapper=emergency_action_mapper,
+            action_mapper=domain_action_mapper,
             # the request object (passed by constructor)
             request=request,
             # the response object (passed by constructor)
             response=response,
             # the configuration object (passed by constructor)
             configuration=configuration,
-            # the template for the absolute path to the model object definitions
-            configuration_path_template=CONFIGURATION_PATH_TEMPLATE,
+            # log file path
+            log_file_path=MainConfig.LogFilePath,
         )

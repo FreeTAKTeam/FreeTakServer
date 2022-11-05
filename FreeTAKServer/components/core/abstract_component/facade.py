@@ -8,9 +8,6 @@ from digitalpy.core.log_manager import LogManager
 from digitalpy.core.impl.default_file_logger import DefaultFileLogger
 from digitalpy.routing.controller import Controller
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-import inspect
-import sys
-import importlib
 
 
 class Facade(Controller):
@@ -26,6 +23,7 @@ class Facade(Controller):
         request=None,
         response=None,
         configuration=None,
+        configuration_path_template=None,
         **kwargs,
     ):
         super().__init__(
@@ -34,6 +32,7 @@ class Facade(Controller):
             response=response,
             configuration=configuration,
         )
+        self.last_event = ""
         self.base = base
         self.action_mapping_path = action_mapping_path
         self.internal_action_mapping_path = internal_action_mapping_path
@@ -54,6 +53,10 @@ class Facade(Controller):
             )
         )
         self.logger = self.log_manager.get_logger()
+        if configuration_path_template:
+            self.config_loader = LoadConfiguration(configuration_path_template)
+        else:
+            self.config_loader = None
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -61,20 +64,27 @@ class Facade(Controller):
 
     def execute(self, method):
         self.request.set_value("logger", self.logger)
-        sub_response = self.execute_sub_action(self.request.get_action())
-        # here we essentially copy the properties of the sub action response
-        # to the current response so the further external responses can be sent
-        self.response.set_values(sub_response.get_values())
-        self.response.set_sender(sub_response.get_sender())
-        self.response.set_context(sub_response.get_context())
-        self.response.set_action(sub_response.get_action())
-        self.response.set_format(sub_response.get_format())
+        self.request.set_value("config_loader", self.config_loader)
+        if hasattr(self, method):
+            getattr(self, method)()
+        else:
+            sub_response = self.execute_sub_action(self.request.get_action())
+            # here we essentially copy the properties of the sub action response
+            # to the current response so the further external responses can be sent
+            self.response.set_values(sub_response.get_values())
+            self.response.set_sender(sub_response.get_sender())
+            self.response.set_context(sub_response.get_context())
+            self.response.set_action(sub_response.get_action())
+            self.response.set_format(sub_response.get_format())
 
     def get_logs(self):
-        self.log_manager.get_logs()
+        """get all the log files available"""
+        return self.log_manager.get_logs()
 
     def discover(self):
-        pass
+        """discover the action mappings from the component"""
+        config = InifileConfiguration(config_path=self.action_mapping_path)
+        return config.config_array
 
     def register(self, config: InifileConfiguration):
         config.add_configuration(self.action_mapping_path)
@@ -118,7 +128,8 @@ class Facade(Controller):
         pass
 
     def get_health(self):
-        pass
+        self.response.set_value("alive", True)
+        self.response.set_value("last_error", self.log_manager.get_last_error())
 
     def accept_visitor(self, node: Node, visitor, **kwargs):
         return node.accept_visitor(visitor)

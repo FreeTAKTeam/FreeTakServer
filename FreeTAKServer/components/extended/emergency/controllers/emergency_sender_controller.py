@@ -25,7 +25,7 @@ class EmergencySenderController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
 
-    def broadcast_emergency(self, model_object: Event, **kwargs):
+    def broadcast_emergency(self, model_object, **kwargs):
         """this method will broadcast a specific emergency
 
         Args:

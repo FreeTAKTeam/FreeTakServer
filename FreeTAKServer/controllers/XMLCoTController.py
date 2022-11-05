@@ -52,14 +52,24 @@ class XMLCoTController:
         else:
             # serialize the XML to an etree object
             event = etree.fromstring(data.xmlString)
+            request = ObjectFactory.get_new_instance("request")
+            request.set_action("XMLToDict")
+            request.set_value("message", data.xmlString)
+
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            response = ObjectFactory.get_new_instance("response")
+            actionmapper.process_action(request, response)
+
+            # dictionary representation of the xml
+            data_dict = response.get_value("dict")
 
             # this convert the machine readable type to a human readable type
             request = ObjectFactory.get_new_instance("request")
             request.set_format("pickled")
             request.set_action("ConvertMachineReadableToHumanReadable")
             request.set_context("MEMORY")
-            request.set_value("machine_readable_type", event.attrib["type"])
-            request.set_value("default", event.attrib["type"])
+            request.set_value("machine_readable_type", data_dict["event"]["@type"])
+            request.set_value("default", data_dict["event"]["@type"])
 
             # must get a new instance of the async action mapper for each request
             # to prevent run conditions and to prevent responses going to the wrong
@@ -71,16 +81,20 @@ class XMLCoTController:
                 request, response, return_listener=True
             )
             actionmapper.get_response(response, request, listener)
+            
+            # retrieve the human readable type and set it as the data dictionary type
+            data_dict["event"]["@type"] = response.get_value("human_readable_type")
+            
             # handle the case where the human readable type is not registered and there is no specific
             # component meant to handle the cot type
-            if event.attrib["type"] == response.get_value("human_readable_type"):
+            if response.get_value("human_readable_type") == data_dict["event"]["@type"]:
                 # return to call the legacy handler method
                 return ("dataReceived", data)
             # handle the case where there is a specific component meant to handle the cot type
             else:
                 # assign the human readable type to prevent the duplication of work
-                event.attrib["type"] = response.get_value("human_readable_type")
-                data.xmlString = etree.tostring(event)
+                data_dict["event"]["@type"] = response.get_value("human_readable_type")
+                data.xmlString = response.get_value("message")
                 return ("component_handler", data)
 
     def convert_model_to_row(self, modelObject, rowObject):

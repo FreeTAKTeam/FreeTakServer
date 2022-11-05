@@ -1,0 +1,26 @@
+{
+    "rules": {
+        "source_format == 'xml'": {
+            "actions": [
+            ],
+            "rules": {
+                "target_format == 'node'":{
+                    "actions":[
+                        "XMLToNode"
+                    ]
+                }
+            }
+        },
+        "source_format == 'node'": {
+            "actions": [
+            ],
+            "rules":{
+                "target_format == 'xml'": {
+                    "actions":[
+                        "NodeToXML"
+                    ]
+                }
+            }
+        }
+    }
+}
