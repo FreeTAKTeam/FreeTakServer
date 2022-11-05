@@ -51,25 +51,35 @@ class XMLCoTController:
             return ("clientDisconnected", data)
         else:
             event = etree.fromstring(data.xmlString)
-
-            # this convert the machine readable type to a human readable type
             request = ObjectFactory.get_new_instance("request")
-            request.set_action("ConvertMachineReadableToHumanReadable")
-            request.set_context("MEMORY")
-            request.set_value("machine_readable_type", event.attrib["type"])
-            request.set_value("default", event.attrib["type"])
+            request.set_action("XMLToDict")
+            request.set_value("message", data.xmlString)
 
             actionmapper = ObjectFactory.get_instance("actionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
 
-            event.attrib["type"] = response.get_value("human_readable_type")
+            # dictionary representation of the xml
+            data_dict = response.get_value("dict")
 
-            data.xmlString = etree.tostring(event)
+            # this convert the machine readable type to a human readable type
+            request = ObjectFactory.get_new_instance("request")
+            request.set_action("ConvertMachineReadableToHumanReadable")
+            request.set_context("MEMORY")
+            request.set_value("machine_readable_type", data_dict["event"]["@type"])
+            request.set_value("default", data_dict["event"]["@type"])
+
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            response = ObjectFactory.get_new_instance("response")
+            actionmapper.process_action(request, response)
+
+            data_dict["event"]["@type"] = response.get_value("human_readable_type")
+
+            data.xmlString = response.get_value("message")
 
             # this calls the responsible controller
             request = ObjectFactory.get_new_instance("request")
-            request.set_action(event.attrib["type"])
+            request.set_action(data_dict["event"]["@type"])
             request.set_context("XML")
             request.set_sender(self.__class__.__name__.lower())
             request.set_value("message", data)
@@ -79,10 +89,7 @@ class XMLCoTController:
             )
             request.set_value("model_object_parser", "ParseModelObjectToXML")
 
-            # this request value is used by the serializer components rule engine logic to determine which serializer should be used
-            request.set_value("source_format", "xml")
-
-            request.set_value("xml_element", event.attrib)
+            # request.set_value("xml_element", event.attrib)
 
             actionmapper = ObjectFactory.get_instance("actionMapper")
             response = ObjectFactory.get_new_instance("response")

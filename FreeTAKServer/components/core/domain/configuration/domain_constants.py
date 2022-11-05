@@ -34,4 +34,11 @@ DOMAIN_BUSINESS_RULES_PATH = str(
     )
 )
 
+METRICS_ADDRESS = str(
+    pathlib.PurePath(
+        CURRENT_COMPONENT_PATH,
+        "configuration/metrics.txt",
+    )
+)
+
 BASE_OBJECT_NAME = "Event"

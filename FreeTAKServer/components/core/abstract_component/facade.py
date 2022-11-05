@@ -8,9 +8,6 @@ from digitalpy.core.log_manager import LogManager
 from digitalpy.core.impl.default_file_logger import DefaultFileLogger
 from digitalpy.routing.controller import Controller
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-import inspect
-import sys
-import importlib
 
 
 class Facade(Controller):
@@ -35,6 +32,7 @@ class Facade(Controller):
             response=response,
             configuration=configuration,
         )
+        self.last_event = ""
         self.base = base
         self.action_mapping_path = action_mapping_path
         self.internal_action_mapping_path = internal_action_mapping_path
@@ -66,14 +64,20 @@ class Facade(Controller):
     def execute(self, method):
         self.request.set_value("logger", self.logger)
         self.request.set_value("config_loader", self.config_loader)
-        response = self.execute_sub_action(self.request.get_action())
-        self.response.set_values(response.get_values())
+        if hasattr(self, method):
+            getattr(self, method)()
+        else:
+            response = self.execute_sub_action(self.request.get_action())
+            self.response.set_values(response.get_values())
 
     def get_logs(self):
-        self.log_manager.get_logs()
+        """get all the log files available"""
+        return self.log_manager.get_logs()
 
     def discover(self):
-        pass
+        """discover the action mappings from the component"""
+        config = InifileConfiguration(config_path=self.action_mapping_path)
+        return config.config_array
 
     def register(self, config: InifileConfiguration):
         config.add_configuration(self.action_mapping_path)
@@ -114,7 +118,8 @@ class Facade(Controller):
         pass
 
     def get_health(self):
-        pass
+        self.response.set_value("alive", True)
+        self.response.set_value("last_error", self.log_manager.get_last_error())
 
     def accept_visitor(self, node: Node, visitor, **kwargs):
         return node.accept_visitor(visitor)

@@ -32,10 +32,7 @@ class Domain(Controller):
         object_class_instance = object_class(configuration, self.domain)
         self.response.set_value("model_object", object_class_instance)
         self.request.set_value("model_object", object_class_instance)
-        if self.request.get_value("source_format") and self.request.get_value(
-            "target_format"
-        ):
-            self.execute_sub_action("Serialize")
+        self.execute_sub_action("Serialize")
 
     def delete_child(self, node: Node, child_id, **kwargs):
         return node.delete_child(child_id)

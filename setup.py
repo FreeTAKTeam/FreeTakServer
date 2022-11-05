@@ -62,6 +62,7 @@ setup(
         "qrcode==7.3.1",
         "pillow==9.1.0",
         "asyncio",
+        "xmltodict",
     ],
     extras_require={"ui": ["FreeTAKServer_UI"]},
     classifiers=[
