@@ -10,27 +10,26 @@ from FreeTAKServer.components.extended.emergency.emergency_facade import Emergen
 from FreeTAKServer.components.core.type.type_facade import Type
 from FreeTAKServer.components.core.domain.domain_facade import Domain
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.services.FTS import FTS
+from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSModelVariables
 from FreeTAKServer.components.core.xml_serializer.xml_serializer_facade import (
     XMLSerializer,
 )
+from FreeTAKServer.controllers.services.telemetry_service import TelemetryService
+import pytest
+import multiprocessing
 
-from ..test_utils import execute_action
+from tests.test_components.test_utils import execute_action, execute_async_action
 
 
 def setup_module(module):
+
+    FTS().start_routing_proxy_service(FTSServiceStartupConfigObject=FTSModelVariables())
+    multiprocessing.Process(target=TelemetryService().main).start()
     config = InifileConfiguration("")
     config.add_configuration(
         r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"
     )
-
-    ObjectFactory.configure(DefaultFactory(config))
-    ObjectFactory.register_instance("configuration", config)
-
-    Type(None, None, None, None).register(config)
-
-    Domain(None, None, None, None).register(config)
-
-    XMLSerializer(None, None, None, None).register(config)
 
 
 def test_domain_health():
@@ -45,6 +44,20 @@ def test_domain_health():
 
 
 def test_domain_metrics():
-    execute_action("TestMetrics", {})
-    get_metrics_output = execute_action("GetMetrics", {})
-    assert False
+    execute_async_action("TestMetrics", {})
+
+    get_metrics_output = execute_async_action("GetMetrics", {})
+    assert "metrics" in get_metrics_output
+
+
+def test_domain_telemetry():
+    execute_async_action("TestTracing", {})
+    get_telemetry_output = execute_async_action("GetTraces", {})
+    assert "traces" in get_telemetry_output
+
+
+if __name__ == "__main__":
+    if True:
+        args_str = r"-v tests\test_components\test_core_components\test_domain.py::test_domain_telemetry"
+        args = args_str.split(" ")
+        retcode = pytest.main(args)

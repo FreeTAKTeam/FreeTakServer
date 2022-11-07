@@ -69,7 +69,7 @@ class MainConfig:
         DBFilePath = str(os.environ.get("FTS_DB_PATH", r"/opt/FTSDataBase.db"))
 
         # the number of routing workers to use
-        NumRoutingWorkers = int(os.environ.get("FTS_NUM_ROUTING_WORKERS", 6))
+        NumRoutingWorkers = int(os.environ.get("FTS_NUM_ROUTING_WORKERS", 1))
 
         # port to subscribe to requests by the routing proxy
         RoutingProxySubscriberPort = int(
@@ -308,7 +308,7 @@ class MainConfig:
             NumRoutingWorkers = int(
                 os.environ.get(
                     "FTS_NUM_ROUTING_WORKERS",
-                    yamlConfig["Addresses"].get("FTS_NUM_ROUTING_WORKERS", 6),
+                    yamlConfig["Addresses"].get("FTS_NUM_ROUTING_WORKERS", 1),
                 )
             )
 
@@ -317,7 +317,7 @@ class MainConfig:
                 os.environ.get(
                     "FTS_ROUTING_PROXY_SUBSCRIBE_PORT",
                     yamlConfig["Addresses"].get(
-                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19030
+                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 40030
                     ),
                 )
             )
@@ -337,7 +337,7 @@ class MainConfig:
                 os.environ.get(
                     "FTS_ROUTING_PROXY_PUBLISHER_PORT",
                     yamlConfig["Addresses"].get(
-                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19032
+                        "FTS_ROUTING_PROXY_PUBLISHER_PORT", 40032
                     ),
                 )
             )
@@ -356,9 +356,7 @@ class MainConfig:
             RoutingProxyRequestServerPort = int(
                 os.environ.get(
                     "FTS_ROUTING_PROXY_SERVER_PORT",
-                    yamlConfig["Addresses"].get(
-                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19031
-                    ),
+                    yamlConfig["Addresses"].get("FTS_ROUTING_PROXY_SERVER_PORT", 40031),
                 )
             )
 

@@ -1,9 +1,9 @@
 """this module contains only the DomainMetricsController class"""
-from digitalpy.component.metrics_controller import MetricController
+from digitalpy.component.impl.default_meter_controller import MeterController
 from ..configuration.domain_constants import COMPONENT_NAME, METRICS_ADDRESS
 
 
-class DomainMetricsController(MetricController):
+class DomainMetricsController(MeterController):
     """the metrics controller implementation for the domain
     component."""
 
@@ -18,5 +18,7 @@ class DomainMetricsController(MetricController):
         )
 
     def test_metrics(self):
-        counter = self.metrics.create_counter("test", "test", "1")
+        """test the metrics functionality of the domain metrics controller"""
+
+        counter = self.meter.create_counter("test", "test", "1")
         counter.increment(2, {"abc": "123"})
