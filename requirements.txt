@@ -3,3 +3,7 @@
  # installs dependencies from ./setup.py, and the package itself,
  # in editable mode for development
  -e .
+
+ pytest>=7.0.0
+ pytest-pep8>=1.0.0
+ pytest-cov>=4.0.0
