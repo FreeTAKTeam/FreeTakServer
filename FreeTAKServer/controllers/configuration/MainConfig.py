@@ -223,8 +223,8 @@ class MainConfig:
 
     def set(self, name, value=None, override_ro=False):
         # add the value to the values table using the correct type
-        if not self.readonly(name) or override_ro:
-            self._values[name] = MainConfig._defaults[name]['type'](value)
+        if not self._readonly(name) or override_ro:
+            self._values[name] = self._var_type(name)(value)
 
     def get(self, name):
         if name in self._values:
@@ -250,16 +250,28 @@ class MainConfig:
     def import_env_config(self):
         for env_var, config_var in self._env_vars.items():
             if env_var in os.environ:
-                self[config_var] = os.environ[env_var]
+                value = os.environ[env_var]
+                if self._var_type(config_var) == bool:
+                    # bools are actually specified as a string
+                    if value.upper() in ('1', 'TRUE', 'YES', 'Y'):
+                        value = True
+                    else:
+                        value = False
+                self[config_var] = value
 
     def dump_values(self):
         for var_name, value in self._values.items():
             print(f'{var_name} = {value}')
 
-    def readonly(self, name):
+    # test if the config var should allow being set
+    def _readonly(self, name):
         if 'readonly' in MainConfig._defaults[name] and MainConfig._defaults[name]['readonly']:
             return True
         return False
+
+    # helper function to return the type of a config var
+    def _var_type(self, name):
+        return MainConfig._defaults[name]['type']
 
     def __getattr__(self, name):
         return self.get(name)
