@@ -45,8 +45,9 @@ class MainConfig:
     MainPath = '/tmp'
     certsPath = '/tmp/certs'
 
+    # We do not specify a type for values that should not ever be updated at runtime
     _defaults = {
-        'APIVersion': {'default': '1.9.5'},
+        'APIVersion': {'default': '1.9.5', 'type': str, 'readonly': True},
         'SecretKey': {'default': 'vnkdjnfjknfl1232#', 'type': str},
         'OptimizeAPI': {'default': True, 'type': bool},
         'DataReceptionBuffer': {'default': 1024, 'type': int},
@@ -203,8 +204,10 @@ class MainConfig:
             # Put any initialization here.
 
             # preload the defaults into the _values table
+
             for var_name, metadata in cls._defaults.items():
-                cls._instance.set(var_name, metadata['default'])
+                cls._instance.set(var_name, value=metadata['default'],
+                                  override_ro=True)
 
             # if config_file not specified, check env or use default location
             if config_file == None:
@@ -219,9 +222,10 @@ class MainConfig:
 
         return cls._instance
 
-    def set(self, name, value=None):
+    def set(self, name, value=None, override_ro=False):
         # add the value to the values table using the correct type
-        self._values[name] = MainConfig._defaults[name]['type'](value)
+        if not self.readonly(name) or override_ro:
+            self._values[name] = MainConfig._defaults[name]['type'](value)
 
     def get(self, name):
         if name in self._values:
@@ -244,6 +248,11 @@ class MainConfig:
     def dump_values(self):
         for var_name, value in self._values.items():
             print(f'{var_name} = {value}')
+
+    def readonly(self, name):
+        if 'readonly' in MainConfig._defaults[name] and MainConfig._defaults[name]['readonly']:
+            return True
+        return False
 
     def __getattr__(self, name):
         return self.get(name)
