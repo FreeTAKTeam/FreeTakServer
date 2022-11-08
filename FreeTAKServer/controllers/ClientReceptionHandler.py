@@ -69,7 +69,7 @@ class ClientReceptionHandler:
                             logger.debug("empty string sent, standard disconnect")
                             continue
                         xmlstring = "<multiEvent>" + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
-                        xmlstring = re.sub(r'\<\?xml(?s)(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
+                        xmlstring = re.sub(r'(?s)\<\?xml(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
                         events = etree.fromstring(xmlstring)  # serialize to object
                         for event in events.findall('event'):
                             self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
