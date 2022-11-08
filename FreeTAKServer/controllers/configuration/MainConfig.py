@@ -186,7 +186,6 @@ class MainConfig:
             'FTS_FEDERATION_CERTDIR': 'federationCert',
             'FTS_FEDERATION_KEYDIR': 'federationKey',
             'FTS_FEDERATION_KEYPASS': 'federationKeyPassword',
-            'FTS_FED_PASSWORD': 'federationKeyPassword',
             'FTS_CLIENT_CERT_PASSWORD': 'password',
             'FTS_WEBSOCKET_KEY': 'websocketkey',
             'FTS_CRLDIR': 'CRLFile',
