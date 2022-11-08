@@ -63,6 +63,7 @@ setup(
         "pillow==9.1.0",
         "asyncio",
         "xmltodict",
+        "pyzmq"
     ],
     extras_require={"ui": ["FreeTAKServer_UI"]},
     classifiers=[
