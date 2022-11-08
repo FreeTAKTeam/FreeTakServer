@@ -239,6 +239,14 @@ class MainConfig:
         except OSError as e:
             raise e
 
+        # walk through the _yaml_keys struct looking for values in yamlConfig
+        for sect in MainConfig._yaml_keys:
+            if sect in yamlConfig:
+                for attr, var_name in MainConfig._yaml_keys[sect].items():
+                    if attr in yamlConfig[sect]:
+                        # found a setting we can update the config
+                        self.set(var_name, value=yamlConfig[sect][attr])
+
     def import_env_config(self):
         for env_var, config_var in self._env_vars.items():
             if env_var in os.environ:
