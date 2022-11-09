@@ -31,7 +31,7 @@ class Test_MainConfig(unittest.TestCase):
         config = MainConfig.instance()
 
         assert(config.DataReceptionBuffer == 512)
-        #assert(config.OptimizeAPI == False)
+        assert(config.OptimizeAPI == False)
         assert(config.SecretKey == 'abc123')
 
 
@@ -92,3 +92,17 @@ Certs:
         for sect in MainConfig._yaml_keys:
             for var in MainConfig._yaml_keys[sect]:
                 assert(config.get(MainConfig._yaml_keys[sect][var]) == expected[sect][var])
+
+
+    @mock.patch('builtins.open',
+                create=True,
+                new=mock.mock_open(read_data=yaml_config))
+    @mock.patch.dict(os.environ, {'FTS_SSLCOT_PORT': '10000'}) # int test
+    @mock.patch.dict(os.environ, {'FTS_COT_TO_DB': '1'})            # bool test
+    @mock.patch.dict(os.environ, {'FTS_MAINPATH': '/tmp/fts'})         # str test
+    def test_yaml_config_with_env_override(self):
+        config = MainConfig.instance(config_file='/dev/null')
+
+        assert(config.SSLCoTServicePort== 10000)
+        assert(config.SaveCoTToDB == True)
+        assert(config.MainPath == '/tmp/fts')
