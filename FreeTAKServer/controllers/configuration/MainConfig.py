@@ -42,8 +42,7 @@ class MainConfig:
 
     nodeID = os.environ.get('FTS_NODE_ID', f"FreeTAKServer-{id}")
 
-    MainPath = '/tmp'
-    certsPath = '/tmp/certs'
+    _default_main_path = fr'{userpath}{python_version}/dist-packages/FreeTAKServer'
 
     # We do not specify a type for values that should not ever be updated at runtime
     _defaults = {
@@ -73,33 +72,33 @@ class MainConfig:
         'SaveCoTToDB': {'default': True, 'type': bool},
         # this should be set before startup
         'DBFilePath': {'default': r'/opt/FTSDataBase.db', 'type': str},
-        'MainPath': {'default': Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer'), 'type': str},
-        'certsPath': {'default': Path(fr'{MainPath}/certs'), 'type': str},
-        'ExCheckMainPath': {'default': Path(fr'{MainPath}/ExCheck'), 'type': str},
-        'ExCheckFilePath': {'default': Path(fr'{MainPath}/ExCheck/template'), 'type': str},
-        'ExCheckChecklistFilePath': {'default': Path(fr'{MainPath}/ExCheck/checklist'), 'type': str},
-        'DataPackageFilePath': {'default': Path(fr'{MainPath}/FreeTAKServerDataPackageFolder'), 'type': str},
-        'LogFilePath': {'default': Path(fr"{MainPath}/Logs"), 'type': str},
+        'MainPath': {'default': Path(_default_main_path), 'type': str},
+        'certsPath': {'default': Path(fr'{_default_main_path}/certs'), 'type': str},
+        'ExCheckMainPath': {'default': Path(fr'{_default_main_path}/ExCheck'), 'type': str},
+        'ExCheckFilePath': {'default': Path(fr'{_default_main_path}/ExCheck/template'), 'type': str},
+        'ExCheckChecklistFilePath': {'default': Path(fr'{_default_main_path}/ExCheck/checklist'), 'type': str},
+        'DataPackageFilePath': {'default': Path(fr'{_default_main_path}/FreeTAKServerDataPackageFolder'), 'type': str},
+        'LogFilePath': {'default': Path(fr"{_default_main_path}/Logs"), 'type': str},
         'federationKeyPassword': {'default': 'defaultpass', 'type': str},
-        'keyDir': {'default': Path(fr'{certsPath}/server.key'), 'type': str},
-        'pemDir': {'default': Path(fr'{certsPath}/server.pem'), 'type': str},
-        'testPem': {'default': Path(fr'{certsPath}/server.key'), 'type': str},
-        'testKey': {'default': Path(fr'{certsPath}/server.pem'), 'type': str},
-        'unencryptedKey': {'default': Path(fr'{certsPath}/server.key.unencrypted'), 'type': str},
-        'p12Dir': {'default': Path(fr'{certsPath}/server.p12'), 'type': str},
-        'CA': {'default': Path(fr'{certsPath}/ca.pem'), 'type': str},
-        'CAkey': {'default': Path(fr'{certsPath}/ca.key'), 'type': str},
-        'federationCert': {'default': Path(fr'{certsPath}/server.pem'), 'type': str},
-        'federationKey': {'default': Path(fr'{certsPath}/server.key'), 'type': str},
+        'keyDir': {'default': Path(fr'{_default_main_path}/certs/server.key'), 'type': str},
+        'pemDir': {'default': Path(fr'{_default_main_path}/certs/server.pem'), 'type': str},
+        'testPem': {'default': Path(fr'{_default_main_path}/certs/server.key'), 'type': str},
+        'testKey': {'default': Path(fr'{_default_main_path}/certs/server.pem'), 'type': str},
+        'unencryptedKey': {'default': Path(fr'{_default_main_path}/certs/server.key.unencrypted'), 'type': str},
+        'p12Dir': {'default': Path(fr'{_default_main_path}/certs/server.p12'), 'type': str},
+        'CA': {'default': Path(fr'{_default_main_path}/certs/ca.pem'), 'type': str},
+        'CAkey': {'default': Path(fr'{_default_main_path}/certs/ca.key'), 'type': str},
+        'federationCert': {'default': Path(fr'{_default_main_path}/certs/server.pem'), 'type': str},
+        'federationKey': {'default': Path(fr'{_default_main_path}/certs/server.key'), 'type': str},
         'federationKeyPassword': {'default': 'defaultpass', 'type': str},
         'password': {'default': 'supersecret', 'type': str},
         'websocketkey': {'default': "YourWebsocketKey", 'type': str},
-        'CRLFile': {'default': Path(fr"{certsPath}/FTS_CRL.json"), 'type': str},
+        'CRLFile': {'default': Path(fr"{_default_main_path}/certs/FTS_CRL.json"), 'type': str},
         # set to None if you don't want a message sent
         'ConnectionMessage': {'default': f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting', 'type': str},
         'DataBaseType': {'default': "SQLite", 'type': str},
         # location to backup client packages
-        'clientPackages': {'default': Path(fr'{MainPath}/certs/clientPackages'), 'type': str},
+        'clientPackages': {'default': Path(fr'{_default_main_path}/certs/clientPackages'), 'type': str},
     }
 
     _env_vars = {
