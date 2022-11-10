@@ -176,11 +176,8 @@ logs/
 /test users/__init__.py
 /test users/basic_user.py
 /FreeTAKServer/controllers/serializers/federation_protobuf_serializer.py
-<<<<<<< HEAD
-FreeTAKServer/controllers/configuration/MainConfig.py
 python
 /.idea/deployment.xml
-=======
 fts-env/pyvenv.cfg
 fts-env/Include/site/python3.8/greenlet/greenlet.h
 fts-env/Scripts/activate
@@ -247,4 +244,3 @@ fts-ubuntu-env/share/python-wheels/toml-0.10.0-py2.py3-none-any.whl
 fts-ubuntu-env/share/python-wheels/urllib3-1.25.8-py2.py3-none-any.whl
 fts-ubuntu-env/share/python-wheels/webencodings-0.5.1-py2.py3-none-any.whl
 fts-ubuntu-env/share/python-wheels/wheel-0.34.2-py2.py3-none-any.whl
->>>>>>> 7411afe1d639218be0fe52a3bda7aeffb7a2b7ce
