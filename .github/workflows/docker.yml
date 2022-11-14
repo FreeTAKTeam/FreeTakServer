@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
 
-
 jobs:
   build:
     name: Docker Build
@@ -14,7 +13,7 @@ jobs:
         run: |
           echo "Pushing docker image: ghcr.io/freetakteam/freetakserver:$GITHUB_REF_NAME"
           echo "Pushing docker image: ghcr.io/freetakteam/freetakserver:$GITHUB_SHA"
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Auth to GitHub registry
