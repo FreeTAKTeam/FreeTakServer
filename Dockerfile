@@ -1,6 +1,10 @@
 FROM ubuntu:20.04
 
-LABEL maintainer="FreeTAKTeam"
+LABEL maintainer="FreeTAKTeam <FreeTAKTeam@gmail.com>"
+LABEL org.opencontainers.image.source="https://github.com/FreeTAKTeam/FreeTakServer"
+LABEL org.opencontainers.image.licenses="EPL-2.0"
+LABEL org.opencontainers.image.description="FTS is a Python3 implementation of the TAK Server for devices like ATAK, WinTAK, and ITAK, it is cross-platform and runs from a multi node installation on AWS down to the Android edition."
+
 
 ARG FTS_VERSION=1.9.9.2
 
