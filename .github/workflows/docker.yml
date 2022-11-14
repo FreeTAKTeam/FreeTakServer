@@ -10,6 +10,10 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-22.04
     steps:
+      - name: Publishing info
+        run: |
+          echo "Pushing docker image: ghcr.io/freetakteam/freetakserver:$GITHUB_REF_NAME"
+          echo "Pushing docker image: ghcr.io/freetakteam/freetakserver:$GITHUB_SHA"
       - uses: actions/checkout@v3
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -22,8 +26,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v2
         with:
           push: true
-          tags: "ghcr.io/freetakteam/freetakserver:${{ GITHUB_REF_NAME }}, ghcr.io/freetakteam/freetakserver:${{ GITHUB_SHA }}"
+          tags: |
+            ghcr.io/freetakteam/freetakserver:${{ GITHUB_REF_NAME }}
+            ghcr.io/freetakteam/freetakserver:${{ GITHUB_SHA }}
 
