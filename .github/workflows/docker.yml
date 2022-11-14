@@ -25,4 +25,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ghcr.io/freetakteam/freetakserver:latest
+          tags: "ghcr.io/freetakteam/freetakserver:${{ GITHUB_REF_NAME }}, ghcr.io/freetakteam/freetakserver:${{ GITHUB_SHA }}"
+
