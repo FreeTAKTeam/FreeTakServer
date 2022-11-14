@@ -60,7 +60,7 @@ class ReceiveConnections:
         client.setblocking(True)
         client.settimeout(int(ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT))
         xmlstring = "<multiEvent>" + part.decode() + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
-        xmlstring = re.sub(r'\<\?xml(?s)(.*)\?\>', '',
+        xmlstring = re.sub(r'(?s)\<\?xml(.*)\?\>', '',
                            xmlstring)  # replace xml definition tag with empty string as it breaks serilization
         events = etree.fromstring(xmlstring)
         return events
