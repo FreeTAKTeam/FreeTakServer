@@ -15,7 +15,7 @@ from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSModelVariables
 from FreeTAKServer.components.core.xml_serializer.xml_serializer_facade import (
     XMLSerializer,
 )
-from FreeTAKServer.controllers.services.telemetry_service import TelemetryService
+from FreeTAKServer.controllers.services.internal_telemetry_service import TelemetryService
 import pytest
 import multiprocessing
 
