@@ -4,6 +4,7 @@ import random
 from string import ascii_letters, digits, punctuation
 from pathlib import Path
 from uuid import uuid4
+import re
 
 class MainConfig:
     """
