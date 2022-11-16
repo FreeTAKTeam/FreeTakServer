@@ -31,10 +31,10 @@ class MainConfig:
         import socket
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
+        _ip = s.getsockname()[0]
         s.close()
     except:
-        ip = "0.0.0.0"
+        _ip = "0.0.0.0"
 
     _node_id = str(uuid4())
 
@@ -55,9 +55,9 @@ class MainConfig:
         'CoTServicePort': {'default': 8087, 'type': int},
         'SSLCoTServicePort': {'default': 8089, 'type': int},
         # this needs to be changed for private data packages to work
-        'DataPackageServiceDefaultIP': {'default': ip, 'type': str},
+        'DataPackageServiceDefaultIP': {'default': _ip, 'type': str},
         # User Connection package IP needs to be set to the IP which is used when creating the connection in your tak device
-        'UserConnectionIP': {'default': ip, 'type': str},
+        'UserConnectionIP': {'default': _ip, 'type': str},
         # api port
         'APIPort': {'default': 19023, 'type': int},
         # Federation port
