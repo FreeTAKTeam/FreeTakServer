@@ -136,3 +136,18 @@ Certs:
         assert(config.get('APIPort') == 8088)
         config.LogFilePath = '/tmp/logs'
         assert(config.get('LogFilePath') == '/tmp/logs')
+
+    def test_get_config_as_dictionary(self):
+        config = MainConfig.instance()
+        assert(config['MainPath'] == fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer')
+        assert(config['SaveCoTToDB'] == True)
+        assert(config['FederationPort'] == 9000)
+
+    def test_set_config_as_dictionary(self):
+        config = MainConfig.instance()
+        config['OptimizeAPI'] = False
+        assert(config.get('OptimizeAPI') == False)
+        config['APIPort'] = 8088
+        assert(config.get('APIPort') == 8088)
+        config['LogFilePath'] = '/tmp/logs'
+        assert(config.get('LogFilePath') == '/tmp/logs')
