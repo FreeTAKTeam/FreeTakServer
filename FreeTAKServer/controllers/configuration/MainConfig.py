@@ -40,7 +40,8 @@ class MainConfig:
 
     # We do not specify a type for values that should not ever be updated at runtime
     _defaults = {
-        'APIVersion': {'default': '1.9.5', 'type': str, 'readonly': True},
+        'version': {'default': FTS_VERSION, 'type': str, 'readonly': True},
+        'APIVersion': {'default': API_VERSION, 'type': str, 'readonly': True},
         'SecretKey': {'default': 'vnkdjnfjknfl1232#', 'type': str},
         'nodeID': {'default': f'FreeTAKServer-{_node_id}', 'type': str},
         'OptimizeAPI': {'default': True, 'type': bool},
@@ -63,6 +64,8 @@ class MainConfig:
         'FederationPort': {'default': 9000, 'type': int},
         # api IP
         'APIIP': {'default': '0.0.0.0', 'type': str},
+        # IP for CLI to access
+        'CLIIP': {'default': '127.0.0.1', 'type': str},
         'AllowCLIIPs': {'default': ['127.0.0.1'], 'type': list},
         # whether or not to save CoT's to the DB
         'SaveCoTToDB': {'default': True, 'type': bool},
