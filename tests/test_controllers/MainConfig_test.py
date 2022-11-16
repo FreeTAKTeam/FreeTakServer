@@ -3,7 +3,7 @@ import pytest
 import os
 import yaml
 
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig, USERPATH, PYTHON_VERSION
 from pathlib import PosixPath, WindowsPath
 from unittest import mock
 
@@ -125,7 +125,7 @@ Certs:
 
     def test_get_config_as_attribute(self):
         config = MainConfig.instance()
-        assert(config.MainPath == fr'{MainConfig.userpath}{MainConfig.python_version}/dist-packages/FreeTAKServer')
+        assert(config.MainPath == fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer')
         assert(config.SaveCoTToDB == True)
         assert(config.FederationPort == 9000)
 
