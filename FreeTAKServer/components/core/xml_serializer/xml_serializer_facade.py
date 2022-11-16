@@ -8,9 +8,8 @@ from FreeTAKServer.components.core.xml_serializer.configuration.xml_serializer_c
 from . import base
 
 
-class XMLSerializer(Facade):
-    """Facade class for the Component component.
-    Responsible for handling all public routing.
+class XmlSerializer(Facade):
+    """Facade class for the Component component. Responsible for handling all public routing.
     Forwards all requests to the internal router.
     """
 

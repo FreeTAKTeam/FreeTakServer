@@ -688,8 +688,6 @@ class Orchestrator:
         of the CoT data"""
         if not hasattr(cot, "xmlString"):
             raise ValueError("cot missing required attribute 'xmlString'")
-        # serialize the XML to an etree object
-        event = etree.fromstring(cot.xmlString)
 
         request = ObjectFactory.get_new_instance("request")
         # must get a new instance of the async action mapper for each request
@@ -701,12 +699,10 @@ class Orchestrator:
         # instantiate and define the request
         request = ObjectFactory.get_new_instance("request")
         request.set_format("pickled")
-        request.set_action(event.attrib["type"])
+        request.set_action(cot.data_dict["type"])
         request.set_context("XML")
         request.set_sender(self.__class__.__name__.lower())
-        request.set_value("message", cot)
-        request.set_value("model_object_parser", "ParseModelObjectToXML")
-        request.set_value("xml_element", dict(event.attrib))
+        request.set_value("dictionary", cot.data_dict)
 
         # instantiate and define the response
         response = ObjectFactory.get_new_instance("response")

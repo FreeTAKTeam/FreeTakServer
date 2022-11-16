@@ -7,7 +7,7 @@ def execute_action(action: str, values: dict) -> dict:
     request.set_action(action)
     request.set_values(values)
 
-    actionmapper = ObjectFactory.get_instance("sync_actionMapper")
+    actionmapper = ObjectFactory.get_instance("syncactionMapper")
     response = ObjectFactory.get_new_instance("response")
 
     actionmapper.process_action(request, response)

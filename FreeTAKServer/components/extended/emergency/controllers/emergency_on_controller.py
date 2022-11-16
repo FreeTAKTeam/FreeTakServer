@@ -54,7 +54,7 @@ class EmergencyOnController(DefaultBusinessRuleController):
         """this method creates the model object outline and proceeds to pass
         it to the parser to fill the model object with the xml data
         """
-        self.request.get_value("logger").debug("parsing emergency off")
+        self.request.get_value("logger").debug("parsing emergency on")
 
         self.response.set_values(kwargs)
 
@@ -74,7 +74,7 @@ class EmergencyOnController(DefaultBusinessRuleController):
         # self.request.set_value("message", self.request.get_value("message").xmlString)
 
         # sub_response = self.execute_sub_action("ParseCoT")
-        for key, value in sub_response.get_values().items():
+        for key, value in response.get_values().items():
             self.request.set_value(key, value)
 
         self.request.get_value("logger").debug("emergency on parsed")

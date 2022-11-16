@@ -81,10 +81,10 @@ class XMLCoTController:
                 request, response, return_listener=True
             )
             actionmapper.get_response(response, request, listener)
-            
+
             # retrieve the human readable type and set it as the data dictionary type
             data_dict["event"]["@type"] = response.get_value("human_readable_type")
-            
+
             # handle the case where the human readable type is not registered and there is no specific
             # component meant to handle the cot type
             if response.get_value("human_readable_type") == data_dict["event"]["@type"]:
@@ -95,6 +95,7 @@ class XMLCoTController:
                 # assign the human readable type to prevent the duplication of work
                 data_dict["event"]["@type"] = response.get_value("human_readable_type")
                 data.xmlString = response.get_value("message")
+                data.data_dict = data_dict
                 return ("component_handler", data)
 
     def convert_model_to_row(self, modelObject, rowObject):
