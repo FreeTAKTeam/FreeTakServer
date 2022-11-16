@@ -45,9 +45,6 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 
-# Make a connection to the MainConfig object for all routines below
-config = MainConfig.instance()
-
 dbController = DatabaseController()
 
 UpdateArray = []
@@ -1354,6 +1351,9 @@ def FederationTable():
 @app.route('/ManageKML/postKML', methods=[restMethods.POST])
 @auth.login_required()
 def create_kml():
+    # Make a connection to the MainConfig object
+    config = MainConfig.instance()
+
     try:
         from pykml.factory import KML_ElementMaker as KML
         from pykml import parser
@@ -1467,6 +1467,10 @@ def broadcast_datapackage(uid):
 @auth.login_required()
 def DataPackageTable():
     from pathlib import Path
+
+    # Make a connection to the MainConfig object
+    config = MainConfig.instance()
+
     if request.method == "GET":
         output = dbController.query_datapackage()
         for i in range(0, len(output)):
