@@ -33,7 +33,8 @@ class MainConfig:
 
     _node_id = str(uuid4())
 
-    # We do not specify a type for values that should not ever be updated at runtime
+    # All available config vars should be defined here
+    #   currently only 'default', 'type' and 'readonly' are recognized
     _defaults = {
         'version': {'default': FTS_VERSION, 'type': str, 'readonly': True},
         'APIVersion': {'default': API_VERSION, 'type': str, 'readonly': True},
@@ -95,6 +96,7 @@ class MainConfig:
         'clientPackages': {'default': Path(fr'{MAINPATH}/certs/clientPackages'), 'type': str},
     }
 
+    # This structure maps environmental vars to config vars
     _env_vars = {
         'FTS_SECRET_KEY': 'SecretKey',
         'FTS_NODE_ID': 'nodeID',
@@ -139,6 +141,8 @@ class MainConfig:
         'FTS_CLIENT_PACKAGES': 'clientPackages',
     }
 
+    # This is a simple representation of the YAML config schema with
+    # mappings to config var
     _yaml_keys = {
         'System': {
             'FTS_NODE_ID': 'nodeID',
@@ -193,6 +197,18 @@ class MainConfig:
     def __init__(self):
         raise RuntimeError('Call instance() instead')
 
+    # instance() is the normal entry point to get access to config information.
+    #
+    # Generally it is called without arguments in the rest of the FTS code
+    # and the return value is a config object where the config vars can be
+    # read or written using the attribute syntax (e.g. config.var for read and
+    # config.var = value for write), the dictionary syntax (e.g. config['var']
+    # for read and config['var'] = value for write) or the get() and set() methods.
+    #
+    # The only time that instance() is called with a parameter is the first
+    # time it is accessed so that the YAML config file can be read in and
+    # parsed. Further calls to instance() with the YAML configuration param
+    # may reset values of current config vars to their start values.
     @classmethod
     def instance(cls, config_file=None):
         if cls._instance is None:
@@ -218,6 +234,9 @@ class MainConfig:
 
         return cls._instance
 
+    # reset() is really only used for testing so that MainConfig can
+    # be reinitialized between tests. It normally should not be used
+    # by anything else.
     @classmethod
     def reset(cls):
         # here we need to reinitialze all the private vars
@@ -236,6 +255,9 @@ class MainConfig:
         else:
             raise RuntimeError(f'MainConfig unknown setting name: {name}')
 
+    # read_yaml_config() will parse a YAML config and apply to the current
+    # config vars. This should only be called from instance() and only
+    # at the startup of the FTS server.
     def read_yaml_config(self, yaml_path):
         try:
             content = open(yaml_path).read()
@@ -251,6 +273,10 @@ class MainConfig:
                         # found a setting we can update the config
                         self.set(var_name, value=yamlConfig[sect][attr])
 
+    # import_env_config() will inspect the current environment and detect
+    # configuration values. Detected values will then be applied to the
+    # current config vars. This should only be called from instance() and
+    # only at the startup of the FTS server.
     def import_env_config(self):
         # Walk through all the registered env vars and check to see if the
         # env var is defined in the environment
@@ -271,6 +297,8 @@ class MainConfig:
 
                 self[config_var] = env_value
 
+    # dump_values() is used for debugging and inspecting the current
+    # settings of config vars
     def dump_values(self):
         for var_name, value in self._values.items():
             print(f'{var_name} = {value}')
@@ -285,12 +313,14 @@ class MainConfig:
     def _var_type(self, name):
         return MainConfig._defaults[name]['type']
 
+    # Attribute access magic methods
     def __getattr__(self, name):
         return self.get(name)
 
     def __setattr__(self, name, value):
         self.set(name, value)
 
+    # Dictionary access magic methods
     def __getitem__(self, name):
         return self.get(name)
 
