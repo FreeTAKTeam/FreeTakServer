@@ -25,14 +25,29 @@ class Test_MainConfig(unittest.TestCase):
 
     # we test only a couple of vars with env override assuming rest are OK
     @mock.patch.dict(os.environ, {'FTS_DATA_RECEPTION_BUFFER': '512'}) # int test
-    @mock.patch.dict(os.environ, {'FTS_OPTIMIZE_API': '0'})            # bool test
-    @mock.patch.dict(os.environ, {'FTS_SECRET_KEY': 'abc123'})         # str test
-    def test_env_var_values(self):
+    def test_env_var_int_values(self):
         config = MainConfig.instance()
-
         assert(config.DataReceptionBuffer == 512)
+
+    @mock.patch.dict(os.environ, {'FTS_OPTIMIZE_API': '0'})            # bool test
+    def test_env_var_bool_values(self):
+        config = MainConfig.instance()
         assert(config.OptimizeAPI == False)
+
+    @mock.patch.dict(os.environ, {'FTS_SECRET_KEY': 'abc123'})         # str test
+    def test_env_var_string_values(self):
+        config = MainConfig.instance()
         assert(config.SecretKey == 'abc123')
+
+    @mock.patch.dict(os.environ, {'FTS_CLI_WHITELIST': '127.0.0.1:10.10.10.10'})
+    def test_env_var_list_values_with_colon(self):
+        config = MainConfig.instance()
+        assert all([a == b for a, b in zip(config.AllowCLIIPs, ['127.0.0.1', '10.10.10.10'])])
+
+    @mock.patch.dict(os.environ, {'FTS_CLI_WHITELIST': '127.0.0.1,10.0.0.10'})
+    def test_env_var_list_values_with_comma(self):
+        config = MainConfig.instance()
+        assert all([a == b for a, b in zip(config.AllowCLIIPs, ['127.0.0.1', '10.0.0.10'])])
 
 
     yaml_config = """
@@ -91,7 +106,8 @@ Certs:
         # Process each attribute of each YAML section
         for sect in MainConfig._yaml_keys:
             for var in MainConfig._yaml_keys[sect]:
-                assert(config.get(MainConfig._yaml_keys[sect][var]) == expected[sect][var])
+                if var in expected[sect]:
+                    assert(config.get(MainConfig._yaml_keys[sect][var]) == expected[sect][var])
 
 
     @mock.patch('builtins.open',
