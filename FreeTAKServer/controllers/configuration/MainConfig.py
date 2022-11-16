@@ -36,18 +36,13 @@ class MainConfig:
     except:
         ip = "0.0.0.0"
 
-    # format of API message header should be {Authentication: Bearer 'TOKEN'}
-    from uuid import uuid4
-    id = str(uuid4())
-
-    nodeID = os.environ.get('FTS_NODE_ID', f"FreeTAKServer-{id}")
-
-    _default_main_path = fr'{userpath}{python_version}/dist-packages/FreeTAKServer'
+    _node_id = str(uuid4())
 
     # We do not specify a type for values that should not ever be updated at runtime
     _defaults = {
         'APIVersion': {'default': '1.9.5', 'type': str, 'readonly': True},
         'SecretKey': {'default': 'vnkdjnfjknfl1232#', 'type': str},
+        'nodeID': {'default': f'FreeTAKServer-{_node_id}', 'type': str},
         'OptimizeAPI': {'default': True, 'type': bool},
         'DataReceptionBuffer': {'default': 1024, 'type': int},
         'MaxReceptionTime': {'default': 4, 'type': int},
@@ -104,6 +99,7 @@ class MainConfig:
 
     _env_vars = {
         'FTS_SECRET_KEY': 'SecretKey',
+        'FTS_NODE_ID': 'nodeID',
         'FTS_OPTIMIZE_API': 'OptimizeAPI',
         'FTS_DATA_RECEPTION_BUFFER': 'DataReceptionBuffer',
         'FTS_MAX_RECEPTION_TIME': 'MaxReceptionTime',
@@ -147,6 +143,7 @@ class MainConfig:
 
     _yaml_keys = {
         'System': {
+            'FTS_NODE_ID': 'nodeID',
             'FTS_MAINLOOP_DELAY': 'MainLoopDelay',
             'FTS_CONNECTION_MESSAGE': 'ConnectionMessage',
             'FTS_DATABASE_TYPE': 'DataBaseType',
