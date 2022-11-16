@@ -1,4 +1,5 @@
 import os
+import re
 import yaml
 currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
@@ -20,9 +21,7 @@ class MainConfig:
 
     userpath = '/usr/local/lib/'
 
-    # allowed ip's to access CLI commands
-    AllowedCLIIPs = ['127.0.0.1']
-
+    # TODO Need to integrate CLIIP into defaults and handle correctly
     # IP for CLI to access
     CLIIP = '127.0.0.1'
 
@@ -67,6 +66,7 @@ class MainConfig:
         'FederationPort': {'default': 9000, 'type': int},
         # api IP
         'APIIP': {'default': '0.0.0.0', 'type': str},
+        'AllowCLIIPs': {'default': ['127.0.0.1'], 'type': list},
         # whether or not to save CoT's to the DB
         'SaveCoTToDB': {'default': True, 'type': bool},
         # this should be set before startup
@@ -111,6 +111,7 @@ class MainConfig:
         'FTS_DP_ADDRESS': 'DataPackageServiceDefaultIP',
         'FTS_USER_ADDRESS': 'UserConnectionIP',
         'FTS_API_PORT': 'APIPort',
+        'FTS_CLI_WHITELIST': 'AllowCLIIPs',
         'FTS_FED_PORT': 'FederationPort',
         'FTS_API_ADDRESS': 'APIIP',
         'FTS_COT_TO_DB': 'SaveCoTToDB',
@@ -160,6 +161,7 @@ class MainConfig:
             'FTS_API_PORT': 'APIPort',
             'FTS_FED_PORT': 'FederationPort',
             'FTS_API_ADDRESS': 'APIIP',
+            'FTS_CLI_WHITELIST': 'AllowCLIIPs',
         },
         'Filesystem': {
             'FTS_COT_TO_DB': 'SaveCoTToDB',
@@ -246,16 +248,24 @@ class MainConfig:
                         self.set(var_name, value=yamlConfig[sect][attr])
 
     def import_env_config(self):
+        # Walk through all the registered env vars and check to see if the
+        # env var is defined in the environment
         for env_var, config_var in self._env_vars.items():
             if env_var in os.environ:
-                value = os.environ[env_var]
+                env_value = os.environ[env_var]
+
+                # Handle boolean types
                 if self._var_type(config_var) == bool:
                     # bools are actually specified as a string
-                    if value.upper() in ('1', 'TRUE', 'YES', 'Y'):
-                        value = True
+                    if env_value.upper() in ('1', 'TRUE', 'YES', 'Y'):
+                        env_value = True
                     else:
-                        value = False
-                self[config_var] = value
+                        env_value = False
+                # Handle lists and split the value apart
+                elif self._var_type(config_var) == list:
+                    env_value = re.split(r':|,', env_value)
+
+                self[config_var] = env_value
 
     def dump_values(self):
         for var_name, value in self._values.items():
