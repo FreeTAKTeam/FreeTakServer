@@ -11,7 +11,7 @@ class Test_MainConfig(unittest.TestCase):
 
     # Need to re-initialize the singleton after each test
     def teardown_method(self, func):
-        MainConfig._instance = None
+        MainConfig.reset()
 
     def test_default_values(self):
         config = MainConfig.instance()
@@ -21,7 +21,6 @@ class Test_MainConfig(unittest.TestCase):
                 assert(config.get(conf_var) == str(metadata['default']))
             else:
                 assert(config.get(conf_var) == metadata['default'])
-
 
     # we test only a couple of vars with env override assuming rest are OK
     @mock.patch.dict(os.environ, {'FTS_DATA_RECEPTION_BUFFER': '512'}) # int test
