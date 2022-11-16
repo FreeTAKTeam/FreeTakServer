@@ -6,7 +6,7 @@ import json
 
 
 class ZMQExporter(SpanExporter):
-    def __init__(self, port: int = 40033, host: str = "127.0.0.1"):
+    def __init__(self, port: int, host: str):
         context = zmq.Context()
         self.socket = context.socket(zmq.PUB)
         self.socket.connect(f"tcp://{host}:{port}")
