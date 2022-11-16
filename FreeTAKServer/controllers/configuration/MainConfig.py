@@ -215,6 +215,13 @@ class MainConfig:
 
         return cls._instance
 
+    @classmethod
+    def reset(cls):
+        # here we need to reinitialze all the private vars
+        cls._instance = None
+        cls._values = {}
+        cls._node_id = str(uuid4())
+
     def set(self, name, value=None, override_ro=False):
         # add the value to the values table using the correct type
         if not self._readonly(name) or override_ro:
