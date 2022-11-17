@@ -9,7 +9,7 @@ import multiprocessing
 import asyncio
 
 from lxml import etree
-from .common_testing_tools import SSLClientAsync
+from common_testing_tools import SSLClientAsync
 
 import test_cot_data
 
@@ -209,7 +209,9 @@ class SSLServiceTest(unittest.TestCase):
         tcp_clients = []
         ssl_clients = []
         for _ in range(20):
-            ssl_clients.append(SSLClientAsync(ip=self.ip, port=self.port, cert_file=self.certfile, key_file=self.keyfile))
+            ssl_clients.append(
+                SSLClientAsync(ip=self.ip, port=self.port, cert_file=self.certfile, key_file=self.keyfile)
+            )
 
         for _ in range(20):
             tcp_clients.append(TCPClient(ip=self.ip, port=8087))
@@ -272,7 +274,13 @@ class SSLServiceTest(unittest.TestCase):
 
     def test_long_running_client(self):
         loop = asyncio.new_event_loop()
-        client = SSLClientAsync(ip=self.ip, port=self.port, cert_file=self.certfile, key_file=self.keyfile)
+        client = SSLClientAsync(
+                    ip=self.ip,
+                    port=self.port,
+                    cert_file=self.certfile,
+                    key_file=self.keyfile
+                )
+
         start = time.time()
         while time.time()<start+10:
             loop.create_task(client.service_connection())
