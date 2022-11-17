@@ -53,14 +53,11 @@ dbController.session = db.session
 file_dir = os.path.dirname(os.path.realpath(__file__))
 dp_directory = MainConfig.DataPackageFilePath
 
-if not os.path.exists(MainConfig.ExCheckMainPath):
-    os.mkdir(MainConfig.ExCheckMainPath)
+Path(MainConfig.ExCheckMainPath).mkdir(parents=True, exist_ok=True)
 
-if not os.path.exists(MainConfig.ExCheckChecklistFilePath):
-    os.mkdir(MainConfig.ExCheckChecklistFilePath)
+Path(MainConfig.ExCheckChecklistFilePath).mkdir(parents=True, exist_ok=True)
 
-if not os.path.exists(MainConfig.ExCheckFilePath):
-    os.mkdir(MainConfig.ExCheckFilePath)
+Path(MainConfig.ExCheckFilePath).mkdir(parents=True, exist_ok=True)
 # Set up logging
 """if not Path(log.LOGDIRECTORY).exists():
     print(f"Creating directory at {log.LOGDIRECTORY}")
