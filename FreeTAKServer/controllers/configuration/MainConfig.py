@@ -1,7 +1,7 @@
 import os
+import re
 import yaml
 import random
-import re
 from string import ascii_letters, digits, punctuation
 from pathlib import Path
 from uuid import uuid4
