@@ -3,7 +3,7 @@ import pytest
 import os
 import yaml
 
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig, USERPATH, PYTHON_VERSION
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig, FTS_INSTALL_PATH
 from pathlib import PosixPath, WindowsPath
 from unittest import mock
 
@@ -21,6 +21,11 @@ class Test_MainConfig(unittest.TestCase):
                 assert(config.get(conf_var) == str(metadata['default']))
             else:
                 assert(config.get(conf_var) == metadata['default'])
+
+    def test_unknown_config_var(self):
+        config = MainConfig.instance()
+        with pytest.raises(RuntimeError):
+            print(config.get('SomeUnknownValue'))
 
     # we test only a couple of vars with env override assuming rest are OK
     @mock.patch.dict(os.environ, {'FTS_DATA_RECEPTION_BUFFER': '512'}) # int test
@@ -124,7 +129,7 @@ Certs:
 
     def test_get_config_as_attribute(self):
         config = MainConfig.instance()
-        assert(config.MainPath == fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer')
+        assert(config.MainPath == FTS_INSTALL_PATH)
         assert(config.SaveCoTToDB == True)
         assert(config.FederationPort == 9000)
 
@@ -139,7 +144,7 @@ Certs:
 
     def test_get_config_as_dictionary(self):
         config = MainConfig.instance()
-        assert(config['MainPath'] == fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer')
+        assert(config['MainPath'] == FTS_INSTALL_PATH)
         assert(config['SaveCoTToDB'] == True)
         assert(config['FederationPort'] == 9000)
 

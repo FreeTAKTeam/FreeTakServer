@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import yaml
 currentPath = os.path.dirname(os.path.abspath(__file__))
@@ -8,11 +9,13 @@ from uuid import uuid4
 # the version information of the server (recommended to leave as default)
 FTS_VERSION = 'FreeTAKServer-1.9.9.6 Public'
 API_VERSION = '1.9.5'
-# TODO Need to find a better way to determine python version at runtime
-PYTHON_VERSION = 'python3.8'
-USERPATH = '/usr/local/lib/'
-MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
 
+# Find where FreeTAKServer package is installed
+for path in filter(lambda d: d != os.getcwd(), sys.path):
+    if os.path.exists(f'{path}/site-packages/FreeTAKServer'):
+        FTS_INSTALL_PATH = fr'{path}/site-packages/FreeTAKServer'
+    if os.path.exists(f'{path}/dist-packages/FreeTAKServer'):
+        FTS_INSTALL_PATH = fr'{path}/dist-packages/FreeTAKServer'
 class MainConfig:
     """
     this is the main configuration file and is the only one which
@@ -67,33 +70,33 @@ class MainConfig:
         'SaveCoTToDB': {'default': True, 'type': bool},
         # this should be set before startup
         'DBFilePath': {'default': r'/opt/FTSDataBase.db', 'type': str},
-        'MainPath': {'default': Path(MAINPATH), 'type': str},
-        'certsPath': {'default': Path(fr'{MAINPATH}/certs'), 'type': str},
-        'ExCheckMainPath': {'default': Path(fr'{MAINPATH}/ExCheck'), 'type': str},
-        'ExCheckFilePath': {'default': Path(fr'{MAINPATH}/ExCheck/template'), 'type': str},
-        'ExCheckChecklistFilePath': {'default': Path(fr'{MAINPATH}/ExCheck/checklist'), 'type': str},
-        'DataPackageFilePath': {'default': Path(fr'{MAINPATH}/FreeTAKServerDataPackageFolder'), 'type': str},
-        'LogFilePath': {'default': Path(fr"{MAINPATH}/Logs"), 'type': str},
+        'MainPath': {'default': Path(FTS_INSTALL_PATH), 'type': str},
+        'certsPath': {'default': Path(fr'{FTS_INSTALL_PATH}/certs'), 'type': str},
+        'ExCheckMainPath': {'default': Path(fr'{FTS_INSTALL_PATH}/ExCheck'), 'type': str},
+        'ExCheckFilePath': {'default': Path(fr'{FTS_INSTALL_PATH}/ExCheck/template'), 'type': str},
+        'ExCheckChecklistFilePath': {'default': Path(fr'{FTS_INSTALL_PATH}/ExCheck/checklist'), 'type': str},
+        'DataPackageFilePath': {'default': Path(fr'{FTS_INSTALL_PATH}/FreeTAKServerDataPackageFolder'), 'type': str},
+        'LogFilePath': {'default': Path(fr"{FTS_INSTALL_PATH}/Logs"), 'type': str},
         'federationKeyPassword': {'default': 'defaultpass', 'type': str},
-        'keyDir': {'default': Path(fr'{MAINPATH}/certs/server.key'), 'type': str},
-        'pemDir': {'default': Path(fr'{MAINPATH}/certs/server.pem'), 'type': str},
-        'testPem': {'default': Path(fr'{MAINPATH}/certs/server.key'), 'type': str},
-        'testKey': {'default': Path(fr'{MAINPATH}/certs/server.pem'), 'type': str},
-        'unencryptedKey': {'default': Path(fr'{MAINPATH}/certs/server.key.unencrypted'), 'type': str},
-        'p12Dir': {'default': Path(fr'{MAINPATH}/certs/server.p12'), 'type': str},
-        'CA': {'default': Path(fr'{MAINPATH}/certs/ca.pem'), 'type': str},
-        'CAkey': {'default': Path(fr'{MAINPATH}/certs/ca.key'), 'type': str},
-        'federationCert': {'default': Path(fr'{MAINPATH}/certs/server.pem'), 'type': str},
-        'federationKey': {'default': Path(fr'{MAINPATH}/certs/server.key'), 'type': str},
+        'keyDir': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.key'), 'type': str},
+        'pemDir': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.pem'), 'type': str},
+        'testPem': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.key'), 'type': str},
+        'testKey': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.pem'), 'type': str},
+        'unencryptedKey': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.key.unencrypted'), 'type': str},
+        'p12Dir': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.p12'), 'type': str},
+        'CA': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/ca.pem'), 'type': str},
+        'CAkey': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/ca.key'), 'type': str},
+        'federationCert': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.pem'), 'type': str},
+        'federationKey': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/server.key'), 'type': str},
         'federationKeyPassword': {'default': 'defaultpass', 'type': str},
         'password': {'default': 'supersecret', 'type': str},
         'websocketkey': {'default': "YourWebsocketKey", 'type': str},
-        'CRLFile': {'default': Path(fr"{MAINPATH}/certs/FTS_CRL.json"), 'type': str},
+        'CRLFile': {'default': Path(fr"{FTS_INSTALL_PATH}/certs/FTS_CRL.json"), 'type': str},
         # set to None if you don't want a message sent
         'ConnectionMessage': {'default': f'Welcome to FreeTAKServer {FTS_VERSION}. The Parrot is not dead. It’s just resting', 'type': str},
         'DataBaseType': {'default': "SQLite", 'type': str},
         # location to backup client packages
-        'clientPackages': {'default': Path(fr'{MAINPATH}/certs/clientPackages'), 'type': str},
+        'clientPackages': {'default': Path(fr'{FTS_INSTALL_PATH}/certs/clientPackages'), 'type': str},
     }
 
     # This structure maps environmental vars to config vars
