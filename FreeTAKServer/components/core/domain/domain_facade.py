@@ -4,6 +4,7 @@ from FreeTAKServer.components.core.domain.configuration.domain_constants import 
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
+    MANIFEST_PATH,
 )
 from . import base
 
@@ -42,4 +43,6 @@ class Domain(DefaultFacade):
             log_file_path=MainConfig.LogFilePath,
             # the tracing provider used
             tracing_provider_instance=tracing_provider_instance,
+            # the path to the manifest file
+            manifest_path=MANIFEST_PATH,
         )

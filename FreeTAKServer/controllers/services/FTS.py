@@ -1,17 +1,17 @@
-import multiprocessing
-import pathlib
-import threading
 import argparse
 import linecache
-import sys
+import multiprocessing
+import pathlib
 import random
-from digitalpy.routing.routing_proxy import RoutingProxy
-from digitalpy.core.impl.default_factory import DefaultFactory
+import sys
+import threading
+
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
+from digitalpy.config.configuration import Configuration
+from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.core.object_factory import ObjectFactory
-from FreeTAKServer.components.core.registration_component.registration_main import (
-    Registration,
-)
+from digitalpy.registration.registration_handler import RegistrationHandler
+from digitalpy.routing.routing_proxy import RoutingProxy
 
 from FreeTAKServer.controllers.CreateStartupFilesController import (
     CreateStartupFilesController,
@@ -19,53 +19,49 @@ from FreeTAKServer.controllers.CreateStartupFilesController import (
 
 CreateStartupFilesController()
 
-from FreeTAKServer.model.User import User
+import queue
+import time
+from multiprocessing import Queue
 
-from FreeTAKServer.controllers.services.TCPDataPackageService import (
-    TCPDataPackageService as TCPFlaskFunctions,
-)
-from FreeTAKServer.controllers.services.SSLDataPackageService import (
-    SSLDataPackageService as SSLFlaskFunctions,
-)
+from FreeTAKServer.controllers.AddDataToCoTList import AddDataToCoTList
+from FreeTAKServer.controllers.certificate_generation import AtakOfTheCerts
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
     OrchestratorConstants,
 )
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.services.RestAPI import RestAPI
-from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSObj
-from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.controllers.configuration_wizard import ask_user_for_config
-
-import time
-import queue
-
-from FreeTAKServer.controllers.AddDataToCoTList import AddDataToCoTList
-from FreeTAKServer.model.FilterGroup import FilterGroup
-from FreeTAKServer.controllers.services.SSLCoTServiceController import (
-    SSLCoTServiceController,
-)
-from FreeTAKServer.controllers.services.TCPCoTServiceController import (
-    TCPCoTServiceController,
-)
-from FreeTAKServer.controllers.services.federation.FederationClientService import (
-    FederationClientServiceController,
+from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
+    DatabaseController,
 )
 from FreeTAKServer.controllers.services.federation.federation import (
     FederationServerService,
 )
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
-    DatabaseController,
+from FreeTAKServer.controllers.services.federation.FederationClientService import (
+    FederationClientServiceController,
 )
-from FreeTAKServer.controllers.certificate_generation import AtakOfTheCerts
-from multiprocessing import Queue
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-
-from FreeTAKServer.model.Enumerations.serviceTypes import ServiceTypes
-from FreeTAKServer.model.SpecificCoT.Presence import Presence
+from FreeTAKServer.controllers.services.RestAPI import RestAPI
+from FreeTAKServer.controllers.services.SSLCoTServiceController import (
+    SSLCoTServiceController,
+)
+from FreeTAKServer.controllers.services.SSLDataPackageService import (
+    SSLDataPackageService as SSLFlaskFunctions,
+)
+from FreeTAKServer.controllers.services.TCPCoTServiceController import (
+    TCPCoTServiceController,
+)
+from FreeTAKServer.controllers.services.TCPDataPackageService import (
+    TCPDataPackageService as TCPFlaskFunctions,
+)
 from FreeTAKServer.model.Connection import Connection
-
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
+from FreeTAKServer.model.Enumerations.serviceTypes import ServiceTypes
+from FreeTAKServer.model.FilterGroup import FilterGroup
+from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSObj
+from FreeTAKServer.model.SimpleClient import SimpleClient
+from FreeTAKServer.model.SpecificCoT.Presence import Presence
+from FreeTAKServer.model.User import User
 
 loggingConstants = LoggingConstants(log_name="FTS_FTSCore")
 logger = CreateLoggerController(
@@ -98,7 +94,9 @@ class FTS:
         self.FTSServiceStartupConfigObject = FTSObj()
         self.dbController = DatabaseController()
         logger.propagate = True
-        logger.info("something")
+
+        # the central digitalpy configuration used throughout the application
+        self.configuration: Configuration = None
 
     def start_rest_api_service(self, StartupObjects):
         """this method starts the rest api service and instantiates ISC protocols
@@ -522,24 +520,66 @@ class FTS:
         except:
             return -1
 
+    def register_components(self, FTSServiceStartupConfigObject: FTSObj):
+        """this method is responsible for registering all FTS components"""
+        # define routing configuration
+        self.configuration = InifileConfiguration("")
+        self.configuration.add_configuration(
+            str(
+                pathlib.PurePath(
+                    str(MainConfig.MainPath),
+                    "configuration",
+                    "routing",
+                    "action_mapping.ini",
+                )
+            ),
+        )
+
+        factory = DefaultFactory(self.configuration)
+
+        ObjectFactory.configure(factory)
+        ObjectFactory.register_instance("configuration", self.configuration)
+
+        # register the internal components
+        core_components = RegistrationHandler.discover_components(
+            component_folder_path=pathlib.PurePath(
+                FTSServiceStartupConfigObject.ComponentRegistration.core_components_path
+            ),
+        )
+
+        for core_component in core_components:
+            RegistrationHandler.register_component(
+                core_component,
+                FTSServiceStartupConfigObject.ComponentRegistration.core_components_import_root,
+                self.configuration,
+            )
+
+        # register the external components
+        external_components = RegistrationHandler.discover_components(
+            component_folder_path=pathlib.PurePath(
+                FTSServiceStartupConfigObject.ComponentRegistration.external_components_path
+            ),
+        )
+
+        for external_component in external_components:
+            RegistrationHandler.register_component(
+                external_component,
+                FTSServiceStartupConfigObject.ComponentRegistration.external_components_import_root,
+                self.configuration,
+            )
+
+        # factory instance is registered for use by the routing worker so that
+        # the instances in the instance dictionary can be preserved when the
+        # new object factory is instantiated in the sub-process
+        ObjectFactory.register_instance("factory", factory)
+
     def start_routing_proxy_service(self, FTSServiceStartupConfigObject: FTSObj):
         """this function is responsible for starting the routing proxy service"""
         try:
             # define routing configuration
-            config = InifileConfiguration("")
-            config.add_configuration(
-                str(
-                    pathlib.PurePath(
-                        str(MainConfig.MainPath),
-                        "configuration",
-                        "routing",
-                        "action_mapping.ini",
-                    )
-                ),
-            )
 
             # define the configuration for the routing worker
-            config.set_value(
+            self.configuration.set_value(
                 key="server_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerPort}",
                 section="RoutingWorker",
@@ -548,13 +588,13 @@ class FTS:
             # define the configuration for the action mapper (the default action mapper is
             # specified as utilization of this service implicitly assumes that the async
             # action mapper is the default action mapper)
-            config.set_value(
+            self.configuration.set_value(
                 key="routing_publisher_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherPort}",
                 section="ActionMapper",
             )
 
-            config.set_value(
+            self.configuration.set_value(
                 key="routing_subscriber_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
                 section="ActionMapper",
@@ -562,51 +602,31 @@ class FTS:
 
             # define the configuration for the routing proxy service
 
-            config.set_value(
+            self.configuration.set_value(
                 key="frontend_sub_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
                 section="RoutingProxy",
             )
 
-            config.set_value(
+            self.configuration.set_value(
                 key="frontend_pub_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherPort}",
                 section="RoutingProxy",
             )
 
-            config.set_value(
+            self.configuration.set_value(
                 key="backend_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerPort}",
                 section="RoutingProxy",
             )
 
-            config.set_value(
+            self.configuration.set_value(
                 key="worker_count",
                 value=int(
                     FTSServiceStartupConfigObject.RoutingProxyService.NumRoutingWorkers
                 ),
                 section="RoutingProxy",
             )
-
-            factory = DefaultFactory(config)
-
-            ObjectFactory.configure(factory)
-            ObjectFactory.register_instance("configuration", config)
-
-            # register the internal components
-            Registration().register_components(
-                config,
-                component_folder_path="core",
-                import_root="FreeTAKServer.components.core",
-            )
-
-            # register the external components
-            Registration().register_components(config, component_folder_path="extended")
-
-            # factory instance is registered for use by the routing worker so that
-            # the instances in the instance dictionary can be preserved when the
-            # new object factory is instantiated in the sub-process
-            ObjectFactory.register_instance("factory", factory)
 
             # begin the routing proxy
             self.routing_proxy_service = ObjectFactory.get_instance("RoutingProxy")
@@ -1233,6 +1253,7 @@ class FTS:
                 StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
                 self.start_rest_api_service(StartupObject)
+                self.register_components(StartupObject)
                 self.start_routing_proxy_service(StartupObject)
                 self.start_all(StartupObject)
 

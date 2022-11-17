@@ -108,6 +108,32 @@ class MainConfig:
             )
         )
 
+        core_components_path = str(
+            os.environ.get(
+                "FTS_CORE_COMPONENTS_PATH", Path(rf"{MainPath}/components/core")
+            )
+        )
+
+        core_components_import_root = str(
+            os.environ.get(
+                "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                Path(rf"FreeTAKServer.components.core"),
+            )
+        )
+
+        external_components_path = str(
+            os.environ.get(
+                "FTS_EXTERNAL_COMPONENTS_PATH", Path(rf"{MainPath}/components/extended")
+            )
+        )
+
+        external_components_import_root = str(
+            os.environ.get(
+                "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                Path(rf"FreeTAKServer.components.extended"),
+            )
+        )
+
         certsPath = str(os.environ.get("FTS_CERTS_PATH", rf"{MainPath}/certs"))
 
         ExCheckMainPath = str(
@@ -424,6 +450,45 @@ class MainConfig:
                 )
             )
 
+            core_components_path = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_PATH",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_CORE_COMPONENTS_PATH", Path(rf"{MainPath}/components/core")
+                    ),
+                )
+            )
+
+            core_components_import_root = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                        Path("FreeTAKServer.components.core"),
+                    ),
+                )
+            )
+
+            external_components_path = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_PATH",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_EXTERNAL_COMPONENTS_PATH",
+                        Path(rf"{MainPath}/components/extended"),
+                    ),
+                )
+            )
+
+            external_components_import_root = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                        Path("FreeTAKServer.components.extended"),
+                    ),
+                )
+            )
+
             certsPath = str(
                 os.environ.get(
                     "FTS_CERTS_PATH",
@@ -492,6 +557,33 @@ class MainConfig:
                 os.environ.get(
                     "FTS_MAINPATH",
                     Path(rf"{userpath}{python_version}/dist-packages/FreeTAKServer"),
+                )
+            )
+
+            core_components_path = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_PATH", Path(rf"{MainPath}/components/core")
+                )
+            )
+
+            core_components_import_root = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                    Path(rf"FreeTAKServer.components.core"),
+                )
+            )
+
+            external_components_path = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_PATH",
+                    Path(rf"{MainPath}/components/extended"),
+                )
+            )
+
+            external_components_import_root = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                    Path(rf"FreeTAKServer.components.extended"),
                 )
             )
 
