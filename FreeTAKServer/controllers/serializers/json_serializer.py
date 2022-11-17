@@ -48,13 +48,6 @@ class JsonSerializer(SerializerAbstract):
         else:
             raise AttributeError('invalid json')
 
-    def from_fts_object_to_format(self, FTSObject: Event) -> dict:
-        """Not implemented
-
-        :param FTSObject: FTS Event Object
-        :type FTSObject: Event
-        """
-        pass
 
 if __name__ == "__main__":
     getter = JsonSerializer().get_fts_object_var_getter(Event.Presence(), 'uid')
