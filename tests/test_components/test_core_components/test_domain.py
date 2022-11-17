@@ -31,8 +31,9 @@ EVENT = "Event"
 
 
 def setup_module(module):
-
-    FTS().start_routing_proxy_service(FTSServiceStartupConfigObject=FTSModelVariables())
+    fts = FTS()
+    fts.register_components(FTSServiceStartupConfigObject=FTSModelVariables())
+    fts.start_routing_proxy_service(FTSServiceStartupConfigObject=FTSModelVariables())
     multiprocessing.Process(
         target=InternalTelemetryService(
             1000, "error.log", "info.log", "debug.log", 40033, "127.0.0.1"
