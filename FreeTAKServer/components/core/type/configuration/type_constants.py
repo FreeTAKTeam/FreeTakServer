@@ -21,3 +21,7 @@ INTERNAL_ACTION_MAPPING_PATH = str(
 PERSISTENCE_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/type_mappings.json")
 )
+
+MANIFEST_PATH = str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/manifest.ini")
+)

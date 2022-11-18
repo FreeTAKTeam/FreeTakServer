@@ -8,9 +8,6 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 import os
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
-from FreeTAKServer.components.core.registration_component.registration_main import (
-    Registration,
-)
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController

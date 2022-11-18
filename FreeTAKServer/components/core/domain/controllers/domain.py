@@ -30,9 +30,11 @@ class Domain(Controller):
     def create_node(self, configuration: Configuration, object_class_name, **kwargs):
         object_class = getattr(self.domain, object_class_name)
         object_class_instance = object_class(configuration, self.domain)
-        self.response.set_value("model_object", object_class_instance)
         self.request.set_value("model_object", object_class_instance)
-        self.execute_sub_action("Serialize")
+        response = self.execute_sub_action("Serialize")
+        self.response.set_values(
+            {**self.response.get_values(), **response.get_values()}
+        )
 
     def delete_child(self, node: Node, child_id, **kwargs):
         return node.delete_child(child_id)

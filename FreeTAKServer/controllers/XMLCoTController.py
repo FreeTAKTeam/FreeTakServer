@@ -56,7 +56,7 @@ class XMLCoTController:
             request.set_action("XMLToDict")
             request.set_value("message", data.xmlString)
 
-            actionmapper = ObjectFactory.get_instance("actionMapper")
+            actionmapper = ObjectFactory.get_instance("syncactionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
 
@@ -74,17 +74,13 @@ class XMLCoTController:
             # must get a new instance of the async action mapper for each request
             # to prevent run conditions and to prevent responses going to the wrong
             # callers
-            actionmapper = ObjectFactory.get_instance("actionMapper")
+            actionmapper = ObjectFactory.get_instance("syncactionMapper")
             response = ObjectFactory.get_new_instance("response")
-            response.set_format("pickled")
-            listener = actionmapper.process_action(
-                request, response, return_listener=True
-            )
-            actionmapper.get_response(response, request, listener)
-            
+            actionmapper.process_action(request, response)
+
             # retrieve the human readable type and set it as the data dictionary type
             data_dict["event"]["@type"] = response.get_value("human_readable_type")
-            
+
             # handle the case where the human readable type is not registered and there is no specific
             # component meant to handle the cot type
             if response.get_value("human_readable_type") == data_dict["event"]["@type"]:
@@ -95,6 +91,7 @@ class XMLCoTController:
                 # assign the human readable type to prevent the duplication of work
                 data_dict["event"]["@type"] = response.get_value("human_readable_type")
                 data.xmlString = response.get_value("message")
+                data.data_dict = data_dict
                 return ("component_handler", data)
 
     def convert_model_to_row(self, modelObject, rowObject):

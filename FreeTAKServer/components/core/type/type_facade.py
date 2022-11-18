@@ -1,17 +1,26 @@
-from FreeTAKServer.components.core.abstract_component.facade import Facade
+from digitalpy.component.impl.default_facade import DefaultFacade
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from .configuration.type_constants import (
     ACTION_MAPPING_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
+    MANIFEST_PATH,
 )
 from . import base
 
 
-class Type(Facade):
+class Type(DefaultFacade):
 
     state = None
 
-    def __init__(self, type_action_mapper, request, response, configuration):
+    def __init__(
+        self,
+        type_action_mapper,
+        request,
+        response,
+        configuration,
+        tracing_provider_instance=None,
+    ):
 
         super().__init__(
             config_path_template=None,
@@ -24,4 +33,10 @@ class Type(Facade):
             request=request,
             response=response,
             configuration=configuration,
+            # log file path
+            log_file_path=MainConfig.LogFilePath,
+            # the tracing provider used
+            tracing_provider_instance=tracing_provider_instance,
+            # the path to the manifest file
+            manifest_path=MANIFEST_PATH,
         )

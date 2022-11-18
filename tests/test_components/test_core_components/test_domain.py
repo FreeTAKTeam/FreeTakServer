@@ -2,6 +2,11 @@ from lxml import etree
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
 from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.model.load_configuration import (
+    Configuration,
+    ConfigurationEntry,
+    Relationship,
+)
 from unittest.mock import MagicMock
 from FreeTAKServer.components.extended.emergency.configuration.emergency_constants import (
     TYPE_MAPPINGS,
@@ -10,27 +15,34 @@ from FreeTAKServer.components.extended.emergency.emergency_facade import Emergen
 from FreeTAKServer.components.core.type.type_facade import Type
 from FreeTAKServer.components.core.domain.domain_facade import Domain
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
-from FreeTAKServer.components.core.xml_serializer.xml_serializer_facade import (
-    XMLSerializer,
-)
+from FreeTAKServer.controllers.services.FTS import FTS
+from FreeTAKServer.model.ServiceObjects.FTS import FTS as FTSModelVariables
 
-from ..test_utils import execute_action
+from FreeTAKServer.controllers.services.internal_telemetry_service import (
+    InternalTelemetryService,
+)
+import pytest
+import multiprocessing
+
+from tests.test_components.test_utils import execute_action, execute_async_action
+
+POINT = "point"
+EVENT = "Event"
 
 
 def setup_module(module):
+    fts = FTS()
+    fts.register_components(FTSServiceStartupConfigObject=FTSModelVariables())
+    fts.start_routing_proxy_service(FTSServiceStartupConfigObject=FTSModelVariables())
+    multiprocessing.Process(
+        target=InternalTelemetryService(
+            1000, "error.log", "info.log", "debug.log", 40033, "127.0.0.1"
+        ).main
+    ).start()
     config = InifileConfiguration("")
     config.add_configuration(
         r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"
     )
-
-    ObjectFactory.configure(DefaultFactory(config))
-    ObjectFactory.register_instance("configuration", config)
-
-    Type(None, None, None, None).register(config)
-
-    Domain(None, None, None, None).register(config)
-
-    XMLSerializer(None, None, None, None).register(config)
 
 
 def test_domain_health():
@@ -44,7 +56,46 @@ def test_domain_health():
     assert health_check_output["health"] == True
 
 
+def test_domain_create_node():
+    test_config_relationship_point = Relationship()
+    test_point_config_entry = ConfigurationEntry()
+    test_event_config_entry = ConfigurationEntry(
+        relationships={POINT: test_config_relationship_point}
+    )
+    test_configuration = Configuration(
+        elements={EVENT: test_event_config_entry, POINT: test_point_config_entry}
+    )
+    test_object_class_name = EVENT
+
+    test_dict = {"Event": {"point": {}, "@uid": "123"}}
+
+    create_node_output = execute_async_action(
+        "CreateNode",
+        {
+            "dictionary": test_dict,
+            "configuration": test_configuration,
+            "object_class_name": test_object_class_name,
+        },
+    )
+
+    assert create_node_output["model_object"].uid == "123"
+
+
 def test_domain_metrics():
-    execute_action("TestMetrics", {})
-    get_metrics_output = execute_action("GetMetrics", {})
-    assert False
+    execute_async_action("TestMetrics", {})
+
+    get_metrics_output = execute_async_action("GetMetrics", {})
+    assert "metrics" in get_metrics_output
+
+
+def test_domain_telemetry():
+    execute_async_action("TestTracing", {})
+    get_telemetry_output = execute_async_action("GetTraces", {})
+    assert "traces" in get_telemetry_output
+
+
+if __name__ == "__main__":
+    if False:
+        args_str = r"-v tests\test_components\test_core_components\test_domain.py::test_domain_telemetry"
+        args = args_str.split(" ")
+        retcode = pytest.main(args)

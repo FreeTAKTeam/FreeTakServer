@@ -4,6 +4,7 @@ from FreeTAKServer.components.core.domain.configuration.domain_constants import 
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
+    MANIFEST_PATH,
 )
 from . import base
 
@@ -19,14 +20,13 @@ class Domain(DefaultFacade):
         request,
         response,
         configuration,
+        tracing_provider_instance=None,
     ):
         super().__init__(
             # the path to the external action mapping
             action_mapping_path=ACTION_MAPPING_PATH,
             # the path to the internal action mapping
             internal_action_mapping_path=INTERNAL_ACTION_MAPPING_PATH,
-            # the type mapping in dictionary form
-            type_mapping={},
             # the path to the logger configuration
             logger_configuration=LOGGING_CONFIGURATION_PATH,
             # the package containing the base classes
@@ -41,4 +41,8 @@ class Domain(DefaultFacade):
             configuration=configuration,
             # log file path
             log_file_path=MainConfig.LogFilePath,
+            # the tracing provider used
+            tracing_provider_instance=tracing_provider_instance,
+            # the path to the manifest file
+            manifest_path=MANIFEST_PATH,
         )
