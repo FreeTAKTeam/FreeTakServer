@@ -100,20 +100,8 @@ class Orchestrator:
         self.MainSocketController = MainSocketController()
         self.SendClientData = SendClientData()
 
-        # TODO self.clientDataPipe attribute
+        self.clientDataPipe = Queue()
         # TODO self.ssl attribute
-
-    def clientdatapipe_status_check(self) -> bool:
-        """ this method checks that the clientdatapipe is not full and wont block
-
-        Returns: bool representing whether or not the data pipe is functioning
-        """
-
-        # TODO can be simplified
-        if self.clientDataPipe.full():  # if queue is full return False as queue isnt working
-            return False
-        else:  # otherwise return true
-            return True
 
     #TODO user management
     def remove_service_user(self, client_information):
@@ -128,7 +116,8 @@ class Orchestrator:
         Returns:
         """
         try:
-            if self.clientdatapipe_status_check():
+            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
+            if not self.clientDataPipe.full():
                 # Move to child classes aka self.connection_type will default to TCP
                 if self.ssl:
                     connection_type = ConnectionTypes.SSL
@@ -136,6 +125,7 @@ class Orchestrator:
                     connection_type = ConnectionTypes.TCP
 
                 # Process removal of client in clientDataPipe
+                # TODO add blocking
                 self.clientDataPipe.put(['remove', client_information, self.openSockets, connection_type])
                 self.logger.debug("client removal has been sent through queue " + str(client_information))
             else:
@@ -155,14 +145,15 @@ class Orchestrator:
 
         """
         try:
-            if self.clientdatapipe_status_check():
+            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
+            if not self.clientDataPipe.full():
                 # TODO cant we instantiate properly?
                 presence_object = Presence()
                 presence_object.modelObject = client_information.modelObject
                 presence_object.xmlString = client_information.xmlString.decode()
                 presence_object.clientInformation = client_information.modelObject
 
-                # TODO figure this out
+                # TODO add blocking
                 self.clientDataPipe.put(['update', presence_object, self.openSockets, None])
                 self.logger.debug("client update has been sent through queue " + str(client_information))
 
@@ -182,7 +173,8 @@ class Orchestrator:
         :return:
         """
         try:
-            if self.clientdatapipe_status_check():
+            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
+            if not self.clientDataPipe.full():
                 # TODO cant we instantiate properly
                 presence_object = Presence()
                 presence_object.modelObject = client_information.modelObject
@@ -200,6 +192,7 @@ class Orchestrator:
                 connection_object.user_id = client_information.modelObject.uid
 
                 # Updating clientDataPipe
+                # TODO add blocking...
                 self.clientDataPipe.put(['add', presence_object, self.openSockets, connection_object])
                 self.logger.debug("client addition has been sent through queue " + str(client_information))
             else:
@@ -216,14 +209,15 @@ class Orchestrator:
         :return:
         """
         try:
-            if self.clientdatapipe_status_check():
+            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
+            if not self.clientDataPipe.full():
                 import copy
                 if self.ssl is True:
                     conn_type = ConnectionTypes.SSL
                 elif self.ssl is False:
                     conn_type = ConnectionTypes.TCP
 
-                # Updates the clientDataPipe with #TODO some type of info
+                # TODO implement blocking...
                 self.clientDataPipe.put(["get", conn_type, self.openSockets])
                 user_dict = self.clientDataRecvPipe.get(timeout=10000)
                 client_informaion_queue_client_ids = copy.copy(list(self.clientInformationQueue.keys()))
