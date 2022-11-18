@@ -4,6 +4,7 @@ from FreeTAKServer.components.extended.emergency.configuration.emergency_constan
     TYPE_MAPPINGS,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
+    CONFIGURATION_PATH_TEMPLATE,
 )
 from . import base
 
@@ -40,4 +41,6 @@ class Emergency(Facade):
             response=response,
             # the configuration object (passed by constructor)
             configuration=configuration,
+            # the template for the absolute path to the model object definitions
+            configuration_path_template=CONFIGURATION_PATH_TEMPLATE,
         )

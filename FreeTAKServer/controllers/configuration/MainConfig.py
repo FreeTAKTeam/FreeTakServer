@@ -12,7 +12,7 @@ class MainConfig:
     """
 
     # the version information of the server (recommended to leave as default)
-    version = "FreeTAKServer-1.9.9.18 Public"
+    version = "FreeTAKServer-1.9.10 Public"
     #
     yaml_path = str(os.environ.get("FTS_CONFIG_PATH", "/opt/FTSConfig.yaml"))
 
@@ -68,10 +68,69 @@ class MainConfig:
         # this should be set before startup
         DBFilePath = str(os.environ.get("FTS_DB_PATH", r"/opt/FTSDataBase.db"))
 
+        # the number of routing workers to use
+        NumRoutingWorkers = int(os.environ.get("FTS_NUM_ROUTING_WORKERS", 1))
+
+        # port to subscribe to requests by the routing proxy
+        RoutingProxySubscriberPort = int(
+            os.environ.get("FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 19030)
+        )
+
+        # ip to subscribe to requests by the routing proxy
+        RoutingProxySubscriberIP = str(
+            os.environ.get("FTS_ROUTING_PROXY_SUBSCRIBE_IP", "127.0.0.1")
+        )
+
+        # port to publish responses by the routing proxy
+        RoutingProxyPublisherPort = int(
+            os.environ.get("FTS_ROUTING_PROXY_PUBLISHER_PORT", 19032)
+        )
+
+        # ip to publish responses by the routing proxy
+        RoutingProxyPublisherIP = str(
+            os.environ.get("FTS_ROUTING_PROXY_PUBLISHER_IP", "127.0.0.1")
+        )
+
+        # port to send requests from the routing proxy to the routing workers
+        RoutingProxyRequestServerPort = int(
+            os.environ.get("FTS_ROUTING_PROXY_SERVER_PORT", 19031)
+        )
+
+        # port to send requests from the routing proxy to the routing workers
+        RoutingProxyRequestServerIP = str(
+            os.environ.get("FTS_ROUTING_PROXY_SERVER_IP", "127.0.0.1")
+        )
+
         MainPath = str(
             os.environ.get(
                 "FTS_MAINPATH",
                 Path(rf"{userpath}{python_version}/dist-packages/FreeTAKServer"),
+            )
+        )
+
+        core_components_path = str(
+            os.environ.get(
+                "FTS_CORE_COMPONENTS_PATH", Path(rf"{MainPath}/components/core")
+            )
+        )
+
+        core_components_import_root = str(
+            os.environ.get(
+                "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                Path(rf"FreeTAKServer.components.core"),
+            )
+        )
+
+        external_components_path = str(
+            os.environ.get(
+                "FTS_EXTERNAL_COMPONENTS_PATH", Path(rf"{MainPath}/components/extended")
+            )
+        )
+
+        external_components_import_root = str(
+            os.environ.get(
+                "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                Path(rf"FreeTAKServer.components.extended"),
             )
         )
 
@@ -270,6 +329,73 @@ class MainConfig:
                     yamlConfig["Addresses"].get("FTS_API_ADDRESS", "0.0.0.0"),
                 )
             )
+
+            # the number of routing workers to use
+            NumRoutingWorkers = int(
+                os.environ.get(
+                    "FTS_NUM_ROUTING_WORKERS",
+                    yamlConfig["Addresses"].get("FTS_NUM_ROUTING_WORKERS", 1),
+                )
+            )
+
+            # port to subscribe to requests by the routing proxy
+            RoutingProxySubscriberPort = int(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SUBSCRIBE_PORT",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SUBSCRIBE_PORT", 40030
+                    ),
+                )
+            )
+
+            # ip to subscribe to requests by the routing proxy
+            RoutingProxySubscriberIP = str(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SUBSCRIBE_IP",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SUBSCRIBE_IP", "127.0.0.1"
+                    ),
+                )
+            )
+
+            # port to publish responses by the routing proxy
+            RoutingProxyPublisherPort = int(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_PUBLISHER_PORT",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_PUBLISHER_PORT", 40032
+                    ),
+                )
+            )
+
+            # ip to publish responses by the routing proxy
+            RoutingProxyPublisherIP = str(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_PUBLISHER_IP",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_PUBLISHER_IP", "127.0.0.1"
+                    ),
+                )
+            )
+
+            # port to send requests from the routing proxy to the routing workers
+            RoutingProxyRequestServerPort = int(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SERVER_PORT",
+                    yamlConfig["Addresses"].get("FTS_ROUTING_PROXY_SERVER_PORT", 40031),
+                )
+            )
+
+            # port to send requests from the routing proxy to the routing workers
+            RoutingProxyRequestServerIP = str(
+                os.environ.get(
+                    "FTS_ROUTING_PROXY_SERVER_IP",
+                    yamlConfig["Addresses"].get(
+                        "FTS_ROUTING_PROXY_SERVER_IP", "127.0.0.1"
+                    ),
+                )
+            )
+
         else:
 
             # this is the port to which clients will connect
@@ -320,6 +446,45 @@ class MainConfig:
                         Path(
                             rf"{userpath}{python_version}/dist-packages/FreeTAKServer"
                         ),
+                    ),
+                )
+            )
+
+            core_components_path = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_PATH",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_CORE_COMPONENTS_PATH", Path(rf"{MainPath}/components/core")
+                    ),
+                )
+            )
+
+            core_components_import_root = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                        Path("FreeTAKServer.components.core"),
+                    ),
+                )
+            )
+
+            external_components_path = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_PATH",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_EXTERNAL_COMPONENTS_PATH",
+                        Path(rf"{MainPath}/components/extended"),
+                    ),
+                )
+            )
+
+            external_components_import_root = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                    yamlConfig["FileSystem"].get(
+                        "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                        Path("FreeTAKServer.components.extended"),
                     ),
                 )
             )
@@ -392,6 +557,33 @@ class MainConfig:
                 os.environ.get(
                     "FTS_MAINPATH",
                     Path(rf"{userpath}{python_version}/dist-packages/FreeTAKServer"),
+                )
+            )
+
+            core_components_path = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_PATH", Path(rf"{MainPath}/components/core")
+                )
+            )
+
+            core_components_import_root = str(
+                os.environ.get(
+                    "FTS_CORE_COMPONENTS_IMPORT_ROOT",
+                    Path(rf"FreeTAKServer.components.core"),
+                )
+            )
+
+            external_components_path = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_PATH",
+                    Path(rf"{MainPath}/components/extended"),
+                )
+            )
+
+            external_components_import_root = str(
+                os.environ.get(
+                    "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT",
+                    Path(rf"FreeTAKServer.components.extended"),
                 )
             )
 

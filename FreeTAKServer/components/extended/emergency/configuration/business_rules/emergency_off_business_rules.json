@@ -7,7 +7,7 @@
         "type == 'EmergencyCancelled'": {
             "actions": [
                 "DeleteEmergency",
-                "BroadcastEmergency"
+                "SerializeEmergency"
             ]
         }
     }

@@ -59,7 +59,7 @@ class XmlSerializer(SerializerAbstract):
             request.set_value("human_readable_type", modelObject.type)
             request.set_value("default", modelObject.type)
 
-            actionmapper = ObjectFactory.get_instance("actionMapper")
+            actionmapper = ObjectFactory.get_instance("SyncActionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
             modelObject.type = response.get_value("machine_readable_type")
@@ -232,7 +232,7 @@ class XmlSerializer(SerializerAbstract):
             request.set_value("human_readable_type", FTSObject.type)
             request.set_value("default", FTSObject.type)
 
-            actionmapper = ObjectFactory.get_instance("actionMapper")
+            actionmapper = ObjectFactory.get_instance("SyncActionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
             FTSObject.type = response.get_value("machine_readable_type")
