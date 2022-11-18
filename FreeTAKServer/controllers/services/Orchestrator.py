@@ -41,6 +41,7 @@ from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.model.TCPConnection import TCPConnection
 from FreeTAKServer.model.User import User
 from FreeTAKServer.model.ClientInformation import ClientInformation
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 
 ascii = AsciiController().ascii
 from logging.handlers import RotatingFileHandler
@@ -93,6 +94,7 @@ class Orchestrator:
         self.ReceiveConnections = ReceiveConnections()
         self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
         self.XMLCoTController = XMLCoTController()
+        self.dbController = DatabaseController()
 
         # TODO controllers to remove ?
         self.MainSocketController = MainSocketController()
@@ -100,15 +102,6 @@ class Orchestrator:
 
         # TODO self.clientDataPipe attribute
         # TODO self.ssl attribute
-
-    def clear_user_table(self):
-        """ clear all users from table
-
-        """
-        self.dbController.remove_user()
-
-        # TODO use logger
-        print('user table cleared')
 
     def clientdatapipe_status_check(self) -> bool:
         """ this method checks that the clientdatapipe is not full and wont block
