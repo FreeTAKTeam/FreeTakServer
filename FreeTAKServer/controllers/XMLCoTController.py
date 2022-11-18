@@ -74,13 +74,9 @@ class XMLCoTController:
             # must get a new instance of the async action mapper for each request
             # to prevent run conditions and to prevent responses going to the wrong
             # callers
-            actionmapper = ObjectFactory.get_instance("actionMapper")
+            actionmapper = ObjectFactory.get_instance("syncactionMapper")
             response = ObjectFactory.get_new_instance("response")
-            response.set_format("pickled")
-            listener = actionmapper.process_action(
-                request, response, return_listener=True
-            )
-            actionmapper.get_response(response, request, listener)
+            actionmapper.process_action(request, response)
 
             # retrieve the human readable type and set it as the data dictionary type
             data_dict["event"]["@type"] = response.get_value("human_readable_type")
