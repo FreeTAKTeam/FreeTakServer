@@ -7,6 +7,7 @@
 # Original author: Natha Paquette
 # 
 #######################################################
+from abc import ABC, abstractmethod
 from asyncio import Queue
 from multiprocessing import pool, Event
 import threading
@@ -57,7 +58,7 @@ from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHand
 
 # MAJOR TODO: Make explicit exception classes!!!
 
-class Orchestrator:
+class Orchestrator(ABC):
     """ this class is the main class responsible for handling the CoT listener for XML
     """
     # TODO: fix repeat attempts to add user
@@ -101,7 +102,14 @@ class Orchestrator:
         self.SendClientData = SendClientData()
 
         self.clientDataPipe = Queue()
-        # TODO self.ssl attribute
+
+    @property
+    @abstractmethod
+    def connection_type(self):
+        """Implement as property
+        """
+        pass
+
 
     #TODO user management
     def remove_service_user(self, client_information):
@@ -118,21 +126,17 @@ class Orchestrator:
         try:
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
-                # Move to child classes aka self.connection_type will default to TCP
-                if self.ssl:
-                    connection_type = ConnectionTypes.SSL
-                elif self.ssl is False:
-                    connection_type = ConnectionTypes.TCP
 
                 # Process removal of client in clientDataPipe
                 # TODO add blocking
-                self.clientDataPipe.put(['remove', client_information, self.openSockets, connection_type])
+                self.clientDataPipe.put(['remove', client_information, self.openSockets, self.connection_type])
                 self.logger.debug("client removal has been sent through queue " + str(client_information))
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as e:
             self.logger.error("exception has been thrown removing client data from queue "+str(e))
             raise e
+
 
     def update_client_information(self, client_information: ClientInformation):
         """ this method generates the presence object from the
@@ -165,6 +169,7 @@ class Orchestrator:
             self.logger.error("exception has been thrown updating client data in queue "+str(e))
             raise e
 
+    # TODO make abstract class
     def add_service_user(self, client_information: ClientInformation):
         """ this method generates the presence and connection objects from the
         client_information parameter and sends it to
@@ -182,18 +187,18 @@ class Orchestrator:
                 presence_object.clientInformation = client_information.modelObject
 
                 # TODO move to child classes
-                if self.ssl:
+                if self.connection_type == ConnectionTypes.SSL:
                     connection_object = SSLConnection()
                     # TODO: add certificate name derived from socket
                     connection_object.certificate_name = None
-                elif self.ssl is False:
+                else:
                     connection_object = TCPConnection()
                 connection_object.sock = None
                 connection_object.user_id = client_information.modelObject.uid
 
                 # Updating clientDataPipe
                 # TODO add blocking...
-                self.clientDataPipe.put(['add', presence_object, self.openSockets, connection_object])
+                self.clientDataPipe.put(['add', presence_object, self.openSockets, self.connection_object])
                 self.logger.debug("client addition has been sent through queue " + str(client_information))
             else:
                 self.logger.critical("client data pipe is Full !")
