@@ -57,3 +57,7 @@ PERSISTENCE_PATH = str(
 BASE_OBJECT_NAME = "Event"
 
 XML_SERIALIZER = "xml_serializer"
+
+MANIFEST_PATH = str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/manifest.ini")
+)

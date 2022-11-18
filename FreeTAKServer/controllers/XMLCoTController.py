@@ -56,7 +56,7 @@ class XMLCoTController:
             request.set_action("XMLToDict")
             request.set_value("message", data.xmlString)
 
-            actionmapper = ObjectFactory.get_instance("actionMapper")
+            actionmapper = ObjectFactory.get_instance("syncactionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
 

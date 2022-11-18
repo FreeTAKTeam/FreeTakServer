@@ -1,14 +1,16 @@
-from FreeTAKServer.components.core.abstract_component.facade import Facade
+from digitalpy.component.impl.default_facade import DefaultFacade
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.components.core.xml_serializer.configuration.xml_serializer_constants import (
     ACTION_MAPPING_PATH,
     TYPE_MAPPINGS,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
+    MANIFEST_PATH,
 )
 from . import base
 
 
-class XmlSerializer(Facade):
+class XmlSerializer(DefaultFacade):
     """Facade class for the Component component. Responsible for handling all public routing.
     Forwards all requests to the internal router.
     """
@@ -19,6 +21,7 @@ class XmlSerializer(Facade):
         request,
         response,
         configuration,
+        tracing_provider_instance=None,
     ):
         super().__init__(
             # the path to the external action mapping
@@ -39,4 +42,10 @@ class XmlSerializer(Facade):
             response=response,
             # the configuration object (passed by constructor)
             configuration=configuration,
+            # log file path
+            log_file_path=MainConfig.LogFilePath,
+            # the tracing provider used
+            tracing_provider_instance=tracing_provider_instance,
+            # the path to the manifest file
+            manifest_path=MANIFEST_PATH,
         )
