@@ -1,6 +1,6 @@
 from opentelemetry.sdk.trace.export import SpanExporter
 import zmq
-from typing import Optional, Sequence
+from typing import Sequence
 from opentelemetry.sdk.trace import ReadableSpan, Span, SpanProcessor
 import json
 
