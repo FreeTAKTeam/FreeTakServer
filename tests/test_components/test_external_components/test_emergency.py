@@ -11,7 +11,7 @@ from FreeTAKServer.components.core.type.type_facade import Type
 from FreeTAKServer.components.core.domain.domain_facade import Domain
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.components.core.xml_serializer.xml_serializer_facade import (
-    XMLSerializer,
+    XmlSerializer,
 )
 from lxml import etree
 from multiprocessing import Process
