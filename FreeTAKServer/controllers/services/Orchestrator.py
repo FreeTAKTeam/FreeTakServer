@@ -129,6 +129,7 @@ class Orchestrator(ABC):
 
                 # Process removal of client in clientDataPipe
                 # TODO add blocking
+                # TODO why are we using self.openSockets
                 self.clientDataPipe.put(['remove', client_information, self.openSockets, self.connection_type])
                 self.logger.debug("client removal has been sent through queue " + str(client_information))
             else:
@@ -153,9 +154,9 @@ class Orchestrator(ABC):
             if not self.clientDataPipe.full():
                 # TODO cant we instantiate properly?
                 presence_object = Presence()
-                presence_object.modelObject = client_information.modelObject
-                presence_object.xmlString = client_information.xmlString.decode()
-                presence_object.clientInformation = client_information.modelObject
+                presence_object.setModelObject(client_information.modelObject)
+                presence_object.setXmlString(client_information.xmlString.decode())
+                presence_object.setClientInformation(client_information.modelObject)
 
                 # TODO add blocking
                 self.clientDataPipe.put(['update', presence_object, self.openSockets, None])
@@ -180,11 +181,10 @@ class Orchestrator(ABC):
         try:
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
-                # TODO cant we instantiate properly
                 presence_object = Presence()
-                presence_object.modelObject = client_information.modelObject
-                presence_object.xmlString = client_information.idData
-                presence_object.clientInformation = client_information.modelObject
+                presence_object.setModelObject(client_information.modelObject)
+                presence_object.setXmlString(client_information.idData) # TODO why is this not xmlString?
+                presence_object.setClientInformation(client_information.modelObject) # Why is info same as model object
 
                 # TODO move to child classes
                 if self.connection_type == ConnectionTypes.SSL:
