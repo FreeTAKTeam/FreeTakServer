@@ -10,7 +10,7 @@ setup(
     packages=find_packages(
         include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini", "*.conf"]
     ),
-    version="1.9.9.22",
+    version="1.9.10",
     license="EPL-2.0",
     description="An open source server for the TAK family of applications.",
     long_description=long_description,
@@ -63,7 +63,7 @@ setup(
         "pillow==9.1.0",
         "asyncio",
         "xmltodict",
-        "pyzmq"
+        "pyzmq",
     ],
     extras_require={"ui": ["FreeTAKServer_UI"]},
     classifiers=[
