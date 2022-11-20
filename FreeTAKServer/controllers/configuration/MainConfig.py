@@ -1,9 +1,12 @@
 import os
-import yaml
 import random
-from string import ascii_letters, digits, punctuation
+import re
 from pathlib import Path
+from string import ascii_letters, digits, punctuation
 from uuid import uuid4
+
+import yaml
+
 
 class MainConfig:
     """
@@ -180,7 +183,7 @@ class MainConfig:
     APIPort = int(os.environ.get("FTS_API_PORT", APIPort))
     APIIP = os.environ.get("FTS_API_ADDRESS", APIIP)
     FederationPort = int(os.environ.get("FTS_FED_PORT", FederationPort))
-    AllowedCLIIPs = re.split(r'[,:]', os.environ.get("FTS_CLI_WHITELIST")) or AllowedCLIIPs
+    AllowedCLIIPs = re.split(r'[,:]', os.environ.get("FTS_CLI_WHITELIST", "")) or AllowedCLIIPs
     CLIIP = os.environ.get("FTS_CLI_IP", CLIIP)
     DBFilePath = os.environ.get("FTS_DB_PATH", DBFilePath)
     SaveCoTToDB = bool(os.environ.get("FTS_COT_TO_DB", SaveCoTToDB))
