@@ -430,9 +430,6 @@ if __name__ == "__main__":
     d = contr.session.query(Event).filter(and_(Point.lon>=0, Point.lat>=0, (((Point.lon-lon_abs)*111302.62) + ((Point.lat-lat_abs)*110574.61)) <= radius)).all()
 
     # y = contr.query_CoT(query= [(((Point.lat-lat) * (Point.lon-lon)) + ((Point.lat-lat) * (Point.lat-lat)))<=radius**2])
-    for x in y:
-        print(((x.point.lat-lat) * (x.point.lon-lon)) + ((x.point.lat-lat) * (x.point.lat-lat)))
-    print('finished')
     # query=f'Point.lat <= "{lat_range[0]}" and Point.lat >= "{lat_range[1]}" and point.lon <= "{lon_range[0]}" and point.lon >= "{lon_range[1]}"'
     from FreeTAKServer.controllers.SpecificCoTControllers.SendDropPointController import SendDropPointController
     from FreeTAKServer.model.RawCoT import RawCoT

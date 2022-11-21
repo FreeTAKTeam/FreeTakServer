@@ -1,17 +1,12 @@
 import os
+import random
 import re
-import yaml
-currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
+from string import ascii_letters, digits, punctuation
 from uuid import uuid4
 
-# the version information of the server (recommended to leave as default)
-FTS_VERSION = 'FreeTAKServer-1.9.9.6 Public'
-API_VERSION = '1.9.5'
-# TODO Need to find a better way to determine python version at runtime
-PYTHON_VERSION = 'python3.8'
-USERPATH = '/usr/local/lib/'
-MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
+import yaml
+
 
 class MainConfig:
     """
@@ -52,7 +47,7 @@ class MainConfig:
         'SSLCoTServicePort': {'default': 8089, 'type': int},
         # this needs to be changed for private data packages to work
         'DataPackageServiceDefaultIP': {'default': _ip, 'type': str},
-        # User Connection package IP needs to be set to the IP which is 
+        # User Connection package IP needs to be set to the IP which is
         # used when creating the connection in your tak device
         'UserConnectionIP': {'default': _ip, 'type': str},
         # api port
@@ -298,34 +293,46 @@ class MainConfig:
 
                 self[config_var] = env_value
 
-    # dump_values() is used for debugging and inspecting the current
-    # settings of config vars
-    def dump_values(self):
-        for var_name, value in self._values.items():
-            print(f'{var_name} = {value}')
-
-    # test if the config var should allow being set
-    def _readonly(self, name):
-        if 'readonly' in MainConfig._defaults[name] and MainConfig._defaults[name]['readonly']:
-            return True
-        return False
-
-    # helper function to return the type of a config var
-    def _var_type(self, name):
-        return MainConfig._defaults[name]['type']
-
-    # Attribute access magic methods
-    def __getattr__(self, name):
-        return self.get(name)
-
-    def __setattr__(self, name, value):
-        self.set(name, value)
-
-    # Dictionary access magic methods
-    def __getitem__(self, name):
-        return self.get(name)
-
-    def __setitem__(self, name, value):
-        self.set(name, value)
+    # Allow env vars to modify configuration
+    MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', MainLoopDelay))
+    ConnectionMessage = os.environ.get("FTS_CONNECTION_MESSAGE", ConnectionMessage)
+    DataBaseType = os.environ.get("FTS_DATABASE_TYPE", DataBaseType)
+    OptimizeAPI = bool(os.environ.get("FTS_OPTIMIZE_API", OptimizeAPI))
+    SecretKey = os.environ.get("FTS_SECRET_KEY", SecretKey)
+    DataReceptionBuffer = int(os.environ.get("FTS_DATA_RECEPTION_BUFFER", DataReceptionBuffer))
+    MaxReceptionTime = int(os.environ.get("FTS_MAX_RECEPTION_TIME", MaxReceptionTime))
+    nodeID = os.environ.get("FTS_NODE_ID", nodeID)
+    CoTServicePort = int(os.environ.get('FTS_COT_PORT', CoTServicePort))
+    SSLCoTServicePort = int(os.environ.get('FTS_SSLCOT_PORT', SSLCoTServicePort))
+    DataPackageServiceDefaultIP = os.environ.get('FTS_DP_ADDRESS', DataPackageServiceDefaultIP)
+    UserConnectionIP = os.environ.get("FTS_USER_ADDRESS", UserConnectionIP)
+    APIPort = int(os.environ.get("FTS_API_PORT", APIPort))
+    APIIP = os.environ.get("FTS_API_ADDRESS", APIIP)
+    FederationPort = int(os.environ.get("FTS_FED_PORT", FederationPort))
+    AllowedCLIIPs = re.split(r'[,:]', os.environ.get("FTS_CLI_WHITELIST", "")) or AllowedCLIIPs
+    CLIIP = os.environ.get("FTS_CLI_IP", CLIIP)
+    DBFilePath = os.environ.get("FTS_DB_PATH", DBFilePath)
+    SaveCoTToDB = bool(os.environ.get("FTS_COT_TO_DB", SaveCoTToDB))
+    MainPath = os.environ.get("FTS_MAINPATH", MainPath)
+    certsPath = os.environ.get("FTS_CERTS_PATH", certsPath)
+    ExCheckMainPath = os.environ.get("FTS_EXCHECK_PATH", ExCheckMainPath)
+    ExCheckFilePath = os.environ.get("FTS_EXCHECK_TEMPLATE_PATH", ExCheckFilePath)
+    ExCheckChecklistFilePath = os.environ.get("FTS_EXCHECK_CHECKLIST_PATH", ExCheckChecklistFilePath)
+    DataPackageFilePath = os.environ.get("FTS_DATAPACKAGE_PATH", DataPackageFilePath)
+    LogFilePath = os.environ.get("FTS_LOGFILE_PATH", LogFilePath)
+    keyDir = os.environ.get("FTS_SERVER_KEYDIR", keyDir)
+    pemDir = os.environ.get("FTS_SERVER_PEMDIR", pemDir)
+    testPem = os.environ.get("FTS_TESTCLIENT_PEMDIR", testPem)
+    testKey = os.environ.get("FTS_TESTCLIENT_KEYDIR", testKey)
+    unencryptedKey = os.environ.get("FTS_UNENCRYPTED_KEYDIR", unencryptedKey)
+    p12Dir = os.environ.get("FTS_SERVER_P12DIR", p12Dir)
+    CA = os.environ.get("FTS_CADIR", CA)
+    CAkey = os.environ.get("FTS_CAKEYDIR", CAkey)
+    federationCert = os.environ.get("FTS_FEDERATION_CERTDIR", federationCert)
+    federationKey = os.environ.get("FTS_FEDERATION_KEYDIR", federationKey)
+    federationKeyPassword = os.environ.get("FTS_FEDERATION_KEYPASS", federationKeyPassword)
+    password = os.environ.get("FTS_CLIENT_CERT_PASSWORD", password)
+    websocketkey = os.environ.get("FTS_WEBSOCKET_KEY", websocketkey)
+    CRLFile = os.environ.get("FTS_CRLDIR", CRLFile)
 
     first_start = True
