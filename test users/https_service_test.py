@@ -4,20 +4,24 @@ import socketio
 import uuid
 import random
 
+KEY_PATH = "Client.key"
+CERT_PATH = "Client.pem"
+TEST_DATA_PATH = "example.txt"
+
 def send_ssl_get_request(url: str, certs: tuple = (
-        r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\certs\Client.pem",
-        r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\certs\Client.key")):
+        CERT_PATH,
+        KEY_PATH)):
     """ send an SSL encrypted request to FTS with defined body, endpoint and cert
     """
     return requests.get(url=url, cert=certs, verify=False)
 
-def send_ssl_post_request(url: str, data=None, headers=None, params=None, files = None, certs: tuple = (r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\certs\Client.pem",
-                                                          r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\certs\Client.key")):
+def send_ssl_post_request(url: str, data=None, headers=None, params=None, files = None, certs: tuple = (CERT_PATH,
+                                                          KEY_PATH)):
     if params is None:
         params = {}
     requests.post(url= url, data= data, verify= False, params=params, files=files, headers = headers, certs = certs)
 
-def upload_dp(address, uid = str(uuid.uuid4()), data_file = r"C:\Users\natha\PycharmProjects\FreeTakServer\test users\test_data\example.txt"):
+def upload_dp(address, uid = str(uuid.uuid4()), data_file = TEST_DATA_PATH):
     send_ssl_post_request(url = address+"Marti/sync/missionupload", params={"filename": str(random.randint(1, 10000)), "creatorUid": "testing", "hash": uid}, files=[('assetfile', ("example.txt", open(data_file, 'r')))])
 
 class HTTPSServiceTest(unittest.TestCase):
@@ -38,7 +42,7 @@ class HTTPSServiceTest(unittest.TestCase):
         the downloaded file with the sent file
 
         """
-        data_file = r"C:\Users\natha\PycharmProjects\FreeTakServer\test users\test_data\example.txt"
+        data_file = TEST_DATA_PATH
         dp_uid = str(uuid.uuid4())
         upload_dp(address=self.url, uid=dp_uid, data_file = data_file)
         response = send_ssl_get_request(url= self.url+f"Marti/api/sync/metadata/{dp_uid}/tool")

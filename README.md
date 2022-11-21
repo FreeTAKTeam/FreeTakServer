@@ -1,4 +1,4 @@
-# FreeTAKServer [![Downloads](https://pepy.tech/badge/freetakserver)](https://pepy.tech/project/freetakserver)
+# FreeTAKServer [![Downloads](https://pepy.tech/badge/freetakserver)](https://pepy.tech/project/freetakserver) ![PyPI](https://img.shields.io/pypi/v/FreeTAKServer) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/FreeTAKTeam/FreeTakServer) ![Lines of code](https://img.shields.io/tokei/lines/github.com/FreeTAKTeam/FreeTakServer)
 
 ![the Parrot is not dead](https://github.com/Tapawingo/FreeTakServer/blob/master/docs/FreeTakServer%20specs/FreeTakServerLogo.png?raw=true)
 

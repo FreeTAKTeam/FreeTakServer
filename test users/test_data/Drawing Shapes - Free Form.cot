@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<event version='2.0' uid='b112202e-dd33-4fc7-8d3d-09a14e296011' type='u-d-f' time='2020-12-16T19:59:34.921Z' start='2020-12-16T19:59:34.921Z' stale='2020-12-17T19:59:34.921Z' how='h-e'>
+	<point lat='38.837566759240914' lon='-77.06585180074342' hae='9999999.0' ce='9999999.0' le='9999999.0' />
+	<detail>
+		<link point='38.838231810315555,-77.06616468204862'/>
+		<link point='38.83745360129687,-77.06579790102278'/>
+		<link point='38.83857723982895,-77.06521420648704'/>
+		<link point='38.83703273315412,-77.06520237484105'/>
+		<link point='38.83676671272426,-77.06643680990649'/>
+		<link point='38.83733845812574,-77.06629483015456'/>
+		<link point='38.838231810315555,-77.06616468204862'/>
+		<strokeColor value='-1'/>
+		<strokeWeight value='4.0'/>
+		<fillColor value='-1761607681'/>
+		<contact callsign='Shape 1'/>
+		<remarks></remarks>
+		<archive/>
+		<labels_on value='false'/>
+		<color value='-1'/>
+		<precisionlocation altsrc='???'/>
+	</detail>
+</event>
