@@ -5,12 +5,14 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendOtherController").getLogger()
 
-
 class SendOtherController(SendCoTAbstractController):
-    def __init__(self, RawCoT=None, addToDB=MainConfig.SaveCoTToDB):
+    def __init__(self, RawCoT=None, addToDB=config.SaveCoTToDB):
         if type(RawCoT != bytes):
             pass
         else:

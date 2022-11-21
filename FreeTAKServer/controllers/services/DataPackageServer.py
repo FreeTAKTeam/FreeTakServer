@@ -25,6 +25,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, send_file
 from flask.logging import default_handler
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 dbController = DatabaseController()
 
 loggingConstants = LoggingConstants(log_name="FTS-DataPackage_Service")
@@ -43,7 +46,7 @@ log = LoggingConstants()
 app = Flask(__name__)  # create the Flask app
 app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["SECRET_KEY"] = MainConfig.SecretKey
+app.config["SECRET_KEY"] = config.SecretKey
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -51,16 +54,16 @@ db = SQLAlchemy(app)
 # TODO: verify session life cycle in dbController doesnt break this logic
 dbController.session = db.session
 file_dir = os.path.dirname(os.path.realpath(__file__))
-dp_directory = MainConfig.DataPackageFilePath
+dp_directory = config.DataPackageFilePath
 
-if not os.path.exists(MainConfig.ExCheckMainPath):
-    os.mkdir(MainConfig.ExCheckMainPath)
+if not os.path.exists(config.ExCheckMainPath):
+    os.mkdir(config.ExCheckMainPath)
 
-if not os.path.exists(MainConfig.ExCheckChecklistFilePath):
-    os.mkdir(MainConfig.ExCheckChecklistFilePath)
+if not os.path.exists(config.ExCheckChecklistFilePath):
+    os.mkdir(config.ExCheckChecklistFilePath)
 
-if not os.path.exists(MainConfig.ExCheckFilePath):
-    os.mkdir(MainConfig.ExCheckFilePath)
+if not os.path.exists(config.ExCheckFilePath):
+    os.mkdir(config.ExCheckFilePath)
 # Set up logging
 """if not Path(log.LOGDIRECTORY).exists():
     print(f"Creating directory at {log.LOGDIRECTORY}")
@@ -231,9 +234,9 @@ def specificPackage():
     if request.method == 'GET' and request.args.get('uid') != None:
         data = request.data
         taskuid = request.args.get('uid')
-        for file in listdir(MainConfig.ExCheckChecklistFilePath):
+        for file in listdir(config.ExCheckChecklistFilePath):
             try:
-                xml = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot()
+                xml = etree.parse(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(file)))).getroot()
             except Exception as e:
                 logger.error(e)
             tasks = xml.find('checklistTasks')
@@ -243,9 +246,9 @@ def specificPackage():
                     return etree.tostring(task)
                 else:
                     pass
-        for file in listdir(MainConfig.ExCheckFilePath):
+        for file in listdir(config.ExCheckFilePath):
             try:
-                xml = etree.parse(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(file)))).getroot()
+                xml = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(file)))).getroot()
                 if xml.find("checklistDetails").find('uid').text == str(taskuid):
                     return etree.tostring(xml)
             except Exception as e:
@@ -263,7 +266,7 @@ def specificPackage():
             return send_file(str(path))
         else:
             obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{hash}"')
-            data = etree.parse(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(obj[0].data.filename))))
+            data = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(obj[0].data.filename))))
             data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find(
                 'checklistTasks').find("checklistTask").find("checklistUid").text
             output = etree.tostring(data)
@@ -300,8 +303,6 @@ def home():
 from flask import Flask, request
 from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
@@ -380,7 +381,7 @@ def template():
         tasks = xml.find('checklistTasks')
         if not sanitize_path_input(object.data.uid):
             return "invalid uid sent", 500
-        path = str(PurePath(Path(MainConfig.ExCheckFilePath), Path(f'{object.data.uid}.xml')))
+        path = str(PurePath(Path(config.ExCheckFilePath), Path(f'{object.data.uid}.xml')))
         with open(path, 'w+') as file:
             file.write(XMI)
             file.close()
@@ -431,12 +432,12 @@ def startList(subscription):
     if not sanitize_path_input(subscription):
         return "invalid subscription sent", 500
 
-    with open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(f'{uid}.xml'))), 'w+') as file:
-        file.write(str(open(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(f'{subscription}.xml'))), 'r').read()))
+    with open(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(f'{uid}.xml'))), 'w+') as file:
+        file.write(str(open(str(PurePath(Path(config.ExCheckFilePath), Path(f'{subscription}.xml'))), 'r').read()))
         file.close()
 
     xml = etree.parse(
-        MainConfig.ExCheckChecklistFilePath + '/' + uid + '.xml').getroot()
+        config.ExCheckChecklistFilePath + '/' + uid + '.xml').getroot()
 
     starttime = Element('startTime')
     starttime.text = startTime
@@ -457,7 +458,7 @@ def startList(subscription):
         taskuid.text = str(uuid.uuid4())
 
     with open(
-            str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))),
+            str(PurePath(Path(config.ExCheckChecklistFilePath), Path(uid + '.xml'))),
             'w+') as file:
         y = etree.tostring(xml)
         file.write(etree.tostring(xml).decode())
@@ -470,7 +471,7 @@ def startList(subscription):
                                          callsign=request.args.get('callsign'), name=request.args.get('name'), uid=uid,
                                          filename=f'{uid}.xml', template=excheckobj)
 
-    return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
+    return str(open(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
 
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
@@ -488,17 +489,17 @@ def update_checklist():
     if not sanitize_path_input(uid):
         return "uid", 500
 
-    with open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(f'{uid}.xml'))), 'wb+') as file:
+    with open(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(f'{uid}.xml'))), 'wb+') as file:
         file.write(request.data)
         file.close()
 
-    return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
+    return str(open(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>')
 def accesschecklist(checklistid):
     if not sanitize_path_input(checklistid):
         return "invalid checklistid sent", 500
-    return str(open(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistid + '.xml'))),
+    return str(open(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistid + '.xml'))),
                     'r').read())
 
 
@@ -517,7 +518,7 @@ def updatetemplate(checklistid, taskid):
     if not sanitize_path_input(checklistid):
         return "invalid checklistid sent", 500
     xml = etree.parse(
-        str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistid + '.xml')))).getroot()
+        str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistid + '.xml')))).getroot()
     updatedTask = etree.fromstring(data)
     tasks = xml.find('checklistTasks')
     index = 0
@@ -530,7 +531,7 @@ def updatetemplate(checklistid, taskid):
         else:
             pass
     with open(
-            str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistid + '.xml'))), 'w+') as file:
+            str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistid + '.xml'))), 'w+') as file:
         file.write(etree.tostring(xml).decode())
         file.close()
 
@@ -547,7 +548,7 @@ def updatetemplate(checklistid, taskid):
     object.detail.mission.MissionChanges.MissionChange.type.setINTAG("ADD_CONTENT")
     object.detail.mission.MissionChanges.MissionChange.contentResource.filename.setINTAG(taskid + '.xml')
     object.detail.mission.MissionChanges.MissionChange.contentResource.hash.setINTAG(str(hashlib.sha256(
-        str(open(MainConfig.ExCheckChecklistFilePath + '/' + checklistid + '.xml', 'r')).encode()).hexdigest()))
+        str(open(config.ExCheckChecklistFilePath + '/' + checklistid + '.xml', 'r')).encode()).hexdigest()))
     object.detail.mission.MissionChanges.MissionChange.contentResource.keywords.setINTAG('Task')
     object.detail.mission.MissionChanges.MissionChange.contentResource.name.setINTAG(taskid)
     object.detail.mission.MissionChanges.MissionChange.contentResource.size.setINTAG(str(len(data)))
@@ -600,10 +601,10 @@ def activechecklists():
     checklists = Checklists.Checklist()
     rootxml = Element('checklists')
 
-    for file in listdir(MainConfig.ExCheckChecklistFilePath):
+    for file in listdir(config.ExCheckChecklistFilePath):
         try:
             checklist = Element('checklist')
-            xmldetails = etree.parse(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(file)))).getroot().find(
+            xmldetails = etree.parse(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(file)))).getroot().find(
                 'checklistDetails')
             checklist.append(xmldetails)
             checklist.append(Element('checklistColumns'))
@@ -729,7 +730,3 @@ class FlaskFunctions:
     def getSSL(self):
         global USINGSSL
         return USINGSSL
-
-
-if __name__ == "__main__":
-    pass
