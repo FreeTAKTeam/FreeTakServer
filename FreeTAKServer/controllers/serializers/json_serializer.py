@@ -47,8 +47,3 @@ class JsonSerializer(SerializerAbstract):
 
         else:
             raise AttributeError('invalid json')
-
-
-if __name__ == "__main__":
-    getter = JsonSerializer().get_fts_object_var_getter(Event.Presence(), 'uid')
-    print(getter())

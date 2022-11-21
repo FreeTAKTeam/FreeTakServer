@@ -14,8 +14,8 @@ from common_testing_tools import SSLClientAsync
 import test_cot_data
 
 
-
-
+KEY_PATH = "Certs.key"
+CERT_PATH = "Certs.pem"
 
 def open_ssl_connection(cert_file, key_file, ip, port, test_client):
     """
@@ -66,8 +66,8 @@ class SSLServiceTest(unittest.TestCase):
     def setUp(self):
         self.ip = '192.168.2.129'
         self.port = 8089
-        self.certfile = r'C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\certs\Client.pem'
-        self.keyfile = r'C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\certs\Client.key'
+        self.certfile = CERT_PATH
+        self.keyfile = KEY_PATH
 
     def test_connection(self, certfile=None, keyfile=None):
         """

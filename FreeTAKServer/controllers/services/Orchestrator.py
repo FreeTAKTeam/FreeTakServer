@@ -837,16 +837,3 @@ class Orchestrator:
             except Exception as e:
                 self.logger.critical("logging service failed with exception " + str(e))
 
-
-"""if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description=OrchestratorConstants().FULLDESC)
-    parser.add_argument(OrchestratorConstants().COTPORTARG, type=int, help=OrchestratorConstants().COTPORTDESC,
-                        default=OrchestratorConstants().COTPORT)
-    parser.add_argument(OrchestratorConstants().IPARG, type=str, help=OrchestratorConstants().IPDESC,
-                        default=OrchestratorConstants().IP)
-    parser.add_argument(OrchestratorConstants().APIPORTARG, type=int, help=OrchestratorConstants().APIPORTDESC,
-                        default=DataPackageServerConstants().APIPORT)
-    args = parser.parse_args()
-    CreateStartupFilesController()
-    Orchestrator().start(args.IP, args.CoTPort, args.APIPort)"""

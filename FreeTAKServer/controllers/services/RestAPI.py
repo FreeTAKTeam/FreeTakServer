@@ -1038,7 +1038,6 @@ def ManageChat():
 def postChatToAll():
     try:
         from json import dumps
-        # jsondata = {'message': 'test abc', 'sender': 'natha'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_chat_post(jsondata)
         ChatObject = SendChatController(jsonobj).getCoTObject()

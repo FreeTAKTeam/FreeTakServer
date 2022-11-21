@@ -46,6 +46,3 @@ class SSLDataPackageService(FlaskFunctions):
         except Exception as e:
             logger.error('there has been an exception in Data Package service startup ' + str(e))
             return -1
-
-if __name__ == "__main__":
-    SSLDataPackageService().startup('0.0.0.0', 8443)
