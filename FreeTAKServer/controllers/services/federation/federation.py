@@ -32,8 +32,10 @@ loggingConstants = LoggingConstants(log_name="FTS_FederationServerService")
 logger = CreateLoggerController("FTS_FederationServerService", logging_constants=loggingConstants).getLogger()
 from defusedxml import ElementTree as etree
 
-loggingConstants = LoggingConstants()
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
 
+loggingConstants = LoggingConstants()
 
 from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
 
@@ -75,8 +77,8 @@ class FederationServerService(FederationServiceBase):
 
     def _create_context(self) ->None:
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        self.context.load_cert_chain(MainConfig.federationCert, MainConfig.federationKey,
-                                     password=MainConfig.federationKeyPassword)
+        self.context.load_cert_chain(config.federationCert, config.federationKey,
+                                     password=config.federationKeyPassword)
 
     def _create_listener(self, ip: str, port: int)->None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -293,7 +295,7 @@ class FederationServerService(FederationServiceBase):
         except Exception as e:
             self.logger.warning("exception in receiving data from federate "+str(e))
             self.disconnect_client(key.data.uid)
-    
+
     def _accept_connection(self, sock) -> None:
         try:
             import uuid

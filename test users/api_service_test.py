@@ -11,6 +11,9 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from stdlib_extensions import CustomAssertions
 from common_testing_tools import TCPClient
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 pool = concurrent.futures.ThreadPoolExecutor()
@@ -22,7 +25,7 @@ def get_user_uid(username, password, token):
 
 def create_socketio_client(sio: socketio.Client, url: str):
     sio.connect(url=url)
-    sio.emit("authenticate", data=json.dumps({"Authenticate": MainConfig.websocketkey}))
+    sio.emit("authenticate", data=json.dumps({"Authenticate": config.websocketkey}))
     return sio
 
 
@@ -36,7 +39,7 @@ def get_endpoint(auth_token: str, body: dict = {}, url: str = 'http://127.0.0.1:
         params: the url parameters to be submitted with request
         endpoint: the endpoint to which the request is sent
 
-    Returns: 
+    Returns:
         object: response object
 
     """
@@ -73,25 +76,25 @@ class SystemUserTest(unittest.TestCase, APIServiceTest):
 
     def test_get_system_user(self):
         sio = create_socketio_client(sio=self.sio, url=self.url)
-        
+
         system_users = {}
-        
+
         @sio.event
         def systemUsersUpdate(data):
             nonlocal system_users
             system_users = data
-        
+
         sio.emit("systemUsers")
-        
+
         start = time.time()
         while system_users == {} and time.time() < start+5:
             time.sleep(0.1)
         for user in system_users["SystemUsers"]:
             if user["Name"] == "testUser":
                 self.assertEqual(user["Name"], "testUser")
-        
+
         self.assertKeyValuePairInDict(key = "Name", var = "testUser", dictionary = system_users)
-        
+
     def test_system_user_credentials(self, password="testPassword", token="testToken", username="testUser"):
         fts_response = get_endpoint(auth_token=token, params={"password": password, "username": username},
                                     endpoint="/AuthenticateUser")
@@ -122,7 +125,7 @@ class ManageKMLTest(unittest.TestCase, APIServiceTest):
 
     def test_create_address_based_kml(self):
         """ this method tests the functionality of creating address based KML packages
-        
+
         Returns: None
 
         """

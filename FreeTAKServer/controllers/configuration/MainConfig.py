@@ -1,12 +1,18 @@
 import os
-import random
 import re
+import yaml
+currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
 from string import ascii_letters, digits, punctuation
 from uuid import uuid4
 
-import yaml
-
+# the version information of the server (recommended to leave as default)
+FTS_VERSION = 'FreeTAKServer-1.9.9.6 Public'
+API_VERSION = '1.9.5'
+# TODO Need to find a better way to determine python version at runtime
+PYTHON_VERSION = 'python3.8'
+USERPATH = '/usr/local/lib/'
+MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
 
 class MainConfig:
     """
@@ -14,199 +20,313 @@ class MainConfig:
     should need to be changed
     """
 
-    # the version information of the server (recommended to leave as default)
-    version = 'FreeTAKServer-1.9.9.6 Public'
-
-    yaml_path = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
-    python_version = 'python3.8'
-    userpath = '/usr/local/lib/'
+    _instance = None
+    _values = {}
 
     try:
         import socket
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
+        _ip = s.getsockname()[0]
         s.close()
     except:
-        ip = "0.0.0.0"
+        _ip = "0.0.0.0"
 
-    ## The following are *all* the attributes supported by this class
-    ## and their default values
+    _node_id = str(uuid4())
 
-    ## Network settings ##
-    # Client ports
-    CoTServicePort = 8087
-    SSLCoTServicePort = 8089
+    # All available config vars should be defined here
+    #   currently only 'default', 'type' and 'readonly' are recognized
+    _defaults = {
+        'version': {'default': FTS_VERSION, 'type': str, 'readonly': True},
+        'APIVersion': {'default': API_VERSION, 'type': str, 'readonly': True},
+        'SecretKey': {'default': 'vnkdjnfjknfl1232#', 'type': str},
+        'nodeID': {'default': f'FreeTAKServer-{_node_id}', 'type': str},
+        'OptimizeAPI': {'default': True, 'type': bool},
+        'DataReceptionBuffer': {'default': 1024, 'type': int},
+        'MaxReceptionTime': {'default': 4, 'type': int},
+        # number of milliseconds to wait between each iteration of main loop
+        # decreasing will increase CPU usage and server performance
+        # increasing will decrease CPU usage and server performance
+        'MainLoopDelay': {'default': 100, 'type': int},
+        # this is the port to which clients will connect
+        'CoTServicePort': {'default': 8087, 'type': int},
+        'SSLCoTServicePort': {'default': 8089, 'type': int},
+        # this needs to be changed for private data packages to work
+        'DataPackageServiceDefaultIP': {'default': _ip, 'type': str},
+        # User Connection package IP needs to be set to the IP which is 
+        # used when creating the connection in your tak device
+        'UserConnectionIP': {'default': _ip, 'type': str},
+        # api port
+        'APIPort': {'default': 19023, 'type': int},
+        # Federation port
+        'FederationPort': {'default': 9000, 'type': int},
+        # api IP
+        'APIIP': {'default': '0.0.0.0', 'type': str},
+        # IP for CLI to access
+        'CLIIP': {'default': '127.0.0.1', 'type': str},
+        'AllowCLIIPs': {'default': ['127.0.0.1'], 'type': list},
+        # whether or not to save CoT's to the DB
+        'SaveCoTToDB': {'default': True, 'type': bool},
+        # this should be set before startup
+        'DBFilePath': {'default': r'/opt/FTSDataBase.db', 'type': str},
+        'MainPath': {'default': Path(MAINPATH), 'type': str},
+        'certsPath': {'default': Path(fr'{MAINPATH}/certs'), 'type': str},
+        'ExCheckMainPath': {'default': Path(fr'{MAINPATH}/ExCheck'), 'type': str},
+        'ExCheckFilePath': {'default': Path(fr'{MAINPATH}/ExCheck/template'), 'type': str},
+        'ExCheckChecklistFilePath': {'default': Path(fr'{MAINPATH}/ExCheck/checklist'), 'type': str},
+        'DataPackageFilePath': {'default': Path(fr'{MAINPATH}/FreeTAKServerDataPackageFolder'), 'type': str},
+        'LogFilePath': {'default': Path(fr"{MAINPATH}/Logs"), 'type': str},
+        'federationKeyPassword': {'default': 'defaultpass', 'type': str},
+        'keyDir': {'default': Path(fr'{MAINPATH}/certs/server.key'), 'type': str},
+        'pemDir': {'default': Path(fr'{MAINPATH}/certs/server.pem'), 'type': str},
+        'testPem': {'default': Path(fr'{MAINPATH}/certs/server.key'), 'type': str},
+        'testKey': {'default': Path(fr'{MAINPATH}/certs/server.pem'), 'type': str},
+        'unencryptedKey': {'default': Path(fr'{MAINPATH}/certs/server.key.unencrypted'), 'type': str},
+        'p12Dir': {'default': Path(fr'{MAINPATH}/certs/server.p12'), 'type': str},
+        'CA': {'default': Path(fr'{MAINPATH}/certs/ca.pem'), 'type': str},
+        'CAkey': {'default': Path(fr'{MAINPATH}/certs/ca.key'), 'type': str},
+        'federationCert': {'default': Path(fr'{MAINPATH}/certs/server.pem'), 'type': str},
+        'federationKey': {'default': Path(fr'{MAINPATH}/certs/server.key'), 'type': str},
+        'federationKeyPassword': {'default': 'defaultpass', 'type': str},
+        'password': {'default': 'supersecret', 'type': str},
+        'websocketkey': {'default': "YourWebsocketKey", 'type': str},
+        'CRLFile': {'default': Path(fr"{MAINPATH}/certs/FTS_CRL.json"), 'type': str},
+        # set to None if you don't want a message sent
+        'ConnectionMessage': {'default': f'Welcome to FreeTAKServer {FTS_VERSION}. The Parrot is not dead. It’s just resting', 'type': str},
+        'DataBaseType': {'default': "SQLite", 'type': str},
+        # location to backup client packages
+        'clientPackages': {'default': Path(fr'{MAINPATH}/certs/clientPackages'), 'type': str},
+    }
 
-    # this needs to be changed for private data packages to work
-    DataPackageServiceDefaultIP = ip
+    # This structure maps environmental vars to config vars
+    _env_vars = {
+        'FTS_SECRET_KEY': 'SecretKey',
+        'FTS_NODE_ID': 'nodeID',
+        'FTS_OPTIMIZE_API': 'OptimizeAPI',
+        'FTS_DATA_RECEPTION_BUFFER': 'DataReceptionBuffer',
+        'FTS_MAX_RECEPTION_TIME': 'MaxReceptionTime',
+        'FTS_MAINLOOP_DELAY': 'MainLoopDelay',
+        'FTS_COT_PORT': 'CoTServicePort',
+        'FTS_SSLCOT_PORT': 'SSLCoTServicePort',
+        'FTS_DP_ADDRESS': 'DataPackageServiceDefaultIP',
+        'FTS_USER_ADDRESS': 'UserConnectionIP',
+        'FTS_API_PORT': 'APIPort',
+        'FTS_CLI_WHITELIST': 'AllowCLIIPs',
+        'FTS_FED_PORT': 'FederationPort',
+        'FTS_API_ADDRESS': 'APIIP',
+        'FTS_COT_TO_DB': 'SaveCoTToDB',
+        'FTS_DB_PATH': 'DBFilePath',
+        'FTS_MAINPATH': 'MainPath',
+        'FTS_CERTS_PATH': 'certsPath',
+        'FTS_EXCHECK_PATH': 'ExCheckMainPath',
+        'FTS_EXCHECK_TEMPLATE_PATH': 'ExCheckFilePath',
+        'FTS_EXCHECK_CHECKLIST_PATH': 'ExCheckChecklistFilePath',
+        'FTS_DATAPACKAGE_PATH': 'DataPackageFilePath',
+        'FTS_LOGFILE_PATH': 'LogFilePath',
+        'FTS_FED_PASSWORD': 'federationKeyPassword',
+        'FTS_SERVER_KEYDIR': 'keyDir',
+        'FTS_SERVER_PEMDIR': 'pemDir',
+        'FTS_TESTCLIENT_PEMDIR': 'testPem',
+        'FTS_TESTCLIENT_KEYDIR': 'testKey',
+        'FTS_UNENCRYPTED_KEYDIR': 'unencryptedKey',
+        'FTS_SERVER_P12DIR': 'p12Dir',
+        'FTS_CADIR': 'CA',
+        'FTS_CAKEYDIR': 'CAkey',
+        'FTS_FEDERATION_CERTDIR': 'federationCert',
+        'FTS_FEDERATION_KEYDIR': 'federationKey',
+        'FTS_FEDERATION_KEYPASS': 'federationKeyPassword',
+        'FTS_CLIENT_CERT_PASSWORD': 'password',
+        'FTS_WEBSOCKET_KEY': 'websocketkey',
+        'FTS_CRLDIR': 'CRLFile',
+        'FTS_CONNECTION_MESSAGE': 'ConnectionMessage',
+        'FTS_DATABASE_TYPE': 'DataBaseType',
+        'FTS_CLIENT_PACKAGES': 'clientPackages',
+    }
 
-    # User Connection package IP needs to be set to the IP which is used when creating the connection in your tak device
-    UserConnectionIP = ip
+    # This is a simple representation of the YAML config schema with
+    # mappings to config var
+    _yaml_keys = {
+        'System': {
+            'FTS_NODE_ID': 'nodeID',
+            'FTS_MAINLOOP_DELAY': 'MainLoopDelay',
+            'FTS_CONNECTION_MESSAGE': 'ConnectionMessage',
+            'FTS_DATABASE_TYPE': 'DataBaseType',
+            'FTS_OPTIMIZE_API': 'OptimizeAPI',
+            'FTS_SECRET_KEY': 'SecretKey',
+            'FTS_DATA_RECEPTION_BUFFER': 'DataReceptionBuffer',
+            'FTS_MAX_RECEPTION_TIME': 'MaxReceptionTime',
+        },
+        'Addresses': {
+            'FTS_COT_PORT': 'CoTServicePort',
+            'FTS_SSLCOT_PORT': 'SSLCoTServicePort',
+            'FTS_DP_ADDRESS': 'DataPackageServiceDefaultIP',
+            'FTS_USER_ADDRESS': 'UserConnectionIP',
+            'FTS_API_PORT': 'APIPort',
+            'FTS_FED_PORT': 'FederationPort',
+            'FTS_API_ADDRESS': 'APIIP',
+            'FTS_CLI_WHITELIST': 'AllowCLIIPs',
+        },
+        'Filesystem': {
+            'FTS_COT_TO_DB': 'SaveCoTToDB',
+            'FTS_DB_PATH': 'DBFilePath',
+            'FTS_MAINPATH': 'MainPath',
+            'FTS_CERTS_PATH': 'certsPath',
+            'FTS_EXCHECK_PATH': 'ExCheckMainPath',
+            'FTS_EXCHECK_TEMPLATE_PATH': 'ExCheckFilePath',
+            'FTS_EXCHECK_CHECKLIST_PATH': 'ExCheckChecklistFilePath',
+            'FTS_DATAPACKAGE_PATH': 'DataPackageFilePath',
+            'FTS_LOGFILE_PATH': 'LogFilePath',
+            'FTS_CLIENT_PACKAGES': 'clientPackages',
+        },
+        'Certs': {
+            'FTS_SERVER_KEYDIR': 'keyDir',
+            'FTS_SERVER_PEMDIR': 'pemDir',
+            'FTS_TESTCLIENT_PEMDIR': 'testPem',
+            'FTS_TESTCLIENT_KEYDIR': 'testKey',
+            'FTS_UNENCRYPTED_KEYDIR': 'unencryptedKey',
+            'FTS_SERVER_P12DIR': 'p12Dir',
+            'FTS_CADIR': 'CA',
+            'FTS_CAKEYDIR': 'CAkey',
+            'FTS_FEDERATION_CERTDIR': 'federationCert',
+            'FTS_FEDERATION_KEYDIR': 'federationKey',
+            'FTS_FEDERATION_KEYPASS': 'federationKeyPassword',
+            'FTS_CLIENT_CERT_PASSWORD': 'password',
+            'FTS_WEBSOCKET_KEY': 'websocketkey',
+            'FTS_CRLDIR': 'CRLFile',
+        }
+    }
 
-    # API IP and port
-    APIIP = '0.0.0.0'
-    APIPort = 19023
+    def __init__(self):
+        raise RuntimeError('Call instance() instead')
 
-    # Federation port
-    FederationPort = 9000
+    # instance() is the normal entry point to get access to config information.
+    #
+    # Generally it is called without arguments in the rest of the FTS code
+    # and the return value is a config object where the config vars can be
+    # read or written using the attribute syntax (e.g. config.var for read and
+    # config.var = value for write), the dictionary syntax (e.g. config['var']
+    # for read and config['var'] = value for write) or the get() and set() methods.
+    #
+    # The only time that instance() is called with a parameter is the first
+    # time it is accessed so that the YAML config file can be read in and
+    # parsed. Further calls to instance() with the YAML configuration param
+    # may reset values of current config vars to their start values.
+    @classmethod
+    def instance(cls, config_file=None):
+        if cls._instance is None:
+            cls._instance = cls.__new__(cls)
+            # Put any initialization here.
 
-    # allowed ip's to access CLI commands
-    AllowedCLIIPs = ['127.0.0.1']
+            # preload the defaults into the _values table
 
-    # IP for CLI to access
-    CLIIP = '127.0.0.1'
+            for var_name, metadata in cls._defaults.items():
+                cls._instance.set(var_name, value=metadata['default'],
+                                  override_ro=True)
 
-    ## API Settings ##
-    APIVersion = "1.9.5"
-    nodeID = f"FreeTAKServer-{uuid4()}"
-    OptimizeAPI = True
-    DataReceptionBuffer = 1024
-    MaxReceptionTime = 4
+            # if config_file not specified, check env or use default location
+            if config_file == None:
+                config_file = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
 
-    # number of milliseconds to wait between each iteration of main loop
-    # decreasing will increase CPU usage and server performance
-    # increasing will decrease CPU usage and server performance
-    MainLoopDelay = 100
+            # overlay the yaml config if found
+            if  os.path.exists(config_file):
+                cls._instance.read_yaml_config(config_file)
 
-    # set to None if you don't want a message sent
-    ConnectionMessage = f'Welcome to FreeTAKServer {version}. The Parrot is not dead. It’s just resting'
+            # finally overlay any configuration specified in the env
+            cls._instance.import_env_config()
 
-    ## Database Settings ##
-    # whether or not to save CoT's to the DB
-    SaveCoTToDB = True
+        return cls._instance
 
-    # this should be set before startup
-    DBFilePath = '/opt/FTSDataBase.db'
-    DataBaseType = 'SQLite'
+    # reset() is really only used for testing so that MainConfig can
+    # be reinitialized between tests. It normally should not be used
+    # by anything else.
+    @classmethod
+    def reset(cls):
+        # here we need to reinitialze all the private vars
+        cls._instance = None
+        cls._values = {}
+        cls._node_id = str(uuid4())
 
-    ## Paths ##
-    MainPath = Path(fr'{userpath}{python_version}/dist-packages/FreeTAKServer')
-    ExCheckMainPath = Path(fr'{MainPath}/ExCheck')
-    ExCheckFilePath = Path(fr'{MainPath}/ExCheck/template')
-    ExCheckChecklistFilePath = Path(fr'{MainPath}/ExCheck/checklist')
-    DataPackageFilePath = Path(fr'{MainPath}/FreeTAKServerDataPackageFolder')
-    LogFilePath = Path(fr'{MainPath}/Logs')
-    certsPath = Path(fr'{MainPath}/certs')
-    # location to backup client packages
-    clientPackages = str(Path(fr'{MainPath}/certs/ClientPackages'))
+    def set(self, name, value=None, override_ro=False):
+        # add the value to the values table using the correct type
+        if not self._readonly(name) or override_ro:
+            self._values[name] = self._var_type(name)(value)
 
-    ## Certificate Settings ##
-    keyDir = Path(fr'{certsPath}/server.key')
-    pemDir = Path(fr'{certsPath}/server.pem') # or crt
-    testPem = ''
-    testKey = ''
-    unencryptedKey = Path(fr'{certsPath}/server.key.unencrypted')
-    p12Dir = Path(fr'{certsPath}/server.p12')
-    CA = Path(fr'{certsPath}/ca.pem')
-    CAkey = Path(fr'{certsPath}/ca.key')
-    CRLFile = Path(fr"{certsPath}/FTS_CRL.json")
+    def get(self, name):
+        if name in self._values:
+            return self._values[name]
+        else:
+            raise RuntimeError(f'MainConfig unknown setting name: {name}')
 
-    ## Federation Settings ##
-    federationCert = Path(fr'{certsPath}/server.pem')
-    federationKey = Path(fr'{certsPath}/server.key')
-    federationKeyPassword = 'defaultpass'
-
-    ## Secrets ##
-    password = 'supersecret'
-    websocketkey = "YourWebsocketKey"
-    SecretKey = ''.join(random.choice(ascii_letters + digits + punctuation) for i in range(18))
-
-    # Overlay the settings from the YAML config if it exists
-    if os.path.exists(yaml_path):
+    # read_yaml_config() will parse a YAML config and apply to the current
+    # config vars. This should only be called from instance() and only
+    # at the startup of the FTS server.
+    def read_yaml_config(self, yaml_path):
         try:
-            yamlConfig = yaml.safe_load(open(yaml_path).read())
+            content = open(yaml_path).read()
+            yamlConfig = yaml.safe_load(content)
         except OSError as e:
-            raise RuntimeError(f"{yaml_path} exists, but can not be read")
+            raise e
 
-        if yamlConfig.get("System"):
-            MainLoopDelay = int(yamlConfig["System"].get("FTS_MAINLOOP_DELAY", MainLoopDelay))
-            ConnectionMessage = yamlConfig["System"].get("FTS_CONNECTION_MESSAGE", ConnectionMessage)
-            DataBaseType = yamlConfig["System"].get("FTS_DATABASE_TYPE", DataBaseType)
-            OptimizeAPI = bool(yamlConfig["System"].get("FTS_OPTIMIZE_API", OptimizeAPI))
-            SecretKey = yamlConfig["System"].get("FTS_SECRET_KEY", SecretKey)
-            DataReceptionBuffer = int(yamlConfig["System"].get("FTS_DATA_RECEPTION_BUFFER", DataReceptionBuffer))
-            MaxReceptionTime = int(yamlConfig["System"].get("FTS_MAX_RECEPTION_TIME", MaxReceptionTime))
-            nodeID = yamlConfig["System"].get("FTS_NODE_ID", nodeID)
+        # walk through the _yaml_keys struct looking for values in yamlConfig
+        for sect in MainConfig._yaml_keys:
+            if sect in yamlConfig:
+                for attr, var_name in MainConfig._yaml_keys[sect].items():
+                    if attr in yamlConfig[sect]:
+                        # found a setting we can update the config
+                        self.set(var_name, value=yamlConfig[sect][attr])
 
-        if yamlConfig.get("Addresses"):
-            CoTServicePort = int(yamlConfig["Addresses"].get('FTS_COT_PORT', CoTServicePort))
-            SSLCoTServicePort = int(yamlConfig["Addresses"].get('FTS_SSLCOT_PORT', SSLCoTServicePort))
-            DataPackageServiceDefaultIP = yamlConfig["Addresses"].get('FTS_DP_ADDRESS', DataPackageServiceDefaultIP)
-            UserConnectionIP = yamlConfig["Addresses"].get("FTS_USER_ADDRESS", UserConnectionIP)
-            APIPort = int(yamlConfig["Addresses"].get("FTS_API_PORT", APIPort))
-            APIIP = yamlConfig["Addresses"].get("FTS_API_ADDRESS", APIIP)
-            FederationPort = int(yamlConfig["Addresses"].get("FTS_FED_PORT", FederationPort))
-            AllowedCLIIPs = yamlConfig["Addresses"].get("FTS_CLI_WHITELIST", AllowedCLIIPs)
-            CLIIP = yamlConfig["Addresses"].get("FTS_CLI_IP", CLIIP)
+    # import_env_config() will inspect the current environment and detect
+    # configuration values. Detected values will then be applied to the
+    # current config vars. This should only be called from instance() and
+    # only at the startup of the FTS server.
+    def import_env_config(self):
+        # Walk through all the registered env vars and check to see if the
+        # env var is defined in the environment
+        for env_var, config_var in self._env_vars.items():
+            if env_var in os.environ:
+                env_value = os.environ[env_var]
 
-        if yamlConfig.get("FileSystem"):
-            DBFilePath = yamlConfig["FileSystem"].get("FTS_DB_PATH", DBFilePath)
-            SaveCoTToDB = bool(yamlConfig["FileSystem"].get("FTS_COT_TO_DB", SaveCoTToDB))
-            MainPath = yamlConfig["FileSystem"].get("FTS_MAINPATH", MainPath)
-            certsPath = yamlConfig["FileSystem"].get("FTS_CERTS_PATH", certsPath)
-            ExCheckMainPath = yamlConfig["FileSystem"].get("FTS_EXCHECK_PATH", ExCheckMainPath)
-            ExCheckFilePath = yamlConfig["FileSystem"].get("FTS_EXCHECK_TEMPLATE_PATH", ExCheckFilePath)
-            ExCheckChecklistFilePath = yamlConfig["FileSystem"].get("FTS_EXCHECK_CHECKLIST_PATH", ExCheckChecklistFilePath)
-            DataPackageFilePath = yamlConfig["FileSystem"].get("FTS_DATAPACKAGE_PATH", DataPackageFilePath)
-            LogFilePath = yamlConfig["FileSystem"].get("FTS_LOGFILE_PATH", LogFilePath)
+                # Handle boolean types
+                if self._var_type(config_var) == bool:
+                    # bools are actually specified as a string
+                    if env_value.upper() in ('1', 'TRUE', 'YES', 'Y'):
+                        env_value = True
+                    else:
+                        env_value = False
+                # Handle lists and split the value apart
+                elif self._var_type(config_var) == list:
+                    env_value = re.split(r':|,', env_value)
 
-        if yamlConfig.get("Certs"):
-            keyDir = yamlConfig["Certs"].get("FTS_SERVER_KEYDIR", keyDir)
-            pemDir = yamlConfig["Certs"].get("FTS_SERVER_PEMDIR", pemDir)
-            testPem = yamlConfig["Certs"].get("FTS_TESTCLIENT_PEMDIR", testPem)
-            testKey = yamlConfig["Certs"].get("FTS_TESTCLIENT_KEYDIR", testKey)
-            unencryptedKey = yamlConfig["Certs"].get("FTS_UNENCRYPTED_KEYDIR", unencryptedKey)
-            p12Dir = yamlConfig["Certs"].get("FTS_SERVER_P12DIR", p12Dir)
-            CA = yamlConfig["Certs"].get("FTS_CADIR", CA)
-            CAkey = yamlConfig["Certs"].get("FTS_CAKEYDIR", CAkey)
-            federationCert = yamlConfig["Certs"].get("FTS_FEDERATION_CERTDIR", federationCert)
-            federationKey = yamlConfig["Certs"].get("FTS_FEDERATION_KEYDIR", federationKey)
-            federationKeyPassword = yamlConfig["Certs"].get("FTS_FEDERATION_KEYPASS", federationKeyPassword)
-            password = yamlConfig["Certs"].get("FTS_CLIENT_CERT_PASSWORD", password)
-            websocketkey = yamlConfig["Certs"].get("FTS_WEBSOCKET_KEY", websocketkey)
-            CRLFile = yamlConfig["Certs"].get("FTS_CRLDIR", CRLFile)
+                self[config_var] = env_value
 
-    # Allow env vars to modify configuration
-    MainLoopDelay = int(os.environ.get('FTS_MAINLOOP_DELAY', MainLoopDelay))
-    ConnectionMessage = os.environ.get("FTS_CONNECTION_MESSAGE", ConnectionMessage)
-    DataBaseType = os.environ.get("FTS_DATABASE_TYPE", DataBaseType)
-    OptimizeAPI = bool(os.environ.get("FTS_OPTIMIZE_API", OptimizeAPI))
-    SecretKey = os.environ.get("FTS_SECRET_KEY", SecretKey)
-    DataReceptionBuffer = int(os.environ.get("FTS_DATA_RECEPTION_BUFFER", DataReceptionBuffer))
-    MaxReceptionTime = int(os.environ.get("FTS_MAX_RECEPTION_TIME", MaxReceptionTime))
-    nodeID = os.environ.get("FTS_NODE_ID", nodeID)
-    CoTServicePort = int(os.environ.get('FTS_COT_PORT', CoTServicePort))
-    SSLCoTServicePort = int(os.environ.get('FTS_SSLCOT_PORT', SSLCoTServicePort))
-    DataPackageServiceDefaultIP = os.environ.get('FTS_DP_ADDRESS', DataPackageServiceDefaultIP)
-    UserConnectionIP = os.environ.get("FTS_USER_ADDRESS", UserConnectionIP)
-    APIPort = int(os.environ.get("FTS_API_PORT", APIPort))
-    APIIP = os.environ.get("FTS_API_ADDRESS", APIIP)
-    FederationPort = int(os.environ.get("FTS_FED_PORT", FederationPort))
-    AllowedCLIIPs = re.split(r'[,:]', os.environ.get("FTS_CLI_WHITELIST", "")) or AllowedCLIIPs
-    CLIIP = os.environ.get("FTS_CLI_IP", CLIIP)
-    DBFilePath = os.environ.get("FTS_DB_PATH", DBFilePath)
-    SaveCoTToDB = bool(os.environ.get("FTS_COT_TO_DB", SaveCoTToDB))
-    MainPath = os.environ.get("FTS_MAINPATH", MainPath)
-    certsPath = os.environ.get("FTS_CERTS_PATH", certsPath)
-    ExCheckMainPath = os.environ.get("FTS_EXCHECK_PATH", ExCheckMainPath)
-    ExCheckFilePath = os.environ.get("FTS_EXCHECK_TEMPLATE_PATH", ExCheckFilePath)
-    ExCheckChecklistFilePath = os.environ.get("FTS_EXCHECK_CHECKLIST_PATH", ExCheckChecklistFilePath)
-    DataPackageFilePath = os.environ.get("FTS_DATAPACKAGE_PATH", DataPackageFilePath)
-    LogFilePath = os.environ.get("FTS_LOGFILE_PATH", LogFilePath)
-    keyDir = os.environ.get("FTS_SERVER_KEYDIR", keyDir)
-    pemDir = os.environ.get("FTS_SERVER_PEMDIR", pemDir)
-    testPem = os.environ.get("FTS_TESTCLIENT_PEMDIR", testPem)
-    testKey = os.environ.get("FTS_TESTCLIENT_KEYDIR", testKey)
-    unencryptedKey = os.environ.get("FTS_UNENCRYPTED_KEYDIR", unencryptedKey)
-    p12Dir = os.environ.get("FTS_SERVER_P12DIR", p12Dir)
-    CA = os.environ.get("FTS_CADIR", CA)
-    CAkey = os.environ.get("FTS_CAKEYDIR", CAkey)
-    federationCert = os.environ.get("FTS_FEDERATION_CERTDIR", federationCert)
-    federationKey = os.environ.get("FTS_FEDERATION_KEYDIR", federationKey)
-    federationKeyPassword = os.environ.get("FTS_FEDERATION_KEYPASS", federationKeyPassword)
-    password = os.environ.get("FTS_CLIENT_CERT_PASSWORD", password)
-    websocketkey = os.environ.get("FTS_WEBSOCKET_KEY", websocketkey)
-    CRLFile = os.environ.get("FTS_CRLDIR", CRLFile)
+    # dump_values() is used for debugging and inspecting the current
+    # settings of config vars
+    def dump_values(self):
+        for var_name, value in self._values.items():
+            print(f'{var_name} = {value}')
+
+    # test if the config var should allow being set
+    def _readonly(self, name):
+        if 'readonly' in MainConfig._defaults[name] and MainConfig._defaults[name]['readonly']:
+            return True
+        return False
+
+    # helper function to return the type of a config var
+    def _var_type(self, name):
+        return MainConfig._defaults[name]['type']
+
+    # Attribute access magic methods
+    def __getattr__(self, name):
+        return self.get(name)
+
+    def __setattr__(self, name, value):
+        self.set(name, value)
+
+    # Dictionary access magic methods
+    def __getitem__(self, name):
+        return self.get(name)
+
+    def __setitem__(self, name, value):
+        self.set(name, value)
 
     first_start = True
