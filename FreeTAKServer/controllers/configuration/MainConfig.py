@@ -52,7 +52,8 @@ class MainConfig:
         'SSLCoTServicePort': {'default': 8089, 'type': int},
         # this needs to be changed for private data packages to work
         'DataPackageServiceDefaultIP': {'default': _ip, 'type': str},
-        # User Connection package IP needs to be set to the IP which is used when creating the connection in your tak device
+        # User Connection package IP needs to be set to the IP which is 
+        # used when creating the connection in your tak device
         'UserConnectionIP': {'default': _ip, 'type': str},
         # api port
         'APIPort': {'default': 19023, 'type': int},
