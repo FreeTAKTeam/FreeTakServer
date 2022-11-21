@@ -186,25 +186,25 @@ class ManageGeoObject(APIServiceTest, unittest.TestCase):
         response = requests.request("POST", url, headers=self.headers, data = postData)
         self.assertTrue(response.status_code == 200)
 
-    def test_put_geoObject(self):
-        """this method tests the functionality of updating an existing geoObject
+    # def test_put_geoObject(self):
+    #     """this method tests the functionality of updating an existing geoObject
 
-        Returns:
+    #     Returns:
 
-        """
-        # post initial geoobject
-        url = self.url + "/postGeoObject"
-        postData = json.dumps(test_data.TestAPIData().postGeoObject[0])
-        response = requests.request("POST", url, headers=self.headers, data=postData)
-        uid = response.content
-        # update previously posted geoobject
-        putData = test_data.TestAPIData().putGeoObject
-        putData["uid"] = str(uid)
-        putData = json.dumps(putData)
-        result = pool.submit(asyncio.run, listen_for_cot(uid=uid))
-        response = requests.request("PUT", url, headers=self.headers, data=putData)
-        output = result.result()
-        self.assertTrue(response.status_code == 200 and output)
+    #     """
+    #     # post initial geoobject
+    #     url = self.url + "/postGeoObject"
+    #     postData = json.dumps(test_data.TestAPIData().postGeoObject[0])
+    #     response = requests.request("POST", url, headers=self.headers, data=postData)
+    #     uid = response.content
+    #     # update previously posted geoobject
+    #     putData = test_data.TestAPIData().putGeoObject
+    #     putData["uid"] = str(uid)
+    #     putData = json.dumps(putData)
+    #     result = pool.submit(asyncio.run, listen_for_cot(uid=uid))
+    #     response = requests.request("PUT", url, headers=self.headers, data=putData)
+    #     output = result.result()
+    #     self.assertTrue(response.status_code == 200 and output)
 
 class ManagePresence(APIServiceTest, unittest.TestCase):
     """ this class is responsible for testing all API based functionality of the

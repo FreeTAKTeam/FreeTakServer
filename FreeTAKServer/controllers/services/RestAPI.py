@@ -100,11 +100,6 @@ def verify_token(token):
                 return output.name
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-
 def socket_auth(session=None):
     def innerfunc(x):
         def wrapper(*args, **kwargs):

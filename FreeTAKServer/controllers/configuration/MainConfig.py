@@ -3,6 +3,7 @@ import re
 import yaml
 currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
+from string import ascii_letters, digits, punctuation
 from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
