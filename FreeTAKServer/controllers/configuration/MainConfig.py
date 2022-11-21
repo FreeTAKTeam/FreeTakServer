@@ -5,10 +5,6 @@ currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
 from uuid import uuid4
 
-<<<<<<< HEAD
-||||||| parent of df7c9f6 (Moved constants to top of MainConfig.py for readability)
-
-=======
 # the version information of the server (recommended to leave as default)
 FTS_VERSION = 'FreeTAKServer-1.9.9.6 Public'
 API_VERSION = '1.9.5'
@@ -17,7 +13,6 @@ PYTHON_VERSION = 'python3.8'
 USERPATH = '/usr/local/lib/'
 MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
 
->>>>>>> df7c9f6 (Moved constants to top of MainConfig.py for readability)
 class MainConfig:
     """
     this is the main configuration file and is the only one which
