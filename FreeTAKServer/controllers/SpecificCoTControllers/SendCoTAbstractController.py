@@ -5,14 +5,16 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from abc import ABC
 from FreeTAKServer.controllers.serializers import xml_serializer
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 loggingConstants = LoggingConstants(log_name="FTS_SendCoTAbstract")
 logger = CreateLoggerController("FTS_SendCoTAbstract", logging_constants=loggingConstants).getLogger()
-
 
 class SendCoTAbstractController(ABC):
     Event = event
 
-    def fill_object(self, object, tempObject, RawCoT, addToDB=MainConfig.SaveCoTToDB):
+    def fill_object(self, object, tempObject, RawCoT, addToDB=config.SaveCoTToDB):
         try:
             object.modelObject = self.create_model_object(tempObject, RawCoT.xmlString)
 

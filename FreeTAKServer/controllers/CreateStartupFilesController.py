@@ -17,13 +17,13 @@ class CreateStartupFilesController:
             os.mkdir(self.logs_directory)
         except:
             pass
-        ERRORLOG = open(LoggingConstants().ERRORLOG, "w")
+        ERRORLOG = open(LoggingConstants().ERRORLOG, "w+")
         ERRORLOG.close()
-        HTTPLOG = open(LoggingConstants().HTTPLOG, "w")
+        HTTPLOG = open(LoggingConstants().HTTPLOG, "w+")
         HTTPLOG.close()
-        DEBUGLOG = open(LoggingConstants().DEBUGLOG, "w")
+        DEBUGLOG = open(LoggingConstants().DEBUGLOG, "w+")
         DEBUGLOG.close()
-        INFOLOG = open(LoggingConstants().INFOLOG, "w")
+        INFOLOG = open(LoggingConstants().INFOLOG, "w+")
         INFOLOG.close()
 
     def create_daemon(self):
