@@ -43,7 +43,7 @@ def setup_module(module):
 
     Domain(None, None, None, None).register(config)
 
-    XMLSerializer(None, None, None, None).register(config)
+    XmlSerializer(None, None, None, None).register(config)
 
     Emergency(None, None, None, None).register(config)
 
