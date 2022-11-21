@@ -58,9 +58,3 @@ class templateSerializer:
         y = vars(templateJsonMessage)
         y['data'][0] = vars(y['data'][0])
         return y
-
-if __name__ == "__main__":
-    serializer = templateSerializer(r'C:\Users\natha\PycharmProjects\InDev\FreeTAKServerParent\FreeTAKServer\Tests\ExCheckTesting\excheckxmi\13c3e6b4-c25a-40d3-9938-0d32a6c09e45.xml')
-    obj1 = serializer.convert_template_to_object()
-    #obj2 = serializer.create_DB_object(obj1)
-    #serializer.convert_object_to_json(DatabaseController().query_ExCheck())

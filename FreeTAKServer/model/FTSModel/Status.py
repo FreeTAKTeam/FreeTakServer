@@ -58,7 +58,3 @@ class Status(FTSProtocolObject):
     # readiness setter 
     def setreadiness(self, readiness=0):  
         self.readiness = readiness
-
-
-if __name__ == "__main__":
-    Status()

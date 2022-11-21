@@ -730,7 +730,3 @@ class FlaskFunctions:
     def getSSL(self):
         global USINGSSL
         return USINGSSL
-
-
-if __name__ == "__main__":
-    pass

@@ -330,9 +330,3 @@ class FederationServerService(FederationServiceBase):
 
     def stop(self):
         pass
-
-if __name__ == "__main__":
-
-    from multiprocessing import Pipe
-    pipe1, pipe2 = Pipe(True)
-    FederationServerService().start(pipe1, "0.0.0.0", 9000)
