@@ -7,8 +7,10 @@ from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 from FreeTAKServer.model.TCPConnection import TCPConnection
+from FreeTAKServer.model.SpecificCoT.Presence import Presence
 
 loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
 logger = CreateLoggerController("FTS-TCP_CoT_Service", logging_constants=loggingConstants).getLogger()
@@ -41,3 +43,35 @@ class TCPCoTServiceController(Orchestrator):
             logger.error('there has been an exception in the start function '
                          'of TCPCoTService ' + str(e))
             return e
+
+    def add_service_user(self, client_information: ClientInformation):
+        """ this method generates the presence and connection objects from the
+        client_information parameter and sends it to
+
+        :param client_information: this is the information of the client to be added
+        :return:
+        """
+        try:
+            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
+            if not self.clientDataPipe.full():
+                presence_object = Presence()
+                presence_object.setModelObject(client_information.modelObject)
+
+                # TODO why is this not xmlString?
+                presence_object.setXmlString(client_information.idData)
+                # Is this duplicate of modelObject?
+                presence_object.setClientInformation(client_information.modelObject)
+
+                connection_object = TCPConnection()
+                connection_object.sock = None
+                connection_object.user_id = client_information.modelObject.uid
+
+                # Updating clientDataPipe
+                # TODO add blocking...
+                self.clientDataPipe.put(['add', presence_object, self.openSockets, self.connection_object])
+                self.logger.debug("client addition has been sent through queue " + str(client_information))
+            else:
+                self.logger.critical("client data pipe is Full !")
+        except Exception as e:
+            self.logger.error("exception has been thrown adding client data from queue " + str(e))
+            raise e
