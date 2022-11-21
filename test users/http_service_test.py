@@ -4,6 +4,8 @@ import random
 
 import requests
 
+TEST_DATA_PATH = "example.txt"
+
 def send_get_request(url: str):
     """ send an SSL encrypted request to FTS with defined body, endpoint and cert
     """
@@ -14,7 +16,7 @@ def send_post_request(url: str, data=None, headers=None, params=None, files = No
         params = {}
     requests.post(url= url, data= data, verify= False, params=params, files=files, headers = headers)
 
-def upload_dp(address, uid = str(uuid.uuid4()), data_file = r"C:\Users\natha\PycharmProjects\FreeTakServer\test users\test_data\example.txt"):
+def upload_dp(address, uid = str(uuid.uuid4()), data_file = TEST_DATA_PATH):
     send_post_request(url = address+"Marti/sync/missionupload", params={"filename": str(random.randint(1, 10000)), "creatorUid": "testing", "hash": uid}, files=[('assetfile', ("example.txt", open(data_file, 'r')))])
 
 
@@ -35,7 +37,7 @@ class HTTPServiceTest(unittest.TestCase):
         the downloaded file with the sent file
 
         """
-        data_file = r"C:\Users\natha\PycharmProjects\FreeTakServer\test users\test_data\example.txt"
+        data_file = TEST_DATA_PATH
         dp_uid = str(uuid.uuid4())
         upload_dp(address=self.url, uid=dp_uid, data_file = data_file)
         response = send_get_request(url= self.url+f"Marti/api/sync/metadata/{dp_uid}/tool")

@@ -62,6 +62,3 @@ class Mission(FTSProtocolObject):
 
     def getauthorUid(self):
         return self.authorUid
-
-if __name__ == "__main__":
-    y = Mission.ExcheckUpdate()

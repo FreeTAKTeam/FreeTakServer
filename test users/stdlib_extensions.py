@@ -29,6 +29,3 @@ class CustomAssertions:
                     elif isinstance(v, bool):
                         return True
         assert gen_dict_extract(key=key, var=dictionary, val = val)
-
-if __name__ == "__main__":
-    CustomAssertions().assertKeyValuePairInDict('x', 'y', {'z': [{"x": "y"}]})
