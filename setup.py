@@ -63,8 +63,9 @@ setup(
         'qrcode==7.3.1',
         'pillow==9.1.1',
         'asyncio==3.4.3',
-        "xmltodict",
-        "pyzmq",
+        'xmltodict',
+        'pyzmq',
+        'digitalpy'
     ],
     extras_require = {
         'ui': [
