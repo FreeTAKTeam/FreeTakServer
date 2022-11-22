@@ -2,6 +2,9 @@ from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 import typing
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 def modifyDefaultIP(func):
     def changeDefaultIP(instance, port, ip):
         import socket
@@ -101,7 +104,6 @@ class ServerStatusController:
 
     def SSLDataPackageStatusCheck(self, SSLDataPackagePort, IP):
         import requests
-        from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
         try:
             import socket
             if IP == "0.0.0.0":
@@ -110,7 +112,7 @@ class ServerStatusController:
                 IP = s.getsockname()[0]
             else:
                 pass
-            conn = requests.get(f'https://{IP}:{SSLDataPackagePort}/Alive', cert=(MainConfig.pemDir, MainConfig.unencryptedKey), verify=False)
+            conn = requests.get(f'https://{IP}:{SSLDataPackagePort}/Alive', cert=(config.pemDir, config.unencryptedKey), verify=False)
             if conn.status_code == 200:
                 return "on"
             else:
