@@ -14,7 +14,6 @@ import time
 import traceback
 
 from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
-from FreeTAKServer.controllers.AsciiController import AsciiController
 from FreeTAKServer.controllers.ClientInformationController import ClientInformationController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.MainSocketController import MainSocketController
@@ -34,7 +33,6 @@ from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.model.User import User
 from FreeTAKServer.model.ClientInformation import ClientInformation
 
-ascii = AsciiController().ascii
 from logging.handlers import RotatingFileHandler
 import logging
 import multiprocessing
@@ -280,13 +278,6 @@ class Orchestrator(ABC):
                 self.logger.info("client had invalid connection information and has been disconnected")
                 return -1
 
-            # why do we clear socket here? Is this the proper way to do so?
-            sock = clientInformation.socket
-            clientInformation.socket = None
-
-            # Huh
-            clint_info_clean = copy.deepcopy(clientInformation)
-            clientInformation.socket = sock
 
             self.logger.debug("client conn A")
 
@@ -328,21 +319,6 @@ class Orchestrator(ABC):
             return -1
 
 
-    # TODO remove
-    def emergencyReceived(self, processedCoT):
-        try:
-            if processedCoT.status == loggingConstants.ON:
-                self.internalCoTArray.append(processedCoT)
-                self.logger.debug(loggingConstants.EMERGENCYCREATED)
-            elif processedCoT.status == loggingConstants.OFF:
-                for CoT in self.internalCoTArray:
-                    if CoT.type == "Emergency" and CoT.modelObject.uid == processedCoT.modelObject.uid:
-                        self.internalCoTArray.remove(CoT)
-                        self.logger.debug(loggingConstants.EMERGENCYREMOVED)
-        except Exception as e:
-            self.logger.error(loggingConstants.EMERGENCYRECEIVEDERROR + str(e))
-
-    # TODO remove
     def dataReceived(self, raw_cot: RawCoT):
         """this will be executed in the event that the use case for the CoT isn't specified in the orchestrator
 
@@ -379,55 +355,6 @@ class Orchestrator(ABC):
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
             return -1
 
-    # TODO remove ?
-    def sendInternalCoT(self, client):
-        try:
-            pass
-            """if len(self.internalCoTArray) > 0:
-                for processedCoT in self.internalCoTArray:
-                    SendDataController().sendDataInQueue(processedCoT.clientInformation, processedCoT, {client.modelObject.uid: self.clientInformationQueue[client.modelObject.uid]})
-            else:
-                pass
-            self.send_active_emergencys(client)
-            return 1"""
-        except Exception as e:
-            self.logger.error(loggingConstants.MONITORRAWCOTERRORINTERNALSCANERROR + str(e))
-            return -1
-
-    # TODO move or remove
-    def send_active_emergencys(self, client):
-        """
-        this function needs to be cleaned up however it's functionality is as follows
-        it query's the DB for active emergency's at which point it iterates over all
-        emergency objects, transforms them into model objects and then xmlStrings
-        finally the object is sent to the client.
-
-        :param client: client to send active emergency too
-        """
-        try:
-
-            from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
-            from lxml import etree
-            emergencys = self.dbController.query_ActiveEmergency()
-            for emergency in emergencys:
-                emergencyobj = SendEmergency()
-                modelObject = Event.emergecyOn()
-
-                filledModelObject = SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(emergency.event,
-                                                                                                   modelObject)
-                # emergencyobj.setXmlString(XMLCoTController().serialize_model_to_CoT(filledModelObject))
-                emergencyobj.setXmlString(
-                    etree.tostring((XmlSerializer().from_fts_object_to_format(filledModelObject))))
-                print(emergencyobj.xmlString)
-                emergencyobj.setModelObject(filledModelObject)
-                self.sent_message_count += 1
-                SendDataController().sendDataInQueue(None, emergencyobj, [client])
-
-        except Exception as e:
-            import traceback
-            self.logger.error(traceback.format_exc())
-            self.logger.error('an exception has been thrown in sending active emergencies ' + str(e))
-
     def clientDisconnected(self, client_information: User):
         """this method is responsible for handling the disconnection of clients
 
@@ -447,7 +374,7 @@ class Orchestrator(ABC):
             self.logger.critical("getting sock from client information queue failed " + str(e))
         
         # Huh
-        # TODO remove
+        # TODO rework
         try:
             self.logger.debug('client ' + client_information.m_presence.modelObject.uid + ' disconnected ' + "\n".join(
                 traceback.format_stack()))
@@ -551,10 +478,6 @@ class Orchestrator(ABC):
             return True
         else:
             return False
-
-    #TODO Remove    
-    def loadAscii(self):
-        ascii()
 
     def mainRunFunction(
             self,
