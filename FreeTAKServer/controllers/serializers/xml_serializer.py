@@ -179,13 +179,3 @@ class XmlSerializer(SerializerAbstract):
                 xmlobj.attrib[key] = ""
         z = etree.tostring(xmlobj)
         return xmlobj
-
-
-'''xmlstring = '<event version="2.0" uid="ANDROID-R5CN70EYKQH" type="a-f-G-U-C" how="h-e" start="2020-12-24T18:16:22.325Z" time="2020-12-24T18:16:22.325Z" stale="2020-12-24T18:22:37.325Z"><detail><__group name="Teal" role="Team Member"/><status battery="76"/><takv version="4.2.0.4 (47e136dd).1607456856-CIV" platform="ATAK-CIV" device="SAMSUNG SM-N986U" os="29"/><track course="159.1462509079387" speed="0.0"/><contact callsign="SPAC3SLOTH" endpoint="*:-1:stcp" /><uid Droid="SPAC3SLOTH"/><precisionlocation altsrc="GPS" geopointsrc="GPS"/></detail><point le="9999999.0" ce="11.0" hae="178.84407323983876" lon="-76.675505" lat="39.664392"/></event>'
-fts_obj = xml_serializer().from_format_to_fts_object(xmlstring, Event.Connection())
-obj = xml_serializer().from_fts_object_to_format_body(Event.Connection())
-obj = xml_serializer().from_fts_object_to_format(fts_obj, etree.tostring(obj))
-print(etree.tostring(obj))
-print(etree.tostring(obj).decode() == xmlstring)
-finish = time.time()
-print(finish-start)'''

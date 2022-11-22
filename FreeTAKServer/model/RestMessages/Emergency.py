@@ -77,6 +77,3 @@ class Emergency:
         else:
             return self.longitude
 
-
-if __name__ == "__main__":
-    Emergency("DELETE").uid = '123'

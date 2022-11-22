@@ -7,13 +7,16 @@ from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 class SendSensorDroneController:
     def __init__(self, json):
         tempObject = event.DroneSensor()
         object = SendSensorDrone()
         object.setModelObject(tempObject)
         object.modelObject = self._serializeJsonToModel(object.modelObject, json)
-        if not MainConfig.OptimizeAPI:
+        if not config.OptimizeAPI:
             DatabaseController().create_CoT(object.modelObject)
         object.setXmlString(XMLCoTController().serialize_model_to_CoT(object.modelObject))
         self.setCoTObject(object)
