@@ -1,6 +1,5 @@
 """this file contains the emergency sender controller responsible for transmitting all emergencies"""
 from digitalpy.routing.controller import Controller
-from ..domain import Event
 from digitalpy.routing.request import Request
 from digitalpy.routing.response import Response
 from digitalpy.routing.action_mapper import ActionMapper
@@ -47,7 +46,6 @@ class EmergencySenderController(Controller):
 
     def send_emergencies_to_client(self, **kwargs):
         """this method will broadcast all emergencies to a specific client"""
-        self.response.set_values(kwargs)
         emergencies = self.execute_sub_action("GetAllEmergencies").get_value(
             "emergencies"
         )
