@@ -274,7 +274,7 @@ class MainConfig:
         for sect in MainConfig._yaml_keys:
             if sect in yamlConfig:
                 for attr, var_name in MainConfig._yaml_keys[sect].items():
-                    if attr in yamlConfig[sect]:
+                    if yamlConfig[sect] is not None and attr in yamlConfig[sect]:
                         # found a setting we can update the config
                         self.set(var_name, value=yamlConfig[sect][attr])
 
