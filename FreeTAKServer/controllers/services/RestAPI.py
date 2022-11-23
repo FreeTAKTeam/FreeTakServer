@@ -75,6 +75,7 @@ socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
 socketio.init_app(app, cors_allowed_origins="*")
 APIPipe = None
 CommandPipe = None
+config = MainConfig.instance()
 app.config["SECRET_KEY"] = config.SecretKey
 eventDict = {}
 
