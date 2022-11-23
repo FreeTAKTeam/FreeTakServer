@@ -335,15 +335,7 @@ class Orchestrator(ABC):
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
 
             # TODO: remove string
-            tempXml = RawCoT()
-            tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(
-                client_information.user_id).encode()
-            disconnect = SendDisconnectController(tempXml)
-            self.get_client_information()
-            self.sent_message_count += 1
-            self.messages_to_core_count += 1
-            SendDataController().sendDataInQueue(disconnect.getObject().clientInformation, disconnect.getObject(),
-                                                 self.clientInformationQueue, self.CoTSharePipe)
+            self.send_disconnect_cot(client_information)
             self.logger.info(loggingConstants.CLIENTDISCONNECTEND + str(
                 client_information.m_presence.modelObject.uid))
             return 1
@@ -359,6 +351,11 @@ class Orchestrator(ABC):
             self.logger.error(loggingConstants.CLIENTCONNECTEDERROR + " " + str(e) + " on line: " + line)
 
     def send_disconnect_cot(self, client_information):
+        """send the disconnection information for a specific client to all connected clients
+        Args:
+            client_information: client to be displayed as 
+                disconnected by all connected devices
+        """
         # TODO: remove string
         tempXml = RawCoT()
         tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(
