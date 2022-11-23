@@ -44,6 +44,7 @@ from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController 
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
+from FreeTAKServer.controllers.ExCheckController import ExCheckController
 
 dbController = DatabaseController()
 
@@ -1594,107 +1595,7 @@ def mission_table():
 @app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
 @auth.login_required()
 def excheck_table():
-    try:
-        from os import listdir
-        from pathlib import PurePath, Path
-        from datetime import datetime
-        from flask import request
-        if request.method == "GET":
-            jsondata = {"ExCheck": {'Templates': [], 'Checklists': []}}
-            from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
-            excheckTemplates = DatabaseController().query_ExCheck()
-            for template in excheckTemplates:
-                templateData = template.data
-                templatejson = {
-                    "filename": templateData.filename,
-                    "name": templateData.keywords.name,
-                    "submissionTime": templateData.submissionTime,
-                    "submitter": str(
-                        dbController.query_user(query=f'uid = "{template.creatorUid}"', column=['callsign'])),
-                    "uid": templateData.uid,
-                    "hash": templateData.hash,
-                    "size": templateData.size,
-                    "description": templateData.keywords.description
-                }
-                jsondata["ExCheck"]['Templates'].append(templatejson)
-            excheckChecklists = DatabaseController().query_ExCheckChecklist()
-            for checklist in excheckChecklists:
-                try:
-                    templatename = checklist.template.data.name
-                except AttributeError:
-                    templatename = "template removed"
-                checklistjson = {
-                    "filename": checklist.filename,
-                    "name": checklist.name,
-                    "startTime": datetime.strftime(checklist.startTime, "%Y-%m-%dT%H:%M:%S.%fZ"),
-                    "submitter": checklist.callsign,
-                    "uid": checklist.uid,
-                    "description": checklist.description,
-                    "template": templatename
-                }
-                jsondata["ExCheck"]['Checklists'].append(checklistjson)
-            return json.dumps(jsondata), 200
-
-        elif request.method == "DELETE":
-            jsondata = request.data
-            ExCheckArray = json.loads(jsondata)["ExCheck"]
-            for item in ExCheckArray["Templates"]:
-                templateitem = DatabaseController().query_ExCheck(f'ExCheckData.uid = "{item["uid"]}"', verbose=True)[0]
-                os.remove(str(PurePath(Path(config.ExCheckFilePath), Path(templateitem.data.filename))))
-                DatabaseController().remove_ExCheck(f'PrimaryKey = "{templateitem.PrimaryKey}"')
-            for item in ExCheckArray["Checklists"]:
-                checklistitem = DatabaseController().query_ExCheckChecklist(f'uid = "{item["uid"]}"')[0]
-                os.remove(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistitem.filename))))
-                DatabaseController().remove_ExCheckChecklist(f'uid = "{item["uid"]}"')
-            return 'success', 200
-        elif request.method == "POST":
-            try:
-                import uuid
-                from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
-                xmlstring = f'<?xml version="1.0"?><event version="2.0" uid="{uuid.uuid4()}" type="t-x-m-c" time="2020-11-28T17:45:51.000Z" start="2020-11-28T17:45:51.000Z" stale="2020-11-28T17:46:11.000Z" how="h-g-i-g-o"><point lat="0.00000000" lon="0.00000000" hae="0.00000000" ce="9999999" le="9999999" /><detail><mission type="CHANGE" tool="ExCheck" name="exchecktemplates" authorUid="S-1-5-21-2720623347-3037847324-4167270909-1002"><MissionChanges><MissionChange><contentResource><filename>61b01475-ad44-4300-addc-a9474ebf67b0.xml</filename><hash>018cd5786bd6c2e603beef30d6a59987b72944a60de9e11562297c35ebdb7fd6</hash><keywords>test init</keywords><keywords>dessc init</keywords><keywords>FEATHER</keywords><mimeType>application/xml</mimeType><name>61b01475-ad44-4300-addc-a9474ebf67b0</name><size>1522</size><submissionTime>2020-11-28T17:45:47.980Z</submissionTime><submitter>wintak</submitter><tool>ExCheck</tool><uid>61b01475-ad44-4300-addc-a9474ebf67b0</uid></contentResource><creatorUid>S-1-5-21-2720623347-3037847324-4167270909-1002</creatorUid><missionName>exchecktemplates</missionName><timestamp>2020-11-28T17:45:47.983Z</timestamp><type>ADD_CONTENT</type></MissionChange></MissionChanges></mission></detail></event>'
-                # this is where the client will post the xmi of a template
-                from datetime import datetime
-                from defusedxml import ElementTree as etree
-                import hashlib
-                # possibly the uid of the client submitting the template
-                authoruid = request.args.get('clientUid')
-                if not authoruid:
-                    authoruid = 'server-uid'
-                XMI = request.data.decode()
-                serializer = templateSerializer(XMI)
-                object = serializer.convert_template_to_object()
-                object.timestamp = datetime.strptime(object.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
-                serializer.create_DB_object(object)
-                xml = etree.fromstring(XMI)
-                path = str(PurePath(Path(config.ExCheckFilePath), Path(f'{object.data.uid}.xml')))
-                with open(path, 'w+') as file:
-                    file.write(XMI)
-                    file.close()
-
-                uid = object.data.uid
-                temp = etree.fromstring(XMI)
-                cot = etree.fromstring(xmlstring)
-                cot.find('detail').find('mission').set("authorUid", authoruid)
-                resources = cot.find('detail').find('mission').find('MissionChanges').find('MissionChange').find(
-                    'contentResource')
-                resources.find('filename').text = temp.find('checklistDetails').find('uid').text + '.xml'
-                resources.findall('keywords')[0].text = temp.find('checklistDetails').find('name').text
-                resources.findall('keywords')[1].text = temp.find('checklistDetails').find('description').text
-                resources.findall('keywords')[2].text = temp.find('checklistDetails').find('creatorCallsign').text
-                resources.find('uid').text = temp.find('checklistDetails').find('uid').text
-                resources.find('name').text = temp.find('checklistDetails').find('uid').text
-                resources.find('size').text = str(len(XMI))
-                resources.find('hash').text = str(hashlib.sha256(str(XMI).encode()).hexdigest())
-                z = etree.tostring(cot)
-                from FreeTAKServer.model.testobj import testobj
-                object = testobj()
-                object.xmlString = z
-                APIPipe.put(object)
-                return str(uid), 200
-            except Exception as e:
-                print(str(e))
-    except Exception as e:
-        return str(e), 500
+    return ExCheckController().excheck_table(request, APIPipe)
 
 
 @app.route('/checkStatus', methods=[restMethods.GET])
