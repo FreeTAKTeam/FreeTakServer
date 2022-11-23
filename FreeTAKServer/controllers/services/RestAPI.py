@@ -47,6 +47,8 @@ from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import Sql
 
 dbController = DatabaseController()
 
+config = MainConfig.instance()
+
 UpdateArray = []
 StartTime = None
 
