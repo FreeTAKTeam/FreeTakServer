@@ -51,7 +51,7 @@ class Test_MainConfig(unittest.TestCase):
 
     yaml_config = """
 System:
-    FTS_MAINLOOP_DELAY: 600
+    FTS_MAINLOOP_DELAY: 100
     FTS_CONNECTION_MESSAGE: ''
     FTS_DATABASE_TYPE: 'CouchDB'
     FTS_OPTIMIZE_API: false

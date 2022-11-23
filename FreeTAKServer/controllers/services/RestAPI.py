@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from flask_httpauth import HTTPTokenAuth
-from flask_login import current_user, LoginManager
+from flask_login import LoginManager
 import threading
 from functools import wraps
 import uuid
@@ -46,6 +46,8 @@ from FreeTAKServer.controllers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 
 dbController = DatabaseController()
+
+config = MainConfig.instance()
 
 UpdateArray = []
 StartTime = None
