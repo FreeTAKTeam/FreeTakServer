@@ -44,6 +44,7 @@ const = DataPackageServerConstants()
 log = LoggingConstants()
 
 app = Flask(__name__)  # create the Flask app
+config = MainConfig.instance()
 app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SECRET_KEY"] = config.SecretKey
