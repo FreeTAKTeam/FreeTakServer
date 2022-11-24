@@ -9,6 +9,8 @@ from FreeTAKServer.components.core.xml_serializer.configuration.xml_serializer_c
 )
 from . import base
 
+config = MainConfig.instance()
+
 
 class XmlSerializer(DefaultFacade):
     """Facade class for the Component component. Responsible for handling all public routing.
@@ -43,7 +45,7 @@ class XmlSerializer(DefaultFacade):
             # the configuration object (passed by constructor)
             configuration=configuration,
             # log file path
-            log_file_path=MainConfig.LogFilePath,
+            log_file_path=config.LogFilePath,
             # the tracing provider used
             tracing_provider_instance=tracing_provider_instance,
             # the path to the manifest file

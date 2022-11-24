@@ -21,6 +21,8 @@ from FreeTAKServer.components.extended.emergency.configuration.emergency_constan
 )
 from . import base
 
+config = MainConfig.instance()
+
 
 class Emergency(DefaultFacade):
     """Facade class for the Component Emergency.
@@ -56,7 +58,7 @@ class Emergency(DefaultFacade):
             # the configuration object (passed by constructor)
             configuration=configuration,
             # log file path
-            log_file_path=MainConfig.LogFilePath,
+            log_file_path=config.LogFilePath,
             # the tracing provider used
             tracing_provider_instance=tracing_provider_instance,
             # the template for the absolute path to the model object definitions

@@ -14,6 +14,9 @@ import time
 import traceback
 from lxml import etree
 
+from digitalpy.model.node import Node
+from digitalpy.core.object_factory import ObjectFactory
+
 from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.controllers.ClientInformationController import (
     ClientInformationController,
@@ -339,6 +342,16 @@ class Orchestrator(ABC):
 
             # Broadcast user in geochat
             self.send_user_connection_geo_chat(clientInformation)
+
+            request = ObjectFactory.get_new_instance("request")
+            request.set_action("SendEmergenciesToClient")
+            request.set_sender(self.__class__.__name__.lower())
+            request.set_value("client_uid", clientInformation.modelObject.uid)
+            request.set_value("model_object_parser", "ParseModelObjectToXML")
+            request.set_format("pickled")
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            response = ObjectFactory.get_new_instance("response")
+            actionmapper.process_action(request, response, False)
             return clientInformation
         except Exception as e:
             self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR + str(e))

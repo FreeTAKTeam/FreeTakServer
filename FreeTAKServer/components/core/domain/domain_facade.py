@@ -8,6 +8,8 @@ from FreeTAKServer.components.core.domain.configuration.domain_constants import 
 )
 from . import base
 
+config = MainConfig.instance()
+
 
 class Domain(DefaultFacade):
     """This is the facade class for the domain component, it is responsible
@@ -40,7 +42,7 @@ class Domain(DefaultFacade):
             # the configuration object (passed by constructor)
             configuration=configuration,
             # log file path
-            log_file_path=MainConfig.LogFilePath,
+            log_file_path=config.LogFilePath,
             # the tracing provider used
             tracing_provider_instance=tracing_provider_instance,
             # the path to the manifest file

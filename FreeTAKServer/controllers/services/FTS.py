@@ -530,7 +530,7 @@ class FTS:
         self.configuration.add_configuration(
             str(
                 pathlib.PurePath(
-                    str(MainConfig.MainPath),
+                    str(config.MainPath),
                     "configuration",
                     "routing",
                     "action_mapping.ini",
@@ -958,7 +958,7 @@ class FTS:
         try:
             # TODO: change 'add' 'remove' 'update' and 'get' to an enumeration
             try:
-                data = recv_pipe.get(timeout=config.MainLoopDelay/1000)
+                data = recv_pipe.get(timeout=config.MainLoopDelay / 1000)
             except queue.Empty:
                 return self.user_dict
             if data:
@@ -1138,7 +1138,9 @@ class FTS:
             try:
                 for service_name, pipe in self.FilterGroup.get_sources().items():
                     try:
-                        data = AddDataToCoTList().recv(pipe, timeout=config.MainLoopDelay / 1000)
+                        data = AddDataToCoTList().recv(
+                            pipe, timeout=config.MainLoopDelay / 1000
+                        )
                     except Exception as e:
                         logger.error("get pipe data failed " + str(e))
                         continue

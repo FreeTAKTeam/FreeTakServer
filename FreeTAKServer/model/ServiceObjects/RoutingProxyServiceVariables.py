@@ -1,16 +1,18 @@
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+config = MainConfig.instance()
+
 
 class RoutingProxyServiceVariables:
     def __init__(self):
-        self.RoutingProxySubscriberPort = MainConfig.RoutingProxySubscriberPort
-        self.RoutingProxySubscriberIP = MainConfig.RoutingProxySubscriberIP
+        self.RoutingProxySubscriberPort = config.RoutingProxySubscriberPort
+        self.RoutingProxySubscriberIP = config.RoutingProxySubscriberIP
         self.RoutingProxySubscriberProtocol = "tcp"
-        self.RoutingProxyPublisherPort = MainConfig.RoutingProxyPublisherPort
-        self.RoutingProxyPublisherIP = MainConfig.RoutingProxyPublisherIP
+        self.RoutingProxyPublisherPort = config.RoutingProxyPublisherPort
+        self.RoutingProxyPublisherIP = config.RoutingProxyPublisherIP
         self.RoutingProxyPublisherProtocol = "tcp"
-        self.RoutingProxyRequestServerPort = MainConfig.RoutingProxyRequestServerPort
-        self.RoutingProxyRequestServerIP = MainConfig.RoutingProxyRequestServerIP
+        self.RoutingProxyRequestServerPort = config.RoutingProxyRequestServerPort
+        self.RoutingProxyRequestServerIP = config.RoutingProxyRequestServerIP
         self.RoutingProxyRequestServerProtocol = "tcp"
-        self.NumRoutingWorkers = MainConfig.NumRoutingWorkers
+        self.NumRoutingWorkers = config.NumRoutingWorkers
         self.RoutingProxyServiceStatus = ""

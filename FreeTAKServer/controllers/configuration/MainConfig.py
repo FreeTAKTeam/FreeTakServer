@@ -6,12 +6,14 @@ from string import ascii_letters, digits, punctuation
 from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
-FTS_VERSION = 'FreeTAKServer-1.9.9.11 Public'
-API_VERSION = '1.9.5'
+
+FTS_VERSION = "FreeTAKServer-1.9.9.12 Public"
+API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
-PYTHON_VERSION = 'python3.8'
-USERPATH = '/usr/local/lib/'
-MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
+PYTHON_VERSION = "python3.8"
+USERPATH = "/usr/local/lib/"
+MAINPATH = rf"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer"
+
 
 class MainConfig:
     """
@@ -115,10 +117,42 @@ class MainConfig:
         },
         "DataBaseType": {"default": "SQLite", "type": str},
         # location to backup client packages
-        'clientPackages': {'default': Path(fr'{MAINPATH}/certs/clientPackages'), 'type': str},
-        # path to the config yaml file
-        'yaml_path': {'default': r'/opt/FTSConfig.yaml', 'type': str},
-        'ip': {'default': _ip, 'type': str},
+        "ClientPackages": {
+            "default": Path(rf"{MAINPATH}/certs/clientPackages"),
+            "type": str,
+        },
+        "CoreComponentsPath": {
+            "default": Path(rf"{MAINPATH}/components/core"),
+            "type": str,
+        },
+        "CoreComponentsImportRoot": {
+            "default": "FreeTAKServer.components.core",
+            "type": str,
+        },
+        "ExternalComponentsPath": {
+            "default": Path(rf"{MAINPATH}/components/extended"),
+            "type": str,
+        },
+        "ExternalComponentsImportRoot": {
+            "default": "FreeTAKServer.components.extended",
+            "type": str,
+        },
+        # the number of routing workers to use
+        "NumRoutingWorkers": {"default": 3, "type": int},
+        # port to subscribe to requests by the routing proxy
+        "RoutingProxySubscriberPort": {"default": 19030, "type": int},
+        # port to publish responses by the routing proxy
+        "RoutingProxyPublisherPort": {"default": 19032, "type": int},
+        # port to send requests from the routing proxy to the routing workers
+        "RoutingProxyRequestServerPort": {"default": 19031, "type": int},
+        # ip to subscribe to requests by the routing proxy
+        "RoutingProxySubscriberIP": {"default": "127.0.0.1", "type": str},
+        # ip to publish responses by the routing proxy
+        "RoutingProxyPublisherIP": {"default": "127.0.0.1", "type": str},
+        # port to send requests from the routing proxy to the routing workers
+        "RoutingProxyRequestServerIP": {"default": "127.0.0.1", "type": str},
+        "yaml_path": {"default": r"/opt/FTSConfig.yaml", "type": str},
+        "ip": {"default": _ip, "type": str},
     }
 
     # This structure maps environmental vars to config vars
@@ -385,4 +419,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = True
+    first_start = False
