@@ -67,7 +67,13 @@ class ClientReceptionHandler:
                     sock.settimeout(0.001)
                     try:
                         xmlstring = self.recv_until(sock).decode()
+<<<<<<< HEAD
+                        if xmlstring == b'' or xmlstring == '' or xmlstring is None: 
+||||||| 7b0b0c4
+                        if xmlstring == b'' or xmlstring is None: 
+=======
                         if xmlstring == b'' or xmlstring is None:
+>>>>>>> refs/rewritten/master-2
                             self.returnReceivedData(client, b'', queue)
                             logger.debug("empty string sent, standard disconnect")
                             continue

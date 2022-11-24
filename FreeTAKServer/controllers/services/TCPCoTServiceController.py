@@ -5,7 +5,10 @@ from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.TCPSocketController import TCPSocketController
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 import os
+from digitalpy.core.impl.default_factory import DefaultFactory
+from digitalpy.config.impl.inifile_configuration import InifileConfiguration
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
@@ -42,6 +45,14 @@ class TCPCoTServiceController(Orchestrator):
         clientDataRecvPipe,
     ):
         try:
+            # configure the object factory with the passed factory instance
+            ObjectFactory.configure(factory)
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            # subscribe to responses originating from this controller
+            actionmapper.add_topic(
+                f"/routing/response/{self.__class__.__name__.lower()}"
+            )
+
             self.logger = logger
             self.dbController = DatabaseController()
             # self.clear_user_table()

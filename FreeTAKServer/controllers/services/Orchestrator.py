@@ -12,6 +12,7 @@ from asyncio import Queue
 import threading
 import time
 import traceback
+from lxml import etree
 
 from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.controllers.ClientInformationController import (
@@ -286,6 +287,7 @@ class Orchestrator(ABC):
             )
 
             clientPipe = None
+
             self.logger.info(loggingConstants.CLIENTCONNECTED)
 
             # Instantiate the client object
@@ -382,8 +384,12 @@ class Orchestrator(ABC):
         # TODO add proper exception handling
         # Get socket info from client object
         try:
-            if hasattr(client_information, "clientInformation"):
-                client_information = client_information.clientInformation
+            if isinstance(client_information, str):
+                client_information = self.clientInformationQueue[client_information][1]
+            elif isinstance(client_information, RawCoT):
+                client_information = self.clientInformationQueue[
+                    client_information.clientInformation
+                ][1]
             sock = self.clientInformationQueue[client_information.user_id][0]
         except Exception as e:
             self.logger.critical(
@@ -506,7 +512,9 @@ class Orchestrator(ABC):
             if isinstance(data, int):
                 return None
             else:
-                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data)
+                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(
+                    data, self.clientInformationQueue
+                )
                 handler = getattr(self, cot[0])
                 output = handler(cot[1])
                 output.clientInformation = self.clientInformationQueue[
@@ -681,6 +689,9 @@ class Orchestrator(ABC):
                         )
                         pass
                     try:
+                        # 100 is an arbitrary number of cots to receive from other
+                        # services to prevent the process from getting stuck receiving data from
+                        # other services
                         for x in range(100):
                             if not CoTSharePipe.empty():
 
@@ -694,6 +705,14 @@ class Orchestrator(ABC):
                             + str(e)
                         )
                         pass
+
+                    try:
+                        self.broadcast_component_responses()
+                    except Exception as e:
+                        self.logger.error(
+                            "exception broadcasting component responses " + str(e)
+                        )
+
                 else:
                     self.stop()
                     break
@@ -830,7 +849,7 @@ class Orchestrator(ABC):
                 return None
 
             CoTOutput = self.monitor_raw_cot(receive_connection_output)
-            if CoTOutput != -1 and CoTOutput != None:
+            if CoTOutput != -1 and CoTOutput != None and CoTOutput != 1:
                 self.sent_message_count += 1
                 output = SendDataController().sendDataInQueue(
                     CoTOutput, CoTOutput, self.clientInformationQueue, self.CoTSharePipe

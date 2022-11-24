@@ -1,3 +1,4 @@
+from digitalpy.core.object_factory import ObjectFactory
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
@@ -36,6 +37,12 @@ class SSLCoTServiceController(Orchestrator):
         clientDataRecvPipe,
     ):
         try:
+            # configure the object factory with the passed factory instance
+            ObjectFactory.configure(factory)
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            # subscribe to responses originating from this controller
+            actionmapper.add_topic(f"/routing/response/{self.__class__.__name__}")
+
             self.logger = logger
             self.dbController = DatabaseController()
             print("ssl cot service starting")

@@ -7,6 +7,7 @@
 # Original author: Natha Paquette
 # 
 #######################################################
+import asyncio
 import socket
 import logging
 import logging.handlers
@@ -68,22 +69,28 @@ class ReceiveConnections:
     def listen(self, sock, sslstatus=False):
         # logger = CreateLoggerController("ReceiveConnections").getLogger()
         # listen for client connections
-        sock.listen(1000)
+        sock.listen(ReceiveConnectionsConstants().LISTEN_COUNT)
         try:
             # establish the socket variables
             if sslstatus == True:
-                socket.setdefaulttimeout(60)
-                sock.settimeout(60)
+                socket.setdefaulttimeout(ReceiveConnectionsConstants().SSL_SOCK_TIMEOUT)
+                sock.settimeout(ReceiveConnectionsConstants().SSL_SOCK_TIMEOUT)
             # logger.debug('receive connection started')
             try:
                 client, address = sock.accept()
                 if sslstatus == True:
-                    client = SSLSocketController().wrap_client_socket(client)
+                    client = asyncio.run(asyncio.wait_for(SSLSocketController().wrap_client_socket(client), timeout=ReceiveConnectionsConstants().WRAP_SSL_TIMEOUT))
             except ssl.SSLError as e:
                 print(e)
                 client.close()
                 logger.warning('ssl error thrown in connection attempt ' + str(e))
                 return -1
+
+            except asyncio.TimeoutError as e:
+                client.close()
+                logger.warning('timeout error thrown in connection attempt '+str(e))
+                return -1
+
             if sslstatus == True:
                 logger.info('client connected over ssl ' + str(address) + ' ' + str(time.time()))
             # wait to receive client
@@ -93,10 +100,13 @@ class ReceiveConnections:
                 try:
                     events = self.receive_connection_data(client=client)
                 except Exception as e:
+                    client.close()
+                    logger.warning("receiving connection data from client failed with exception "+str(e))
                     return -1
+            # TODO: move out to separate function
             if events == TEST_SUCCESS:
                 client.send(b'success')
-            client.settimeout(0)
+            client.settimeout(0) # set the socket to non blocking
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
             # establish the socket array containing important information about the client
             raw_connection_information = self.instantiate_client_object(address, client, events)
@@ -105,14 +115,22 @@ class ReceiveConnections:
                 if socket is not None and raw_connection_information.xmlString != b'':
                     return raw_connection_information
                 else:
+                    logger.warning("final socket entry is invalid")
+                    client.close()
                     return -1
             except Exception as e:
+                client.close()
                 logger.warning('exception in returning data ' + str(e))
                 return -1
 
         except Exception as e:
-            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR + str(e))
-            return -1
+            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR)
+            try:
+                client.close()
+            except Exception as e:
+                pass
+            finally:
+                return -1
 
     def instantiate_client_object(self, address, client, events):
         raw_connection_information = sat()

@@ -1,8 +1,9 @@
+import glob
 from setuptools import find_packages, setup
 from os import path
 
 this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'README.md')) as f:
+with open(path.join(this_directory, "README.md")) as f:
     long_description = f.read()
 setup(
     name='FreeTAKServer',
@@ -11,12 +12,13 @@ setup(
     license='EPL-2.0',
     description='An open source server for the TAK family of applications.',
     long_description=long_description,
-    long_description_content_type='text/markdown',
-    author='FreeTAKTeam',
-    author_email='FreeTakTeam@gmail.com',
-    url='https://github.com/FreeTAKTeam/FreeTakServer',
-    download_url='https://github.com/FreeTAKTeam/FreeTakServer/releases',
-    keywords=['TAK', 'OPENSOURCE'],
+    long_description_content_type="text/markdown",
+    author="FreeTAKTeam",
+    author_email="FreeTakTeam@gmail.com",
+    url="https://github.com/FreeTAKTeam/FreeTakServer",
+    download_url="https://github.com/FreeTAKTeam/FreeTakServer/releases",
+    keywords=["TAK", "OPENSOURCE"],
+    include_package_data=True,
     install_requires=[
         'click==8.0.4',
         'colorama==0.4.4',
@@ -35,7 +37,7 @@ setup(
         'geopy==2.2.0',
         'greenlet==2.0.0',
         'itsdangerous==2.0.1',
-        'testresources==2.0.1', 
+        'testresources==2.0.1',
         'Jinja2==2.11.2',
         'lxml==4.9.1',
         'MarkupSafe==2.0.1',
@@ -58,6 +60,9 @@ setup(
         'qrcode==7.3.1',
         'pillow==9.1.1',
         'asyncio==3.4.3',
+        'xmltodict',
+        'pyzmq',
+        'digitalpy'
     ],
     extras_require = {
         'ui': [
@@ -70,10 +75,10 @@ setup(
         ]
     },
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)',
-        'Programming Language :: Python :: 3.8',
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Build Tools",
+        "License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)",
+        "Programming Language :: Python :: 3.8",
     ],
 )
