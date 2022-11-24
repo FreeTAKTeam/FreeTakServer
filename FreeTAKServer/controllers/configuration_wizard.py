@@ -43,7 +43,7 @@ def ask_user_for_config():
     if use_yaml == "yes":
         yaml_path = get_user_input(question="where would you like to save the yaml config", default=config.yaml_path)
         yaml_config = yaml.load(default_yaml_file)
-        ip = get_user_input(question="enter ip", default= config.ip)
+        ip = get_user_input(question="enter ip", default=config.UserConnectionIP)
         add_to_config(data=ip, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
         add_to_config(data=ip, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
         while True:

@@ -8,8 +8,9 @@ from string import ascii_letters, digits, punctuation
 from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
-FTS_VERSION = "FreeTAKServer-1.9.10 Public"
-API_VERSION = "1.9.5"
+
+FTS_VERSION = 'FreeTAKServer-1.9.9.12 Public'
+API_VERSION = '1.9.5'
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
 USERPATH = "/usr/local/lib/"
@@ -152,6 +153,8 @@ class MainConfig:
         "RoutingProxyPublisherIP": {"default": "127.0.0.1", "type": str},
         # port to send requests from the routing proxy to the routing workers
         "RoutingProxyRequestServerIP": {"default": "127.0.0.1", "type": str},
+        'yaml_path': {'default': r'/opt/FTSConfig.yaml', 'type': str},
+        'ip': {'default': _ip, 'type': str},
     }
 
     # This structure maps environmental vars to config vars
@@ -357,7 +360,7 @@ class MainConfig:
         for sect in MainConfig._yaml_keys:
             if sect in yamlConfig:
                 for attr, var_name in MainConfig._yaml_keys[sect].items():
-                    if attr in yamlConfig[sect]:
+                    if yamlConfig[sect] is not None and attr in yamlConfig[sect]:
                         # found a setting we can update the config
                         self.set(var_name, value=yamlConfig[sect][attr])
 
