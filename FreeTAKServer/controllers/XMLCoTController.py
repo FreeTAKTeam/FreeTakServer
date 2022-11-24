@@ -34,7 +34,17 @@ class XMLCoTController:
     def __init__(self, logger=logger):
         self.logger = logger
 
+    def serialize_node(self, node) -> str:
+        action_mapper = ObjectFactory.get_instance("syncactionmapper")
+        request = ObjectFactory.get_instance("request")
+        response = ObjectFactory.get_instance("response")
+        request.set_value("node", node)
+        request.set_action("NodeToXML")
+        action_mapper.process_action(request, response)
+        return response.get_value("message")
+
     def determineCoTGeneral(self, data, client_information_queue):
+
         # this will establish the CoTs general type
         if data.type == "RawConnectionInformation":
             # this handels the event of a connection CoT
@@ -77,9 +87,6 @@ class XMLCoTController:
             actionmapper = ObjectFactory.get_instance("syncactionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response)
-
-            # retrieve the human readable type and set it as the data dictionary type
-            data_dict["event"]["@type"] = response.get_value("human_readable_type")
 
             # handle the case where the human readable type is not registered and there is no specific
             # component meant to handle the cot type

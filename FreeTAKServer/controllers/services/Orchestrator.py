@@ -51,6 +51,8 @@ loggingConstants = LoggingConstants()
 
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 
+NODE_TO_XML = "NodeToXML"
+GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
 # MAJOR TODO: Make explicit exception classes!!!
 
 
@@ -518,7 +520,7 @@ class Orchestrator(ABC):
         # instantiate and define the request
         request = ObjectFactory.get_new_instance("request")
         request.set_format("pickled")
-        request.set_action(cot.data_dict["type"])
+        request.set_action(cot.data_dict["event"]["@type"])
         request.set_context("XML")
         request.set_sender(self.__class__.__name__.lower())
         request.set_value("dictionary", cot.data_dict)
@@ -535,6 +537,42 @@ class Orchestrator(ABC):
         # one is returned so that the message is ignored and can be processed later once the
         # response is received by the component receiver
         return 1
+
+    def convert_to_xml(self, model_object: Node) -> str:
+        """call the domain component to convert the model object to xml
+        Args:
+            model_object (Node): the model object to convert it's xml representation
+
+        Returns:
+            str: xml string representation of the model object
+        """
+        # TODO: this should probably be moved out to a separate controller but
+        # in the mean time while we refactor the code base this is an acceptable
+        # solution to keep things logically seperated
+        # get a sync action mapper
+        sync_action_mapper = ObjectFactory.get_instance("syncactionmapper")
+
+        # get the machine readable type of the model object
+        request = ObjectFactory.get_instance("request")
+        response = ObjectFactory.get_instance("response")
+
+        request.set_action(GET_MACHINE_READABLE_TYPE)
+        request.set_value("human_readable_type", model_object.type)
+
+        sync_action_mapper.process_action(request, response)
+
+        model_object.type = response.get_value("machine_readable_type")
+
+        # convert the model object to xml
+        request = ObjectFactory.get_instance("request")
+        response = ObjectFactory.get_instance("response")
+
+        request.set_action(NODE_TO_XML)
+        request.set_value("node", model_object)
+
+        sync_action_mapper.process_action(request, response)
+
+        return response.get_value("message")
 
     def component_receiver(self):
         """this method is responsible for waiting for the response, enabling
@@ -596,9 +634,9 @@ class Orchestrator(ABC):
                     cot_object = SendOther()
                     cot_object.modelObject = model_object
                     # TODO: decide where the serialization should be preformed.
-                    # for now it's preformed within the actions called by the routing worker
-                    # to reduce the cpu consumption in the current process.
-                    cot_object.xmlString = response.get_value("serialized_message")
+                    # for now it's preformed by whatever process is receiving the data
+                    # in this case using the convert_to_xml method.
+                    cot_object.xmlString = self.convert_to_xml(model_object)
 
                     SendDataController().sendDataInQueue(
                         sender,
