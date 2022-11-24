@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
 
 class FTSProtocolObject(ABC):
-    pass
+    def __init__(self):
+        pass

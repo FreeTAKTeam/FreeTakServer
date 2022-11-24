@@ -12,6 +12,7 @@ from asyncio import Queue
 import threading
 import time
 import traceback
+from lxml import etree
 
 from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.controllers.ClientInformationController import (
@@ -20,16 +21,19 @@ from FreeTAKServer.controllers.ClientInformationController import (
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
     DatabaseController,
 )
+
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.ReceiveConnectionsProcessController import (
     ReceiveConnectionsProcessController,
 )
+
 from FreeTAKServer.controllers.SendDataController import SendDataController
 from FreeTAKServer.controllers.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+
 from FreeTAKServer.model.RawCoT import RawCoT
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
     OrchestratorConstants,
@@ -171,7 +175,6 @@ class Orchestrator(ABC):
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
                 import copy
-
                 # TODO implement blocking...
                 self.clientDataPipe.put(["get", self.connection_type, self.openSockets])
                 user_dict = self.clientDataRecvPipe.get(timeout=10000)
@@ -286,6 +289,7 @@ class Orchestrator(ABC):
             )
 
             clientPipe = None
+
             self.logger.info(loggingConstants.CLIENTCONNECTED)
 
             # Instantiate the client object
@@ -303,7 +307,6 @@ class Orchestrator(ABC):
             # TODO remove or handle better
             if not self.checkOutput(clientInformation):
                 raise Exception("Error in the creation of client information")
-
             self.openSockets += 1
             # breaks ssl
             try:
@@ -382,8 +385,12 @@ class Orchestrator(ABC):
         # TODO add proper exception handling
         # Get socket info from client object
         try:
-            if hasattr(client_information, "clientInformation"):
-                client_information = client_information.clientInformation
+            if isinstance(client_information, str):
+                client_information = self.clientInformationQueue[client_information][1]
+            elif isinstance(client_information, RawCoT):
+                client_information = self.clientInformationQueue[
+                    client_information.clientInformation
+                ][1]
             sock = self.clientInformationQueue[client_information.user_id][0]
         except Exception as e:
             self.logger.critical(
@@ -488,10 +495,121 @@ class Orchestrator(ABC):
             sock.close()
         except Exception as e:
             self.logger.error(
-                "Error closing socket in client disconnection "
+                "error closing socket in client disconnection "
                 + str(e)
                 + "\n".join(traceback.format_stack())
             )
+
+    def component_handler(self, cot):
+        """this method is responsible for handling cases where the cot sent should
+        be handled (parsed and manipulated) by a specific component it is
+        responsible for calling the routing (via the async action mapper)
+        of the CoT data"""
+        if not hasattr(cot, "xmlString"):
+            raise ValueError("cot missing required attribute 'xmlString'")
+
+        request = ObjectFactory.get_new_instance("request")
+        # must get a new instance of the async action mapper for each request
+        # to prevent run conditions and to prevent responses going to the wrong
+        # callers
+        actionmapper = ObjectFactory.get_instance("actionMapper")
+        response = ObjectFactory.get_new_instance("response")
+
+        # instantiate and define the request
+        request = ObjectFactory.get_new_instance("request")
+        request.set_format("pickled")
+        request.set_action(cot.data_dict["type"])
+        request.set_context("XML")
+        request.set_sender(self.__class__.__name__.lower())
+        request.set_value("dictionary", cot.data_dict)
+
+        # instantiate and define the response
+        response = ObjectFactory.get_new_instance("response")
+        response.set_format("pickled")
+
+        # final request for the actual cot but listener is not returned because
+        # it should be handled by the main loop which listens for all responses
+        # with a request source of Orchestrator
+        actionmapper.process_action(request, response, return_listener=False)
+
+        # one is returned so that the message is ignored and can be processed later once the
+        # response is received by the component receiver
+        return 1
+
+    def component_receiver(self):
+        """this method is responsible for waiting for the response, enabling
+        the response to be sent by the main process responsible for sending
+        CoT's. This handler simply returns an empty list in the case that there is no
+        data to receive however if data is available from the /routing/response/
+        topic it will be received parsed and returned so that it might be sent to
+        all clients by the main loop
+        """
+        # instantiate the action mapper
+        actionmapper = ObjectFactory.get_instance("actionMapper")
+        # get the responses and more specifically, their model objects
+        responses = actionmapper.get_responses()
+        return responses
+
+    def broadcast_component_responses(self):
+        """this method is responsible for broadcasting the responses from
+        the routing proxy, this method is largely encapsulated and essentially
+        just needs to be called and forgotten, it retrieves the responses
+        through the component_receiver and converts the response into
+        a format that cn be accepted by the SendDataController.
+        """
+
+        # TODO: This is bad practice but I didn't want to include this import
+        # at the beginning of the file so it's going to be here until we work
+        # out a way to negate the requirement of the SpecificCoT class or
+        # we can include it's instantiation during the component processing.
+        from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
+
+        # get the responses from the routing proxy
+        responses = self.component_receiver()
+
+        for response in responses:
+            try:
+                # get the sender of the initial cot data
+                sender = response.get_value("sender")
+                if isinstance(response.get_value("model_object"), list):
+                    for model_object in response.get_value("model_object"):
+                        # define the specific cot object
+                        cot_object = SendOther()
+                        cot_object.modelObject = model_object
+                        # TODO: decide where the serialization should be preformed.
+                        # for now it's preformed within the actions called by the routing worker
+                        # to reduce the cpu consumption in the current process.
+                        cot_object.xmlString = response.get_value(
+                            "serialized_message"
+                        ).pop()
+                        SendDataController().sendDataInQueue(
+                            sender,
+                            cot_object,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
+                            self.clientInformationQueue,
+                            self.CoTSharePipe,
+                        )
+                else:
+                    # get the model object from the response
+                    model_object = response.get_value("model_object")
+
+                    # define the specific cot object
+                    cot_object = SendOther()
+                    cot_object.modelObject = model_object
+                    # TODO: decide where the serialization should be preformed.
+                    # for now it's preformed within the actions called by the routing worker
+                    # to reduce the cpu consumption in the current process.
+                    cot_object.xmlString = response.get_value("serialized_message")
+
+                    SendDataController().sendDataInQueue(
+                        sender,
+                        cot_object,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
+                        self.clientInformationQueue,
+                        self.CoTSharePipe,
+                    )
+            except Exception as e:
+                self.logger.error(
+                    f"there was an exception sending a single response\nsender:{sender}\nmodel_object:{model_object}\source:{response.get_source()}\ncontext:{response.get_context()}\naction:{response.get_action()}"
+                )
 
     def monitor_raw_cot(self, data: RawCoT) -> object:
         """this method takes as input a sent CoT and calls it's associated function
@@ -506,12 +624,15 @@ class Orchestrator(ABC):
             if isinstance(data, int):
                 return None
             else:
-                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data)
+                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(
+                    data, self.clientInformationQueue
+                )
                 handler = getattr(self, cot[0])
                 output = handler(cot[1])
-                output.clientInformation = self.clientInformationQueue[
-                    data.clientInformation
-                ][1]
+                if output != 1:  # when the process is a disconnect the output is 1
+                    output.clientInformation = self.clientInformationQueue[
+                        data.clientInformation
+                    ][1]
                 return output
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
@@ -569,7 +690,6 @@ class Orchestrator(ABC):
         self.ssl = ssl
         import datetime
         import time
-
         # TODO is this necessary
         receiveconntimeoutcount = datetime.datetime.now()
         lastprint = datetime.datetime.now()
@@ -681,6 +801,9 @@ class Orchestrator(ABC):
                         )
                         pass
                     try:
+                        # 100 is an arbitrary number of cots to receive from other
+                        # services to prevent the process from getting stuck receiving data from
+                        # other services
                         for x in range(100):
                             if not CoTSharePipe.empty():
 
@@ -694,6 +817,14 @@ class Orchestrator(ABC):
                             + str(e)
                         )
                         pass
+
+                    try:
+                        self.broadcast_component_responses()
+                    except Exception as e:
+                        self.logger.error(
+                            "exception broadcasting component responses " + str(e)
+                        )
+
                 else:
                     self.stop()
                     break
@@ -830,7 +961,7 @@ class Orchestrator(ABC):
                 return None
 
             CoTOutput = self.monitor_raw_cot(receive_connection_output)
-            if CoTOutput != -1 and CoTOutput != None:
+            if CoTOutput != -1 and CoTOutput != None and CoTOutput != 1:
                 self.sent_message_count += 1
                 output = SendDataController().sendDataInQueue(
                     CoTOutput, CoTOutput, self.clientInformationQueue, self.CoTSharePipe
