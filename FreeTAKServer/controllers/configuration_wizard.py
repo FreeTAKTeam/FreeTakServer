@@ -5,6 +5,10 @@ from ruamel.yaml import YAML
 yaml = YAML()
 import pathlib
 
+# TODO  This code may have problems with the rewrite of MainConfig
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 # TODO: refactor this
 def get_user_input(*, question: str, default: str = None, options: list = None):
     input_string = question
@@ -37,16 +41,16 @@ def add_to_config(path: List[str], data: str, source: dict):
 def ask_user_for_config():
     use_yaml = get_user_input(question="would you like to use a yaml config file, \n if yes you will be prompted for further configuration options", default="yes")
     if use_yaml == "yes":
-        yaml_path = get_user_input(question="where would you like to save the yaml config", default=MainConfig.yaml_path)
+        yaml_path = get_user_input(question="where would you like to save the yaml config", default=config.yaml_path)
         yaml_config = yaml.load(default_yaml_file)
-        ip = get_user_input(question="enter ip", default= MainConfig.ip)
+        ip = get_user_input(question="enter ip", default=config.UserConnectionIP)
         add_to_config(data=ip, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
         add_to_config(data=ip, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
         while True:
             database = get_user_input(question="enter the preferred database type (MySQL is highly experimental if you're not sure leave default)", default="SQLite")
 
             if database == "SQLite":
-                database_path = get_user_input(question="enter the preferred database path", default=MainConfig.DBFilePath)
+                database_path = get_user_input(question="enter the preferred database path", default=config.DBFilePath)
                 break
             elif database == "MySQL":
                 username = get_user_input(question="please enter MySQL username")
@@ -54,17 +58,17 @@ def ask_user_for_config():
                 db_ip = get_user_input(question="please enter MySQL server IP")
                 db_name = get_user_input(question="please enter MySQL DataBase name")
                 database_path = f"{username}:{password}@{db_ip}/{db_name}"
-                MainConfig.DataBaseType = "MySQL"
+                config.DataBaseType = "MySQL"
                 add_to_config(data=database, path=["System", "FTS_DATABASE_TYPE"], source=yaml_config)
                 break
             else:
                 print('invalid database type')
-        MainConfig.DBFilePath = database_path
+        config.DBFilePath = database_path
         add_to_config(data=database_path, path=["FileSystem", "FTS_DB_PATH"], source=yaml_config)
-        main_path = get_user_input(question="enter the preferred main_path", default=MainConfig.MainPath)
-        MainConfig.MainPath = main_path
+        main_path = get_user_input(question="enter the preferred main_path", default=config.MainPath)
+        config.MainPath = main_path
         add_to_config(path=["FileSystem", "FTS_MAINPATH"], data= main_path, source= yaml_config)
-        log_path = get_user_input(question="enter the preferred log file path", default=MainConfig.LogFilePath)
+        log_path = get_user_input(question="enter the preferred log file path", default=config.LogFilePath)
         add_to_config(path=["FileSystem", "FTS_LOGFILE_PATH"], data=log_path, source=yaml_config)
         with open(pathlib.PurePath(pathlib.Path(__file__).parent.resolve().parent,
                                    pathlib.Path("controllers/configuration/MainConfig.py")), mode="r+") as file:
@@ -74,13 +78,13 @@ def ask_user_for_config():
         with open(pathlib.PurePath(pathlib.Path(__file__).parent.resolve().parent,
                                    pathlib.Path("controllers/configuration/MainConfig.py")), mode="w+") as file:
             file.writelines(data)
-        if yaml_path != MainConfig.yaml_path:
+        if yaml_path != config.yaml_path:
             file_path = (pathlib.PurePath(pathlib.Path(__file__).parent.resolve().parent, pathlib.Path("controllers/configuration/MainConfig.py")))
             file = open(file_path, mode="r+")
             data = file.readlines()
             data[13] = f'    yaml_path = "{yaml_path}"'
             file.close()
-        MainConfig.yaml_path = yaml_path
+        config.yaml_path = yaml_path
         file = open(yaml_path, mode="w+")
         yaml.dump(yaml_config, file)
         file.close()
@@ -105,7 +109,7 @@ def ask_user_for_config():
 default_yaml_file = f"""
 System:
   #FTS_DATABASE_TYPE: SQLite
-  FTS_CONNECTION_MESSAGE: Welcome to FreeTAKServer {MainConfig.version}. The Parrot is not dead. It’s just resting
+  FTS_CONNECTION_MESSAGE: Welcome to FreeTAKServer {config.version}. The Parrot is not dead. It’s just resting
   #FTS_OPTIMIZE_API: True
   #FTS_MAINLOOP_DELAY: 1
 Addresses:

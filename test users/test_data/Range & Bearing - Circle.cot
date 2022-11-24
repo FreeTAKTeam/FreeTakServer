@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<event version='2.0' uid='9655dd2a-a8ee-4ca0-aae4-ac3c0522e5e5' type='u-r-b-c-c' time='2020-12-16T19:59:34.926Z' start='2020-12-16T19:59:34.926Z' stale='2020-12-17T19:59:34.926Z' how='h-e'>
+	<point lat='38.817590020847064' lon='-77.04678401125244' hae='9999999.0' ce='9999999.0' le='9999999.0' />
+	<detail>
+		<shape>
+			<ellipse major='468.29991497750774' minor='468.29991497750774' angle='360'/>
+			<link uid='9655dd2a-a8ee-4ca0-aae4-ac3c0522e5e5.Style' type='b-x-KmlStyle' relation='p-c'>
+				<Style>
+					<LineStyle>
+						<color>ffff0000</color>
+						<width>3.0</width>
+					</LineStyle>
+					<PolyStyle>
+						<color>00ff0000</color>
+					</PolyStyle>
+				</Style>
+			</link>
+		</shape>
+		<strokeColor value='-65536'/>
+		<strokeWeight value='3.0'/>
+		<fillColor value='16711680'/>
+		<contact callsign='R&amp;B Circle 1'/>
+		<remarks></remarks>
+		<archive/>
+		<labels_on value='true'/>
+		<precisionlocation altsrc='???'/>
+		<color argb='-65536'/>
+	</detail>
+</event>

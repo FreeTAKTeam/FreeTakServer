@@ -63,6 +63,9 @@ from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.model.User import User
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 loggingConstants = LoggingConstants(log_name="FTS_FTSCore")
 logger = CreateLoggerController(
     "FTS_FTSCore", logging_constants=loggingConstants
@@ -955,7 +958,7 @@ class FTS:
         try:
             # TODO: change 'add' 'remove' 'update' and 'get' to an enumeration
             try:
-                data = recv_pipe.get(timeout=MainConfig.MainLoopDelay / 1000)
+                data = recv_pipe.get(timeout=config.MainLoopDelay/1000)
             except queue.Empty:
                 return self.user_dict
             if data:
@@ -1135,9 +1138,7 @@ class FTS:
             try:
                 for service_name, pipe in self.FilterGroup.get_sources().items():
                     try:
-                        data = AddDataToCoTList().recv(
-                            pipe, timeout=MainConfig.MainLoopDelay / 1000
-                        )
+                        data = AddDataToCoTList().recv(pipe, timeout=config.MainLoopDelay / 1000)
                     except Exception as e:
                         logger.error("get pipe data failed " + str(e))
                         continue
@@ -1453,7 +1454,7 @@ if __name__ == "__main__":
             help="set to true if you would like to start UI on server startup",
         )
         args = parser.parse_args()
-        if MainConfig.first_start:
+        if config.first_start:
             ask_user_for_config()
         else:
             pass

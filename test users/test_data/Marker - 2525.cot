@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<event version='2.0' uid='a0c524c6-0422-4382-9981-e39d1dc71730' type='a-u-G' time='2020-12-16T19:59:34.910Z' start='2020-12-16T19:59:34.910Z' stale='2021-01-02T20:40:03.838Z' how='h-g-i-g-o'>
+	<point lat='38.856650047254725' lon='-77.06364199776728' hae='9999999.0' ce='9999999.0' le='9999999.0' />
+	<detail>
+		<status readiness='true'/>
+		<archive/>
+		<link uid='ANDROID-589520ccfcd20f01' production_time='2020-12-16T19:50:57.629Z' type='a-f-G-U-C' parent_callsign='HOPE' relation='p-p'/>
+		<contact callsign='U.16.135057'/>
+		<remarks></remarks>
+		<archive/>
+		<color argb='-1'/>
+		<precisionlocation altsrc='???'/>
+		<usericon iconsetpath='COT_MAPPING_2525B/a-u/a-u-G'/>
+	</detail>
+</event>

@@ -157,26 +157,3 @@ class FederatedCoTController:
                 FTSSetter(protoObjectValue)
 
         return ftsobject
-
-
-if __name__ == "__main__":
-    ftsobj = Event.FederatedCoT()
-
-    msga = fig_pb2.FederatedEvent()
-    geo = msga.event
-    geo.sendTime = 1
-    geo.startTime = 2
-    geo.staleTime = 3
-    geo.lat = 4
-    geo.lon = 5
-    geo.hae = 6
-    geo.ce = 7
-    geo.le = 8
-    geo.uid = '9'
-    geo.type = '10'
-    geo.coordSource = '11'
-    geo.other = '<detail/>'
-
-    new = FederatedCoTController().serialize_main_contentv1(msga, ftsobj)
-    ol = FederatedCoTController().serialize_from_FTS_modelv1(fig_pb2.FederatedEvent(), new)
-
