@@ -29,7 +29,7 @@ class DictToNodeController(Controller):
                 )
                 self.response.set_value(
                     "model_object",
-                    self.serialize(dictionary[object_class_name], model_object),
+                    self.serialize(dictionary[object_class_name.lower()], model_object),
                 )
                 span.add_event("serialization completed successfully")
             except Exception as ex:
