@@ -6,11 +6,13 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md")) as f:
     long_description = f.read()
 setup(
-    name='FreeTAKServer',
-    packages=find_packages(include = ['FreeTAKServer', 'FreeTAKServer.*']),
-    version='1.9.9.11',
-    license='EPL-2.0',
-    description='An open source server for the TAK family of applications.',
+    name="FreeTAKServer",
+    packages=find_packages(
+        include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini", "*.conf"]
+    ),
+    version='1.9.9.12',
+    license="EPL-2.0",
+    description="An open source server for the TAK family of applications.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="FreeTAKTeam",
