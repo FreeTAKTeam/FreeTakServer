@@ -5,8 +5,13 @@ from pathlib import Path
 from string import ascii_letters, digits, punctuation
 from uuid import uuid4
 
-import yaml
-
+# the version information of the server (recommended to leave as default)
+FTS_VERSION = 'FreeTAKServer-1.9.9.11 Public'
+API_VERSION = '1.9.5'
+# TODO Need to find a better way to determine python version at runtime
+PYTHON_VERSION = 'python3.8'
+USERPATH = '/usr/local/lib/'
+MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
 
 class MainConfig:
     """
