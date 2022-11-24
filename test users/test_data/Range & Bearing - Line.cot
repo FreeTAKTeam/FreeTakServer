@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<event version='2.0' uid='58df2fcd-e33e-414f-a718-b18b50cd3137' type='u-rb-a' time='2020-12-16T19:59:34.925Z' start='2020-12-16T19:59:34.925Z' stale='2020-12-17T19:59:34.925Z' how='h-e'>
+	<point lat='38.82080657998482' lon='-77.05494586670942' hae='9999999.0' ce='9999999.0' le='9999999.0' />
+	<detail>
+		<range value='886.144457943895'/>
+		<bearing value='45.59655671674022'/>
+		<inclination value='0.0'/>
+		<rangeUnits value='1'/>
+		<bearingUnits value='0'/>
+		<northRef value='1'/>
+		<strokeColor value='-65536'/>
+		<strokeWeight value='3.0'/>
+		<contact callsign='R&amp;B 1'/>
+		<remarks></remarks>
+		<archive/>
+		<labels_on value='false'/>
+		<color value='-65536'/>
+	</detail>
+</event>

@@ -69,20 +69,3 @@ class Marti(FTSProtocolObject):
     def setdest(self, Dest=None):
         self.dest.append(DestObject.geochat())
         self.__index += 1
-
-
-if __name__ == "__main__":
-    from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
-    from defusedxml import ElementTree as etree
-
-    a = Marti.other()
-    b = etree.fromstring(b'<marti><dest callsign = "bbbb"/></marti>')
-    x = XMLCoTController().serialize_CoT_to_model(a, b)
-    y = x.getdest().callsign
-    print(a.__dict__)
-    M = DestObject()
-    M.setcallsign('13243432w')
-    a.setdest(M)
-    for x in a.dest:
-        f = a.getdest()
-    print('done')

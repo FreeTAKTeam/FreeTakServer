@@ -18,6 +18,7 @@ from multiprocessing import Process
 
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 
+ACTION_MAPPING_PATH = r"FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"
 
 class MockMessage:
     type = ""
@@ -26,7 +27,7 @@ class MockMessage:
 def setup_module(module):
     config = InifileConfiguration("")
     config.add_configuration(
-        r"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer\configuration\routing\action_mapping.ini"
+        ACTION_MAPPING_PATH
     )
 
     factory = DefaultFactory(config)
@@ -43,7 +44,7 @@ def setup_module(module):
 
     Domain(None, None, None, None).register(config)
 
-    XMLSerializer(None, None, None, None).register(config)
+    XmlSerializer(None, None, None, None).register(config)
 
     Emergency(None, None, None, None).register(config)
 

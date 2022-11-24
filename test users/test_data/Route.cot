@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<event version='2.0' uid='9017073e-5658-42e7-baa8-b98f3c9c1622' type='b-m-r' time='2020-12-16T19:59:34.914Z' start='2020-12-16T19:59:34.914Z' stale='2020-12-17T19:59:34.914Z' how='h-e'>
+	<point lat='0.0' lon='0.0' hae='9999999.0' ce='9999999.0' le='9999999.0' />
+	<detail>
+		<link uid='f3acf150-d75c-407d-be43-e401ab40fe74' callsign='Route 1 SP' type='b-m-p-w' point='38.84335305982451,-77.05440032542333' remarks='' relation='c'/>
+		<link uid='820ebf04-1300-4c3a-a368-d6f1e21a5ddb' callsign='' type='b-m-p-c' point='38.843641314210366,-77.04564214131744' remarks='' relation='c'/>
+		<link uid='2519b2ce-02f1-4d9b-b4b9-6697adf9c8e8' callsign='' type='b-m-p-c' point='38.84291220017555,-77.04409261643717' remarks='' relation='c'/>
+		<link uid='53788e1b-a9cb-4ce5-95da-73f06a65ceb8' callsign='' type='b-m-p-c' point='38.842996980877274,-77.04170095846979' remarks='' relation='c'/>
+		<link uid='bdb5bd8b-8557-4e8f-ae83-860294db13fc' callsign='' type='b-m-p-c' point='38.841301366842806,-77.04129673458799' remarks='' relation='c'/>
+		<link uid='34f3d30f-84e3-494c-9e8f-d4ffc2e48a15' callsign='' type='b-m-p-c' point='38.84111484929902,-77.03516600571386' remarks='' relation='c'/>
+		<link uid='6378f0c9-32ab-4d32-9339-97039e83f8f5' callsign='' type='b-m-p-c' point='38.84408217385933,-77.03531758966953' remarks='' relation='c'/>
+		<link uid='f6926af1-deec-44f4-ae06-46065c829887' callsign='CP1' type='b-m-p-w' point='38.84657472648999,-77.04057250013307' remarks='' relation='c'/>
+		<link uid='b8c0d16d-149b-4476-835d-7ba1cc78077f' callsign='' type='b-m-p-c' point='38.846744287893436,-77.04963385215032' remarks='' relation='c'/>
+		<link uid='af30287b-0686-48f4-82ea-eb1ef07f6892' callsign='' type='b-m-p-c' point='38.84671037561275,-77.05445085340857' remarks='' relation='c'/>
+		<link uid='9f43ce3a-64bc-4e0a-9ee0-f00f7d920826' callsign='CP2' type='b-m-p-w' point='38.85077984929546,-77.05451822405553' remarks='' relation='c'/>
+		<link uid='e3948985-057c-4186-a46b-f86e9b7527ab' callsign='' type='b-m-p-c' point='38.85042377034823,-77.04973490812077' remarks='' relation='c'/>
+		<link uid='091b1c0b-fbde-4072-8a98-404ca29663a3' callsign='VDO' type='b-m-p-w' point='38.84984726157651,-77.0410272520001' remarks='' relation='c'/>
+		<link_attr planningmethod='Infil' color='-1' method='Driving' prefix='CP' type='Vehicle' stroke='3' direction='Infil' routetype='Primary' order='Ascending Check Points'/>
+		<strokeColor value='-1'/>
+		<strokeWeight value='3.0'/>
+		<__routeinfo>
+			<__navcues/>
+		</__routeinfo>
+		<contact callsign='Route 1'/>
+		<remarks></remarks>
+		<archive/>
+		<labels_on value='false'/>
+		<color value='-1'/>
+	</detail>
+</event>

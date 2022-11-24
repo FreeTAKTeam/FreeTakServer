@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<event version="2.0"
+       uid="01d65514-55ff-11ed-b9fa-7f67b889a50a"
+       type="t-x-d-d"
+       how="h-g-i-g-o"
+       start="2022-10-27T13:55:26.688292Z"
+       time="2022-10-27T13:55:26.688141Z"
+       stale="2022-10-27T13:56:26.688306Z">
+	<detail>
+		<link uid="gvs_QARack1_1"
+		      relation="p-p"
+		      type="a-f-G-U-C"/>
+	</detail>
+	<point le="9999999.0"
+	       ce="9999999.0"
+	       hae="9999999.0"
+	       lon="0"
+	       lat="0"/>
+</event>

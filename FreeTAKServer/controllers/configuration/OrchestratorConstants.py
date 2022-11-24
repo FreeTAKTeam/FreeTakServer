@@ -1,10 +1,13 @@
 
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
+# Make a connection to the MainConfig object for all routines below
+config = MainConfig.instance()
+
 class OrchestratorConstants:
     def __init__(self):
         self.CoTIP = "0.0.0.0"
-        self.COTPORT = MainConfig.CoTServicePort
+        self.COTPORT = config.CoTServicePort
         self.APIPORTARG = '-APIPort'
         self.COTPORTARG = '-CoTPort'
         self.IPARG = "-IP"
@@ -18,4 +21,4 @@ class OrchestratorConstants:
         self.HEALTHCHECK = 'HealthCheck'
         self.LOCALHOST = '127.0.0.1'
 
-        self.DEFAULTCONNECTIONGEOCHATOBJ = MainConfig.ConnectionMessage
+        self.DEFAULTCONNECTIONGEOCHATOBJ = config.ConnectionMessage

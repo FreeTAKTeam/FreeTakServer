@@ -3,9 +3,10 @@ from logging.handlers import RotatingFileHandler
 import logging
 import os
 import sys
+
 loggingConstants = LoggingConstants()
 class CreateLoggerController:
-    def __init__(self, loggername, logging_constants = loggingConstants):
+    def __init__(self, loggername, logging_constants=loggingConstants):
         self.logger = logging.getLogger(loggername)
         self.logger.propagate = True
         log_format = logging.Formatter(logging_constants.LOGFORMAT)
