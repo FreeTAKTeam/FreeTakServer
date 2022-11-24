@@ -95,6 +95,9 @@ class MainConfig:
         'DataBaseType': {'default': "SQLite", 'type': str},
         # location to backup client packages
         'clientPackages': {'default': Path(fr'{MAINPATH}/certs/clientPackages'), 'type': str},
+        # path to the config yaml file
+        'yaml_path': {'default': r'/opt/FTSConfig.yaml', 'type': str},
+        'ip': {'default': _ip, 'type': str},
     }
 
     # This structure maps environmental vars to config vars
@@ -227,7 +230,7 @@ class MainConfig:
                 config_file = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
 
             # overlay the yaml config if found
-            if  os.path.exists(config_file):
+            if os.path.exists(config_file):
                 cls._instance.read_yaml_config(config_file)
 
             # finally overlay any configuration specified in the env
@@ -270,7 +273,7 @@ class MainConfig:
         for sect in MainConfig._yaml_keys:
             if sect in yamlConfig:
                 for attr, var_name in MainConfig._yaml_keys[sect].items():
-                    if attr in yamlConfig[sect]:
+                    if yamlConfig[sect] is not None and attr in yamlConfig[sect]:
                         # found a setting we can update the config
                         self.set(var_name, value=yamlConfig[sect][attr])
 
