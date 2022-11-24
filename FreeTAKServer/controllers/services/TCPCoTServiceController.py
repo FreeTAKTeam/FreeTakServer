@@ -9,14 +9,19 @@ import os
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
+    DatabaseController,
+)
 from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 from FreeTAKServer.model.TCPConnection import TCPConnection
 from FreeTAKServer.model.SpecificCoT.Presence import Presence
 
 loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
-logger = CreateLoggerController("FTS-TCP_CoT_Service", logging_constants=loggingConstants).getLogger()
+logger = CreateLoggerController(
+    "FTS-TCP_CoT_Service", logging_constants=loggingConstants
+).getLogger()
+
 
 class TCPCoTServiceController(Orchestrator):
     def __init__(self):
@@ -26,12 +31,21 @@ class TCPCoTServiceController(Orchestrator):
     def connection_type(self):
         return ConnectionTypes.TCP
 
-    def start(self, IP, CoTPort, Event, clientDataPipe, ReceiveConnectionKillSwitch, RestAPIPipe, clientDataRecvPipe):
+    def start(
+        self,
+        IP,
+        CoTPort,
+        Event,
+        clientDataPipe,
+        ReceiveConnectionKillSwitch,
+        RestAPIPipe,
+        clientDataRecvPipe,
+    ):
         try:
             self.logger = logger
             self.dbController = DatabaseController()
             # self.clear_user_table()
-            os.chdir('../../../')
+            os.chdir("../../../")
             # create socket controller
             self.TCPSocketController = TCPSocketController()
             self.TCPSocketController.changeIP(IP)
@@ -40,18 +54,30 @@ class TCPCoTServiceController(Orchestrator):
             pool = ThreadPool(processes=2)
             self.pool = pool
             self.clientDataRecvPipe = clientDataRecvPipe
-            clientData = pool.apply_async(ClientReceptionHandler().startup, (self.clientInformationQueue,))
+            clientData = pool.apply_async(
+                ClientReceptionHandler().startup, (self.clientInformationQueue,)
+            )
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
-            self.mainRunFunction(clientData, receiveConnection, sock, pool, Event, clientDataPipe,
-                                 ReceiveConnectionKillSwitch, RestAPIPipe)
+            self.mainRunFunction(
+                clientData,
+                receiveConnection,
+                sock,
+                pool,
+                Event,
+                clientDataPipe,
+                ReceiveConnectionKillSwitch,
+                RestAPIPipe,
+            )
         except Exception as e:
-            logger.error('there has been an exception in the start function '
-                         'of TCPCoTService ' + str(e))
+            logger.error(
+                "there has been an exception in the start function "
+                "of TCPCoTService " + str(e)
+            )
             return e
 
     def add_service_user(self, client_information: ClientInformation):
-        """ this method generates the presence and connection objects from the
+        """this method generates the presence and connection objects from the
         client_information parameter and sends it to
 
         :param client_information: this is the information of the client to be added
@@ -74,10 +100,17 @@ class TCPCoTServiceController(Orchestrator):
 
                 # Updating clientDataPipe
                 # TODO add blocking...
-                self.clientDataPipe.put(['add', presence_object, self.openSockets, self.connection_object])
-                self.logger.debug("client addition has been sent through queue " + str(client_information))
+                self.clientDataPipe.put(
+                    ["add", presence_object, self.openSockets, connection_object]
+                )
+                self.logger.debug(
+                    "client addition has been sent through queue "
+                    + str(client_information)
+                )
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as e:
-            self.logger.error("exception has been thrown adding client data from queue " + str(e))
+            self.logger.error(
+                "exception has been thrown adding client data from queue " + str(e)
+            )
             raise e
