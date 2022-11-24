@@ -8,6 +8,8 @@ from .configuration.type_constants import (
 )
 from . import base
 
+config = MainConfig.instance()
+
 
 class Type(DefaultFacade):
 
@@ -34,7 +36,7 @@ class Type(DefaultFacade):
             response=response,
             configuration=configuration,
             # log file path
-            log_file_path=MainConfig.LogFilePath,
+            log_file_path=config.LogFilePath,
             # the tracing provider used
             tracing_provider_instance=tracing_provider_instance,
             # the path to the manifest file

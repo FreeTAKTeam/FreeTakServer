@@ -9,12 +9,12 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = 'FreeTAKServer-1.9.9.12 Public'
-API_VERSION = '1.9.5'
+FTS_VERSION = "FreeTAKServer-1.9.9.12 Public"
+API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
 USERPATH = "/usr/local/lib/"
-MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
+MAINPATH = rf"C:\Users\natha\PycharmProjects\FreeTakServer\FreeTAKServer"
 
 
 class MainConfig:
@@ -153,8 +153,8 @@ class MainConfig:
         "RoutingProxyPublisherIP": {"default": "127.0.0.1", "type": str},
         # port to send requests from the routing proxy to the routing workers
         "RoutingProxyRequestServerIP": {"default": "127.0.0.1", "type": str},
-        'yaml_path': {'default': r'/opt/FTSConfig.yaml', 'type': str},
-        'ip': {'default': _ip, 'type': str},
+        "yaml_path": {"default": r"/opt/FTSConfig.yaml", "type": str},
+        "ip": {"default": _ip, "type": str},
     }
 
     # This structure maps environmental vars to config vars
@@ -421,4 +421,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = True
+    first_start = False
