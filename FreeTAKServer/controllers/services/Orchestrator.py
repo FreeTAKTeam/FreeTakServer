@@ -152,8 +152,13 @@ class Orchestrator(ABC):
                     "client update has been sent through queue "
                     + str(client_information)
                 )
-
+                # Add client info to queue
+                self.clientInformationQueue[client_information.modelObject.uid][
+                    1
+                ] = client_information
                 self.get_client_information()
+                # update the geo manager controller with the new client information
+                GeoManagerController.update_users(self.clientInformationQueue)
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as e:
@@ -341,7 +346,8 @@ class Orchestrator(ABC):
 
             # Add client info to queue
             self.clientInformationQueue[clientInformation.modelObject.uid] = [
-                clientInformation.socket
+                clientInformation.socket,
+                clientInformation,
             ]
             # update the geo manager controller with the new client information
             GeoManagerController.update_users(self.clientInformationQueue)
