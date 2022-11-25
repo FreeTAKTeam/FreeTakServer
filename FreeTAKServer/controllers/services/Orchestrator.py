@@ -431,6 +431,8 @@ class Orchestrator(ABC):
         # Removes the user id from client info queue
         try:
             del self.clientInformationQueue[client_information.user_id]
+            # update the geo manager controller with the new client information
+            GeoManagerController.update_users(self.clientInformationQueue)
         except Exception as e:
             self.logger.critical("client removal failed " + str(e))
 
