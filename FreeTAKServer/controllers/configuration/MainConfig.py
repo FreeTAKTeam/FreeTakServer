@@ -8,7 +8,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-1.9.9.13 Public"
+FTS_VERSION = "FreeTAKServer-1.9.9.14 Public"
 API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
@@ -47,6 +47,10 @@ class MainConfig:
         "OptimizeAPI": {"default": True, "type": bool},
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},
+        "UserPersistencePath": {
+            "default": Path("/opt/user_persistence.txt"),
+            "type": str,
+        },
         # number of milliseconds to wait between each iteration of main loop
         # decreasing will increase CPU usage and server performance
         # increasing will decrease CPU usage and server performance
