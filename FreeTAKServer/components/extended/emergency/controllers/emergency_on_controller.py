@@ -70,24 +70,31 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
     def retrieve_users(self) -> dict:
         """get the available users"""
-        with open(config.UserPersistencePath, "r") as f:
+        with open(config.UserPersistencePath, "rb") as f:
             return pickle.load(f)
 
     def add_user_to_marti(self, emergency: Event, user: Event):
         """create a new marti dest for the given user to the provided emergency"""
-        if not hasattr(emergency.detail, "marti") and not hasattr(
-            emergency.detail.marti, "marti"
-        ):
-            # TODO: this should be done through the domain facade, clarify with @brothercorvo on implementation
-            new_dest = dest(Configuration(ConfigurationEntry({})), None)
-            new_dest.callsign = user.contact.callsign
-            emergency.detail.marti.dest = new_dest
+        # TODO: this should be done through the domain facade, clarify with @brothercorvo on implementation
+        new_dest = dest(
+            Configuration({"dest": ConfigurationEntry(relationships={})}), None
+        )
+        new_dest.callsign = user.detail.contact.callsign
+        emergency.detail.marti.dest = new_dest
+
+    def get_model_object_from_user(self, user) -> Event:
+        if hasattr(user, "modelObject"):
+            return user.modelObject
+
+        elif hasattr(user, "m_presence"):
+            return user.m_presence.modelObject
 
     def filter_by_distance(self, emergency: Event):
         """filter who receives this emergency based on their distance from the emergency"""
         self.users = self.retrieve_users()
         for _, user_obj in self.users.items():
-            user_point = user_obj.modelObject.point
+            user_obj = self.get_model_object_from_user(user_obj)
+            user_point = user_obj.point
 
             # check that the distance between the user and the emergency is less than 10km
             # TODO: this hardcoded distance should be added to the business rules
@@ -98,7 +105,7 @@ class EmergencyOnController(DefaultBusinessRuleController):
                 ).km
                 < MAXIMUM_EMERGENCY_DISTANCE
             ):
-                self.add_user_to_marti(emergency, user_obj.modelObject)
+                self.add_user_to_marti(emergency, user_obj)
 
     def parse_emergency_on(self, config_loader, tracer: Tracer, **kwargs):
         """this method creates the model object outline and proceeds to pass
@@ -123,6 +130,9 @@ class EmergencyOnController(DefaultBusinessRuleController):
             response = self.execute_sub_action("CreateNode")
 
             self.request.set_value("model_object", response.get_value("model_object"))
+
+            # TODO: this should probably be moved out to a business rule call
+            self.filter_by_distance(response.get_value("model_object"))
 
             for key, value in response.get_values().items():
                 self.response.set_value(key, value)

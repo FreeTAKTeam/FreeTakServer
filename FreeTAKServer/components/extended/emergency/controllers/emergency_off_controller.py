@@ -72,5 +72,3 @@ class EmergencyOffController(DefaultBusinessRuleController):
 
             for key, value in response.get_values().items():
                 self.response.set_value(key, value)
-
-            self.request.get_value("logger").debug("emergency off parsed")
