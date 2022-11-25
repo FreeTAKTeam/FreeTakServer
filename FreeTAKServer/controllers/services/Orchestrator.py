@@ -17,6 +17,7 @@ from lxml import etree
 from digitalpy.model.node import Node
 from digitalpy.core.object_factory import ObjectFactory
 
+from FreeTAKServer.controllers.geo_manager_controller import GeoManagerController
 from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.controllers.ClientInformationController import (
     ClientInformationController,
@@ -342,6 +343,8 @@ class Orchestrator(ABC):
             self.clientInformationQueue[clientInformation.modelObject.uid] = [
                 clientInformation.socket
             ]
+            # update the geo manager controller with the new client information
+            GeoManagerController.update_users(self.clientInformationQueue)
             self.logger.debug("Client added")
 
             # Broadcast user in geochat

@@ -9,7 +9,7 @@ from digitalpy.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
 from digitalpy.telemetry.tracer import Tracer
-from digitalpy.model.load_configuration import Configuration, ConfigurationEntry, 
+from digitalpy.model.load_configuration import Configuration, ConfigurationEntry
 
 from FreeTAKServer.components.core.domain.domain._event import Event
 from FreeTAKServer.components.core.domain.domain._dest import dest
@@ -18,7 +18,6 @@ from ..configuration.emergency_constants import (
     EMERGENCY_ON_BUSINESS_RULES_PATH,
     EMERGENCY_ALERT,
     BASE_OBJECT_NAME,
-    USERS_PATH,
 )
 
 MAXIMUM_EMERGENCY_DISTANCE = 10
@@ -71,7 +70,7 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
     def retrieve_users(self) -> dict:
         """get the available users"""
-        with open(USERS_PATH, "r") as f:
+        with open(config.UserPersistencePath, "r") as f:
             return pickle.load(f)
 
     def add_user_to_marti(self, emergency: Event, user: Event):
@@ -79,8 +78,8 @@ class EmergencyOnController(DefaultBusinessRuleController):
         if not hasattr(emergency.detail, "marti") and not hasattr(
             emergency.detail.marti, "marti"
         ):
-            # TODO: this should probably be done through the domain facade, clarify with @brothercorvo on implementation
-            new_dest = dest(Configuration(), None)
+            # TODO: this should be done through the domain facade, clarify with @brothercorvo on implementation
+            new_dest = dest(Configuration(ConfigurationEntry({})), None)
             new_dest.callsign = user.contact.callsign
             emergency.detail.marti.dest = new_dest
 
