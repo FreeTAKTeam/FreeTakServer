@@ -8,7 +8,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-1.9.9.14 Public"
+FTS_VERSION = "FreeTAKServer-1.9.10.7 Public"
 API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
