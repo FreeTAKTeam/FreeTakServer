@@ -2,7 +2,6 @@ import os
 import re
 import yaml
 currentPath = os.path.dirname(os.path.abspath(__file__))
-from os.path import expanduser
 
 from pathlib import Path
 from string import ascii_letters, digits, punctuation
