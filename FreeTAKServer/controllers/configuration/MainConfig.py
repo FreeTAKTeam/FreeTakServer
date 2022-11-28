@@ -14,7 +14,7 @@ API_VERSION = '1.9.5'
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = 'python3.8'
 USERPATH = '/usr/local/lib/'
-PERSISTENCE_PATH = str(Path(expanduser("~"), '.fts'))
+PERSISTENCE_PATH = '/opt/fts/'
 MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
 
 class MainConfig:
@@ -34,6 +34,10 @@ class MainConfig:
         s.close()
     except:
         _ip = "0.0.0.0"
+
+    # create the persistence path if it doesn't exist
+    if not os.path.exists(PERSISTENCE_PATH):
+        os.mkdir(PERSISTENCE_PATH)
 
     _node_id = str(uuid4())
 
@@ -228,7 +232,7 @@ class MainConfig:
 
             # if config_file not specified, check env or use default location
             if config_file == None:
-                config_file = str(os.environ.get('FTS_CONFIG_PATH', '/opt/FTSConfig.yaml'))
+                config_file = str(os.environ.get('FTS_CONFIG_PATH', Path(PERSISTENCE_PATH, 'FTSConfig.yaml')))
 
             # overlay the yaml config if found
             if  os.path.exists(config_file):
