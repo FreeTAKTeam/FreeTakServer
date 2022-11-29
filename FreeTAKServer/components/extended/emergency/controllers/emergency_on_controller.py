@@ -18,9 +18,12 @@ from ..configuration.emergency_constants import (
     EMERGENCY_ON_BUSINESS_RULES_PATH,
     EMERGENCY_ALERT,
     BASE_OBJECT_NAME,
+    DEST_SCHEMA,
+    DEST_CLASS,
+    MAXIMUM_EMERGENCY_DISTANCE
 )
 
-MAXIMUM_EMERGENCY_DISTANCE = 10
+
 config = MainConfig.instance()
 
 
@@ -75,10 +78,11 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
     def add_user_to_marti(self, emergency: Event, user: Event):
         """create a new marti dest for the given user to the provided emergency"""
-        # TODO: this should be done through the domain facade, clarify with @brothercorvo on implementation
-        new_dest = dest(
-            Configuration({"dest": ConfigurationEntry(relationships={})}), None
-        )
+        self.request.set_value("object_class_name", DEST_CLASS)
+        configuration = self.request.get_value("config_loader").find_configuration(DEST_SCHEMA)
+
+        self.request.set_value("configuration", configuration)
+        new_dest = self.execute_sub_action("CreateNode").get_value("model_object")
         new_dest.callsign = user.detail.contact.callsign
         emergency.detail.marti.dest = new_dest
 
@@ -130,6 +134,8 @@ class EmergencyOnController(DefaultBusinessRuleController):
             response = self.execute_sub_action("CreateNode")
 
             self.request.set_value("model_object", response.get_value("model_object"))
+
+            response = self.execute_sub_action("DictToNode")
 
             # TODO: this should probably be moved out to a business rule call
             self.filter_by_distance(response.get_value("model_object"))

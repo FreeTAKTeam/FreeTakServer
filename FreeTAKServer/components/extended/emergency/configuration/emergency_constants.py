@@ -75,3 +75,9 @@ BASE_OBJECT_NAME = "Event"
 EMERGENCY_OFF = "emergency_delete"
 
 EMERGENCY_ALERT = "emergency_alert"
+
+DEST_SCHEMA = "dest_schema"
+
+DEST_CLASS = "dest"
+
+MAXIMUM_EMERGENCY_DISTANCE = 10
