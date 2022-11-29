@@ -1,6 +1,8 @@
 import os
-import random
 import re
+import yaml
+
+currentPath = os.path.dirname(os.path.abspath(__file__))
 from pathlib import Path
 from uuid import uuid4
 

@@ -1,3 +1,5 @@
+from digitalpy.core.object_factory import ObjectFactory
+import pathlib
 from asyncio import Queue
 import multiprocessing
 import threading
@@ -27,6 +29,9 @@ logger = CreateLoggerController(
 
 
 class TCPCoTServiceController(Orchestrator):
+    def component_processed(self, data):
+        return 1
+
     def __init__(self):
         super().__init__()
 

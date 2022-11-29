@@ -24,16 +24,19 @@ from FreeTAKServer.controllers.ClientInformationController import (
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
     DatabaseController,
 )
+
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.ReceiveConnectionsProcessController import (
     ReceiveConnectionsProcessController,
 )
+
 from FreeTAKServer.controllers.SendDataController import SendDataController
 from FreeTAKServer.controllers.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+
 from FreeTAKServer.model.RawCoT import RawCoT
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
     OrchestratorConstants,
@@ -51,6 +54,9 @@ loggingConstants = LoggingConstants()
 
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 
+
+NODE_TO_XML = "NodeToXML"
+GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
 # MAJOR TODO: Make explicit exception classes!!!
 
 
