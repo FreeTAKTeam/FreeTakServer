@@ -8,6 +8,9 @@ jobs:
   build:
     name: Docker Build
     runs-on: ubuntu-22.04
+    needs:
+      - lint
+      - test
     steps:
       - name: Publishing info
         run: |
