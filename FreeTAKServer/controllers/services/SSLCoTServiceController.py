@@ -35,6 +35,7 @@ class SSLCoTServiceController(Orchestrator):
         ReceiveConnectionKillSwitch,
         RestAPIPipe,
         clientDataRecvPipe,
+        factory,
     ):
         try:
             # configure the object factory with the passed factory instance
