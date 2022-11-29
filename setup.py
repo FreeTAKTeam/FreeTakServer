@@ -66,16 +66,6 @@ setup(
         'pyzmq',
         'digitalpy'
     ],
-    extras_require = {
-        'ui': [
-            'FreeTAKServer_UI'
-        ],
-        'dev': [
-            'pytak==5.4.1',
-            'pytest==7.2.0',
-            'pytest-asyncio==0.20.1'
-        ]
-    },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
