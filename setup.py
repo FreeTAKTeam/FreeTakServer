@@ -64,7 +64,7 @@ setup(
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
-        "digitalpy",
+        "digitalpy<=0.2.5.6",
     ],
     extras_require={
         "ui": ["FreeTAKServer_UI"],
