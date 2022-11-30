@@ -1,4 +1,4 @@
-from .DataPackageServer import FlaskFunctions, Path, dp_directory, os, app, eventlet, const
+from .DataPackageServer import FlaskFunctions, Path, os, app, eventlet, const, init_config
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
@@ -14,10 +14,7 @@ class TCPDataPackageService(FlaskFunctions):
             IP = ip
             HTTPPORT = port
             PIPE = pipe
-            # Make sure the data package directory exists
-            if not Path(dp_directory).exists():
-                app.logger.info(f"Creating directory at {str(dp_directory)}")
-                os.makedirs(str(dp_directory))
+            init_config()
             # Create the relevant database tables
             print(const.IP)
             print(HTTPPORT)

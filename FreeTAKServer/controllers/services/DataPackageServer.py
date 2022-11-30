@@ -28,7 +28,6 @@ from flask.logging import default_handler
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
 
-dbController = DatabaseController()
 
 loggingConstants = LoggingConstants(log_name="FTS-DataPackage_Service")
 logger = CreateLoggerController("FTS-DataPackage_Service", logging_constants=loggingConstants).getLogger()
@@ -53,18 +52,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 db = SQLAlchemy(app)
 # TODO: verify session life cycle in dbController doesnt break this logic
-dbController.session = db.session
-file_dir = os.path.dirname(os.path.realpath(__file__))
-dp_directory = config.DataPackageFilePath
-
-if not os.path.exists(config.ExCheckMainPath):
-    os.mkdir(config.ExCheckMainPath)
-
-if not os.path.exists(config.ExCheckChecklistFilePath):
-    os.mkdir(config.ExCheckChecklistFilePath)
-
-if not os.path.exists(config.ExCheckFilePath):
-    os.mkdir(config.ExCheckFilePath)
 # Set up logging
 """if not Path(log.LOGDIRECTORY).exists():
     print(f"Creating directory at {log.LOGDIRECTORY}")
@@ -86,6 +73,28 @@ file_handler.setLevel(logging.ERROR)
 # console_handler.setLevel(logging.DEBUG)
 # app.logger.addHandler(console_handler)
 # app.logger.setLevel(logging.DEBUG)
+
+#TODO Change everything about this
+def init_config():
+    global dbController, dp_directory
+
+    dbController = DatabaseController()
+    dbController.session = db.session
+
+    dp_directory = config.DataPackageFilePath
+
+    if not Path(dp_directory).exists():
+        app.logger.info(f"Creating directory at {str(dp_directory)}")
+        os.makedirs(str(dp_directory))
+
+    if not os.path.exists(config.ExCheckMainPath):
+        os.mkdir(config.ExCheckMainPath)
+
+    if not os.path.exists(config.ExCheckChecklistFilePath):
+        os.mkdir(config.ExCheckChecklistFilePath)
+
+    if not os.path.exists(config.ExCheckFilePath):
+        os.mkdir(config.ExCheckFilePath)
 
 @app.route('/')
 def hello():
@@ -677,6 +686,8 @@ class FlaskFunctions:
         try:
             from eventlet import wsgi
 
+
+            init_config()
             global IP, HTTPPORT
             IP = ip
             HTTPPORT = port
