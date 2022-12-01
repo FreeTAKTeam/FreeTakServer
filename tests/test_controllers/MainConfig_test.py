@@ -3,7 +3,7 @@ import pytest
 import os
 import yaml
 
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig, USERPATH, PYTHON_VERSION
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from pathlib import PosixPath, WindowsPath
 from unittest import mock
 
@@ -69,7 +69,7 @@ Addresses:
 Filesystem:
     FTS_COT_TO_DB: false
     FTS_DB_PATH: '/db/store'
-    FTS_MAINPATH: '/fts'
+    FTS_PERSISTENCE_PATH: '/fts'
     FTS_CERTS_PATH: '/fts/certs'
     FTS_EXCHECK_PATH: '/fts/excheck'
     FTS_EXCHECK_TEMPLATE_PATH: '/fts/template'
@@ -114,17 +114,17 @@ Certs:
                 new=mock.mock_open(read_data=yaml_config))
     @mock.patch.dict(os.environ, {'FTS_SSLCOT_PORT': '10000'}) # int test
     @mock.patch.dict(os.environ, {'FTS_COT_TO_DB': '1'})            # bool test
-    @mock.patch.dict(os.environ, {'FTS_MAINPATH': '/tmp/fts'})         # str test
+    @mock.patch.dict(os.environ, {'FTS_PERSISTENCE_PATH': '/tmp/fts'})         # str test
     def test_yaml_config_with_env_override(self):
         config = MainConfig.instance(config_file='/dev/null')
 
         assert(config.SSLCoTServicePort== 10000)
         assert(config.SaveCoTToDB == True)
-        assert(config.MainPath == '/tmp/fts')
+        assert(config.persistencePath == '/tmp/fts')
 
     def test_get_config_as_attribute(self):
         config = MainConfig.instance()
-        assert(config.MainPath == fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer')
+        assert(config.persistencePath == fr'/opt/fts/')
         assert(config.SaveCoTToDB == True)
         assert(config.FederationPort == 9000)
 
@@ -139,7 +139,7 @@ Certs:
 
     def test_get_config_as_dictionary(self):
         config = MainConfig.instance()
-        assert(config['MainPath'] == fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer')
+        assert(config['persistencePath'] == fr'/opt/fts/')
         assert(config['SaveCoTToDB'] == True)
         assert(config['FederationPort'] == 9000)
 
