@@ -17,6 +17,7 @@ from lxml import etree
 from digitalpy.model.node import Node
 from digitalpy.core.object_factory import ObjectFactory
 
+from FreeTAKServer.controllers.geo_manager_controller import GeoManagerController
 from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.controllers.ClientInformationController import (
     ClientInformationController,
@@ -151,8 +152,13 @@ class Orchestrator(ABC):
                     "client update has been sent through queue "
                     + str(client_information)
                 )
-
+                # Add client info to queue
+                self.clientInformationQueue[client_information.modelObject.uid][
+                    1
+                ] = client_information
                 self.get_client_information()
+                # update the geo manager controller with the new client information
+                GeoManagerController.update_users(self.clientInformationQueue)
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as e:
@@ -340,8 +346,11 @@ class Orchestrator(ABC):
 
             # Add client info to queue
             self.clientInformationQueue[clientInformation.modelObject.uid] = [
-                clientInformation.socket
+                clientInformation.socket,
+                clientInformation,
             ]
+            # update the geo manager controller with the new client information
+            GeoManagerController.update_users(self.clientInformationQueue)
             self.logger.debug("Client added")
 
             # Broadcast user in geochat
@@ -428,6 +437,8 @@ class Orchestrator(ABC):
         # Removes the user id from client info queue
         try:
             del self.clientInformationQueue[client_information.user_id]
+            # update the geo manager controller with the new client information
+            GeoManagerController.update_users(self.clientInformationQueue)
         except Exception as e:
             self.logger.critical("client removal failed " + str(e))
 

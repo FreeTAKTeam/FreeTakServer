@@ -70,7 +70,7 @@ class EmergencyOffController(DefaultBusinessRuleController):
 
             self.request.set_value("model_object", response.get_value("model_object"))
 
+            response = self.execute_sub_action("DictToNode")
+
             for key, value in response.get_values().items():
                 self.response.set_value(key, value)
-
-            self.request.get_value("logger").debug("emergency off parsed")
