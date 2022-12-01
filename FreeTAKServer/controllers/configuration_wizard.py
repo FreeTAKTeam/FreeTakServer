@@ -41,11 +41,12 @@ def add_to_config(path: List[str], data: str, source: dict):
 def ask_user_for_config():
     use_yaml = get_user_input(question="would you like to use a yaml config file, \n if yes you will be prompted for further configuration options", default="yes")
     if use_yaml == "yes":
-        yaml_path = get_user_input(question="where would you like to save the yaml config", default=config.yaml_path)
+        yaml_path = get_user_input(question="where would you like to save the yaml config", default=config.configPath)
         yaml_config = yaml.load(default_yaml_file)
-        ip = get_user_input(question="enter ip", default= config.ip)
-        add_to_config(data=ip, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
-        add_to_config(data=ip, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
+        user_ip = get_user_input(question="enter user connection ip", default= config.UserConnectionIP)
+        dp_ip = get_user_input(question="enter datapackage ip", default= config.DataPackageServiceDefaultIP)
+        add_to_config(data=dp_ip, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
+        add_to_config(data=user_ip, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
         while True:
             database = get_user_input(question="enter the preferred database type (MySQL is highly experimental if you're not sure leave default)", default="SQLite")
 
@@ -65,9 +66,9 @@ def ask_user_for_config():
                 print('invalid database type')
         config.DBFilePath = database_path
         add_to_config(data=database_path, path=["FileSystem", "FTS_DB_PATH"], source=yaml_config)
-        main_path = get_user_input(question="enter the preferred main_path", default=config.MainPath)
-        config.MainPath = main_path
-        add_to_config(path=["FileSystem", "FTS_MAINPATH"], data= main_path, source= yaml_config)
+        persistence_path = get_user_input(question="enter the preferred persistence path", default=config.persistencePath)
+        config.persistencePath = persistence_path
+        add_to_config(path=["FileSystem", "FTS_PERSISTENCE_PATH"], data= persistence_path, source= yaml_config)
         log_path = get_user_input(question="enter the preferred log file path", default=config.LogFilePath)
         add_to_config(path=["FileSystem", "FTS_LOGFILE_PATH"], data=log_path, source=yaml_config)
         with open(pathlib.PurePath(pathlib.Path(__file__).parent.resolve().parent,
@@ -78,13 +79,13 @@ def ask_user_for_config():
         with open(pathlib.PurePath(pathlib.Path(__file__).parent.resolve().parent,
                                    pathlib.Path("controllers/configuration/MainConfig.py")), mode="w+") as file:
             file.writelines(data)
-        if yaml_path != config.yaml_path:
+        if yaml_path != config.configPath:
             file_path = (pathlib.PurePath(pathlib.Path(__file__).parent.resolve().parent, pathlib.Path("controllers/configuration/MainConfig.py")))
             file = open(file_path, mode="r+")
             data = file.readlines()
             data[13] = f'    yaml_path = "{yaml_path}"'
             file.close()
-        config.yaml_path = yaml_path
+        config.configPath = yaml_path
         file = open(yaml_path, mode="w+")
         yaml.dump(yaml_config, file)
         file.close()
@@ -121,27 +122,27 @@ Addresses:
   #FTS_FED_PORT: 9000
   #FTS_API_ADDRESS: 0.0.0.0
 FileSystem:
-  FTS_DB_PATH: /opt/FreeTAKServer.db
+  FTS_DB_PATH: /opt/fts/FreeTAKServer.db
   #FTS_COT_TO_DB: True
-  FTS_MAINPATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer
-  #FTS_CERTS_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs
-  #FTS_EXCHECK_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck
-  #FTS_EXCHECK_TEMPLATE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/template
-  #FTS_EXCHECK_CHECKLIST_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/checklist
-  #FTS_DATAPACKAGE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/FreeTAKServerDataPackageFolder
-  #FTS_LOGFILE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/Logs
+  FTS_PERSISTENCE_PATH: /opt/fts/
+  #FTS_CERTS_PATH: /opt/fts/certs
+  #FTS_EXCHECK_PATH: /opt/fts/ExCheck
+  #FTS_EXCHECK_TEMPLATE_PATH: /opt/fts/ExCheck/template
+  #FTS_EXCHECK_CHECKLIST_PATH: /opt/fts/ExCheck/checklist
+  #FTS_DATAPACKAGE_PATH: /opt/fts/FreeTAKServerDataPackageFolder
+  #FTS_LOGFILE_PATH: /opt/fts/Logs
 Certs:
-  #FTS_SERVER_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
-  #FTS_SERVER_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
-  #FTS_TESTCLIENT_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.pem
-  #FTS_TESTCLIENT_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.key
-  #FTS_UNENCRYPTED_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key.unencrypted
-  #FTS_SERVER_P12DIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.p12
-  #FTS_CADIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.pem
-  #FTS_CAKEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.key
-  #FTS_FEDERATION_CERTDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
-  #FTS_FEDERATION_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
-  #FTS_CRLDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/FTS_CRL.json
+  #FTS_SERVER_KEYDIR: /opt/fts/certs/server.key
+  #FTS_SERVER_PEMDIR: /opt/fts/certs/server.pem
+  #FTS_TESTCLIENT_PEMDIR: /opt/fts/certs/Client.pem
+  #FTS_TESTCLIENT_KEYDIR: /opt/fts/certs/Client.key
+  #FTS_UNENCRYPTED_KEYDIR: /opt/fts/certs/server.key.unencrypted
+  #FTS_SERVER_P12DIR: /opt/fts/certs/server.p12
+  #FTS_CADIR: /opt/fts/certs/ca.pem
+  #FTS_CAKEYDIR: /opt/fts/certs/ca.key
+  #FTS_FEDERATION_CERTDIR: /opt/fts/certs/server.pem
+  #FTS_FEDERATION_KEYDIR: /opt/fts/certs/server.key
+  #FTS_CRLDIR: /opt/fts/certs/FTS_CRL.json
   #FTS_FEDERATION_KEYPASS: demopassfed
   #FTS_CLIENT_CERT_PASSWORD: demopasscert
   #FTS_WEBSOCKET_KEY: YourWebsocketKey

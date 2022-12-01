@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import yaml
 currentPath = os.path.dirname(os.path.abspath(__file__))
@@ -10,11 +11,7 @@ from uuid import uuid4
 # the version information of the server (recommended to leave as default)
 FTS_VERSION = 'FreeTAKServer-1.9.9.7 Public'
 API_VERSION = '1.9.5'
-# TODO Need to find a better way to determine python version at runtime
-PYTHON_VERSION = 'python3.8'
-USERPATH = '/usr/local/lib/'
-PERSISTENCE_PATH = '/opt/fts/'
-MAINPATH = fr'{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer'
+PERSISTENCE_PATH = r'/opt/fts/'
 
 class MainConfig:
     """
@@ -36,8 +33,12 @@ class MainConfig:
 
     # create the persistence path if it doesn't exist
     if not os.path.exists(PERSISTENCE_PATH):
-        os.mkdir(PERSISTENCE_PATH)
-
+        try:
+            os.mkdir(PERSISTENCE_PATH)
+        except Exception as e:
+            print(f"failed to create the fts persistence directory at {PERSISTENCE_PATH} with error: {e}")
+            sys.exit(1)
+    
     _node_id = str(uuid4())
 
     # All available config vars should be defined here
@@ -75,7 +76,6 @@ class MainConfig:
         'SaveCoTToDB': {'default': True, 'type': bool},
         # this should be set before startup
         'DBFilePath': {'default': fr'{PERSISTENCE_PATH}/FTSDataBase.db', 'type': str},
-        'MainPath': {'default': Path(MAINPATH), 'type': str},
         'certsPath': {'default': Path(fr'{PERSISTENCE_PATH}/certs'), 'type': str},
         'ExCheckMainPath': {'default': Path(fr'{PERSISTENCE_PATH}/ExCheck'), 'type': str},
         'ExCheckFilePath': {'default': Path(fr'{PERSISTENCE_PATH}/ExCheck/template'), 'type': str},
@@ -102,6 +102,10 @@ class MainConfig:
         'DataBaseType': {'default': "SQLite", 'type': str},
         # location to backup client packages
         'clientPackages': {'default': Path(fr'{PERSISTENCE_PATH}/certs/clientPackages'), 'type': str},
+        # location to retrieve configuration file
+        'configPath': {'default': Path(fr"{PERSISTENCE_PATH}/FTSConfig.yaml"), 'type': str},
+        # location to store all persistent FTS files
+        'persistencePath': {'default': Path(PERSISTENCE_PATH), 'type': str},
     }
 
     # This structure maps environmental vars to config vars
@@ -122,7 +126,6 @@ class MainConfig:
         'FTS_API_ADDRESS': 'APIIP',
         'FTS_COT_TO_DB': 'SaveCoTToDB',
         'FTS_DB_PATH': 'DBFilePath',
-        'FTS_MAINPATH': 'MainPath',
         'FTS_CERTS_PATH': 'certsPath',
         'FTS_EXCHECK_PATH': 'ExCheckMainPath',
         'FTS_EXCHECK_TEMPLATE_PATH': 'ExCheckFilePath',
@@ -147,6 +150,7 @@ class MainConfig:
         'FTS_CONNECTION_MESSAGE': 'ConnectionMessage',
         'FTS_DATABASE_TYPE': 'DataBaseType',
         'FTS_CLIENT_PACKAGES': 'clientPackages',
+        'FTS_PERSISTENCE_PATH': 'persistencePath',
     }
 
     # This is a simple representation of the YAML config schema with
@@ -173,9 +177,9 @@ class MainConfig:
             'FTS_CLI_WHITELIST': 'AllowCLIIPs',
         },
         'Filesystem': {
+            'FTS_PERSISTENCE_PATH': 'persistencePath',
             'FTS_COT_TO_DB': 'SaveCoTToDB',
             'FTS_DB_PATH': 'DBFilePath',
-            'FTS_MAINPATH': 'MainPath',
             'FTS_CERTS_PATH': 'certsPath',
             'FTS_EXCHECK_PATH': 'ExCheckMainPath',
             'FTS_EXCHECK_TEMPLATE_PATH': 'ExCheckFilePath',
@@ -231,7 +235,7 @@ class MainConfig:
 
             # if config_file not specified, check env or use default location
             if config_file == None:
-                config_file = str(os.environ.get('FTS_CONFIG_PATH', Path(PERSISTENCE_PATH, 'FTSConfig.yaml')))
+                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["configPath"]))
 
             # overlay the yaml config if found
             if  os.path.exists(config_file):
