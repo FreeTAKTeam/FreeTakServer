@@ -56,7 +56,7 @@ TAKFreeServer uses a MVC pattern, the concept of a COT (Cursor On Target) is des
 See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for various information including an UML model of the Domain classes involved in a COT event.
 
 ## Requirements
-- Python 3.6 (or better)
+- Python 3.8 
 - Dependencies:
   - `flask`
   - `lxml`
@@ -75,8 +75,7 @@ For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs
   - **Models**: Contains all the FTS  object model
   - **Views**:   contains the access to FTS
   - **certs**: code for secure connection
-- [docs](./docs/): Useful documentation regarding COTS and different logs to understand how those are implemented
-- [model](./model/): a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html).
+
 
 ## Community 
 If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as FreeTAKServer is in continuous development.
