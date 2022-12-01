@@ -60,7 +60,7 @@ setup(
         "WTForms==2.3.3",
         "pyOpenSSL==22.0.0",
         "qrcode==7.3.1",
-        "pillow==9.1.1",
+        "pillow==9.3.0",
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
