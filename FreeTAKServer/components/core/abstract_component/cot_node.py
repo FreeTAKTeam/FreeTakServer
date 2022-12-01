@@ -9,10 +9,14 @@ class CoTNode(Node, FTSProtocolObject):
         self.text = ""
         super().__init__(node_type, configuration, model)
 
-    @classmethod
-    def get_all_properties(cls):
-        methods = inspect.getmembers(cls)
-        return [m[0] for m in methods if getattr(m[1], "is_cot", False)]
+    def get_all_properties(self):
+        methods = inspect.getmembers(self.__class__)
+        return [
+            m[0]
+            for m in methods
+            if getattr(m[1], "is_cot", False)
+            and self.cot_attributes.get(m[0], None) != None
+        ]
 
     def add_child(self, child):
         if self.validate_child_addition(child):
