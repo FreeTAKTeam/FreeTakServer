@@ -39,8 +39,17 @@ class DictToNodeController(Controller):
         """recursively serialize a single layer of the given dictionary
         to a node object until a nested dictionary is found"""
         for key, value in dictionary.items():
-            if isinstance(value, dict):
-                self.serialize(value, getattr(node, key))
-            else:
-                setattr(node, key.strip("@"), value)
+            self.add_value_to_node(key, value, node)
         return node
+
+    def add_value_to_node(self, key, value, node):
+        """add a value to a node object"""
+
+        if isinstance(value, dict):
+            self.serialize(value, getattr(node, key))
+
+        elif isinstance(value, list):
+            for l_item in value:
+                self.add_value_to_node(key, l_item, node)
+        else:
+            setattr(node, key.strip("@"), value)

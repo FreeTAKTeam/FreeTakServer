@@ -21,8 +21,22 @@ class detail(CoTNode):
         super().__init__(self.__class__.__name__, configuration, model)
 
     @CoTProperty
+    def marti(self):
+        data = self.cot_attributes.get("marti", None)
+        if data is None:
+            raise AttributeError("attribute 'marti' doesnt exist")
+        return data
+
+    @marti.setter
+    def marti(self, marti):
+        self.cot_attributes["marti"] = marti
+
+    @CoTProperty
     def link(self):
-        return self.cot_attributes.get("link", None)
+        data = self.cot_attributes.get("link", None)
+        if data is None:
+            raise AttributeError("attribute 'link' doesnt exist")
+        return data
 
     @link.setter
     def link(self, link):
@@ -30,7 +44,10 @@ class detail(CoTNode):
 
     @CoTProperty
     def contact(self):
-        return self.cot_attributes.get("contact", None)
+        data = self.cot_attributes.get("contact", None)
+        if data is None:
+            raise AttributeError("attribute 'contact' doesnt exist")
+        return data
 
     @contact.setter
     def contact(self, contact):
@@ -38,7 +55,10 @@ class detail(CoTNode):
 
     @CoTProperty
     def emergency(self):
-        return self.cot_attributes.get("emergency", None)
+        data = self.cot_attributes.get("emergency", None)
+        if data is None:
+            raise AttributeError("attribute 'emergency' doesnt exist")
+        return data
 
     @emergency.setter
     def emergency(self, emergency):
@@ -46,7 +66,10 @@ class detail(CoTNode):
 
     @CoTProperty
     def remarks(self):
-        return self.cot_attributes.get("remarks", None)
+        data = self.cot_attributes.get("remarks", None)
+        if data is None:
+            raise AttributeError("attribute 'remarks' doesnt exist")
+        return data
 
     @remarks.setter
     def remarks(self, remarks):
