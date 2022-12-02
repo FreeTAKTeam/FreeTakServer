@@ -6,7 +6,7 @@ import threading
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
-from FreeTAKServer.controllers.TCPSocketController import TCPSocketController
+from FreeTAKServer.controllers.connection.TCPSocketController import TCPSocketController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 import os
 from digitalpy.core.impl.default_factory import DefaultFactory
