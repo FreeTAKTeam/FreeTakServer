@@ -50,7 +50,7 @@ class SendCoTAbstractController(ABC):
         this function takes an empty model object and xml as arguments and then calls the serializer within the xmlcotcontroller
         module which returns a model object occupied with all the data from the CoT
         """
-        from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+        from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 
         modelInstance = xml_serializer.XmlSerializer().from_format_to_fts_object(xmlString, tempObject)
         return modelInstance
@@ -60,7 +60,7 @@ class SendCoTAbstractController(ABC):
         this function calls the model to xml serializer within XMLCoTController
         with an instantiated model object supplied in the function argument
         """
-        from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+        from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
         try:
             xml = XMLCoTController().serialize_model_to_CoT(modelObject, 'event')
             return xml

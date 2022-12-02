@@ -4,7 +4,7 @@ from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerControl
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.model.FTSModel.Event import Event as event
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 
 # Make a connection to the MainConfig object for all routines below

@@ -5,7 +5,7 @@ from digitalpy.core.object_factory import ObjectFactory
 from digitalpy.routing.routing_proxy import RoutingProxy
 from unittest.mock import MagicMock
 from lxml import etree
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.components.core.type.type_facade import Type
 from FreeTAKServer.components.core.cot_router.cot_router_facade import CotRouter
 from multiprocessing import Process

@@ -21,7 +21,7 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
 from FreeTAKServer.controllers.parsers.ApplyFullJsonController import ApplyFullJsonController
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
 from FreeTAKServer.model.SimpleClient import SimpleClient

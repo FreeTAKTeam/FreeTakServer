@@ -9,7 +9,7 @@ from FreeTAKServer.components.extended.emergency.configuration.emergency_constan
 from FreeTAKServer.components.extended.emergency.emergency_facade import Emergency
 from FreeTAKServer.components.core.type.type_facade import Type
 from FreeTAKServer.components.core.domain.domain_facade import Domain
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.components.core.xml_serializer.xml_serializer_facade import (
     XmlSerializer,
 )

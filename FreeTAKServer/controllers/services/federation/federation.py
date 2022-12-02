@@ -15,7 +15,7 @@ import time
 import codecs
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController

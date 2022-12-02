@@ -5,7 +5,7 @@ from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import uuid
 import json as jsonmodule
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost, RestEnumerations
 from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete

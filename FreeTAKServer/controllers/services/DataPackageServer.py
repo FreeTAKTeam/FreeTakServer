@@ -509,7 +509,7 @@ def updatetemplate(checklistid, taskid):
     from flask import request
     from defusedxml import ElementTree as etree
     from FreeTAKServer.controllers.SpecificCoTControllers.SendExcheckUpdateController import SendExcheckUpdateController
-    from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+    from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
     from FreeTAKServer.model.FTSModel.Event import Event
     from FreeTAKServer.model.RawCoT import RawCoT
     import uuid

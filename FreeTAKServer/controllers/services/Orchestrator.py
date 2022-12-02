@@ -34,7 +34,7 @@ from FreeTAKServer.controllers.SendDataController import SendDataController
 from FreeTAKServer.controllers.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 
 from FreeTAKServer.model.RawCoT import RawCoT
