@@ -30,7 +30,7 @@ from FreeTAKServer.controllers.connection.ReceiveConnectionsProcessController im
     ReceiveConnectionsProcessController,
 )
 
-from FreeTAKServer.controllers.SendDataController import SendDataController
+from FreeTAKServer.controllers.connection.SendDataController import SendDataController
 from FreeTAKServer.controllers.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )

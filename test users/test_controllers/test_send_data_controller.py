@@ -1,6 +1,6 @@
 from unittest import mock, TestCase
 import unittest
-from FreeTAKServer.controllers.SendDataController import SendDataController
+from FreeTAKServer.controllers.connection.SendDataController import SendDataController
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.FTSModel.Dest import Dest
 from FreeTAKServer.model.SpecificCoT.SendGeoChat import SendGeoChat
