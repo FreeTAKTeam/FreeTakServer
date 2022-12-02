@@ -52,7 +52,7 @@ import socket
 
 loggingConstants = LoggingConstants()
 
-from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
+from FreeTAKServer.controllers.connection.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"

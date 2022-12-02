@@ -4,7 +4,7 @@ from asyncio import Queue
 import multiprocessing
 import threading
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
-from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
+from FreeTAKServer.controllers.connection.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.controllers.connection.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.connection.TCPSocketController import TCPSocketController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
