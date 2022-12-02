@@ -42,7 +42,7 @@ from FreeTAKServer.controllers.RestMessageControllers.SendImageryVideoController
 from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
 from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.JsonController import JsonController
+from FreeTAKServer.controllers.parsers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 
 dbController = DatabaseController()

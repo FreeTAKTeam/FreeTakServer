@@ -7,7 +7,7 @@ from FreeTAKServer.controllers.serializers.test_data import TestData
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
-from FreeTAKServer.controllers.JsonController import JsonController
+from FreeTAKServer.controllers.parsers.JsonController import JsonController
 from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
