@@ -42,7 +42,7 @@ class ServerStatusController:
 
     def FederationServerStatusCheck(self, FederationPort, IP):
         import ssl
-        from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
+        from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
         import socket
         try:
             if IP == "0.0.0.0":
@@ -121,7 +121,7 @@ class ServerStatusController:
             return "off"
 
     def SSLCoTStatusCheck(self, SSLCoTPort, IP):
-        from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
+        from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
         try:
             import socket
             if IP == "0.0.0.0":

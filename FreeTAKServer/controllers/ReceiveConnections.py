@@ -23,7 +23,7 @@ from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingCons
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
-from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
+from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
 
 loggingConstants = LoggingConstants(log_name="FTS_ReceiveConnections")
 logger = CreateLoggerController("FTS_ReceiveConnections", logging_constants=loggingConstants).getLogger()

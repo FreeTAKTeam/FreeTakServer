@@ -3,7 +3,7 @@ from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
 import os
-from FreeTAKServer.controllers.SSLSocketController import SSLSocketController
+from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
