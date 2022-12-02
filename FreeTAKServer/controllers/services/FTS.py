@@ -31,7 +31,7 @@ from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
     OrchestratorConstants,
 )
 from FreeTAKServer.controllers.configuration.configuration_wizard import ask_user_for_config
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
     DatabaseController,
 )

@@ -12,7 +12,7 @@ import re
 from digitalpy.core.object_factory import ObjectFactory
 
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.SpecificCoTControllers import *
 
 from FreeTAKServer.model.SpecificCoT.SendPing import SendPing

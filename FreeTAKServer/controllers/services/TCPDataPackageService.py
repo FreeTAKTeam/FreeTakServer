@@ -1,6 +1,6 @@
 from .DataPackageServer import FlaskFunctions, Path, dp_directory, os, app, eventlet, const
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 
 loggingConstants = LoggingConstants(log_name="FTS-TCP_DataPackage_Service")

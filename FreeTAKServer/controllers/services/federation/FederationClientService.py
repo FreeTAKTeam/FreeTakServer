@@ -42,7 +42,7 @@ from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()

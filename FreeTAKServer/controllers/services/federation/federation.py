@@ -25,9 +25,9 @@ from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstr
 from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.model.SQLAlchemy.User import User
 from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants(log_name="FTS_FederationServerService")
 logger = CreateLoggerController("FTS_FederationServerService", logging_constants=loggingConstants).getLogger()
 from defusedxml import ElementTree as etree

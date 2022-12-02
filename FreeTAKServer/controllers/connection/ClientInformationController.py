@@ -9,7 +9,7 @@
 from FreeTAKServer.controllers.domian.BasicModelInstantiate import BasicModelInstantiate
 import uuid
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer

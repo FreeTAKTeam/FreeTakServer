@@ -1,6 +1,6 @@
 from FreeTAKServer.model.SpecificCoT.SendRoute import SendRoute
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 import uuid
 from FreeTAKServer.model.FTSModel.Event import Event as event

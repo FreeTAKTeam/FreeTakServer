@@ -3,7 +3,7 @@ from FreeTAKServer.controllers.configuration.DataPackageServerConstants import D
 import ssl
 from FreeTAKServer.controllers.services.DataPackageServer import FlaskFunctions, Path, dp_directory, os, app, eventlet, const
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
 
 # Make a connection to the MainConfig object for all routines below

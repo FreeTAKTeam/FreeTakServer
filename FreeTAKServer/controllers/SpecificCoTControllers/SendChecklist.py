@@ -1,7 +1,7 @@
 from FreeTAKServer.model.SpecificCoT.SendChecklist import SendChecklist
 from .SendCoTAbstractController import SendCoTAbstractController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendChecklistController").getLogger()

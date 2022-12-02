@@ -1,5 +1,5 @@
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from abc import ABC
