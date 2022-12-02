@@ -13,7 +13,7 @@ from digitalpy.core.object_factory import ObjectFactory
 from digitalpy.registration.registration_handler import RegistrationHandler
 from digitalpy.routing.routing_proxy import RoutingProxy
 
-from FreeTAKServer.controllers.CreateStartupFilesController import (
+from FreeTAKServer.controllers.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
 )
 
