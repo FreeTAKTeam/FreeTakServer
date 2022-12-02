@@ -6,7 +6,7 @@
 # Created on:      19-May-2020 6:56:00 PM
 #
 #######################################################
-from FreeTAKServer.controllers.BasicModelInstantiate import BasicModelInstantiate
+from FreeTAKServer.controllers.domian.BasicModelInstantiate import BasicModelInstantiate
 import uuid
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
