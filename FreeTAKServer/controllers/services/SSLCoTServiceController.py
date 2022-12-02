@@ -1,7 +1,7 @@
 from digitalpy.core.object_factory import ObjectFactory
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
-from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
+from FreeTAKServer.controllers.connection.ReceiveConnections import ReceiveConnections
 import os
 from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
 from multiprocessing.pool import ThreadPool

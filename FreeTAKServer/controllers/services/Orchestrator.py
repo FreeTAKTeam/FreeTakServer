@@ -25,7 +25,7 @@ from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
     DatabaseController,
 )
 
-from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
+from FreeTAKServer.controllers.connection.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.controllers.ReceiveConnectionsProcessController import (
     ReceiveConnectionsProcessController,
 )
