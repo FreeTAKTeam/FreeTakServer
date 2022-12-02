@@ -16,11 +16,11 @@ from flask_cors import CORS
 import qrcode
 import io
 
-from FreeTAKServer.controllers import certificate_generation
+from FreeTAKServer.controllers.util import certificate_generation
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
-from FreeTAKServer.controllers.ApplyFullJsonController import ApplyFullJsonController
+from FreeTAKServer.controllers.parsers.ApplyFullJsonController import ApplyFullJsonController
 from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
@@ -470,7 +470,7 @@ def removeSystemUser(jsondata):
     """ iterates through a list of system users and removes them in addition to revoking and
     deleting their certificates.
     """
-    from FreeTAKServer.controllers.certificate_generation import revoke_certificate
+    from FreeTAKServer.controllers.util.certificate_generation import revoke_certificate
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]

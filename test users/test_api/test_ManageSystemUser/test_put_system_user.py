@@ -35,7 +35,7 @@ class Test_putSystemUser(TestCase):
         self.client = self.app.test_client()
         self.runner = self.app.test_cli_runner()
 
-    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.util.certificate_generation', mock_certificate_generation_controller)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
     def test_basic_request(self):
         """ this method tests the use case of a simple request to update a user

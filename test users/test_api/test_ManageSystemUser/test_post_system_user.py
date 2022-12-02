@@ -49,7 +49,7 @@ class Test_postSystemUser(TestCase):
         self.client = self.app.test_client()
         self.runner = self.app.test_cli_runner()
 
-    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.util.certificate_generation', mock_certificate_generation_controller)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
     def test_basic_request_with_cert(self):
         """ this method tests the use case of a simple request to create a user with a certificate
@@ -69,7 +69,7 @@ class Test_postSystemUser(TestCase):
         #self.mock_certificate_generation_controller.generate_standard_zip.assert_called_once()
         FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called_once()
 
-    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.util.certificate_generation', mock_certificate_generation_controller)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
     def test_basic_request_with_many_users(self):
         """ this method tests the use case of a simple request to create a user with a certificate
@@ -88,7 +88,7 @@ class Test_postSystemUser(TestCase):
         FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called()
         FreeTAKServer.controllers.services.RestAPI.dbController.create_datapackage.assert_called()
 
-    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.util.certificate_generation', mock_certificate_generation_controller)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
     def test_partially_invalid_request(self):
         """ this method tests the use case of a user sending a request which contains some invalid users and
@@ -108,7 +108,7 @@ class Test_postSystemUser(TestCase):
         FreeTAKServer.controllers.services.RestAPI.dbController.create_systemUser.assert_called()
         FreeTAKServer.controllers.services.RestAPI.dbController.create_datapackage.assert_called()
 
-    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.util.certificate_generation', mock_certificate_generation_controller)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
     def test_request_missing_parameter(self):
         """ this method tests the use case of an invalid request to create a user

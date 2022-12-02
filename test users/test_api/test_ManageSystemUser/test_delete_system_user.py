@@ -44,7 +44,7 @@ class Test_deleteSystemUser(TestCase):
         self.client = self.app.test_client()
         self.runner = self.app.test_cli_runner()
 
-    @mock.patch('FreeTAKServer.controllers.certificate_generation', mock_certificate_generation_controller)
+    @mock.patch('FreeTAKServer.controllers.util.certificate_generation', mock_certificate_generation_controller)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.dbController', mock_dbController)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.os', mock_no_return)
     @mock.patch('FreeTAKServer.controllers.services.RestAPI.shutil', mock_no_return)
