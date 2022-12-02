@@ -18,7 +18,7 @@ class SSLDataPackageService(FlaskFunctions):
             from eventlet import wsgi, wrap_ssl, listen
             import socket
             import ssl
-            from FreeTAKServer.controllers.MainSocketController import MainSocketController
+            from FreeTAKServer.controllers.connection.MainSocketController import MainSocketController
             from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
             global IP, HTTPPORT
             self.MainSocket = SSLServerSocket()
