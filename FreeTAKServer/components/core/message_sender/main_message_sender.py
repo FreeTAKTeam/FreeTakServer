@@ -1,6 +1,5 @@
 import socket
 from typing import Dict, Tuple
-from FreeTAKServer.controllers.connection.SendDataController import SendDataController
 from digitalpy.routing.request import Request
 from digitalpy.routing.response import Response
 from digitalpy.routing.controller import Controller
