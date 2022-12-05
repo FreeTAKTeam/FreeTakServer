@@ -1,4 +1,5 @@
 import uuid
+from geopy import Nominatim
 
 from defusedxml import ElementTree as etree
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
@@ -8,7 +9,6 @@ from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import Dat
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.model.SpecificCoT.SendSimpleCoT import SendSimpleCoT
-from geopy import Nominatim
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendSimpleCoTController").getLogger()
