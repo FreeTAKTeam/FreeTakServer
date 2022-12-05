@@ -3,7 +3,9 @@ from abc import ABC
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.serializers import xml_serializer
+from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
 from FreeTAKServer.model.FTSModel.Event import Event as event
 
 # Make a connection to the MainConfig object for all routines below
@@ -59,7 +61,6 @@ class SendCoTAbstractController(ABC):
         this function calls the model to xml serializer within XMLCoTController
         with an instantiated model object supplied in the function argument
         """
-        from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
         try:
             xml = XMLCoTController().serialize_model_to_CoT(modelObject, 'event')
             return xml
@@ -72,7 +73,6 @@ class SendCoTAbstractController(ABC):
         this function will handle any exception thrown in the process of serialization of an xml CoT to it's respective model object
         by processing it as an Other type
         """
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
         object = SendOtherController(RawCoT).getObject()
         object.clientInformation = RawCoT.clientInformation
         self.setObject(object)
