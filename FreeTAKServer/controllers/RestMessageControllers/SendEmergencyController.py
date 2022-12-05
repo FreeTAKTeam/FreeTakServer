@@ -1,18 +1,20 @@
-from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
-from FreeTAKServer.model.FTSModel.Event import Event as event
 import uuid
-import json as jsonmodule
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost, RestEnumerations
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete
+from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost, RestEnumerations
+from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
+from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
+
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendGeoChatController").getLogger()
 
 from geopy import Nominatim
+
 
 class SendEmergencyController:
     def __init__(self, json):
