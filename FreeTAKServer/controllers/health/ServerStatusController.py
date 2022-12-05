@@ -1,6 +1,9 @@
-from FreeTAKServer.model.ServiceObjects.FTS import FTS
+import socket
+
+import requests
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-import typing
+from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
+from FreeTAKServer.model.ServiceObjects.FTS import FTS
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -41,9 +44,6 @@ class ServerStatusController:
         self.FederationServerExpected = mapping[ServerStatusObject.FederationServerService.FederationServerServiceStatus]
 
     def FederationServerStatusCheck(self, FederationPort, IP):
-        import ssl
-        from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
-        import socket
         try:
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -63,9 +63,7 @@ class ServerStatusController:
             return "off"
 
     def TCPDataPackageStatusCheck(self, TCPDataPackagePort, IP):
-        import requests
         try:
-            import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 s.connect(('10.255.255.255', 1))
@@ -82,7 +80,6 @@ class ServerStatusController:
 
     def TCPCoTStatusCheck(self, TCPCoTPort, IP):
         try:
-            import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 s.connect(('10.255.255.255', 1))
@@ -103,9 +100,7 @@ class ServerStatusController:
             return "off"
 
     def SSLDataPackageStatusCheck(self, SSLDataPackagePort, IP):
-        import requests
         try:
-            import socket
             if IP == "0.0.0.0":
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 s.connect(('10.255.255.255', 1))
@@ -121,7 +116,6 @@ class ServerStatusController:
             return "off"
 
     def SSLCoTStatusCheck(self, SSLCoTPort, IP):
-        from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
         try:
             import socket
             if IP == "0.0.0.0":
@@ -165,4 +159,3 @@ class ServerStatusController:
 
 if __name__ == '__main__':
     status = ServerStatusController(FTS())
-    1 == 1
