@@ -6,7 +6,7 @@ from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import Dat
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete
-from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost, RestEnumerations
+from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
 
