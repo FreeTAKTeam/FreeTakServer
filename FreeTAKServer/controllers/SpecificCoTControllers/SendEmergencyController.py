@@ -1,8 +1,7 @@
-from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
-from FreeTAKServer.model.FTSModel.Event import Event
-from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
+from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
+
 
 class SendEmergencyController(SendCoTAbstractController):
     def __init__(self, RawCoT):
