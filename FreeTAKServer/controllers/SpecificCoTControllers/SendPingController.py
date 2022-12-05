@@ -1,8 +1,8 @@
-from FreeTAKServer.model.SpecificCoT.SendTakPong import SendTakPong
-from .SendCoTAbstractController import SendCoTAbstractController
-
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.model.SpecificCoT.SendTakPong import SendTakPong
+
+from .SendCoTAbstractController import SendCoTAbstractController
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendInvalidCoTController").getLogger()
