@@ -1,5 +1,5 @@
 from FreeTAKServer.controllers.DatabaseControllers.table_controllers import TableController
-from FreeTAKServer.controllers.DatabaseControllers.EventTableController import EventTableController
+from FreeTAKServer.controllers.persistence.EventTableController import EventTableController
 from FreeTAKServer.model.SQLAlchemy.ActiveEmergencys import ActiveEmergencys
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import make_transient

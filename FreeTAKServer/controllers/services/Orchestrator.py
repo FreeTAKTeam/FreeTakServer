@@ -296,7 +296,7 @@ class Orchestrator(ABC):
         :return:
         """
         try:
-            from FreeTAKServer.controllers.DatabaseControllers.EventTableController import (
+            from FreeTAKServer.controllers.persistence.EventTableController import (
                 EventTableController,
             )
 
