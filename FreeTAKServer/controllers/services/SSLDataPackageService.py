@@ -1,3 +1,6 @@
+import ssl
+
+from eventlet import listen, wrap_ssl, wsgi
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
@@ -5,6 +8,7 @@ from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
 from FreeTAKServer.controllers.services.DataPackageServer import (
     FlaskFunctions, Path, app, const, dp_directory, os)
+from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -15,14 +19,6 @@ logger = CreateLoggerController("FTS-SSL_DataPackage_Service", logging_constants
 class SSLDataPackageService(FlaskFunctions):
     def startup(self, ip, port, pipe):
         try:
-            import socket
-            import ssl
-
-            from eventlet import listen, wrap_ssl, wsgi
-            from FreeTAKServer.controllers.connection.MainSocketController import \
-                MainSocketController
-            from FreeTAKServer.model.sockets.SSLServerSocket import \
-                SSLServerSocket
             global IP, HTTPPORT
             self.MainSocket = SSLServerSocket()
             IP = ip
