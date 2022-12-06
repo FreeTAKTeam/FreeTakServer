@@ -12,7 +12,7 @@ from FreeTAKServer.controllers.configuration.DatabaseConfiguration import Databa
 from FreeTAKServer.controllers.DatabaseControllers import APIUsersController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckChecklistController
-from FreeTAKServer.controllers.DatabaseControllers import API_call_controller
+from FreeTAKServer.controllers.persistence import APICallController
 from FreeTAKServer.controllers.persistence import _VideoTableController
 from FreeTAKServer.controllers.DatabaseControllers.table_controllers import ActiveFederationsController, UserTableController, FederationsController
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
@@ -69,7 +69,7 @@ class DatabaseController:
         self.ExCheckChecklistController = ExCheckChecklistController.ExCheckChecklistController()
         self.ActiveFederationController = ActiveFederationsController()
         self.FederationController = FederationsController()
-        self.APICallController = API_call_controller.APICallController()
+        self.APICallController = APICallController.APICallController()
 
     def create_engine(self):
         """
