@@ -7,42 +7,29 @@
 # Original author: natha
 #
 #######################################################
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.configuration.types import Types
-from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, ConnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler, DestinationValidationHandler, DataValidationHandler, HandlerBase
-from FreeTAKServer.controllers.services.federation.external_data_handlers import *
-from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
-
-
-from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
-from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
-
-
-from multiprocessing import Pipe as multiprocessingPipe
-from FreeTAKServer.model.federate import Federate
 import selectors
 import socket
-from typing import Tuple, Dict, List
 import ssl
-import codecs
 import threading
-from defusedxml import ElementTree as etree
+from typing import List, Tuple
 
-from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
-
-
-from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
-from FreeTAKServer.model.FTSModel.Event import Event
-from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
-from FreeTAKServer.model.ClientInformation import ClientInformation
-from FreeTAKServer.model.SQLAlchemy.User import User
-from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.services.federation.external_data_handlers import (
+    FederationProtobufConnectionHandler,
+    FederationProtobufDisconnectionHandler, FederationProtobufStandardHandler,
+    FederationProtobufValidationHandler)
+from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
+from FreeTAKServer.controllers.services.federation.handlers import (
+    ConnectHandler, DataValidationHandler, DestinationValidationHandler,
+    DisconnectHandler, HandlerBase, SendConnectionDataHandler, SendDataHandler,
+    SendDisconnectionDataHandler, StopHandler)
+from FreeTAKServer.model.ClientInformation import ClientInformation
+from FreeTAKServer.model.federate import Federate
+from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
+from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -350,4 +337,3 @@ class FederationClientServiceController(FederationServiceBase):
 
     def stop(self):
         pass
-
