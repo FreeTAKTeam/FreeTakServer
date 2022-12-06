@@ -1,33 +1,27 @@
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.configuration.types import Types
-from FreeTAKServer.controllers.services.federation.handlers import StopHandler, DisconnectHandler, ConnectHandler, SendDataHandler, SendConnectionDataHandler, SendDisconnectionDataHandler, DestinationValidationHandler, DataValidationHandler, HandlerBase
-from FreeTAKServer.controllers.services.federation.external_data_handlers import *
-from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
-from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
-from multiprocessing import Pipe as multiprocessingPipe
-from FreeTAKServer.model.federate import Federate
-
 import selectors
 import socket
-from typing import Tuple, Dict, List
 import ssl
-import time
-import codecs
-from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
-from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
-from FreeTAKServer.model.FTSModel.Event import Event
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 import threading
+import uuid
+from typing import Dict, List
 
-from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
-from FreeTAKServer.model.ClientInformation import ClientInformation
-from FreeTAKServer.model.SQLAlchemy.User import User
-from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.services.federation.external_data_handlers import (
+    FederationProtobufConnectionHandler,
+    FederationProtobufDisconnectionHandler, FederationProtobufStandardHandler,
+    FederationProtobufValidationHandler)
+from FreeTAKServer.controllers.services.federation.handlers import (
+    DataValidationHandler, DestinationValidationHandler, DisconnectHandler,
+    HandlerBase, SendConnectionDataHandler, SendDataHandler,
+    SendDisconnectionDataHandler, StopHandler)
+from FreeTAKServer.model.ClientInformation import ClientInformation
+from FreeTAKServer.model.federate import Federate
+from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
+from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
+
 loggingConstants = LoggingConstants(log_name="FTS_FederationServerService")
 logger = CreateLoggerController("FTS_FederationServerService", logging_constants=loggingConstants).getLogger()
 from defusedxml import ElementTree as etree
@@ -37,7 +31,9 @@ config = MainConfig.instance()
 
 loggingConstants = LoggingConstants()
 
-from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
+from FreeTAKServer.controllers.services.federation.federation_service_base import \
+    FederationServiceBase
+
 
 class FederationServerService(FederationServiceBase):
 
@@ -298,7 +294,6 @@ class FederationServerService(FederationServiceBase):
 
     def _accept_connection(self, sock) -> None:
         try:
-            import uuid
             conn, addr = sock.accept()  # Should be ready to read
             print('accepted connection from', addr)
             conn.setblocking(False)
