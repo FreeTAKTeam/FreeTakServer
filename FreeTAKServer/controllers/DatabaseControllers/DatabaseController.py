@@ -13,7 +13,7 @@ from FreeTAKServer.controllers.DatabaseControllers import APIUsersController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckChecklistController
 from FreeTAKServer.controllers.DatabaseControllers import API_call_controller
-from FreeTAKServer.controllers.DatabaseControllers import _VideoTableController
+from FreeTAKServer.controllers.persistence import _VideoTableController
 from FreeTAKServer.controllers.DatabaseControllers.table_controllers import ActiveFederationsController, UserTableController, FederationsController
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
 import FreeTAKServer.model.SQLAlchemy.CoTTables._Group
