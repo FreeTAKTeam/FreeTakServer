@@ -2,7 +2,7 @@ import FreeTAKServer.controllers.DatabaseControllers.table_controllers
 from FreeTAKServer.controllers.DatabaseControllers import DataPackageTableController, system_user_table_controller
 from FreeTAKServer.controllers.DatabaseControllers import VideoStreamTableController
 from FreeTAKServer.controllers.DatabaseControllers import EventTableController
-from FreeTAKServer.controllers.DatabaseControllers import ActiveEmergencysController
+from FreeTAKServer.controllers.persistence import ActiveEmergencysController
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.orm import make_transient
