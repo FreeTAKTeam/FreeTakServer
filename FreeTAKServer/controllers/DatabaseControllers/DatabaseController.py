@@ -9,7 +9,7 @@ from sqlalchemy.orm import make_transient
 from sqlalchemy.exc import IntegrityError
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
-from FreeTAKServer.controllers.DatabaseControllers import APIUsersController
+from FreeTAKServer.controllers.persistence import APIUsersController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckController
 from FreeTAKServer.controllers.DatabaseControllers import ExCheckChecklistController
 from FreeTAKServer.controllers.persistence import APICallController
