@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.DatabaseControllers.table_controllers import TableController
+from FreeTAKServer.controllers.persistence.table_controllers import TableController
 from FreeTAKServer.model.SQLAlchemy.DataPackage import DataPackage
 
 

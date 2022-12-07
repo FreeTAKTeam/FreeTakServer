@@ -1,4 +1,4 @@
-import FreeTAKServer.controllers.DatabaseControllers.table_controllers
+import FreeTAKServer.controllers.persistence.table_controllers
 from FreeTAKServer.controllers.DatabaseControllers import system_user_table_controller
 from FreeTAKServer.controllers.persistence import VideoStreamTableController
 from FreeTAKServer.controllers.persistence import EventTableController
@@ -14,7 +14,7 @@ from FreeTAKServer.controllers.persistence import ExCheckController
 from FreeTAKServer.controllers.persistence import ExCheckChecklistController
 from FreeTAKServer.controllers.persistence import APICallController
 from FreeTAKServer.controllers.persistence import _VideoTableController
-from FreeTAKServer.controllers.DatabaseControllers.table_controllers import ActiveFederationsController, UserTableController, FederationsController
+from FreeTAKServer.controllers.persistence.table_controllers import ActiveFederationsController, UserTableController, FederationsController
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
 import FreeTAKServer.model.SQLAlchemy.CoTTables._Group
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Chat

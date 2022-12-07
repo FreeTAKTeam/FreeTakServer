@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.DatabaseControllers.table_controllers import TableController
+from FreeTAKServer.controllers.persistence.table_controllers import TableController
 from FreeTAKServer.controllers.persistence.EventTableController import EventTableController
 from FreeTAKServer.model.SQLAlchemy.ActiveEmergencys import ActiveEmergencys
 from sqlalchemy.exc import IntegrityError
