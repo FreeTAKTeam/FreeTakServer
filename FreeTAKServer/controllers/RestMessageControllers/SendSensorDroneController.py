@@ -1,5 +1,5 @@
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.model.SpecificCoT.SendSensorDrone import SendSensorDrone

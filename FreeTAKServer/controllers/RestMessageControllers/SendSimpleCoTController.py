@@ -5,7 +5,7 @@ from defusedxml import ElementTree as etree
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.model.SpecificCoT.SendSimpleCoT import SendSimpleCoT

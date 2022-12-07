@@ -18,7 +18,7 @@ class ActiveEmergencysController(TableController):
             session.commit()
             return row
         except IntegrityError as e:
-            from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+            from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
             try:
                 session.rollback()
                 session.close()

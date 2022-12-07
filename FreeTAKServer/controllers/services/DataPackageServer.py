@@ -15,7 +15,7 @@ from FreeTAKServer.controllers.configuration.DataPackageServerConstants import D
 from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 import eventlet
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
@@ -303,7 +303,6 @@ def home():
 # exCheckStuff
 from flask import Flask, request
 from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():

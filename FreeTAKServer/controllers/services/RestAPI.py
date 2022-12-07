@@ -25,7 +25,7 @@ from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
 from FreeTAKServer.model.SimpleClient import SimpleClient
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import \

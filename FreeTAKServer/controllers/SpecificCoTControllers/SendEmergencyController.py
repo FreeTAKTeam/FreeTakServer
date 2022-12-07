@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 from FreeTAKServer.model.SpecificCoT.SendEmergency import SendEmergency
 

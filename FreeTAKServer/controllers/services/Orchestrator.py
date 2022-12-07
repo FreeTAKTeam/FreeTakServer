@@ -22,7 +22,7 @@ from FreeTAKServer.controllers.connection.ActiveThreadsController import ActiveT
 from FreeTAKServer.controllers.connection.ClientInformationController import (
     ClientInformationController,
 )
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
+from FreeTAKServer.controllers.persistence.DatabaseController import (
     DatabaseController,
 )
 

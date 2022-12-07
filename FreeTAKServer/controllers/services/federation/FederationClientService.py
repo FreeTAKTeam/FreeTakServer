@@ -16,7 +16,7 @@ from typing import List, Tuple
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.services.federation.external_data_handlers import (
     FederationProtobufConnectionHandler,
     FederationProtobufDisconnectionHandler, FederationProtobufStandardHandler,

@@ -1,3 +1,6 @@
+from FreeTAKServer.controllers.persistence.DatabaseController import (
+    DatabaseController,
+)
 import argparse
 import linecache
 import multiprocessing
@@ -32,9 +35,6 @@ from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
 )
 from FreeTAKServer.controllers.configuration.configuration_wizard import ask_user_for_config
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
-    DatabaseController,
-)
 from FreeTAKServer.controllers.services.federation.federation import (
     FederationServerService,
 )

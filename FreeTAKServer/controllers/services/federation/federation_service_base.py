@@ -4,7 +4,7 @@ import selectors
 import multiprocessing
 from defusedxml import ElementTree as etree
 
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
 
