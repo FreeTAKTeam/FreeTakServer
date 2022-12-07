@@ -1,5 +1,5 @@
 import FreeTAKServer.controllers.persistence.table_controllers
-from FreeTAKServer.controllers.DatabaseControllers import system_user_table_controller
+from FreeTAKServer.controllers.persistence import system_user_table_controller
 from FreeTAKServer.controllers.persistence import VideoStreamTableController
 from FreeTAKServer.controllers.persistence import EventTableController
 from FreeTAKServer.controllers.persistence import ActiveEmergencysController, DataPackageTableController
