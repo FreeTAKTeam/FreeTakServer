@@ -17,7 +17,7 @@ from lxml import etree
 from digitalpy.model.node import Node
 from digitalpy.core.object_factory import ObjectFactory
 
-from FreeTAKServer.controllers.geo_manager_controller import GeoManagerController
+from FreeTAKServer.controllers.util.geo_manager_controller import GeoManagerController
 from FreeTAKServer.controllers.connection.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.controllers.connection.ClientInformationController import (
     ClientInformationController,
