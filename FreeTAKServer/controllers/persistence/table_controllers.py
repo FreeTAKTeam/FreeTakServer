@@ -2,8 +2,6 @@ from sqlalchemy import text
 
 from FreeTAKServer.model.SQLAlchemy.User import User
 from FreeTAKServer.model.SQLAlchemy.Root import Base
-from FreeTAKServer.model.SQLAlchemy.federations import ActiveFederations
-from FreeTAKServer.model.SQLAlchemy.federations import Federations
 
 
 class TableController:
@@ -52,11 +50,6 @@ class TableController:
             for column, value in column_value.items():
                 setattr(dp, column, value)
         session.commit()
-
-
-class FederationsController(TableController):
-    def __init__(self):
-        self.table = Federations
 
 
 class UserTableController(TableController):
