@@ -2,6 +2,7 @@
 as it utilizes flask, each method represents an endpoint
 this web server is responsible for all HTTP queries to
 FTS from an ATAK client"""
+from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
 import logging
 import os
 import random
@@ -302,7 +303,6 @@ def home():
 
 # exCheckStuff
 from flask import Flask, request
-from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
