@@ -60,7 +60,7 @@ class DatabaseController:
         self.SessionMaker = self.create_Sessionmaker()
         self.session = self.create_Session()
         self.DataPackageController = DataPackageTableController.DataPackageTableController()
-        self.UserTableController = UserTableController()
+        self.UserTableController = UserTableController.UserTableController()
         self.SystemUserTableController = system_user_table_controller.SystemUserTableController()
         self.VideoStreamTableController = VideoStreamTableController.VideoStreamTableController()
         self._VideoTableController = _VideoTableController._VideoTableController()
@@ -69,8 +69,8 @@ class DatabaseController:
         self.ActiveEmergencysController = ActiveEmergencysController.ActiveEmergencysController()
         self.ExCheckController = ExCheckController.ExCheckController()
         self.ExCheckChecklistController = ExCheckChecklistController.ExCheckChecklistController()
-        self.ActiveFederationController = ActiveFederationsController()
-        self.FederationController = FederationsController()
+        self.ActiveFederationController = ActiveFederationsController.ActiveFederationsController()
+        self.FederationController = FederationsController.FederationsController()
         self.APICallController = APICallController.APICallController()
 
     def create_engine(self):
