@@ -424,4 +424,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = False
+    first_start = True
