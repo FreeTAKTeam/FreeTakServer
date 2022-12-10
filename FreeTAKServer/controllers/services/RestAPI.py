@@ -49,6 +49,8 @@ from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import Sql
 
 dbController = DatabaseController()
 
+config = MainConfig.instance()
+
 UpdateArray = []
 StartTime = None
 
@@ -77,7 +79,8 @@ socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
 socketio.init_app(app, cors_allowed_origins="*")
 APIPipe = None
 CommandPipe = None
-app.config["SECRET_KEY"] = MainConfig.SecretKey
+config = MainConfig.instance()
+app.config["SECRET_KEY"] = config.SecretKey
 eventDict = {}
 
 
@@ -102,11 +105,6 @@ def verify_token(token):
                 return output.name
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
-
-
 def socket_auth(session=None):
     def innerfunc(x):
         def wrapper(*args, **kwargs):
@@ -127,12 +125,12 @@ def sessions():
 
 @socketio.on('connect')
 def connection():
-    emit('connectUpdate', json.dumps({"starttime": str(StartTime), "version": str(MainConfig.version)}))
+    emit('connectUpdate', json.dumps({"starttime": str(StartTime), "version": str(config.version)}))
 
 
 @socketio.on('authenticate')
 def authenticate(token):
-    if json.loads(token)["Authenticate"] == MainConfig.websocketkey:
+    if json.loads(token)["Authenticate"] == config.websocketkey:
         emit('authentication', json.dumps({'successful': 'True'}))
         session.authenticated = True  # pylint: disable=assigning-non-slot; this is necessary to save a client's state
     else:
@@ -373,7 +371,7 @@ def updateSystemUserRest():
 def updateSystemUser(jsondata):
     """ this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
     exist operation will return an error
-    
+
     Args:
         jsondata: dict
 
@@ -444,14 +442,14 @@ def addSystemUser(jsondata):
                 from defusedxml import ElementTree as etree
                 import shutil
                 import os
-                dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
-                openfile = open(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
+                dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
+                openfile = open(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                                 mode='rb')
                 file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
                 openfile.close()
                 newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
                 os.mkdir(newDirectory)
-                shutil.copy(str(PurePath(Path(str(MainConfig.clientPackages), cert_name + '.zip'))),
+                shutil.copy(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                             str(PurePath(Path(newDirectory), Path(cert_name + '.zip'))))
                 fileSize = Path(str(newDirectory), cert_name + '.zip').stat().st_size
                 dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,
@@ -481,7 +479,7 @@ def addSystemUser(jsondata):
                 cot.xmlString = clientXML.encode()
                 newCoT = SendOtherController(cot, addToDB=False)
                 APIPipe.put(newCoT.getObject())
-        
+
             else:
                 # in the event no certificate is to be generated simply create a system user
                 dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
@@ -492,9 +490,9 @@ def addSystemUser(jsondata):
                 errors.append(f"operation failed for user {systemuser['Name']} with error {str(e)}")
             else:
                 errors.append(f"operation failed for user missing name parameter with error {str(e)}")
-        
+
     if len(errors) == 0:
-        return "all users created", 201 
+        return "all users created", 201
     elif len(errors)<len(jsondata['systemUsers']):
         return ", ".join(errors), 201
     else:
@@ -537,12 +535,12 @@ def removeSystemUser(jsondata):
         dbController.remove_systemUser(f'uid = "{uid}"')
         obj = dbController.query_datapackage(f'Name = "{certificate_package_name}"')
         # TODO: make this coherent with constants
-        currentPath = MainConfig.DataPackageFilePath
+        currentPath = config.DataPackageFilePath
         shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
         dbController.remove_datapackage(f'Hash = "{obj[0].Hash}"')
-        os.remove(MainConfig.certsPath + f"/{na}{uid}.pem")
-        os.remove(MainConfig.certsPath + f"/{na}{uid}.key")
-        os.remove(MainConfig.certsPath + f"/{na}{uid}.p12")
+        os.remove(config.certsPath + f"/{na}{uid}.pem")
+        os.remove(config.certsPath + f"/{na}{uid}.key")
+        os.remove(config.certsPath + f"/{na}{uid}.p12")
     return '', 200
 
 @socketio.on("events")
@@ -560,7 +558,7 @@ def generate_qr():
         version=1,
         box_size=10,
         border=5)
-    qr.add_data(f'http://{MainConfig.DataPackageServiceDefaultIP}:{8080}/Marti/api/sync/metadata/{dp.Hash}/tool')
+    qr.add_data(f'http://{config.DataPackageServiceDefaultIP}:{8080}/Marti/api/sync/metadata/{dp.Hash}/tool')
     qr.make(fit=True)
     img = qr.make_image(fill='black', back_color='white')
     img_io = io.BytesIO()
@@ -876,7 +874,7 @@ def getGeoObject():
                             Point.lat < 0,
                             ((((Point.lon * -1) - lon_abs) * 111302.62) + (((Point.lat * -1) - lat_abs) * 110574.61)) > 0,
                             ((((Point.lon * -1) - lon_abs) * 111302.62) + (((Point.lat * -1) - lat_abs) * 110574.61)) <= radius + 10),
-            
+
                         and_(
                             Point.lon < 0,
                             Point.lat >= 0,
@@ -888,7 +886,7 @@ def getGeoObject():
                                     ((((lon_abs * -1) - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) <= radius + 10,
                                     ((((lon_abs * -1) - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) > 0)
                             ),
-            
+
                         ),
                         and_(
                             Point.lon >= 0,
@@ -1098,7 +1096,6 @@ def ManageChat():
 def postChatToAll():
     try:
         from json import dumps
-        # jsondata = {'message': 'test abc', 'sender': 'natha'}
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_chat_post(jsondata)
         ChatObject = SendChatController(jsonobj).getCoTObject()
@@ -1274,7 +1271,7 @@ def ConnectionMessage():
 
 @app.route("/APIUser", methods=[restMethods.GET, restMethods.POST, restMethods.DELETE])
 def APIUser():
-    if request.remote_addr in MainConfig.AllowedCLIIPs:
+    if request.remote_addr in config.AllowedCLIIPs:
         try:
             if request.method == restMethods.POST:
                 json = request.get_json()
@@ -1319,7 +1316,7 @@ def URLGET():
 @app.route("/Clients", methods=[restMethods.GET])
 def Clients():
     try:
-        if request.remote_addr in MainConfig.AllowedCLIIPs:
+        if request.remote_addr in config.AllowedCLIIPs:
             CommandPipe.put([functionNames.Clients])
             out = CommandPipe.get()
             returnValue = []
@@ -1406,6 +1403,9 @@ def FederationTable():
 @app.route('/ManageKML/postKML', methods=[restMethods.POST])
 @auth.login_required()
 def create_kml():
+    # Make a connection to the MainConfig object
+    config = MainConfig.instance()
+
     try:
         from pykml.factory import KML_ElementMaker as KML
         from pykml import parser
@@ -1415,7 +1415,7 @@ def create_kml():
         from zipfile import ZipFile
         from lxml.etree import SubElement, Element  # pylint: disable=no-name-in-module
         from geopy import Nominatim
-        dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
+        dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
         jsondata = request.get_json(force=True)
         name = jsondata["name"]
         main = parser.fromstring('<kml xmlns="http://www.opengis.net/kml/2.2"/>')
@@ -1519,6 +1519,10 @@ def broadcast_datapackage(uid):
 @auth.login_required()
 def DataPackageTable():
     from pathlib import Path
+
+    # Make a connection to the MainConfig object
+    config = MainConfig.instance()
+
     if request.method == "GET":
         output = dbController.query_datapackage()
         for i in range(0, len(output)):
@@ -1538,7 +1542,7 @@ def DataPackageTable():
             obj = dbController.query_datapackage(f'Hash = "{Hash}"')
             print(obj)
             # TODO: make this coherent with constants
-            currentPath = MainConfig.DataPackageFilePath
+            currentPath = config.DataPackageFilePath
             shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
             dbController.remove_datapackage(f'Hash = "{Hash}"')
         return '200', 200
@@ -1553,7 +1557,7 @@ def DataPackageTable():
             from defusedxml import ElementTree as etree
             import uuid
             from lxml.etree import SubElement, Element  # pylint: disable=no-name-in-module
-            dp_directory = str(PurePath(Path(MainConfig.DataPackageFilePath)))
+            dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
             letters = string.ascii_letters
             # uid = ''.join(random.choice(letters) for i in range(4))
             # uid = 'uid-' + str(uid)
@@ -1693,11 +1697,11 @@ def excheck_table():
             ExCheckArray = json.loads(jsondata)["ExCheck"]
             for item in ExCheckArray["Templates"]:
                 templateitem = DatabaseController().query_ExCheck(f'ExCheckData.uid = "{item["uid"]}"', verbose=True)[0]
-                os.remove(str(PurePath(Path(MainConfig.ExCheckFilePath), Path(templateitem.data.filename))))
+                os.remove(str(PurePath(Path(config.ExCheckFilePath), Path(templateitem.data.filename))))
                 DatabaseController().remove_ExCheck(f'PrimaryKey = "{templateitem.PrimaryKey}"')
             for item in ExCheckArray["Checklists"]:
                 checklistitem = DatabaseController().query_ExCheckChecklist(f'uid = "{item["uid"]}"')[0]
-                os.remove(str(PurePath(Path(MainConfig.ExCheckChecklistFilePath), Path(checklistitem.filename))))
+                os.remove(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistitem.filename))))
                 DatabaseController().remove_ExCheckChecklist(f'uid = "{item["uid"]}"')
             return 'success', 200
         elif request.method == "POST":
@@ -1719,7 +1723,7 @@ def excheck_table():
                 object.timestamp = datetime.strptime(object.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
                 serializer.create_DB_object(object)
                 xml = etree.fromstring(XMI)
-                path = str(PurePath(Path(MainConfig.ExCheckFilePath), Path(f'{object.data.uid}.xml')))
+                path = str(PurePath(Path(config.ExCheckFilePath), Path(f'{object.data.uid}.xml')))
                 with open(path, 'w+') as file:
                     file.write(XMI)
                     file.close()
@@ -1755,7 +1759,7 @@ def excheck_table():
 def check_status():
     try:
 
-        if request.remote_addr in MainConfig.AllowedCLIIPs:
+        if request.remote_addr in config.AllowedCLIIPs:
             CommandPipe.put([functionNames.checkStatus])
             FTSServerStatusObject = CommandPipe.get()
             out = ApplyFullJsonController().serialize_model_to_json(FTSServerStatusObject)
@@ -1770,7 +1774,7 @@ def check_status():
 def help():
     try:
         from flask import url_for
-        message = {"APIVersion": str(MainConfig.APIVersion),
+        message = {"APIVersion": str(config.APIVersion),
                    "SupportedEndpoints": [url_for(i.endpoint, **(i.defaults or {})) for i in app.url_map.iter_rules() if
                                           i.endpoint != 'static']
                    }

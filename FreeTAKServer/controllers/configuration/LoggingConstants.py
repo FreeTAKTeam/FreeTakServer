@@ -1,10 +1,10 @@
 import os
-from pathlib import PurePath
+from pathlib import PurePath, Path
 class LoggingConstants:
     def __init__(self, log_name = "FTS"):
         #main logging config
         # if on a unix type system with /var/log put the logs there
-        if os.path.isdir('/var/log'):
+        if os.path.isdir('/var/log') and os.access('/var/log', os.W_OK):
             self.PARENTPATH = '/var'
             self.LOGDIRECTORY = 'log'
         else:
@@ -13,6 +13,9 @@ class LoggingConstants:
             self.CURRENTPATH = PurePath(self.CURRENTPATH)
             self.PARENTPATH = str(self.CURRENTPATH.parents[0])
             self.LOGDIRECTORY = 'logs'
+
+            # ensure directory exists
+            Path(PurePath(self.PARENTPATH, self.LOGDIRECTORY)).mkdir(parents=True, exist_ok=True)
 
         self.LOGFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
         self.LOGNAME = log_name
@@ -116,7 +119,7 @@ class LoggingConstants:
 
         #ReceiveConnections
         #listen
-        self.RECEIVECONNECTIONSLISTENINFO = 'client connected'
+        self.RECEIVECONNECTIONSLISTENINFO = 'client data accepted'
         self.RECEIVECONNECTIONSLISTENERROR = 'error in Receive connections listen function '
 
         #send client data
@@ -132,3 +135,4 @@ class LoggingConstants:
         #determine CoT general
         self.XMLCOTCONTROLLERDETERMINECOTGENERALERRORA = "exception XMLCoTController in determining general CoT type A "
         self.XMLCOTCONTROLLERDETERMINECOTGENERALERRORB = "exception XMLCoTController in determining general CoT type B "
+        self.XMLCOTCONTROLLERDETERMINECOTGENERALERRORC = "exception XMLCoTController in determining general CoT type C "

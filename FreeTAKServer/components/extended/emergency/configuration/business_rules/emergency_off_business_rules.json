@@ -1,0 +1,13 @@
+{
+    "actions": [
+        "ParseEmergencyOff"
+    ],
+    "matchable": "model_object",
+    "rules": {
+        "type == 'EmergencyCancelled'": {
+            "actions": [
+                "DeleteEmergency"
+            ]
+        }
+    }
+}

@@ -31,19 +31,27 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
         twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
-    - uses: actions/checkout@master
+    - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
+      uses: GuillaumeFalourd/clone-github-repo-action@v2
       with:
-        repository: FreeTAKTeam/FreeTAKHub-Installation
-    - name: executing remote ssh commands
-      uses: appleboy/ssh-action@master
+        owner: 'FreeTAKTeam'
+        repository: 'FreeTAKHub-Installation'
+        
+    - name: Run Ansible playbook
+      # You may pin to the exact commit or the version.
+      # uses: dawidd6/action-ansible-playbook@671974ed60e946e11964cb0c26e69caaa4b1f559
+      uses: dawidd6/action-ansible-playbook@v2.5.0
       with:
-        host: ${{ secrets.DEV_SERVER_ADDRESS }}
-        username: ${{ secrets.DEV_SERVER_USERNAME }}
-        key: ${{ secrets.DEV_SERVER_SSH_KEY }}
-        port: ${{ secrets.DEV_SERVER_PORT }}
-        script: |
-          sudo systemctl stop fts
-          sudo python3 -m pip uninstall FreeTAKServer -y
-          sudo rm -r /usr/local/lib/python3.8/dist-packages/FreeTAKServer
-          sudo rm -r FreeTAKServer/
-          wget -qO - bit.ly/ftszerotouch | sudo bash
+        # Ansible playbook filepath
+        playbook: FreeTAKHub-Installation/install_all.yml
+        # SSH private key used to connect to the host
+        key: ${{secrets.DEV_SERVER_SSH_KEY}}
+        # Custom content to write into hosts
+        inventory: |
+          [all]
+          ${{secrets.DEV_SERVER_ADDRESS}}    ansible_sudo_pass=${{secrets.DEV_SERVER_PASSWORD}}     ansible_connection=ssh    ansible_user=${{secrets.DEV_SERVER_USERNAME}}
+        # Extra options that should be passed to ansible-playbook command
+        options: |
+          --verbose
+        # Set to "true" if root is required for running your playbook
+        sudo: true

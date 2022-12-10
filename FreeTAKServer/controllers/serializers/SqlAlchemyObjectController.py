@@ -45,15 +45,3 @@ class SqlAlchemyObjectController:
                 print(str(e))
         return modelObject
 
-
-if __name__ == "__main__":
-    from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-    from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-    from lxml.etree import tostring   # pylint: disable=no-name-in-module; member does exist
-    contr = DatabaseController()
-    from FreeTAKServer.model.FTSModel.Event import Event
-
-    sqlalchemy_obj = contr.query_CoT(f'uid="23352bbb-4349-11ec-bdf2-2cf05d092d98"')[0]
-    modelObject = SqlAlchemyObjectController().convert_sqlalchemy_to_modelobject(sqlalchemy_obj, Event.VideoStream())
-    xmlString = tostring(XmlSerializer().from_fts_object_to_format(modelObject))
-    print(xmlString)

@@ -58,7 +58,3 @@ class SendEmergencyController:
 
     def getCoTObject(self):
         return self.CoTObject
-
-if __name__ == "__main__":
-    SendEmergencyController('{"name": "test", "emergencyType": "911 Alert", "status": "on"}')
-    SendEmergencyController('{"uid": "d7f30cf5-1d4d-11eb-b036-2cf05d092d98", "status": "off"}')

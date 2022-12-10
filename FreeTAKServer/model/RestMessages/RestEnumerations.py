@@ -19,6 +19,7 @@ class RestEnumerations:
     '''
 
     Teams = {
+        "White": "White",
         "Cyan": "Cyan",
         'Red': 'Red',
         'Yellow': 'Yellow',

@@ -33,7 +33,7 @@ class SSLSocketController(MainSocketController):
         #self.MainSocket.sock = context.wrap_socket(self.MainSocket.sock, server_side=True)
         return self.MainSocket.sock
 
-    def wrap_client_socket(self, socket):
+    async def wrap_client_socket(self, socket):
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
         context.load_verify_locations(cafile=self.MainSocket.CA)
         context.options |= ssl.OP_NO_SSLv3
