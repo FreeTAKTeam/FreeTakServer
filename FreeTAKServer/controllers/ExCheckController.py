@@ -11,10 +11,10 @@ from defusedxml import ElementTree as etree
 from flask import request
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.testobj import testobj
 from FreeTAKServer.model.FTSModel.Checklists import Checklists
 from FreeTAKServer.model.FTSModel.Event import Event
