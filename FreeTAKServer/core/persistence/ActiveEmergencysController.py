@@ -1,5 +1,5 @@
-from FreeTAKServer.controllers.persistence.table_controllers import TableController
-from FreeTAKServer.controllers.persistence.EventTableController import EventTableController
+from FreeTAKServer.core.persistence.table_controllers import TableController
+from FreeTAKServer.core.persistence.EventTableController import EventTableController
 from FreeTAKServer.model.SQLAlchemy.ActiveEmergencys import ActiveEmergencys
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import make_transient
@@ -18,7 +18,7 @@ class ActiveEmergencysController(TableController):
             session.commit()
             return row
         except IntegrityError as e:
-            from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+            from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
             try:
                 session.rollback()
                 session.close()

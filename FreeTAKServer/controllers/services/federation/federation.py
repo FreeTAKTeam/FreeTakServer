@@ -8,7 +8,7 @@ from typing import Dict, List
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.services.federation.external_data_handlers import (
     FederationProtobufConnectionHandler,
     FederationProtobufDisconnectionHandler, FederationProtobufStandardHandler,
@@ -42,7 +42,7 @@ class FederationServerService(FederationServiceBase):
         self._define_external_data_responsibility_chain()
         self._define_data_responsibility_chain()
         self.pipe = None
-        self.federates: {str: Federate} = {}
+        self.federates: Dict[str, Federate] = {}
         self.sel = selectors.DefaultSelector()
         self.logger = logger
         self.user_dict: Dict[str, FederatedEvent] = {}

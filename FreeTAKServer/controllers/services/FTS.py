@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.persistence.DatabaseController import (
+from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )
 import argparse
@@ -14,7 +14,7 @@ from digitalpy.config.configuration import Configuration
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.core.object_factory import ObjectFactory
 from digitalpy.registration.registration_handler import RegistrationHandler
-from digitalpy.routing.routing_proxy import RoutingProxy
+from digitalpy.routing.subject import Subject
 
 from FreeTAKServer.controllers.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
@@ -632,7 +632,7 @@ class FTS:
             )
 
             # begin the routing proxy
-            self.routing_proxy_service = ObjectFactory.get_instance("RoutingProxy")
+            self.routing_proxy_service = ObjectFactory.get_instance("Subject")
             proc = multiprocessing.Process(
                 target=self.routing_proxy_service.begin_routing
             )

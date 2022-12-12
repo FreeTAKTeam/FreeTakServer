@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.persistence.table_controllers import TableController
+from FreeTAKServer.core.persistence.table_controllers import TableController
 from FreeTAKServer.model.SQLAlchemy.Event import Event
 import importlib
 

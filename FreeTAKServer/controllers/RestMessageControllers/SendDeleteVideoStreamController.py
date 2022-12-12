@@ -7,7 +7,7 @@ import json as jsonmodule
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables
 from defusedxml import ElementTree as etree
-from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendDeleteVideoStreamController").getLogger()
 

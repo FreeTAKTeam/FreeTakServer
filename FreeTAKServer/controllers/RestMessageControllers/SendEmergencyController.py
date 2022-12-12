@@ -2,7 +2,7 @@ import uuid
 
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete

@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from defusedxml import ElementTree as etree
 from FreeTAKServer.model.ExCheck.templateInstanceContents import templateInstanceContents
 import hashlib

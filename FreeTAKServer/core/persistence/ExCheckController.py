@@ -1,7 +1,7 @@
 from FreeTAKServer.model.SQLAlchemy.ExCheck import ExCheck
 from FreeTAKServer.model.SQLAlchemy.ExCheck import ExCheckData
 from FreeTAKServer.model.ExCheck.templateInstanceContents import templateInstanceContents
-from FreeTAKServer.controllers.persistence.table_controllers import TableController
+from FreeTAKServer.core.persistence.table_controllers import TableController
 from FreeTAKServer.model.SQLAlchemy.ExCheckKeywords import ExCheckKeywords
 from sqlalchemy.sql import text
 unsuportedAttribs = ['_sa_instance_state']

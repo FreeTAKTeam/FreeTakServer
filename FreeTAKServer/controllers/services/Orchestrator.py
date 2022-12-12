@@ -22,7 +22,7 @@ from FreeTAKServer.controllers.connection.ActiveThreadsController import ActiveT
 from FreeTAKServer.controllers.connection.ClientInformationController import (
     ClientInformationController,
 )
-from FreeTAKServer.controllers.persistence.DatabaseController import (
+from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )
 
@@ -296,7 +296,7 @@ class Orchestrator(ABC):
         :return:
         """
         try:
-            from FreeTAKServer.controllers.persistence.EventTableController import (
+            from FreeTAKServer.core.persistence.EventTableController import (
                 EventTableController,
             )
 

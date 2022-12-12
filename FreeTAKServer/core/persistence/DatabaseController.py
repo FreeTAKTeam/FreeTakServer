@@ -1,22 +1,22 @@
-import FreeTAKServer.controllers.persistence.table_controllers
-from FreeTAKServer.controllers.persistence import system_user_table_controller
-from FreeTAKServer.controllers.persistence import VideoStreamTableController
-from FreeTAKServer.controllers.persistence import EventTableController
-from FreeTAKServer.controllers.persistence import ActiveEmergencysController, DataPackageTableController
+import FreeTAKServer.core.persistence.table_controllers
+from FreeTAKServer.core.persistence import system_user_table_controller
+from FreeTAKServer.core.persistence import VideoStreamTableController
+from FreeTAKServer.core.persistence import EventTableController
+from FreeTAKServer.core.persistence import DataPackageTableController
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.orm import make_transient
 from sqlalchemy.exc import IntegrityError
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
-from FreeTAKServer.controllers.persistence import APIUsersController
-from FreeTAKServer.controllers.persistence import ExCheckController
-from FreeTAKServer.controllers.persistence import ExCheckChecklistController
-from FreeTAKServer.controllers.persistence import APICallController
-from FreeTAKServer.controllers.persistence import _VideoTableController
-from FreeTAKServer.controllers.persistence import ActiveFederationsController
-from FreeTAKServer.controllers.persistence import FederationsController
-from FreeTAKServer.controllers.persistence import UserTableController
+from FreeTAKServer.core.persistence import APIUsersController
+from FreeTAKServer.core.persistence import ExCheckController
+from FreeTAKServer.core.persistence import ExCheckChecklistController
+from FreeTAKServer.core.persistence import APICallController
+from FreeTAKServer.core.persistence import _VideoTableController, ActiveEmergencysController
+from FreeTAKServer.core.persistence import ActiveFederationsController
+from FreeTAKServer.core.persistence import FederationsController
+from FreeTAKServer.core.persistence import UserTableController
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Archive
 import FreeTAKServer.model.SQLAlchemy.CoTTables._Group
 import FreeTAKServer.model.SQLAlchemy.CoTTables.Chat

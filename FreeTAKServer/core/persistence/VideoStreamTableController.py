@@ -7,7 +7,7 @@
 # Original author: natha
 # 
 #######################################################
-from FreeTAKServer.controllers.persistence.table_controllers import TableController
+from FreeTAKServer.core.persistence.table_controllers import TableController
 from FreeTAKServer.model.SQLAlchemy.VideoStream import VideoStream
 
 class VideoStreamTableController(TableController):

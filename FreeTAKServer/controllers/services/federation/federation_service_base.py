@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 import logging
 import selectors
 import multiprocessing
+from typing import Dict
 from defusedxml import ElementTree as etree
 
-from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
 
@@ -21,7 +22,7 @@ from FreeTAKServer.model.federate import Federate
 
 class FederationServiceBase(ServerServiceInterface, ServiceBase):
     def __init__(self):
-        self.federates: {str: Federate}
+        self.federates: Dict[str, Federate]
         self.logger: logging.Logger
         self.sel: selectors.select
 
