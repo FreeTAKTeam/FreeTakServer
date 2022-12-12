@@ -1,6 +1,6 @@
 # FreeTAKServer [![Downloads](https://pepy.tech/badge/freetakserver)](https://pepy.tech/project/freetakserver) ![PyPI](https://img.shields.io/pypi/v/FreeTAKServer) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/FreeTAKTeam/FreeTakServer) ![Lines of code](https://img.shields.io/tokei/lines/github.com/FreeTAKTeam/FreeTakServer)
 
-![the Parrot is not dead](https://github.com/Tapawingo/FreeTakServer/blob/master/docs/FreeTakServer%20specs/FreeTakServerLogo.png?raw=true)
+![the Parrot is not dead](https://github.com/FreeTAKTeam/FreeTAKServer-User-Docs/blob/a18a269fc1e425863ba5b3a76329e90645d751d1/docs/docs/FreeTakServerLogo.png)
 
 Welcome to the FreeTakServer (FTS) git repository.
 
@@ -49,14 +49,12 @@ https://discordapp.com/invite/XEPyhHA
 
 ## Architecture
 TAKFreeServer uses a MVC pattern, the concept of a COT (Cursor On Target) is described in a set of Domain classes, generated from the UML model using a Model Driven Architecture approach.
-![the domain model with all the known objects used by CIVTAK/wintak](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTAKServer%20Model.png) [Live version](http://pldemo.sparxsystems.us/Ldsd4T)
-[generated documentation of the COT description](https://github.com/FreeTAKTeam/FreeTakServer/blob/master/docs/FreeTakServer%20specs/COTDomainModel.pdf)
 
 ## Documentation
 See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for various information including an UML model of the Domain classes involved in a COT event.
 
 ## Requirements
-- Python 3.6 (or better)
+- Python 3.8 
 - Dependencies:
   - `flask`
   - `lxml`
@@ -74,9 +72,7 @@ For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs
   - **Controllers**: Contains FTS business Logic
   - **Models**: Contains all the FTS  object model
   - **Views**:   contains the access to FTS
-  - **certs**: code for secure connection
-- [docs](./docs/): Useful documentation regarding COTS and different logs to understand how those are implemented
-- [model](./model/): a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html).
+
 
 ## Community 
 If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as FreeTAKServer is in continuous development.

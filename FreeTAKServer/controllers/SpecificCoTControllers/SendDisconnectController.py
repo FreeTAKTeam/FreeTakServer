@@ -1,7 +1,8 @@
-from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
-from .SendCoTAbstractController import SendCoTAbstractController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect
+
+from .SendCoTAbstractController import SendCoTAbstractController
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendDisconnectController").getLogger()

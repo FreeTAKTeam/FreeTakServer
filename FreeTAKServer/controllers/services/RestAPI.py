@@ -16,16 +16,16 @@ from flask_cors import CORS
 import qrcode
 import io
 
-from FreeTAKServer.controllers import certificate_generation
+from FreeTAKServer.controllers.util import certificate_generation
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
-from FreeTAKServer.controllers.ApplyFullJsonController import ApplyFullJsonController
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.ApplyFullJsonController import ApplyFullJsonController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
 from FreeTAKServer.model.SimpleClient import SimpleClient
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import \
@@ -42,11 +42,13 @@ from FreeTAKServer.controllers.RestMessageControllers.SendImageryVideoController
 from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
 from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.JsonController import JsonController
+from FreeTAKServer.controllers.parsers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 from FreeTAKServer.controllers.ExCheckController import ExCheckController
 
 dbController = DatabaseController()
+
+config = MainConfig.instance()
 
 UpdateArray = []
 StartTime = None
@@ -257,7 +259,7 @@ def serverHealth(empty=None):
 @socket_auth(session=session)
 def systemStatus(update=None):
     print('system status running')
-    from FreeTAKServer.controllers.ServerStatusController import ServerStatusController
+    from FreeTAKServer.controllers.health.ServerStatusController import ServerStatusController
     currentStatus = getStatus()
     statusObject = ServerStatusController(currentStatus)
     jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
@@ -387,13 +389,13 @@ def addSystemUser(jsondata):
                 import shutil
                 import os
                 dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
-                openfile = open(str(PurePath(Path(str(config.clientPackages), cert_name + '.zip'))),
+                openfile = open(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                                 mode='rb')
                 file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
                 openfile.close()
                 newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
                 os.mkdir(newDirectory)
-                shutil.copy(str(PurePath(Path(str(config.clientPackages), cert_name + '.zip'))),
+                shutil.copy(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                             str(PurePath(Path(newDirectory), Path(cert_name + '.zip'))))
                 fileSize = Path(str(newDirectory), cert_name + '.zip').stat().st_size
                 dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,
@@ -469,7 +471,7 @@ def removeSystemUser(jsondata):
     """ iterates through a list of system users and removes them in addition to revoking and
     deleting their certificates.
     """
-    from FreeTAKServer.controllers.certificate_generation import revoke_certificate
+    from FreeTAKServer.controllers.util.certificate_generation import revoke_certificate
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
