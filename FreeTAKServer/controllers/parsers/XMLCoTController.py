@@ -11,8 +11,8 @@ from defusedxml import ElementTree as etree
 import re
 from digitalpy.core.object_factory import ObjectFactory
 
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.SpecificCoTControllers import *
 
 from FreeTAKServer.model.SpecificCoT.SendPing import SendPing

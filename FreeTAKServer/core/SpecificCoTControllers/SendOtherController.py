@@ -1,9 +1,9 @@
 from defusedxml import ElementTree as etree
 from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 from FreeTAKServer.core.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()

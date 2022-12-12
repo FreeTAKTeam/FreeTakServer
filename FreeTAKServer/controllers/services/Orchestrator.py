@@ -36,10 +36,10 @@ from FreeTAKServer.core.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 
 from FreeTAKServer.model.RawCoT import RawCoT
-from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
+from FreeTAKServer.core.configuration.OrchestratorConstants import (
     OrchestratorConstants,
 )
 from FreeTAKServer.model.FTSModel.Event import Event

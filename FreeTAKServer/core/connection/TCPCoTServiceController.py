@@ -7,13 +7,13 @@ from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
 from FreeTAKServer.core.connection.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.core.connection.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.core.connection.TCPSocketController import TCPSocketController
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 import os
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.config.impl.inifile_configuration import InifileConfiguration
 from multiprocessing.pool import ThreadPool
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )

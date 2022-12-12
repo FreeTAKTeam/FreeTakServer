@@ -1,6 +1,6 @@
-from FreeTAKServer.controllers.configuration.CreateLoggerController import \
+from FreeTAKServer.core.configuration.CreateLoggerController import \
     CreateLoggerController
-from FreeTAKServer.controllers.configuration.LoggingConstants import \
+from FreeTAKServer.core.configuration.LoggingConstants import \
     LoggingConstants
 from FreeTAKServer.model.SpecificCoT.SendGeoChat import SendGeoChat
 

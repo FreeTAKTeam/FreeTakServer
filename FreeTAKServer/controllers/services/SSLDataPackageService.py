@@ -1,10 +1,10 @@
 import ssl
 
 from eventlet import listen, wrap_ssl, wsgi
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.DataPackageServerConstants import DataPackageServerConstants
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 from FreeTAKServer.controllers.services.DataPackageServer import (
     FlaskFunctions, Path, app, const, dp_directory, os)

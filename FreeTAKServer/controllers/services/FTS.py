@@ -16,7 +16,7 @@ from digitalpy.core.object_factory import ObjectFactory
 from digitalpy.registration.registration_handler import RegistrationHandler
 from digitalpy.routing.subject import Subject
 
-from FreeTAKServer.controllers.configuration.CreateStartupFilesController import (
+from FreeTAKServer.core.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
 )
 
@@ -28,13 +28,13 @@ from multiprocessing import Queue
 
 from FreeTAKServer.core.util.AddDataToCoTList import AddDataToCoTList
 from FreeTAKServer.core.util.certificate_generation import AtakOfTheCerts
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.OrchestratorConstants import (
     OrchestratorConstants,
 )
-from FreeTAKServer.controllers.configuration.configuration_wizard import ask_user_for_config
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.configuration_wizard import ask_user_for_config
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.services.federation.federation import (
     FederationServerService,
 )

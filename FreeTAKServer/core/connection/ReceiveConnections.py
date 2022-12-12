@@ -18,11 +18,11 @@ import time
 import os
 from typing import Union
 
-from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
 from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 
 loggingConstants = LoggingConstants(log_name="FTS_ReceiveConnections")

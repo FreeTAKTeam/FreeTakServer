@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 class template:
     def __init__(self):

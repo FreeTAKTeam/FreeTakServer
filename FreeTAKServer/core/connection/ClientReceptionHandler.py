@@ -13,9 +13,9 @@ import errno
 import copy
 import re
 
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from defusedxml import ElementTree as etree
 
 # Make a connection to the MainConfig object for all routines below
@@ -23,7 +23,7 @@ config = MainConfig.instance()
 
 loggingConstants = LoggingConstants(log_name="FTS_ClientReceptionHandler")
 logger = CreateLoggerController("FTS_ClientReceptionHandler", logging_constants=loggingConstants).getLogger()
-from FreeTAKServer.controllers.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
+from FreeTAKServer.core.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 
 loggingConstants = ClientReceptionLoggingConstants()
 BUFF_SIZE = config.DataReceptionBuffer

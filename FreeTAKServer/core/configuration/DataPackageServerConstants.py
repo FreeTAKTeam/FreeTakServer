@@ -1,6 +1,6 @@
 import os
 import pathlib
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()

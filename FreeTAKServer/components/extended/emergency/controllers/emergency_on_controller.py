@@ -3,7 +3,7 @@
 import pickle
 from geopy import distance
 
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 from digitalpy.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,

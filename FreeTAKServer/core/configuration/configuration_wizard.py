@@ -1,6 +1,6 @@
 from typing import List
 
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from ruamel.yaml import YAML
 yaml = YAML()
 import pathlib

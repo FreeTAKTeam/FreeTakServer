@@ -1,5 +1,5 @@
 from digitalpy.component.impl.default_facade import DefaultFacade
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.components.core.xml_serializer.configuration.xml_serializer_constants import (
     ACTION_MAPPING_PATH,
     TYPE_MAPPINGS,

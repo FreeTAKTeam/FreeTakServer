@@ -12,14 +12,14 @@ import traceback
 import defusedxml.ElementTree as ET
 from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
-from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
-from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.DataPackageServerConstants import DataPackageServerConstants
+from FreeTAKServer.core.configuration.SQLcommands import SQLcommands
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
-from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
+from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
 import eventlet
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
 
 from flask_sqlalchemy import SQLAlchemy

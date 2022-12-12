@@ -16,7 +16,7 @@ import socket
 import zipfile
 import shutil
 import pathlib
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 try:
     import requests

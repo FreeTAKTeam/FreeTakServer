@@ -1,11 +1,11 @@
 from FreeTAKServer.model.SpecificCoT.SendVideoStream import SendVideoStream
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables
+from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables
 from geopy import Nominatim
 from defusedxml import ElementTree as etree
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController

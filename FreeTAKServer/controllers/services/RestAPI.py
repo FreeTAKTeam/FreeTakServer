@@ -17,16 +17,16 @@ import qrcode
 import io
 
 from FreeTAKServer.core.util import certificate_generation
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
 from FreeTAKServer.controllers.parsers.ApplyFullJsonController import ApplyFullJsonController
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
-from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
+from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables as vars
 from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
-from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
+from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.core.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.core.RestMessageControllers.SendDeleteVideoStreamController import \
     SendDeleteVideoStreamController
@@ -41,7 +41,7 @@ from FreeTAKServer.core.RestMessageControllers.SendSPISensorController import Se
 from FreeTAKServer.core.RestMessageControllers.SendImageryVideoController import SendImageryVideoController
 from FreeTAKServer.core.RestMessageControllers.SendRouteController import SendRouteController
 from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.parsers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 

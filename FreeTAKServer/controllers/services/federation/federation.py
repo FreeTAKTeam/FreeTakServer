@@ -5,9 +5,9 @@ import threading
 import uuid
 from typing import Dict, List
 
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.services.federation.external_data_handlers import (
     FederationProtobufConnectionHandler,
