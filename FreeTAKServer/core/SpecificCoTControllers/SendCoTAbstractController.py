@@ -72,7 +72,7 @@ class SendCoTAbstractController(ABC):
         this function will handle any exception thrown in the process of serialization of an xml CoT to it's respective model object
         by processing it as an Other type
         """
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+        from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import SendOtherController
         object = SendOtherController(RawCoT).getObject()
         object.clientInformation = RawCoT.clientInformation
         self.setObject(object)

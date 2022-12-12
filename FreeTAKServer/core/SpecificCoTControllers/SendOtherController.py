@@ -1,6 +1,6 @@
 from defusedxml import ElementTree as etree
 from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
-from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
+from FreeTAKServer.core.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig

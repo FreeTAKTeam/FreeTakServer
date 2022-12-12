@@ -13,7 +13,7 @@ from digitalpy.core.object_factory import ObjectFactory
 
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.SpecificCoTControllers import *
+from FreeTAKServer.core.SpecificCoTControllers import *
 
 from FreeTAKServer.model.SpecificCoT.SendPing import SendPing
 from FreeTAKServer.model.SpecificCoT.SendTakPong import SendTakPong
@@ -207,25 +207,25 @@ class XMLCoTController:
         from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import (
             SendEmergencyController,
         )
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendDropPointController import (
+        from FreeTAKServer.core.SpecificCoTControllers.SendDropPointController import (
             SendDropPointController,
         )
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendGeoChatController import (
+        from FreeTAKServer.core.SpecificCoTControllers.SendGeoChatController import (
             SendGeoChatController,
         )
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendHealthCheckController import (
+        from FreeTAKServer.core.SpecificCoTControllers.SendHealthCheckController import (
             SendHealthCheckController,
         )
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendInvalidCoTController import (
+        from FreeTAKServer.core.SpecificCoTControllers.SendInvalidCoTController import (
             SendInvalidCoTController,
         )
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import (
+        from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import (
             SendOtherController,
         )
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendPingController import (
+        from FreeTAKServer.core.SpecificCoTControllers.SendPingController import (
             SendPingController,
         )
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendUserUpdateController import (
+        from FreeTAKServer.core.SpecificCoTControllers.SendUserUpdateController import (
             SendUserUpdateController,
         )
 

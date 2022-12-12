@@ -416,7 +416,7 @@ def addSystemUser(jsondata):
                 now = timer.utcnow()
                 zulu = now.strftime(DATETIME_FMT)
                 time = zulu
-                from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+                from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import SendOtherController
                 from FreeTAKServer.model.RawCoT import RawCoT
                 cot = RawCoT()
                 DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
@@ -593,7 +593,7 @@ def SendGeoChat():
         modelObject = Event.GeoChat()
         out = ApplyFullJsonController().serializeJsonToModel(modelObject, json)
         xml = XMLCoTController().serialize_model_to_CoT(out, 'event')
-        from FreeTAKServer.controllers.SpecificCoTControllers.SendGeoChatController import SendGeoChatController
+        from FreeTAKServer.core.SpecificCoTControllers.SendGeoChatController import SendGeoChatController
         rawcot = RawCoT()
         rawcot.xmlString = xml
         rawcot.clientInformation = None
@@ -1449,7 +1449,7 @@ def broadcast_datapackage(uid):
     now = timer.utcnow()
     zulu = now.strftime(DATETIME_FMT)
     time = zulu
-    from FreeTAKServer.controllers.SpecificCoTControllers.SendOtherController import SendOtherController
+    from FreeTAKServer.core.SpecificCoTControllers.SendOtherController import SendOtherController
     from FreeTAKServer.model.RawCoT import RawCoT
     cot = RawCoT()
     DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP

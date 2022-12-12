@@ -10,7 +10,7 @@ from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceInterface
 from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
 from FreeTAKServer.controllers.configuration.types import Types
-from FreeTAKServer.controllers.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
+from FreeTAKServer.core.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 
 
 class HandlerInterface(ABC):
