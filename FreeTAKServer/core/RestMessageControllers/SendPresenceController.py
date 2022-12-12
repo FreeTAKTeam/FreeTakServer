@@ -4,7 +4,7 @@ from FreeTAKServer.core.configuration.CreateLoggerController import CreateLogger
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 

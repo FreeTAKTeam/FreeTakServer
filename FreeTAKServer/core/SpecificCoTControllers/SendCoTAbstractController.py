@@ -3,7 +3,7 @@ from abc import ABC
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.core.serializers import xml_serializer
 from FreeTAKServer.model.FTSModel.Event import Event as event
 

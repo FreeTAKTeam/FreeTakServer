@@ -12,7 +12,7 @@ from FreeTAKServer.core.services.service_abstracts import ServerServiceInterface
 from FreeTAKServer.core.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
 
 from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect

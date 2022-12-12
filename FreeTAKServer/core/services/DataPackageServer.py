@@ -2,7 +2,7 @@
 as it utilizes flask, each method represents an endpoint
 this web server is responsible for all HTTP queries to
 FTS from an ATAK client"""
-from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
+from FreeTAKServer.core.parsers.templateToJsonSerializer import templateSerializer
 import logging
 import os
 import random
@@ -508,7 +508,7 @@ def updatetemplate(checklistid, taskid):
     from flask import request
     from defusedxml import ElementTree as etree
     from FreeTAKServer.core.SpecificCoTControllers.SendExcheckUpdateController import SendExcheckUpdateController
-    from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+    from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
     from FreeTAKServer.model.FTSModel.Event import Event
     from FreeTAKServer.model.RawCoT import RawCoT
     import uuid

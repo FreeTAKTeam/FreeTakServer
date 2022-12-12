@@ -20,8 +20,8 @@ from FreeTAKServer.core.util import certificate_generation
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
-from FreeTAKServer.controllers.parsers.ApplyFullJsonController import ApplyFullJsonController
-from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+from FreeTAKServer.core.parsers.ApplyFullJsonController import ApplyFullJsonController
+from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables as vars
 from FreeTAKServer.model.SimpleClient import SimpleClient
@@ -42,7 +42,7 @@ from FreeTAKServer.core.RestMessageControllers.SendImageryVideoController import
 from FreeTAKServer.core.RestMessageControllers.SendRouteController import SendRouteController
 from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.parsers.JsonController import JsonController
+from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 
 dbController = DatabaseController()
@@ -1603,7 +1603,7 @@ def excheck_table():
         from flask import request
         if request.method == "GET":
             jsondata = {"ExCheck": {'Templates': [], 'Checklists': []}}
-            from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
+            from FreeTAKServer.core.parsers.templateToJsonSerializer import templateSerializer
             excheckTemplates = DatabaseController().query_ExCheck()
             for template in excheckTemplates:
                 templateData = template.data
@@ -1652,7 +1652,7 @@ def excheck_table():
         elif request.method == "POST":
             try:
                 import uuid
-                from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
+                from FreeTAKServer.core.parsers.templateToJsonSerializer import templateSerializer
                 xmlstring = f'<?xml version="1.0"?><event version="2.0" uid="{uuid.uuid4()}" type="t-x-m-c" time="2020-11-28T17:45:51.000Z" start="2020-11-28T17:45:51.000Z" stale="2020-11-28T17:46:11.000Z" how="h-g-i-g-o"><point lat="0.00000000" lon="0.00000000" hae="0.00000000" ce="9999999" le="9999999" /><detail><mission type="CHANGE" tool="ExCheck" name="exchecktemplates" authorUid="S-1-5-21-2720623347-3037847324-4167270909-1002"><MissionChanges><MissionChange><contentResource><filename>61b01475-ad44-4300-addc-a9474ebf67b0.xml</filename><hash>018cd5786bd6c2e603beef30d6a59987b72944a60de9e11562297c35ebdb7fd6</hash><keywords>test init</keywords><keywords>dessc init</keywords><keywords>FEATHER</keywords><mimeType>application/xml</mimeType><name>61b01475-ad44-4300-addc-a9474ebf67b0</name><size>1522</size><submissionTime>2020-11-28T17:45:47.980Z</submissionTime><submitter>wintak</submitter><tool>ExCheck</tool><uid>61b01475-ad44-4300-addc-a9474ebf67b0</uid></contentResource><creatorUid>S-1-5-21-2720623347-3037847324-4167270909-1002</creatorUid><missionName>exchecktemplates</missionName><timestamp>2020-11-28T17:45:47.983Z</timestamp><type>ADD_CONTENT</type></MissionChange></MissionChanges></mission></detail></event>'
                 # this is where the client will post the xmi of a template
                 from datetime import datetime
