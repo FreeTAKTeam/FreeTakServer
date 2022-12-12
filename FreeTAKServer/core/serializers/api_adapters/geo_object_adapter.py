@@ -1,11 +1,11 @@
-from FreeTAKServer.controllers.serializers.api_adapters.api_adapters import AbstractApiAdapter, SpecificCoTAbstract
+from FreeTAKServer.core.serializers.api_adapters.api_adapters import AbstractApiAdapter, SpecificCoTAbstract
 from typing import NewType
-from FreeTAKServer.controllers.serializers.json_serializer import JsonSerializer
+from FreeTAKServer.core.serializers.api_adapters.json_serializer import JsonSerializer
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RestMessages.GeoObject import GeoObject, RestEnumerations
 from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables
 from FreeTAKServer.model.SpecificCoT.SendSimpleCoT import SendSimpleCoT
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
+from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.core.configuration.types import Types
 from defusedxml import ElementTree as etree
 

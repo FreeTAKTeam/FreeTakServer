@@ -4,7 +4,7 @@ from FreeTAKServer.core.configuration.CreateLoggerController import CreateLogger
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
-from FreeTAKServer.controllers.serializers import xml_serializer
+from FreeTAKServer.core.serializers import xml_serializer
 from FreeTAKServer.model.FTSModel.Event import Event as event
 
 # Make a connection to the MainConfig object for all routines below

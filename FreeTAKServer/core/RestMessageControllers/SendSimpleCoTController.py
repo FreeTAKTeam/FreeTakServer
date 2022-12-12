@@ -6,7 +6,7 @@ from FreeTAKServer.core.configuration.CreateLoggerController import CreateLogger
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
+from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.model.FTSModel.Event import Event as event
 from FreeTAKServer.model.SpecificCoT.SendSimpleCoT import SendSimpleCoT
 

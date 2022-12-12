@@ -30,7 +30,7 @@ from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfi
 from FreeTAKServer.core.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.core.RestMessageControllers.SendDeleteVideoStreamController import \
     SendDeleteVideoStreamController
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
+from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, \
     UpdateSimpleCoTController
 from FreeTAKServer.core.RestMessageControllers.SendPresenceController import SendPresenceController, \
@@ -43,7 +43,7 @@ from FreeTAKServer.core.RestMessageControllers.SendRouteController import SendRo
 from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.parsers.JsonController import JsonController
-from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
+from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 
 dbController = DatabaseController()
 

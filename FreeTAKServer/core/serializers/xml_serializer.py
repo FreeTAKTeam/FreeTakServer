@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.serializers.serializer_abstract import SerializerAbstract
+from FreeTAKServer.core.serializers.serializer_abstract import SerializerAbstract
 from FreeTAKServer.model.FTSModel.Event import Event
 from typing import NewType, List
 from defusedxml import ElementTree as etree

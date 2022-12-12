@@ -1,6 +1,6 @@
 from typing import List
 
-from FreeTAKServer.controllers.serializers.serializer_abstract import SerializerAbstract
+from FreeTAKServer.core.serializers.serializer_abstract import SerializerAbstract
 from FreeTAKServer.model.FTSModel.Event import Event
 
 # TODO: clean up this whole class

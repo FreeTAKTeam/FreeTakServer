@@ -6,7 +6,7 @@ import uuid
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
 from lxml import etree
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
+from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 from FreeTAKServer.core.configuration.RestAPIVariables import RestAPIVariables
 from geopy import Nominatim
 loggingConstants = LoggingConstants()

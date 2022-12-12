@@ -1,8 +1,8 @@
 from typing import List
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
-from FreeTAKServer.controllers.serializers.serializer_abstract import SerializerAbstract
+from FreeTAKServer.core.serializers.serializer_abstract import SerializerAbstract
 from FreeTAKServer.model.FTSModel.Event import Event
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
+from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 
 
 class ProtobufSerializer(SerializerAbstract):

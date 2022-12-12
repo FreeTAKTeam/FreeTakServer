@@ -12,7 +12,7 @@ from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.ClientInformation import ClientInformation
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
+from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 
 loggingConstants = LoggingConstants(log_name="FTS_ClientInformationController")
 logger = CreateLoggerController("FTS_ClientInformationController", logging_constants=loggingConstants).getLogger()

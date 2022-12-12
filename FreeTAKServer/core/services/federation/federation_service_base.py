@@ -9,8 +9,8 @@ from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 
 from FreeTAKServer.core.services.service_abstracts import ServerServiceInterface, ServiceBase
 
-from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
-from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
+from FreeTAKServer.core.serializers.protobuf_serializer import ProtobufSerializer
+from FreeTAKServer.core.serializers.xml_serializer import XmlSerializer
 
 from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 
