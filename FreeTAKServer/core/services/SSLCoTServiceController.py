@@ -1,5 +1,5 @@
 from digitalpy.core.object_factory import ObjectFactory
-from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
+from FreeTAKServer.core.services.Orchestrator import Orchestrator
 from FreeTAKServer.core.connection.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.core.connection.ReceiveConnections import ReceiveConnections
 import os

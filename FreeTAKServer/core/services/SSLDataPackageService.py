@@ -6,7 +6,7 @@ from FreeTAKServer.core.configuration.DataPackageServerConstants import DataPack
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
-from FreeTAKServer.controllers.services.DataPackageServer import (
+from FreeTAKServer.core.services.DataPackageServer import (
     FlaskFunctions, Path, app, const, dp_directory, os)
 from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
 

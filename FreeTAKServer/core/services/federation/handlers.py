@@ -7,8 +7,8 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.SpecificCoT.SpecificCoTAbstract import SpecificCoTAbstract
 from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 
-from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceInterface
-from FreeTAKServer.controllers.services.federation.federation_service_base import FederationServiceBase
+from FreeTAKServer.core.services.service_abstracts import ServerServiceInterface, ServiceInterface
+from FreeTAKServer.core.services.federation.federation_service_base import FederationServiceBase
 from FreeTAKServer.core.configuration.types import Types
 from FreeTAKServer.core.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 

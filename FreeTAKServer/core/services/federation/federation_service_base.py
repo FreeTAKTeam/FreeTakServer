@@ -7,7 +7,7 @@ from defusedxml import ElementTree as etree
 
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 
-from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
+from FreeTAKServer.core.services.service_abstracts import ServerServiceInterface, ServiceBase
 
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer

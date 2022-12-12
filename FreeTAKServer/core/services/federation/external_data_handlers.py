@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.services.federation.handlers import HandlerBase
+from FreeTAKServer.core.services.federation.handlers import HandlerBase
 
 from FreeTAKServer.model.protobufModel.fig_pb2 import FederatedEvent
 

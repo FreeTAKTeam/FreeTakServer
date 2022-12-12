@@ -35,23 +35,23 @@ from FreeTAKServer.core.configuration.OrchestratorConstants import (
 )
 from FreeTAKServer.core.configuration.configuration_wizard import ask_user_for_config
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.services.federation.federation import (
+from FreeTAKServer.core.services.federation.federation import (
     FederationServerService,
 )
-from FreeTAKServer.controllers.services.federation.FederationClientService import (
+from FreeTAKServer.core.services.federation.FederationClientService import (
     FederationClientServiceController,
 )
-from FreeTAKServer.controllers.services.RestAPI import RestAPI
-from FreeTAKServer.controllers.services.SSLCoTServiceController import (
+from FreeTAKServer.core.services.RestAPI import RestAPI
+from FreeTAKServer.core.services.SSLCoTServiceController import (
     SSLCoTServiceController,
 )
-from FreeTAKServer.controllers.services.SSLDataPackageService import (
+from FreeTAKServer.core.services.SSLDataPackageService import (
     SSLDataPackageService as SSLFlaskFunctions,
 )
 from FreeTAKServer.core.connection.TCPCoTServiceController import (
     TCPCoTServiceController,
 )
-from FreeTAKServer.controllers.services.TCPDataPackageService import (
+from FreeTAKServer.core.services.TCPDataPackageService import (
     TCPDataPackageService as TCPFlaskFunctions,
 )
 from FreeTAKServer.model.Connection import Connection
