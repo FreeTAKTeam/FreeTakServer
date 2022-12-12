@@ -204,7 +204,7 @@ class XMLCoTController:
             return RawCoT
 
     def categorize_type(self, type):
-        from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import (
+        from FreeTAKServer.core.RestMessageControllers.SendEmergencyController import (
             SendEmergencyController,
         )
         from FreeTAKServer.core.SpecificCoTControllers.SendDropPointController import (

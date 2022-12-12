@@ -27,20 +27,20 @@ from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVari
 from FreeTAKServer.model.SimpleClient import SimpleClient
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
-from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
-from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import \
+from FreeTAKServer.core.RestMessageControllers.SendChatController import SendChatController
+from FreeTAKServer.core.RestMessageControllers.SendDeleteVideoStreamController import \
     SendDeleteVideoStreamController
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
-from FreeTAKServer.controllers.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, \
+from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController, \
     UpdateSimpleCoTController
-from FreeTAKServer.controllers.RestMessageControllers.SendPresenceController import SendPresenceController, \
+from FreeTAKServer.core.RestMessageControllers.SendPresenceController import SendPresenceController, \
     UpdatePresenceController
-from FreeTAKServer.controllers.RestMessageControllers.SendEmergencyController import SendEmergencyController
-from FreeTAKServer.controllers.RestMessageControllers.SendSensorDroneController import SendSensorDroneController
-from FreeTAKServer.controllers.RestMessageControllers.SendSPISensorController import SendSPISensorController
-from FreeTAKServer.controllers.RestMessageControllers.SendImageryVideoController import SendImageryVideoController
-from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
-from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
+from FreeTAKServer.core.RestMessageControllers.SendEmergencyController import SendEmergencyController
+from FreeTAKServer.core.RestMessageControllers.SendSensorDroneController import SendSensorDroneController
+from FreeTAKServer.core.RestMessageControllers.SendSPISensorController import SendSPISensorController
+from FreeTAKServer.core.RestMessageControllers.SendImageryVideoController import SendImageryVideoController
+from FreeTAKServer.core.RestMessageControllers.SendRouteController import SendRouteController
+from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.parsers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
@@ -1202,7 +1202,7 @@ def ConnectionMessage():
         modelObject = Event.GeoChat()
         out = ApplyFullJsonController().serializeJsonToModel(modelObject, json)
         xml = XMLCoTController().serialize_model_to_CoT(out, 'event')
-        from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
+        from FreeTAKServer.core.RestMessageControllers.SendChatController import SendChatController
         rawcot = RawCoT()
         rawcot.xmlString = xml
         rawcot.clientInformation = None
