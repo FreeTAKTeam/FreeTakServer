@@ -48,7 +48,7 @@ from FreeTAKServer.controllers.services.SSLCoTServiceController import (
 from FreeTAKServer.controllers.services.SSLDataPackageService import (
     SSLDataPackageService as SSLFlaskFunctions,
 )
-from FreeTAKServer.controllers.connection.TCPCoTServiceController import (
+from FreeTAKServer.core.connection.TCPCoTServiceController import (
     TCPCoTServiceController,
 )
 from FreeTAKServer.controllers.services.TCPDataPackageService import (

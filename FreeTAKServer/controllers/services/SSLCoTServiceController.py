@@ -1,9 +1,9 @@
 from digitalpy.core.object_factory import ObjectFactory
 from FreeTAKServer.controllers.services.Orchestrator import Orchestrator
-from FreeTAKServer.controllers.connection.ClientReceptionHandler import ClientReceptionHandler
-from FreeTAKServer.controllers.connection.ReceiveConnections import ReceiveConnections
+from FreeTAKServer.core.connection.ClientReceptionHandler import ClientReceptionHandler
+from FreeTAKServer.core.connection.ReceiveConnections import ReceiveConnections
 import os
-from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
+from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController

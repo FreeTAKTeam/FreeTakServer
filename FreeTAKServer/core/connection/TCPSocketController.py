@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.connection.MainSocketController import MainSocketController
+from FreeTAKServer.core.connection.MainSocketController import MainSocketController
 import socket
 
 class TCPSocketController(MainSocketController):

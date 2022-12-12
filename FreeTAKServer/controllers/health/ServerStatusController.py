@@ -2,7 +2,7 @@ import socket
 
 import requests
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.connection.SSLSocketController import SSLSocketController
+from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 
 # Make a connection to the MainConfig object for all routines below

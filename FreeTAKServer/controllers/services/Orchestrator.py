@@ -18,20 +18,20 @@ from digitalpy.model.node import Node
 from digitalpy.core.object_factory import ObjectFactory
 
 from FreeTAKServer.core.util.geo_manager_controller import GeoManagerController
-from FreeTAKServer.controllers.connection.ActiveThreadsController import ActiveThreadsController
-from FreeTAKServer.controllers.connection.ClientInformationController import (
+from FreeTAKServer.core.connection.ActiveThreadsController import ActiveThreadsController
+from FreeTAKServer.core.connection.ClientInformationController import (
     ClientInformationController,
 )
 from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )
 
-from FreeTAKServer.controllers.connection.ReceiveConnections import ReceiveConnections
-from FreeTAKServer.controllers.connection.ReceiveConnectionsProcessController import (
+from FreeTAKServer.core.connection.ReceiveConnections import ReceiveConnections
+from FreeTAKServer.core.connection.ReceiveConnectionsProcessController import (
     ReceiveConnectionsProcessController,
 )
 
-from FreeTAKServer.controllers.connection.SendDataController import SendDataController
+from FreeTAKServer.core.connection.SendDataController import SendDataController
 from FreeTAKServer.core.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
@@ -53,7 +53,7 @@ import socket
 
 loggingConstants = LoggingConstants()
 
-from FreeTAKServer.controllers.connection.ClientReceptionHandler import ClientReceptionHandler
+from FreeTAKServer.core.connection.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
