@@ -4,14 +4,14 @@ import selectors
 import multiprocessing
 from defusedxml import ElementTree as etree
 
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 
 from FreeTAKServer.controllers.services.service_abstracts import ServerServiceInterface, ServiceBase
 
 from FreeTAKServer.controllers.serializers.protobuf_serializer import ProtobufSerializer
 from FreeTAKServer.controllers.serializers.xml_serializer import XmlSerializer
 
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 
 from FreeTAKServer.model.ClientInformation import ClientInformation
 from FreeTAKServer.model.SpecificCoT.SendDisconnect import SendDisconnect

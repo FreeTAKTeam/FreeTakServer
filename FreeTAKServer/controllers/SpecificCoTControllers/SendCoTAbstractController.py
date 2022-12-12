@@ -1,9 +1,11 @@
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.model.FTSModel.Event import Event as event
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from abc import ABC
+
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.serializers import xml_serializer
+from FreeTAKServer.model.FTSModel.Event import Event as event
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -50,8 +52,6 @@ class SendCoTAbstractController(ABC):
         this function takes an empty model object and xml as arguments and then calls the serializer within the xmlcotcontroller
         module which returns a model object occupied with all the data from the CoT
         """
-        from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
-
         modelInstance = xml_serializer.XmlSerializer().from_format_to_fts_object(xmlString, tempObject)
         return modelInstance
 
@@ -60,7 +60,6 @@ class SendCoTAbstractController(ABC):
         this function calls the model to xml serializer within XMLCoTController
         with an instantiated model object supplied in the function argument
         """
-        from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
         try:
             xml = XMLCoTController().serialize_model_to_CoT(modelObject, 'event')
             return xml

@@ -1,11 +1,8 @@
-from FreeTAKServer.model.SpecificCoT.SendSensorDrone import SendSensorDrone
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
-from FreeTAKServer.model.FTSModel.Event import Event as event
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
+from FreeTAKServer.model.FTSModel.Event import Event as event
+from FreeTAKServer.model.SpecificCoT.SendSensorDrone import SendSensorDrone
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()

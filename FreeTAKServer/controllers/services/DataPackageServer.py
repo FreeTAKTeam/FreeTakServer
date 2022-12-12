@@ -2,6 +2,7 @@
 as it utilizes flask, each method represents an endpoint
 this web server is responsible for all HTTP queries to
 FTS from an ATAK client"""
+from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
 import logging
 import os
 import random
@@ -14,8 +15,8 @@ from pathlib import Path, PurePath
 from FreeTAKServer.controllers.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.controllers.configuration.SQLcommands import SQLcommands
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 import eventlet
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
@@ -302,8 +303,6 @@ def home():
 
 # exCheckStuff
 from flask import Flask, request
-from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
@@ -509,7 +508,7 @@ def updatetemplate(checklistid, taskid):
     from flask import request
     from defusedxml import ElementTree as etree
     from FreeTAKServer.controllers.SpecificCoTControllers.SendExcheckUpdateController import SendExcheckUpdateController
-    from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+    from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
     from FreeTAKServer.model.FTSModel.Event import Event
     from FreeTAKServer.model.RawCoT import RawCoT
     import uuid

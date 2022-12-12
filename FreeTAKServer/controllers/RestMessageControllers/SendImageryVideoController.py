@@ -1,9 +1,7 @@
-from FreeTAKServer.model.SpecificCoT.SendImageryVideo import SendImageryVideo
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.FTSModel.Event import Event as event
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.model.SpecificCoT.SendImageryVideo import SendImageryVideo
+
 
 class SendImageryVideoController:
     def __init__(self, json):

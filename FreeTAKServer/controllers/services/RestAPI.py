@@ -16,16 +16,16 @@ from flask_cors import CORS
 import qrcode
 import io
 
-from FreeTAKServer.controllers import certificate_generation
+from FreeTAKServer.controllers.util import certificate_generation
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
-from FreeTAKServer.controllers.ApplyFullJsonController import ApplyFullJsonController
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.ApplyFullJsonController import ApplyFullJsonController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.ServiceObjects.FTS import FTS
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables as vars
 from FreeTAKServer.model.SimpleClient import SimpleClient
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.controllers.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.controllers.RestMessageControllers.SendChatController import SendChatController
 from FreeTAKServer.controllers.RestMessageControllers.SendDeleteVideoStreamController import \
@@ -42,7 +42,7 @@ from FreeTAKServer.controllers.RestMessageControllers.SendImageryVideoController
 from FreeTAKServer.controllers.RestMessageControllers.SendRouteController import SendRouteController
 from FreeTAKServer.controllers.RestMessageControllers.SendVideoStreamController import SendVideoStreamController
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.JsonController import JsonController
+from FreeTAKServer.controllers.parsers.JsonController import JsonController
 from FreeTAKServer.controllers.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 
 dbController = DatabaseController()
@@ -258,7 +258,7 @@ def serverHealth(empty=None):
 @socket_auth(session=session)
 def systemStatus(update=None):
     print('system status running')
-    from FreeTAKServer.controllers.ServerStatusController import ServerStatusController
+    from FreeTAKServer.controllers.health.ServerStatusController import ServerStatusController
     currentStatus = getStatus()
     statusObject = ServerStatusController(currentStatus)
     jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
@@ -470,7 +470,7 @@ def removeSystemUser(jsondata):
     """ iterates through a list of system users and removes them in addition to revoking and
     deleting their certificates.
     """
-    from FreeTAKServer.controllers.certificate_generation import revoke_certificate
+    from FreeTAKServer.controllers.util.certificate_generation import revoke_certificate
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
@@ -1603,7 +1603,7 @@ def excheck_table():
         from flask import request
         if request.method == "GET":
             jsondata = {"ExCheck": {'Templates': [], 'Checklists': []}}
-            from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
+            from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
             excheckTemplates = DatabaseController().query_ExCheck()
             for template in excheckTemplates:
                 templateData = template.data
@@ -1652,7 +1652,7 @@ def excheck_table():
         elif request.method == "POST":
             try:
                 import uuid
-                from FreeTAKServer.controllers.ExCheckControllers.templateToJsonSerializer import templateSerializer
+                from FreeTAKServer.controllers.parsers.templateToJsonSerializer import templateSerializer
                 xmlstring = f'<?xml version="1.0"?><event version="2.0" uid="{uuid.uuid4()}" type="t-x-m-c" time="2020-11-28T17:45:51.000Z" start="2020-11-28T17:45:51.000Z" stale="2020-11-28T17:46:11.000Z" how="h-g-i-g-o"><point lat="0.00000000" lon="0.00000000" hae="0.00000000" ce="9999999" le="9999999" /><detail><mission type="CHANGE" tool="ExCheck" name="exchecktemplates" authorUid="S-1-5-21-2720623347-3037847324-4167270909-1002"><MissionChanges><MissionChange><contentResource><filename>61b01475-ad44-4300-addc-a9474ebf67b0.xml</filename><hash>018cd5786bd6c2e603beef30d6a59987b72944a60de9e11562297c35ebdb7fd6</hash><keywords>test init</keywords><keywords>dessc init</keywords><keywords>FEATHER</keywords><mimeType>application/xml</mimeType><name>61b01475-ad44-4300-addc-a9474ebf67b0</name><size>1522</size><submissionTime>2020-11-28T17:45:47.980Z</submissionTime><submitter>wintak</submitter><tool>ExCheck</tool><uid>61b01475-ad44-4300-addc-a9474ebf67b0</uid></contentResource><creatorUid>S-1-5-21-2720623347-3037847324-4167270909-1002</creatorUid><missionName>exchecktemplates</missionName><timestamp>2020-11-28T17:45:47.983Z</timestamp><type>ADD_CONTENT</type></MissionChange></MissionChanges></mission></detail></event>'
                 # this is where the client will post the xmi of a template
                 from datetime import datetime

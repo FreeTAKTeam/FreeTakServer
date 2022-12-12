@@ -1,3 +1,6 @@
+from FreeTAKServer.controllers.persistence.DatabaseController import (
+    DatabaseController,
+)
 import argparse
 import linecache
 import multiprocessing
@@ -13,7 +16,7 @@ from digitalpy.core.object_factory import ObjectFactory
 from digitalpy.registration.registration_handler import RegistrationHandler
 from digitalpy.routing.routing_proxy import RoutingProxy
 
-from FreeTAKServer.controllers.CreateStartupFilesController import (
+from FreeTAKServer.controllers.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
 )
 
@@ -23,18 +26,15 @@ import queue
 import time
 from multiprocessing import Queue
 
-from FreeTAKServer.controllers.AddDataToCoTList import AddDataToCoTList
-from FreeTAKServer.controllers.certificate_generation import AtakOfTheCerts
+from FreeTAKServer.controllers.util.AddDataToCoTList import AddDataToCoTList
+from FreeTAKServer.controllers.util.certificate_generation import AtakOfTheCerts
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
     OrchestratorConstants,
 )
-from FreeTAKServer.controllers.configuration_wizard import ask_user_for_config
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
-    DatabaseController,
-)
+from FreeTAKServer.controllers.configuration.configuration_wizard import ask_user_for_config
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.controllers.services.federation.federation import (
     FederationServerService,
 )
@@ -48,7 +48,7 @@ from FreeTAKServer.controllers.services.SSLCoTServiceController import (
 from FreeTAKServer.controllers.services.SSLDataPackageService import (
     SSLDataPackageService as SSLFlaskFunctions,
 )
-from FreeTAKServer.controllers.services.TCPCoTServiceController import (
+from FreeTAKServer.controllers.connection.TCPCoTServiceController import (
     TCPCoTServiceController,
 )
 from FreeTAKServer.controllers.services.TCPDataPackageService import (
