@@ -388,13 +388,13 @@ def addSystemUser(jsondata):
                 import shutil
                 import os
                 dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
-                openfile = open(str(PurePath(Path(str(config.clientPackages), cert_name + '.zip'))),
+                openfile = open(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                                 mode='rb')
                 file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
                 openfile.close()
                 newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
                 os.mkdir(newDirectory)
-                shutil.copy(str(PurePath(Path(str(config.clientPackages), cert_name + '.zip'))),
+                shutil.copy(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                             str(PurePath(Path(newDirectory), Path(cert_name + '.zip'))))
                 fileSize = Path(str(newDirectory), cert_name + '.zip').stat().st_size
                 dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,

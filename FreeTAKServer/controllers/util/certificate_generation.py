@@ -178,7 +178,6 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
 
     username = user_filename[:-4]
     random_id = uuid.uuid4()
-    parentfolder = "80b828699e074a239066d454a76284eb"
     if config.UserConnectionIP == "0.0.0.0":
         hostname = socket.gethostname()
         server_address = socket.gethostbyname(hostname)
@@ -195,12 +194,15 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
         manifest_file.write(man)
     copyfile(config.p12Dir, server_filename)
     copyfile(pathlib.Path(config.certsPath, user_filename), pathlib.Path(user_filename))
-    zipf = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(config.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
-    zipf.write('fts.pref')
-    zipf.write('manifest.xml')
-    zipf.write(user_filename)
-    zipf.write(server_filename)
-    zipf.close()
+    with zipfile.ZipFile(
+        pathlib.PurePath(pathlib.Path(config.ClientPackages), pathlib.Path(f"{username}.zip")),
+        mode='w',
+        compresslevel=zipfile.ZIP_DEFLATED) as zipf:
+
+        zipf.write('fts.pref')
+        zipf.write('manifest.xml')
+        zipf.write(user_filename)
+        zipf.write(server_filename)
     os.remove('fts.pref')
     os.remove('manifest.xml')
 
@@ -303,7 +305,7 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
     with open('./MANIFEST/manifest.xml', 'w') as manifest_parent:
         manifest_parent.write(man_parent)
     copyfile(f"{username}.zip", pathlib.Path(parentfolder, f"{username}.zip"))
-    zipp = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(config.clientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
+    zipp = zipfile.ZipFile(str(pathlib.PurePath(pathlib.Path(config.ClientPackages), pathlib.Path(f"{username}.zip"))), 'w', zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk('./' + parentfolder):
         for file in files:
             name = str(pathlib.PurePath(pathlib.Path(root), pathlib.Path(file)))
