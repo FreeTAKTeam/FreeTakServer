@@ -258,7 +258,7 @@ def serverHealth(empty=None):
 @socket_auth(session=session)
 def systemStatus(update=None):
     print('system status running')
-    from FreeTAKServer.controllers.health.ServerStatusController import ServerStatusController
+    from FreeTAKServer.core.health.ServerStatusController import ServerStatusController
     currentStatus = getStatus()
     statusObject = ServerStatusController(currentStatus)
     jsondata = ApplyFullJsonController().serialize_model_to_json(statusObject)
