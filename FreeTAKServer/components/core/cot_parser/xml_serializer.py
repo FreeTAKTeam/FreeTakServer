@@ -3,8 +3,8 @@ from typing import List, NewType
 
 from defusedxml import ElementTree as etree
 from digitalpy.core.object_factory import ObjectFactory
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from lxml.etree import Element  # pylint: disable=no-name-in-module

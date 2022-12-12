@@ -1,4 +1,4 @@
-from FreeTAKServer.controllers.persistence.DatabaseController import (
+from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )
 import argparse
@@ -14,9 +14,9 @@ from digitalpy.config.configuration import Configuration
 from digitalpy.core.impl.default_factory import DefaultFactory
 from digitalpy.core.object_factory import ObjectFactory
 from digitalpy.registration.registration_handler import RegistrationHandler
-from digitalpy.routing.routing_proxy import RoutingProxy
+from digitalpy.routing.subject import Subject
 
-from FreeTAKServer.controllers.configuration.CreateStartupFilesController import (
+from FreeTAKServer.core.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
 )
 
@@ -26,32 +26,32 @@ import queue
 import time
 from multiprocessing import Queue
 
-from FreeTAKServer.controllers.util.AddDataToCoTList import AddDataToCoTList
-from FreeTAKServer.controllers.util.certificate_generation import AtakOfTheCerts
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
-from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
+from FreeTAKServer.core.util.AddDataToCoTList import AddDataToCoTList
+from FreeTAKServer.core.util.certificate_generation import AtakOfTheCerts
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.OrchestratorConstants import (
     OrchestratorConstants,
 )
-from FreeTAKServer.controllers.configuration.configuration_wizard import ask_user_for_config
-from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.controllers.services.federation.federation import (
+from FreeTAKServer.core.configuration.configuration_wizard import ask_user_for_config
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.services.federation.federation import (
     FederationServerService,
 )
-from FreeTAKServer.controllers.services.federation.FederationClientService import (
+from FreeTAKServer.core.services.federation.FederationClientService import (
     FederationClientServiceController,
 )
-from FreeTAKServer.controllers.services.RestAPI import RestAPI
-from FreeTAKServer.controllers.services.SSLCoTServiceController import (
+from FreeTAKServer.core.services.RestAPI import RestAPI
+from FreeTAKServer.core.services.SSLCoTServiceController import (
     SSLCoTServiceController,
 )
-from FreeTAKServer.controllers.services.SSLDataPackageService import (
+from FreeTAKServer.core.services.SSLDataPackageService import (
     SSLDataPackageService as SSLFlaskFunctions,
 )
-from FreeTAKServer.controllers.connection.TCPCoTServiceController import (
+from FreeTAKServer.core.connection.TCPCoTServiceController import (
     TCPCoTServiceController,
 )
-from FreeTAKServer.controllers.services.TCPDataPackageService import (
+from FreeTAKServer.core.services.TCPDataPackageService import (
     TCPDataPackageService as TCPFlaskFunctions,
 )
 from FreeTAKServer.model.Connection import Connection
@@ -632,7 +632,7 @@ class FTS:
             )
 
             # begin the routing proxy
-            self.routing_proxy_service = ObjectFactory.get_instance("RoutingProxy")
+            self.routing_proxy_service = ObjectFactory.get_instance("Subject")
             proc = multiprocessing.Process(
                 target=self.routing_proxy_service.begin_routing
             )
