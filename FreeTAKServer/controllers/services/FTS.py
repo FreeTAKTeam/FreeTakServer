@@ -26,8 +26,8 @@ import queue
 import time
 from multiprocessing import Queue
 
-from FreeTAKServer.controllers.util.AddDataToCoTList import AddDataToCoTList
-from FreeTAKServer.controllers.util.certificate_generation import AtakOfTheCerts
+from FreeTAKServer.core.util.AddDataToCoTList import AddDataToCoTList
+from FreeTAKServer.core.util.certificate_generation import AtakOfTheCerts
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
 from FreeTAKServer.controllers.configuration.OrchestratorConstants import (
