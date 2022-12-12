@@ -202,7 +202,7 @@ class MainConfig:
         "FTS_CRLDIR": "CRLFile",
         "FTS_CONNECTION_MESSAGE": "ConnectionMessage",
         "FTS_DATABASE_TYPE": "DataBaseType",
-        "FTS_CLIENT_PACKAGES": "clientPackages",
+        "FTS_CLIENT_PACKAGES": "ClientPackages",
         "FTS_NUM_ROUTING_WORKERS": "NumRoutingWorkers",
         "FTS_ROUTING_PROXY_SUBSCRIBE_PORT": "RoutingProxySubscriberPort",
         "FTS_ROUTING_PROXY_SUBSCRIBE_IP": "RoutingProxySubscriberIP",
@@ -263,7 +263,7 @@ class MainConfig:
             "FTS_EXCHECK_CHECKLIST_PATH": "ExCheckChecklistFilePath",
             "FTS_DATAPACKAGE_PATH": "DataPackageFilePath",
             "FTS_LOGFILE_PATH": "LogFilePath",
-            "FTS_CLIENT_PACKAGES": "clientPackages",
+            "FTS_CLIENT_PACKAGES": "ClientPackages",
             "FTS_CORE_COMPONENTS_PATH": "CoreComponentsPath",
             "FTS_CORE_COMPONENTS_IMPORT_ROOT": "CoreComponentsImportRoot",
             "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
@@ -424,4 +424,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = False
+    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y')
