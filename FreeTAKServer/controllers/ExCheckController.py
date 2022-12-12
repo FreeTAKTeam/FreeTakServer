@@ -195,7 +195,8 @@ class ExCheckController:
                 tasks.insert(index, updatedTask)
             else:
                 pass
-        with open(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistid + '.xml'))), 'w+') as file:
+        with open(
+                str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistid + '.xml'))), 'w+') as file:
             file.write(etree.tostring(xml).decode())
             file.close()
 
@@ -305,13 +306,19 @@ class ExCheckController:
                 jsondata = request.data
                 ExCheckArray = json.loads(jsondata)["ExCheck"]
                 for item in ExCheckArray["Templates"]:
-                    templateitem = DatabaseController().query_ExCheck(f'ExCheckData.uid = "{item["uid"]}"', verbose=True)[0]
-                    os.remove(str(PurePath(Path(config.ExCheckFilePath), Path(templateitem.data.filename))))
-                    DatabaseController().remove_ExCheck(f'PrimaryKey = "{templateitem.PrimaryKey}"')
+                    templateitem = DatabaseController().query_ExCheck(
+                        f'ExCheckData.uid = "{item["uid"]}"', verbose=True)[0]
+                    os.remove(str(PurePath(Path(config.ExCheckFilePath),
+                            Path(templateitem.data.filename))))
+                    DatabaseController().remove_ExCheck(
+                        f'PrimaryKey = "{templateitem.PrimaryKey}"')
                 for item in ExCheckArray["Checklists"]:
-                    checklistitem = DatabaseController().query_ExCheckChecklist(f'uid = "{item["uid"]}"')[0]
-                    os.remove(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistitem.filename))))
-                    DatabaseController().remove_ExCheckChecklist(f'uid = "{item["uid"]}"')
+                    checklistitem = DatabaseController().query_ExCheckChecklist(
+                        f'uid = "{item["uid"]}"')[0]
+                    os.remove(str(
+                        PurePath(Path(config.ExCheckChecklistFilePath), Path(checklistitem.filename))))
+                    DatabaseController().remove_ExCheckChecklist(
+                        f'uid = "{item["uid"]}"')
                 return 'success', 200
             elif request.method == "POST":
                 try:
@@ -324,10 +331,12 @@ class ExCheckController:
                     XMI = request.data.decode()
                     serializer = templateSerializer(XMI)
                     object = serializer.convert_template_to_object()
-                    object.timestamp = datetime.strptime(object.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
+                    object.timestamp = datetime.strptime(
+                        object.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
                     serializer.create_DB_object(object)
                     xml = etree.fromstring(XMI)
-                    path = str(PurePath(Path(config.ExCheckFilePath), Path(f'{object.data.uid}.xml')))
+                    path = str(PurePath(Path(config.ExCheckFilePath),
+                            Path(f'{object.data.uid}.xml')))
                     with open(path, 'w+') as file:
                         file.write(XMI)
                         file.close()
@@ -338,14 +347,21 @@ class ExCheckController:
                     cot.find('detail').find('mission').set("authorUid", authoruid)
                     resources = cot.find('detail').find('mission').find('MissionChanges').find('MissionChange').find(
                         'contentResource')
-                    resources.find('filename').text = temp.find('checklistDetails').find('uid').text + '.xml'
-                    resources.findall('keywords')[0].text = temp.find('checklistDetails').find('name').text
-                    resources.findall('keywords')[1].text = temp.find('checklistDetails').find('description').text
-                    resources.findall('keywords')[2].text = temp.find('checklistDetails').find('creatorCallsign').text
-                    resources.find('uid').text = temp.find('checklistDetails').find('uid').text
-                    resources.find('name').text = temp.find('checklistDetails').find('uid').text
+                    resources.find('filename').text = temp.find(
+                        'checklistDetails').find('uid').text + '.xml'
+                    resources.findall('keywords')[0].text = temp.find(
+                        'checklistDetails').find('name').text
+                    resources.findall('keywords')[1].text = temp.find(
+                        'checklistDetails').find('description').text
+                    resources.findall('keywords')[2].text = temp.find(
+                        'checklistDetails').find('creatorCallsign').text
+                    resources.find('uid').text = temp.find(
+                        'checklistDetails').find('uid').text
+                    resources.find('name').text = temp.find(
+                        'checklistDetails').find('uid').text
                     resources.find('size').text = str(len(XMI))
-                    resources.find('hash').text = str(hashlib.sha256(str(XMI).encode()).hexdigest())
+                    resources.find('hash').text = str(
+                        hashlib.sha256(str(XMI).encode()).hexdigest())
                     z = etree.tostring(cot)
                     object = testobj()
                     object.xmlString = z
