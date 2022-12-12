@@ -17,25 +17,25 @@ from lxml import etree
 from digitalpy.model.node import Node
 from digitalpy.core.object_factory import ObjectFactory
 
-from FreeTAKServer.controllers.geo_manager_controller import GeoManagerController
-from FreeTAKServer.controllers.ActiveThreadsController import ActiveThreadsController
-from FreeTAKServer.controllers.ClientInformationController import (
+from FreeTAKServer.controllers.util.geo_manager_controller import GeoManagerController
+from FreeTAKServer.controllers.connection.ActiveThreadsController import ActiveThreadsController
+from FreeTAKServer.controllers.connection.ClientInformationController import (
     ClientInformationController,
 )
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import (
+from FreeTAKServer.controllers.persistence.DatabaseController import (
     DatabaseController,
 )
 
-from FreeTAKServer.controllers.ReceiveConnections import ReceiveConnections
-from FreeTAKServer.controllers.ReceiveConnectionsProcessController import (
+from FreeTAKServer.controllers.connection.ReceiveConnections import ReceiveConnections
+from FreeTAKServer.controllers.connection.ReceiveConnectionsProcessController import (
     ReceiveConnectionsProcessController,
 )
 
-from FreeTAKServer.controllers.SendDataController import SendDataController
+from FreeTAKServer.controllers.connection.SendDataController import SendDataController
 from FreeTAKServer.controllers.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
 
 from FreeTAKServer.model.RawCoT import RawCoT
@@ -53,7 +53,7 @@ import socket
 
 loggingConstants = LoggingConstants()
 
-from FreeTAKServer.controllers.ClientReceptionHandler import ClientReceptionHandler
+from FreeTAKServer.controllers.connection.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
@@ -296,7 +296,7 @@ class Orchestrator(ABC):
         :return:
         """
         try:
-            from FreeTAKServer.controllers.DatabaseControllers.EventTableController import (
+            from FreeTAKServer.controllers.persistence.EventTableController import (
                 EventTableController,
             )
 

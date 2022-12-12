@@ -1,12 +1,12 @@
 from FreeTAKServer.model.SpecificCoT.Presence import Presence
 from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.controllers.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.model.RestMessages.RestEnumerations import RestEnumerations
 from FreeTAKServer.model.FTSModel.Event import Event as event
 import json as jsonmodule
-from FreeTAKServer.controllers.XMLCoTController import XMLCoTController
+from FreeTAKServer.controllers.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.controllers.configuration.RestAPIVariables import RestAPIVariables
-from FreeTAKServer.controllers.DatabaseControllers.DatabaseController import DatabaseController
+from FreeTAKServer.controllers.persistence.DatabaseController import DatabaseController
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendPresenceController").getLogger()
