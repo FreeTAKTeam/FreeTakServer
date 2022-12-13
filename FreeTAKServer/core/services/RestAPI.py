@@ -44,7 +44,7 @@ from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
-from FreeTAKServer.controllers.ExCheckController import ExCheckController
+from FreeTAKServer.components.extended.excheck.ExCheckController import ExCheckController
 
 dbController = DatabaseController()
 

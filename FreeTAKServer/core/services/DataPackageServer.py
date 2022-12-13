@@ -16,7 +16,7 @@ from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
-from FreeTAKServer.controllers.ExCheckController import ExCheckController
+from FreeTAKServer.components.extended.excheck.ExCheckController import ExCheckController
 import eventlet
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
