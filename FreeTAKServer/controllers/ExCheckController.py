@@ -16,10 +16,8 @@ from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.core.parsers.templateToJsonSerializer import templateSerializer
 from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.model.testobj import testobj
-from FreeTAKServer.model.FTSModel.Checklists import Checklists
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
-from FreeTAKServer.model.testobj import testobj
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -61,7 +59,6 @@ class ExCheckController:
             object = serializer.convert_template_to_object()
             object.timestamp = datetime.strptime(object.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
             serializer.create_DB_object(object)
-            xml = etree.fromstring(XMI)
             # TODO add proper sanitation
             # if not sanitize_path_input(object.data.uid):
             #     return "invalid uid sent", 500
