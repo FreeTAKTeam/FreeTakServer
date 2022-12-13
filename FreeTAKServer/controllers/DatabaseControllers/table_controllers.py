@@ -52,13 +52,13 @@ class TableController:
     def update(self, session, query, column_value):
         DataPackages = session.query(self.table).filter(
             text(query)).all()  # self.query(session, query, [column for column, value in column_value.items()])
-        if len(DataPackages) >0:
-            for dp in DataPackages:
-                for column, value in column_value.items():
-                    setattr(dp, column, value)
-            session.commit()
-        else:
+        if len(DataPackages) == 0:
             raise ValueError(f"no database entries which meet filter criteria {query}")
+            return
+        for dp in DataPackages:
+            for column, value in column_value.items():
+                setattr(dp, column, value)
+        session.commit()  
 
 class ActiveFederationsController(TableController):
     def __init__(self):
