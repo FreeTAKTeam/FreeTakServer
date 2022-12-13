@@ -19,6 +19,7 @@ from FreeTAKServer.model.testobj import testobj
 from FreeTAKServer.model.FTSModel.Checklists import Checklists
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.RawCoT import RawCoT
+from FreeTAKServer.model.testobj import testobj
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -60,7 +61,6 @@ class ExCheckController:
             object.timestamp = datetime.strptime(object.timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
             serializer.create_DB_object(object)
             xml = etree.fromstring(XMI)
-            tasks = xml.find('checklistTasks')
             # TODO add proper sanitation
             # if not sanitize_path_input(object.data.uid):
             #     return "invalid uid sent", 500
@@ -83,7 +83,6 @@ class ExCheckController:
             resources.find('size').text = str(len(XMI))
             resources.find('hash').text = str(hashlib.sha256(str(XMI).encode()).hexdigest())
             z = etree.tostring(cot)
-            from FreeTAKServer.model.testobj import testobj
             object = testobj()
             object.xmlString = z
             PIPE.put(object)
@@ -136,7 +135,6 @@ class ExCheckController:
         with open(
                 str(PurePath(Path(config.ExCheckChecklistFilePath), Path(uid + '.xml'))),
                 'w+') as file:
-            y = etree.tostring(xml)
             file.write(etree.tostring(xml).decode())
             file.close()
 
@@ -153,7 +151,6 @@ class ExCheckController:
         return str(open(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(uid + '.xml'))), 'r').read()), 200
 
     def update_checklist(self):
-        r = request
         excheck_xml = etree.fromstring(request.data)
         uid = excheck_xml.find('checklistDetails').find('uid').text
 
@@ -245,7 +242,6 @@ class ExCheckController:
         return '', 200
 
     def activechecklists(self):
-        checklists = Checklists.Checklist()
         rootxml = Element('checklists')
 
         for file in listdir(config.ExCheckChecklistFilePath):
