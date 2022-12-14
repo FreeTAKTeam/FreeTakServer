@@ -2,9 +2,8 @@ from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from defusedxml import ElementTree as etree
 from FreeTAKServer.model.ExCheck.templateInstanceContents import templateInstanceContents
 import hashlib
-import os
-from FreeTAKServer.model.ExCheck.template import template
-from FreeTAKServer.model.ExCheck.templateInstance import templateInstance
+from FreeTAKServer.components.extended.excheck.persistence.template import template
+from FreeTAKServer.components.extended.excheck.persistence.templateInstance import templateInstance
 
 class templateSerializer:
     def __init__(self, templateFile = None):
