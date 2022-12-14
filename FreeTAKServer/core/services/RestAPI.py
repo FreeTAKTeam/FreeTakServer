@@ -277,6 +277,23 @@ def updateSystemStatus(update):
 @socketio.on('systemUsers')
 @socket_auth(session=session)
 def systemUsers(empty=None):
+    jsondata = get_system_users()
+
+    emit('systemUsersUpdate', json.dumps(jsondata))
+
+@app.route('/ManageSystemUser/getAll', methods=["GET"])
+@auth.login_required
+def getSystemUsersRest():
+    """ wrapper around the updateSystemUser function for Rest API
+    """
+    try:
+        jsondata = get_system_users()
+        return json.dumps(jsondata), 200
+    except Exception as e:
+        print(e)
+        return str(e), 500
+
+def get_system_users():
     systemUserArray = DatabaseController().query_systemUser()
     jsondata = {"SystemUsers": []}
     for user in systemUserArray:
@@ -289,8 +306,43 @@ def systemUsers(empty=None):
         userjson["Uid"] = user.uid
         userjson["DeviceType"] = user.device_type
         jsondata["SystemUsers"].append(userjson)
+    return jsondata
+
+
+@socketio.on('systemUser')
+@socket_auth(session=session)
+def systemUsers(empty=None):
+    jsondata = get_system_users()
 
     emit('systemUsersUpdate', json.dumps(jsondata))
+
+@app.route('/ManageSystemUser/getSystemUser', methods=["GET"])
+@auth.login_required
+def getSystemUserRest():
+    """ wrapper around the updateSystemUser function for Rest API
+    """
+    try:
+        jsondata = get_system_user(request.json)
+        return json.dumps(jsondata), 200
+    except Exception as e:
+        print(e)
+        return str(e), 500
+
+def get_system_user(jsondata):
+    systemUserArray = DatabaseController().query_by_systemUser(**jsondata)
+    jsondata = {"SystemUsers": []}
+    for user in systemUserArray:
+        userjson = {}
+        userjson['Name'] = user.name
+        userjson["Group"] = user.group
+        userjson["Token"] = user.token
+        userjson["Password"] = user.password
+        userjson["Certs"] = user.certificate_package_name
+        userjson["Uid"] = user.uid
+        userjson["DeviceType"] = user.device_type
+        jsondata["SystemUsers"].append(userjson)
+    return jsondata
+
 
 @socketio.on('updateSystemUser')
 @socket_auth(session=session)
@@ -328,13 +380,14 @@ def updateSystemUser(jsondata):
     for systemuser in jsondata['systemUsers']:
         update_column = {}
 
-        if "token" in systemuser:
-            update_column["token"] = str(systemuser["token"])
-        if "password" in systemuser:
-            update_column["password"] = str(systemuser["password"])
-        if "group" in systemuser:
-            update_column["group"] = str(systemuser["group"])
+        if "Token" in systemuser:
+            update_column["token"] = str(systemuser["Token"])
+        if "Password" in systemuser:
+            update_column["password"] = str(systemuser["Password"])
+        if "Group" in systemuser:
+            update_column["group"] = str(systemuser["Group"])
         dbController.update_systemUser(query=f'uid = "{systemuser["uid"]}"', column_value=update_column)
+    get_system_users()
 
 
 @socketio.on('addSystemUser')

@@ -21,7 +21,6 @@ class MainConfig:
     this is the main configuration file and is the only one which
     should need to be changed
     """
-
     _instance = None
     _values = {}
 
