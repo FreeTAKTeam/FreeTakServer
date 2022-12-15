@@ -11,7 +11,7 @@ from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.core.persistence import APIUsersController
 from FreeTAKServer.core.persistence import ExCheckController
-from FreeTAKServer.core.persistence import ExCheckChecklistController
+from FreeTAKServer.components.extended.excheck.persistence import ExCheckChecklistController
 from FreeTAKServer.core.persistence import APICallController
 from FreeTAKServer.core.persistence import _VideoTableController, ActiveEmergencysController
 from FreeTAKServer.core.persistence import ActiveFederationsController
