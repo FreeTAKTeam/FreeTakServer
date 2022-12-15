@@ -44,7 +44,7 @@ import FreeTAKServer.model.SQLAlchemy.ActiveEmergencys
 import FreeTAKServer.model.SQLAlchemy.ExCheckKeywords
 import FreeTAKServer.model.SQLAlchemy.ExCheckData
 import FreeTAKServer.components.extended.excheck.persistence.ExCheck
-import FreeTAKServer.model.SQLAlchemy.ExCheckChecklist
+import FreeTAKServer.components.extended.excheck.persistence.ExCheckChecklist
 import FreeTAKServer.model.SQLAlchemy.APICalls
 
 class DatabaseController:
