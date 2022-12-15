@@ -1,6 +1,6 @@
 # pylint: disable=invalid-name
 """this module contains the Checklist class"""
-from FreeTAKServer.model.ExCheck.Checklists.checklistDetails import checklistDetails  # pylint: disable=invalid-name
+from FreeTAKServer.components.extended.excheck.persistence.checklistDetails import checklistDetails  # pylint: disable=invalid-name
 from FreeTAKServer.components.extended.excheck.persistence.checklistColumns import checklistColumns  # pylint: disable=invalid-name
 from FreeTAKServer.model.ExCheck.Checklists.checklistTasks import checklistTasks  # pylint: disable=invalid-name
 
