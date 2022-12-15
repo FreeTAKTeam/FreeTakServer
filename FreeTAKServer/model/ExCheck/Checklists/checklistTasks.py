@@ -1,4 +1,4 @@
-from FreeTAKServer.model.ExCheck.Checklists.checklistTask import checklistTask
+from FreeTAKServer.components.extended.excheck.persistence.checklistTask import checklistTask
 class checklistTasks:
     def __init__(self):
         self.checklistTask = []
