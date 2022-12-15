@@ -148,7 +148,6 @@ dmypy.json
 .vscode/
 
 # Misc
-ExCheck/
 certs/
 FreeTAKServerDataPackageFolder/
 logs/
