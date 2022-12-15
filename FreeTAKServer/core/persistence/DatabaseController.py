@@ -43,7 +43,7 @@ import FreeTAKServer.model.SQLAlchemy.system_user
 import FreeTAKServer.model.SQLAlchemy.ActiveEmergencys
 import FreeTAKServer.model.SQLAlchemy.ExCheckKeywords
 import FreeTAKServer.model.SQLAlchemy.ExCheckData
-import FreeTAKServer.model.SQLAlchemy.ExCheck
+import FreeTAKServer.components.extended.excheck.persistence.ExCheck
 import FreeTAKServer.model.SQLAlchemy.ExCheckChecklist
 import FreeTAKServer.model.SQLAlchemy.APICalls
 

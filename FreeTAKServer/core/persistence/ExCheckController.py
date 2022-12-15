@@ -1,5 +1,5 @@
-from FreeTAKServer.model.SQLAlchemy.ExCheck import ExCheck
-from FreeTAKServer.model.SQLAlchemy.ExCheck import ExCheckData
+from FreeTAKServer.components.extended.excheck.persistence.ExCheck import ExCheck
+from FreeTAKServer.model.SQLAlchemy.ExCheckData import ExCheckData
 from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContents import templateInstanceContents
 from FreeTAKServer.core.persistence.table_controllers import TableController
 from FreeTAKServer.model.SQLAlchemy.ExCheckKeywords import ExCheckKeywords
