@@ -339,58 +339,59 @@ class AtakOfTheCerts:
         """
         Generate a CA certificate
         """
-        if not os.path.exists(self.cakeypath):
-            print("Cannot find CA locally so generating one")
-            if not os.path.exists(os.path.dirname(self.cakeypath)):
-                print("the directory for storing certificates doesn't exist.")
-                print("Creating one at " + os.path.dirname(self.cakeypath))
-                os.makedirs(os.path.dirname(self.cakeypath))
-            ca_key = crypto.PKey()
-            ca_key.generate_key(crypto.TYPE_RSA, 2048)
-            cert = crypto.X509()
-            cert.get_subject().CN = "CA"
-            cert.set_serial_number(0)
-            cert.set_version(2)
-            cert.gmtime_adj_notBefore(0)
-            cert.gmtime_adj_notAfter(expiry_time_secs)
-            cert.set_issuer(cert.get_subject())
-            cert.add_extensions([crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
-                                 crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')])
-            cert.set_pubkey(ca_key)
-            cert.sign(ca_key, "sha256")
-
-            f = open(self.cakeypath, "wb")
-            f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
-            f.close()
-
-            f = open(self.capempath, "wb")
-            f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
-            f.close()
-
-            # append empty crl
-            crl = crypto.CRL()
-            crl.sign(cert, ca_key, b"sha256")
-
-            with open(config.CRLFile, 'wb') as f:
-                f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
-
-            delete = 0
-            with open(self.capempath, "r") as f:
-                lines = f.readlines()
-            with open(self.capempath, "w") as f:
-                for line in lines:
-                    if delete:
-                        continue
-                    elif line.strip("\n") != "-----BEGIN X509 CRL-----":
-                        f.write(line)
-                    else:
-                        delete = 1
-
-            with open(self.capempath, "ab") as f:
-                f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
-
-        else:
+        if (pathlib.Path(config.certsPath, 'ca.key').exists()):
             print("CA found locally, not generating a new one")
+            return
+
+        print("Cannot find CA file locally so generating one")
+        if not os.path.exists(config.certsPath):
+            print("The directory for storing certificates doesn't exist.")
+            print("Creating one at " + config.certsPath)
+            os.makedirs(os.path.dirname(config.certsPath))
+
+        ca_key = crypto.PKey()
+        ca_key.generate_key(crypto.TYPE_RSA, 2048)
+        cert = crypto.X509()
+        cert.get_subject().CN = "CA"
+        cert.set_serial_number(0)
+        cert.set_version(2)
+        cert.gmtime_adj_notBefore(0)
+        cert.gmtime_adj_notAfter(expiry_time_secs)
+        cert.set_issuer(cert.get_subject())
+        cert.add_extensions([crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
+                                crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')])
+        cert.set_pubkey(ca_key)
+        cert.sign(ca_key, "sha256")
+
+        f = open(self.cakeypath, "wb")
+        f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
+        f.close()
+
+        f = open(self.capempath, "wb")
+        f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+        f.close()
+
+        # append empty crl
+        crl = crypto.CRL()
+        crl.sign(cert, ca_key, b"sha256")
+
+        with open(config.CRLFile, 'wb') as f:
+            f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
+
+        delete = 0
+        with open(self.capempath, "r") as f:
+            lines = f.readlines()
+        with open(self.capempath, "w") as f:
+            for line in lines:
+                if delete:
+                    continue
+                elif line.strip("\n") != "-----BEGIN X509 CRL-----":
+                    f.write(line)
+                else:
+                    delete = 1
+
+        with open(self.capempath, "ab") as f:
+            f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
 
     def _generate_key(self, keypath: str) -> None:
         """

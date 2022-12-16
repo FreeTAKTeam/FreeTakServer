@@ -7,7 +7,7 @@ from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 from FreeTAKServer.core.services.DataPackageServer import (
-    FlaskFunctions, Path, app, const, dp_directory, os)
+    FlaskFunctions, app, const, init_config)
 from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
 
 # Make a connection to the MainConfig object for all routines below
@@ -20,14 +20,12 @@ class SSLDataPackageService(FlaskFunctions):
     def startup(self, ip, port, pipe):
         try:
             global IP, HTTPPORT
+            init_config()
             self.MainSocket = SSLServerSocket()
             IP = ip
             HTTPPORT = port
             PIPE = pipe
             # Make sure the data package directory exists
-            if not Path(dp_directory).exists():
-                app.logger.info(f"Creating directory at {str(dp_directory)}")
-                os.makedirs(str(dp_directory))
             # Create the relevant database tables
             print(const.IP)
             print(HTTPPORT)
