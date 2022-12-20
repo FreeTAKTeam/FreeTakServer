@@ -46,9 +46,21 @@ from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
 
-dbController = DatabaseController()
-
+app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
+auth = HTTPTokenAuth(scheme='Bearer')
+app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+CORS(app)
+socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
+socketio.init_app(app, cors_allowed_origins="*")
+APIPipe = None
+CommandPipe = None
 config = MainConfig.instance()
+app.config["SECRET_KEY"] = config.SecretKey
+eventDict = {}
 
 UpdateArray = []
 StartTime = None
@@ -65,22 +77,12 @@ restMethods.rest_methods()
 defaultValues = vars()
 defaultValues.default_values()
 
-app = Flask(__name__)
-login_manager = LoginManager()
-login_manager.init_app(app)
-auth = HTTPTokenAuth(scheme='Bearer')
-app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-dbController.session = db.session
-CORS(app)
-socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
-socketio.init_app(app, cors_allowed_origins="*")
-APIPipe = None
-CommandPipe = None
-config = MainConfig.instance()
-app.config["SECRET_KEY"] = config.SecretKey
-eventDict = {}
+#TODO Change everything about this
+def init_config():
+    global dbController
+
+    dbController = DatabaseController()
+    dbController.session = db.session
 
 
 @app.errorhandler(404)
@@ -1806,6 +1808,7 @@ class RestAPI:
 
     def startup(self, APIPipea, CommandPipea, IP, Port, starttime):
         print('running api')
+        init_config()
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime
         APIPipe = APIPipea
@@ -1825,6 +1828,3 @@ class RestAPI:
         return model
 
 
-if __name__ == '__main__':
-    excheck_table()
-    #    app.run(host="127.0.0.1", port=80)
