@@ -64,7 +64,8 @@ setup(
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
-        "digitalpy<=0.2.5.6",
+        "digitalpy>=0.2.6",
+        "opentelemetry-sdk",
     ],
     extras_require={
         "ui": ["FreeTAKServer_UI"],
