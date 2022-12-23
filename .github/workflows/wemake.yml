@@ -1,0 +1,19 @@
+name: "wemake_validation"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "master" ]
+  schedule:
+    - cron: '28 18 * * 4'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: wemake-python-styleguide
+        uses: wemake-services/wemake-python-styleguide@0.17.0
+      # You may pin to the exact commit or the version.
+      # uses: wemake-services/wemake-python-styleguide@657508a0b169e15faeda641c4d9c7bc2afda484b
