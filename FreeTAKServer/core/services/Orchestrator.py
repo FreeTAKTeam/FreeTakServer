@@ -14,8 +14,8 @@ import time
 import traceback
 from lxml import etree
 
-from digitalpy.model.node import Node
-from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.core.domain.node import Node
+from digitalpy.core.main.object_factory import ObjectFactory
 
 from FreeTAKServer.core.util.geo_manager_controller import GeoManagerController
 from FreeTAKServer.core.connection.ActiveThreadsController import ActiveThreadsController
@@ -93,13 +93,13 @@ class Orchestrator(ABC):
         """Implement as property"""
         pass
 
-    def remove_service_user(self, client_information: ClientInformation):
+    def remove_service_user(self, clientInformation: ClientInformation):
         """Generates the presence object from the
-        client_information parameter and sends it as a remove message
+        clientInformation parameter and sends it as a remove message
         to the client data pipe
 
         Args:
-            client_information: Client information
+            clientInformation: Client information
 
         Returns: None
         """
@@ -112,13 +112,13 @@ class Orchestrator(ABC):
                 self.clientDataPipe.put(
                     [
                         "remove",
-                        client_information,
+                        clientInformation,
                         self.openSockets,
                         self.connection_type,
                     ]
                 )
                 self.logger.debug(
-                    f"Client removal has been sent through queue {str(client_information)}"
+                    f"Client removal has been sent through queue {str(clientInformation)}"
                 )
             else:
                 self.logger.critical("Client data pipe is full!")
@@ -128,11 +128,11 @@ class Orchestrator(ABC):
             )
             raise e
 
-    def update_client_information(self, client_information: ClientInformation):
-        """Generates a Presence object from the client_information parameter and
+    def update_client_information(self, clientInformation: ClientInformation):
+        """Generates a Presence object from the clientInformation parameter and
         sends it as an update message to the client data pipe.
 
-        :param client_information: Client information
+        :param clientInformation: Client information
 
         Returns: None
         """
@@ -140,9 +140,9 @@ class Orchestrator(ABC):
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
                 presence_object = Presence()
-                presence_object.setModelObject(client_information.modelObject)
-                presence_object.setXmlString(client_information.xmlString.decode())
-                presence_object.setClientInformation(client_information.modelObject)
+                presence_object.setModelObject(clientInformation.modelObject)
+                presence_object.setXmlString(clientInformation.xmlString.decode())
+                presence_object.setClientInformation(clientInformation.modelObject)
 
                 # TODO add blocking
                 self.clientDataPipe.put(
@@ -150,12 +150,12 @@ class Orchestrator(ABC):
                 )
                 self.logger.debug(
                     "client update has been sent through queue "
-                    + str(client_information)
+                    + str(clientInformation)
                 )
                 # Add client info to queue
-                self.clientInformationQueue[client_information.modelObject.uid][
+                self.clientInformationQueue[clientInformation.modelObject.uid][
                     1
-                ] = client_information
+                ] = clientInformation
                 self.get_client_information()
                 # update the geo manager controller with the new client information
                 GeoManagerController.update_users(self.clientInformationQueue)
@@ -168,11 +168,11 @@ class Orchestrator(ABC):
             raise e
 
     @abstractmethod
-    def add_service_user(self, client_information: ClientInformation):
+    def add_service_user(self, clientInformation: ClientInformation):
         """Generates the presence and connection objects from the
-        client_information parameter and sends it to the clientDataPipe for processing
+        clientInformation parameter and sends it to the clientDataPipe for processing
 
-        :param client_information: this is the information of the client to be added
+        :param clientInformation: this is the information of the client to be added
         """
         pass
 
@@ -342,7 +342,7 @@ class Orchestrator(ABC):
                 )
 
             self.logger.debug("Adding client...")
-            self.add_service_user(client_information=clientInformation)
+            self.add_service_user(clientInformation=clientInformation)
 
             # Add client info to queue
             self.clientInformationQueue[clientInformation.modelObject.uid] = [
@@ -391,16 +391,16 @@ class Orchestrator(ABC):
             # this statement checks if the data type is a user update and if so it will be saved to the associated client object
             if raw_cot.CoTType == "SendUserUpdateController":
                 # find entry with this uid
-                self.update_client_information(client_information=processedCoT)
+                self.update_client_information(clientInformation=processedCoT)
             return processedCoT
         except Exception as e:
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
             return -1
 
-    def clientDisconnected(self, client_information: User):
+    def clientDisconnected(self, clientInformation: User):
         """Handles the disconnection of clients
 
-        :param client_information:
+        :param clientInformation:
         :return:
         """
         import traceback
@@ -410,13 +410,13 @@ class Orchestrator(ABC):
         # TODO add proper exception handling
         # Get socket info from client object
         try:
-            if isinstance(client_information, str):
-                client_information = self.clientInformationQueue[client_information][1]
-            elif isinstance(client_information, RawCoT):
-                client_information = self.clientInformationQueue[
-                    client_information.clientInformation
+            if isinstance(clientInformation, str):
+                clientInformation = self.clientInformationQueue[clientInformation][1]
+            elif isinstance(clientInformation, RawCoT):
+                clientInformation = self.clientInformationQueue[
+                    clientInformation.clientInformation
                 ][1]
-            sock = self.clientInformationQueue[client_information.user_id][0]
+            sock = self.clientInformationQueue[clientInformation.user_id][0]
         except Exception as e:
             self.logger.critical(
                 "getting sock from client information queue failed " + str(e)
@@ -425,7 +425,7 @@ class Orchestrator(ABC):
         try:
             self.logger.debug(
                 "client "
-                + client_information.m_presence.modelObject.uid
+                + clientInformation.m_presence.modelObject.uid
                 + " disconnected "
                 + "\n".join(traceback.format_stack())
             )
@@ -436,7 +436,7 @@ class Orchestrator(ABC):
 
         # Removes the user id from client info queue
         try:
-            del self.clientInformationQueue[client_information.user_id]
+            del self.clientInformationQueue[clientInformation.user_id]
             # update the geo manager controller with the new client information
             GeoManagerController.update_users(self.clientInformationQueue)
         except Exception as e:
@@ -444,24 +444,24 @@ class Orchestrator(ABC):
 
         # Remove the active thread and database connection
         try:
-            self.ActiveThreadsController.removeClientThread(client_information)
-            self.dbController.remove_user(query=f'uid = "{client_information.user_id}"')
+            self.ActiveThreadsController.removeClientThread(clientInformation)
+            self.dbController.remove_user(query=f'uid = "{clientInformation.user_id}"')
         except Exception as e:
             self.logger.critical(
                 f"There has been an error in a clients disconnection while adding information to the database {str(e)}"
             )
 
         try:
-            self.remove_service_user(client_information=client_information)
+            self.remove_service_user(clientInformation=clientInformation)
             self.disconnect_socket(sock)
 
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
 
             # TODO: remove string
-            self.send_disconnect_cot(client_information)
+            self.send_disconnect_cot(clientInformation)
             self.logger.info(
                 loggingConstants.CLIENTDISCONNECTEND
-                + str(client_information.m_presence.modelObject.uid)
+                + str(clientInformation.m_presence.modelObject.uid)
             )
             return 1
         except Exception as e:
@@ -482,16 +482,16 @@ class Orchestrator(ABC):
                 + line
             )
 
-    def send_disconnect_cot(self, client_information):
+    def send_disconnect_cot(self, clientInformation):
         """send the disconnection information for a specific client to all connected clients
         Args:
-            client_information: client to be displayed as
+            clientInformation: client to be displayed as
                 disconnected by all connected devices
         """
         # TODO: remove string
         tempXml = RawCoT()
         tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(
-            client_information.user_id
+            clientInformation.user_id
         ).encode()
         disconnect = SendDisconnectController(tempXml)
         self.get_client_information()
