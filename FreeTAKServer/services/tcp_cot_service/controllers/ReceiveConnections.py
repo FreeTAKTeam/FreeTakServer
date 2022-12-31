@@ -22,6 +22,7 @@ from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
+from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation
 
 loggingConstants = LoggingConstants(log_name="FTS_ReceiveConnections")
 logger = CreateLoggerController("FTS_ReceiveConnections", logging_constants=loggingConstants).getLogger()
@@ -64,14 +65,36 @@ class ReceiveConnections:
         events = etree.fromstring(xmlstring)
         return events
 
-    def listen(self, sock):
+    def listen(self, sock: socket.socket) -> Union[RawConnectionInformation, int]:
+        """
+        Listen for incoming client connections and process them.
+
+        This method listens for incoming client connections, receives data from the
+        client, and then instantiates a client object with the received data. If
+        any errors occur during this process, the method returns -1. Otherwise, it
+        returns the instantiated client object.
+
+        Parameters
+        ----------
+        sock : socket.socket
+            The socket to listen for incoming connections on.
+
+        Returns
+        -------
+        Union[RawConnectionInformation, int]
+            The instantiated client object, or -1 if any errors occurred.
+        """
+
         # logger = CreateLoggerController("ReceiveConnections").getLogger()
-        # listen for client connections
+
+        # Listen for client connections
         sock.listen(ReceiveConnectionsConstants().LISTEN_COUNT)
+
         try:
+            # Accept a client connection
             client, address = sock.accept()
 
-            # wait to receive client
+            # Receive data from the client
             try:
                 events = self.receive_connection_data(client=client)
             except Exception as e:
@@ -79,28 +102,32 @@ class ReceiveConnections:
                     events = self.receive_connection_data(client=client)
                 except Exception as e:
                     client.close()
-                    logger.warning("receiving connection data from client failed with exception "+str(e))
+                    logger.warning("Receiving connection data from client failed with exception " + str(e))
                     return -1
-            # TODO: move out to separate function
-            if events == TEST_SUCCESS:
-                client.send(b'success')
-            client.settimeout(0) # set the socket to non blocking
+
+            # Set the socket to non-blocking
+            client.settimeout(0)
+
+            # Log that a client was accepted
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
-            # establish the socket array containing important information about the client
+
+            # Instantiate a client object with the received data
             raw_connection_information = self.instantiate_client_object(address, client, events)
-            logger.info("client accepted")
+            logger.info("Client accepted")
+
+            # Return the client object if it is valid, or -1 if it is not
             try:
-                if socket is not None and raw_connection_information.xmlString != b'':
+                if sock is not None and raw_connection_information.xmlString != b'':
                     return raw_connection_information
                 else:
-                    logger.warning("final socket entry is invalid")
+                    logger.warning("Final socket entry is invalid")
                     client.close()
                     return -1
             except Exception as e:
                 client.close()
-                logger.warning('exception in returning data ' + str(e))
+                logger.warning('Exception in returning data ' + str(e))
                 return -1
-
+                
         except Exception as e:
             logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR)
             try:
@@ -109,6 +136,7 @@ class ReceiveConnections:
                 pass
             finally:
                 return -1
+
 
     def instantiate_client_object(self, address, client, events):
         raw_connection_information = sat()

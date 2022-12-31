@@ -8,11 +8,13 @@ import multiprocessing
 import importlib
 import socket
 from opentelemetry.trace import Status, StatusCode
+from typing import List, Union
 
-from digitalpy.core.impl.digitalpy_service import DigitalPyService
-from digitalpy.model.node import Node
-from digitalpy.core.object_factory import ObjectFactory
-from digitalpy.telemetry.tracer import Tracer
+from digitalpy.core.service_management.digitalpy_service import DigitalPyService
+from digitalpy.core.domain.node import Node
+from digitalpy.core.main.object_factory import ObjectFactory
+from digitalpy.core.telemetry.tracer import Tracer
+from digitalpy.core.parsing.formatter import Formatter
 
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 from .controllers.TCPSocketController import TCPSocketController
@@ -24,7 +26,6 @@ from FreeTAKServer.core.connection.ClientInformationController import (
 from FreeTAKServer.core.persistence.DatabaseController import (
     DatabaseController,
 )
-
 from .controllers.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.core.connection.ReceiveConnectionsProcessController import (
     ReceiveConnectionsProcessController,
@@ -48,19 +49,49 @@ from FreeTAKServer.model.User import User
 from FreeTAKServer.model.ClientInformation import ClientInformation
 
 from .configuration.tcp_cot_service_constants import SERVICE_NAME
-
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
+loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
+logger = CreateLoggerController(
+    "FTS-TCP_CoT_Service", logging_constants=loggingConstants
+).getLogger()
 
 from .controllers.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
+APPLICATION_PROTOCOL = "COT"
 # MAJOR TODO: Make explicit exception classes!!!
 
 
 class TCPCoTServiceMain(DigitalPyService):
     """this service is responsible for handling the CoT listener for XML"""
-    
+
+    # TODO: prevent repeat add user
+    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
+        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+        self.logger = logger
+
+        # Server info
+        self.connection_received = 0
+        self.sent_message_count = 0
+        self.received_message_count = 0
+        self.messages_to_core_count = 0
+        self.messages_from_core_count = 0
+        self.openSockets = 0
+
+        # Contains info on clients
+        self.client_information_queue = {}
+        self.clientDataPipe: Queue
+
+        # instantiate controllers
+        self.ActiveThreadsController = ActiveThreadsController()
+        self.ClientInformationController = ClientInformationController()
+        self.ReceiveConnections = ReceiveConnections()
+        self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
+        self.XMLCoTController = XMLCoTController()
+        self.dbController: DatabaseController
+
     def start(
         self,
         IP,
@@ -74,13 +105,14 @@ class TCPCoTServiceMain(DigitalPyService):
         tracing_provider_instance
     ):
         try:
+            # configure the object factory with the passed factory instance
+            ObjectFactory.configure(factory)
+
             # instantiate the tracer instance for this service
             self.tracer: Tracer = tracing_provider_instance.create_tracer(
                 SERVICE_NAME
             )
             
-            # configure the object factory with the passed factory instance
-            ObjectFactory.configure(factory)
             actionmapper = ObjectFactory.get_instance("actionMapper")
             # subscribe to responses originating from this controller
             actionmapper.add_topic(
@@ -99,8 +131,9 @@ class TCPCoTServiceMain(DigitalPyService):
             self.pool = pool
             self.clientDataRecvPipe = clientDataRecvPipe
             clientData = pool.apply_async(
-                ClientReceptionHandler().startup, (self.clientInformationQueue,)
+                ClientReceptionHandler().startup, (self.client_information_queue,)
             )
+            self.initialize_connections(APPLICATION_PROTOCOL)
             receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
             # instantiate domain model and save process as object
             self.mainRunFunction(
@@ -119,38 +152,14 @@ class TCPCoTServiceMain(DigitalPyService):
     @property
     def connection_type(self):
         return ConnectionTypes.TCP    
-    
-    # TODO: fix repeat attempts to add user
-    def __init__(self):
-        self.logger = None
 
-        # Server info
-        self.connection_received = 0
-        self.sent_message_count = 0
-        self.received_message_count = 0
-        self.messages_to_core_count = 0
-        self.messages_from_core_count = 0
-        self.openSockets = 0
-
-        # Contains info on clients
-        self.clientInformationQueue = {}
-        self.clientDataPipe: Queue
-
-        # instantiate controllers
-        self.ActiveThreadsController = ActiveThreadsController()
-        self.ClientInformationController = ClientInformationController()
-        self.ReceiveConnections = ReceiveConnections()
-        self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
-        self.XMLCoTController = XMLCoTController()
-        self.dbController: DatabaseController
-
-    def remove_service_user(self, client_information: ClientInformation):
+    def remove_service_user(self, clientInformation: ClientInformation):
         """Generates the presence object from the
-        client_information parameter and sends it as a remove message
+        clientInformation parameter and sends it as a remove message
         to the client data pipe
 
         Args:
-            client_information: Client information
+            clientInformation: Client information
 
         Returns: None
         """
@@ -163,27 +172,27 @@ class TCPCoTServiceMain(DigitalPyService):
                 self.clientDataPipe.put(
                     [
                         "remove",
-                        client_information,
+                        clientInformation,
                         self.openSockets,
                         self.connection_type,
                     ]
                 )
                 self.logger.debug(
-                    f"Client removal has been sent through queue {str(client_information)}"
+                    f"Client removal has been sent through queue {str(clientInformation)}"
                 )
             else:
                 self.logger.critical("Client data pipe is full!")
         except Exception as ex:
-            with self.tracer.get_current_span() as span:
+            with self.tracer.start_as_current_span("remove_service_user") as span:
                 span.set_status(Status(StatusCode.ERROR))
                 span.record_exception(ex)
             raise ex
 
-    def update_client_information(self, client_information: ClientInformation):
-        """Generates a Presence object from the client_information parameter and
+    def update_client_information(self, clientInformation: ClientInformation):
+        """Generates a Presence object from the clientInformation parameter and
         sends it as an update message to the client data pipe.
 
-        :param client_information: Client information
+        :param clientInformation: Client information
 
         Returns: None
         """
@@ -191,9 +200,9 @@ class TCPCoTServiceMain(DigitalPyService):
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
                 presence_object = Presence()
-                presence_object.setModelObject(client_information.modelObject)
-                presence_object.setXmlString(client_information.xmlString.decode())
-                presence_object.setClientInformation(client_information.modelObject)
+                presence_object.setModelObject(clientInformation.modelObject)
+                presence_object.setXmlString(clientInformation.xmlString.decode())
+                presence_object.setClientInformation(clientInformation.modelObject)
 
                 # TODO add blocking
                 self.clientDataPipe.put(
@@ -201,44 +210,44 @@ class TCPCoTServiceMain(DigitalPyService):
                 )
                 self.logger.debug(
                     "client update has been sent through queue "
-                    + str(client_information)
+                    + str(clientInformation)
                 )
                 # Add client info to queue
-                self.clientInformationQueue[client_information.modelObject.uid][
+                self.client_information_queue[clientInformation.modelObject.uid][
                     1
-                ] = client_information
+                ] = clientInformation
                 self.get_client_information()
                 # update the geo manager controller with the new client information
-                GeoManagerController.update_users(self.clientInformationQueue)
+                GeoManagerController.update_users(self.client_information_queue)
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
-            with self.tracer.get_current_span() as span:
+            with self.tracer.start_as_current_span("update_client_information") as span:
                 span.set_status(Status(StatusCode.ERROR))
                 span.record_exception(ex)
             raise ex
 
-    def add_service_user(self, client_information: ClientInformation):
+    def add_service_user(self, clientInformation: ClientInformation):
         """this method generates the presence and connection objects from the
-        client_information parameter and sends it to
+        clientInformation parameter and sends it to
 
-        :param client_information: this is the information of the client to be added
+        :param clientInformation: this is the information of the client to be added
         :return:
         """
         try:
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
                 presence_object = Presence()
-                presence_object.setModelObject(client_information.modelObject)
+                presence_object.setModelObject(clientInformation.modelObject)
 
                 # TODO why is this not xmlString?
-                presence_object.setXmlString(client_information.idData)
+                presence_object.setXmlString(clientInformation.idData)
                 # Is this duplicate of modelObject?
-                presence_object.setClientInformation(client_information.modelObject)
+                presence_object.setClientInformation(clientInformation.modelObject)
 
                 connection_object = TCPConnection()
                 connection_object.sock = None
-                connection_object.user_id = client_information.modelObject.uid
+                connection_object.user_id = clientInformation.modelObject.uid
 
                 # Updating clientDataPipe
                 # TODO add blocking...
@@ -247,12 +256,12 @@ class TCPCoTServiceMain(DigitalPyService):
                 )
                 self.logger.debug(
                     "client addition has been sent through queue "
-                    + str(client_information)
+                    + str(clientInformation)
                 )
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
-            with self.tracer.get_current_span() as span:
+            with self.tracer.start_as_current_span("add_service_user") as span:
                 span.set_status(Status(StatusCode.ERROR))
                 span.record_exception(ex)
             raise ex
@@ -272,24 +281,24 @@ class TCPCoTServiceMain(DigitalPyService):
                 self.clientDataPipe.put(["get", self.connection_type, self.openSockets])
                 user_dict = self.clientDataRecvPipe.get(timeout=10000)
                 client_information_queue_client_ids = copy.copy(
-                    list(self.clientInformationQueue.keys())
+                    list(self.client_information_queue.keys())
                 )
 
                 for client_id in client_information_queue_client_ids:
                     # forces FTS core to be single source of truth
                     if (
                         client_id in user_dict.keys()
-                        and len(self.clientInformationQueue[client_id]) == 1
+                        and len(self.client_information_queue[client_id]) == 1
                     ):
-                        self.clientInformationQueue[client_id].append(
+                        self.client_information_queue[client_id].append(
                             user_dict[client_id]
                         )
 
                     elif (
                         client_id in user_dict.keys()
-                        and len(self.clientInformationQueue[client_id]) == 2
+                        and len(self.client_information_queue[client_id]) == 2
                     ):
-                        self.clientInformationQueue[client_id][1] = user_dict[client_id]
+                        self.client_information_queue[client_id][1] = user_dict[client_id]
 
                     # if the entry isn't present in FTS core than the client will be disconnected
                     # and deleted to maintain single source of truth
@@ -298,9 +307,9 @@ class TCPCoTServiceMain(DigitalPyService):
                             f"disconnection client {str(client_id)} because client was not in FTS core user_dict"
                         )
                         self.disconnect_socket(
-                            self.clientInformationQueue[client_id][0]
+                            self.client_information_queue[client_id][0]
                         )
-                        del self.clientInformationQueue[client_id]
+                        del self.client_information_queue[client_id]
 
                     # TODO this case will never happen
                     else:
@@ -310,7 +319,7 @@ class TCPCoTServiceMain(DigitalPyService):
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
-            with self.tracer.get_current_span() as span:
+            with self.tracer.start_as_current_span("get_client_information") as span:
                 span.set_status(Status(StatusCode.ERROR))
                 span.record_exception(ex)
 
@@ -367,74 +376,60 @@ class TCPCoTServiceMain(DigitalPyService):
             return 1
 
     def clientConnected(self, raw_connection_information: RawCoT):
-        """this controls the client connection sequence calling methods which perform the following,
-            instantiating the client object, sharing the client with core, adding the client to the db
-            and sending the connection message
+        """Controls the client connection sequence, calling methods which perform the following:
+            1. Instantiate the client object
+            2. Share the client with core
+            3. Add the client to the database
+            4. Send the connection message
 
-        :param raw_connection_information:
-        :return:
+        :param raw_connection_information: RawCoT object containing client connection information
+        :return: ClientInformation object for the newly connected client, or -1 if there was an error
         """
         try:
-            from FreeTAKServer.core.persistence.EventTableController import (
-                EventTableController,
-            )
-
-            clientPipe = None
+            from FreeTAKServer.core.persistence.EventTableController import EventTableController
 
             self.logger.info(loggingConstants.CLIENTCONNECTED)
 
             # Instantiate the client object
             clientInformation = self.ClientInformationController.intstantiateClientInformationModelFromConnection(
-                raw_connection_information, clientPipe
+                raw_connection_information, None
             )
-
-            # TODO remove
             if clientInformation == -1:
-                self.logger.info(
-                    "client had invalid connection information and has been disconnected"
-                )
+                self.logger.info("Client had invalid connection information and has been disconnected")
                 return -1
 
-            # TODO remove or handle better
-            if not self.checkOutput(clientInformation):
-                raise Exception("Error in the creation of client information")
-            self.openSockets += 1
-            # breaks ssl
+            # Add client to database
             try:
                 if hasattr(clientInformation.socket, "getpeercert"):
                     cn = "placeholder"
                 else:
                     cn = None
-                CoTRow = EventTableController().convert_model_to_row(
-                    clientInformation.modelObject
-                )
+                CoT_row = EventTableController().convert_model_to_row(clientInformation.modelObject)
                 self.dbController.create_user(
                     uid=clientInformation.modelObject.uid,
                     callsign=clientInformation.modelObject.detail.contact.callsign,
                     IP=clientInformation.IP,
-                    CoT=CoTRow,
+                    CoT=CoT_row,
                     CN=cn,
                 )
             except Exception as ex:
-                with self.tracer.get_current_span() as span:
+                with self.tracer.start_as_current_span("clientConnected") as span:
                     span.set_status(Status(StatusCode.ERROR))
                     span.record_exception(ex)
 
             self.logger.debug("Adding client...")
-            self.add_service_user(client_information=clientInformation)
+            self.add_service_user(clientInformation=clientInformation)
 
             # Add client info to queue
-            self.clientInformationQueue[clientInformation.modelObject.uid] = [
-                clientInformation.socket,
-                clientInformation,
-            ]
-            # update the geo manager controller with the new client information
-            GeoManagerController.update_users(self.clientInformationQueue)
+            self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation]
+            # Update the geo manager controller with the new client information
+            GeoManagerController.update_users(self.client_information_queue)
             self.logger.debug("Client added")
 
             # Broadcast user in geochat
             self.send_user_connection_geo_chat(clientInformation)
 
+            # Send emergency information to newly connected client
             request = ObjectFactory.get_new_instance("request")
             request.set_action("SendEmergenciesToClient")
             request.set_sender(self.__class__.__name__.lower())
@@ -444,10 +439,11 @@ class TCPCoTServiceMain(DigitalPyService):
             actionmapper = ObjectFactory.get_instance("actionMapper")
             response = ObjectFactory.get_new_instance("response")
             actionmapper.process_action(request, response, False)
+
             return clientInformation
         except Exception as e:
-            self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR + str(e))
-            return -1
+            self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR)
+
 
     def dataReceived(self, raw_cot: RawCoT):
         """this will be executed in the event that the use case for the CoT isn't specified in the orchestrator
@@ -470,16 +466,16 @@ class TCPCoTServiceMain(DigitalPyService):
             # this statement checks if the data type is a user update and if so it will be saved to the associated client object
             if raw_cot.CoTType == "SendUserUpdateController":
                 # find entry with this uid
-                self.update_client_information(client_information=processedCoT)
+                self.update_client_information(clientInformation=processedCoT)
             return processedCoT
         except Exception as e:
             self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
             return -1
 
-    def clientDisconnected(self, client_information: User):
+    def clientDisconnected(self, clientInformation: User):
         """Handles the disconnection of clients
 
-        :param client_information:
+        :param clientInformation:
         :return:
         """
         import traceback
@@ -489,13 +485,13 @@ class TCPCoTServiceMain(DigitalPyService):
         # TODO add proper exception handling
         # Get socket info from client object
         try:
-            if isinstance(client_information, str):
-                client_information = self.clientInformationQueue[client_information][1]
-            elif isinstance(client_information, RawCoT):
-                client_information = self.clientInformationQueue[
-                    client_information.clientInformation
+            if isinstance(clientInformation, str):
+                clientInformation = self.client_information_queue[clientInformation][1]
+            elif isinstance(clientInformation, RawCoT):
+                clientInformation = self.client_information_queue[
+                    clientInformation.clientInformation
                 ][1]
-            sock = self.clientInformationQueue[client_information.user_id][0]
+            sock = self.client_information_queue[clientInformation.user_id][0]
         except Exception as e:
             self.logger.critical(
                 "getting sock from client information queue failed " + str(e)
@@ -504,7 +500,7 @@ class TCPCoTServiceMain(DigitalPyService):
         try:
             self.logger.debug(
                 "client "
-                + client_information.m_presence.modelObject.uid
+                + clientInformation.m_presence.modelObject.uid
                 + " disconnected "
                 + "\n".join(traceback.format_stack())
             )
@@ -515,32 +511,32 @@ class TCPCoTServiceMain(DigitalPyService):
 
         # Removes the user id from client info queue
         try:
-            del self.clientInformationQueue[client_information.user_id]
+            del self.client_information_queue[clientInformation.user_id]
             # update the geo manager controller with the new client information
-            GeoManagerController.update_users(self.clientInformationQueue)
+            GeoManagerController.update_users(self.client_information_queue)
         except Exception as e:
             self.logger.critical("client removal failed " + str(e))
 
         # Remove the active thread and database connection
         try:
-            self.ActiveThreadsController.removeClientThread(client_information)
-            self.dbController.remove_user(query=f'uid = "{client_information.user_id}"')
+            self.ActiveThreadsController.removeClientThread(clientInformation)
+            self.dbController.remove_user(query=f'uid = "{clientInformation.user_id}"')
         except Exception as e:
             self.logger.critical(
                 f"There has been an error in a clients disconnection while adding information to the database {str(e)}"
             )
 
         try:
-            self.remove_service_user(client_information=client_information)
+            self.remove_service_user(clientInformation=clientInformation)
             self.disconnect_socket(sock)
 
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
 
             # TODO: remove string
-            self.send_disconnect_cot(client_information)
+            self.send_disconnect_cot(clientInformation)
             self.logger.info(
                 loggingConstants.CLIENTDISCONNECTEND
-                + str(client_information.m_presence.modelObject.uid)
+                + str(clientInformation.m_presence.modelObject.uid)
             )
             return 1
         except Exception as e:
@@ -561,16 +557,16 @@ class TCPCoTServiceMain(DigitalPyService):
                 + line
             )
 
-    def send_disconnect_cot(self, client_information):
+    def send_disconnect_cot(self, clientInformation):
         """send the disconnection information for a specific client to all connected clients
         Args:
-            client_information: client to be displayed as
+            clientInformation: client to be displayed as
                 disconnected by all connected devices
         """
         # TODO: remove string
         tempXml = RawCoT()
         tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(
-            client_information.user_id
+            clientInformation.user_id
         ).encode()
         disconnect = SendDisconnectController(tempXml)
         self.get_client_information()
@@ -631,7 +627,7 @@ class TCPCoTServiceMain(DigitalPyService):
         # final request for the actual cot but listener is not returned because
         # it should be handled by the main loop which listens for all responses
         # with a request source of Orchestrator
-        self.subject_send_request(request)
+        self.subject_send_request(request, APPLICATION_PROTOCOL)
         
         # one is returned so that the message is ignored and can be processed later once the
         # response is received by the component receiver
@@ -684,12 +680,14 @@ class TCPCoTServiceMain(DigitalPyService):
         responses = self.broker_receive()
         return responses
 
-    def broadcast_component_responses(self):
-        """this method is responsible for broadcasting the responses from
-        the routing proxy, this method is largely encapsulated and essentially
-        just needs to be called and forgotten, it retrieves the responses
-        through the component_receiver and converts the response into
-        a format that can be accepted by the SendDataController.
+    def broadcast_component_responses(self) -> None:
+        """
+        Broadcast responses from the routing proxy to connected ATAK clients.
+
+        This method retrieves the responses from the component_receiver and converts
+        them into a format that can be accepted by the SendDataController. It then
+        sends the converted responses to the appropriate ATAK clients using the
+        send_message method.
         """
 
         # TODO: This is bad practice but I didn't want to include this import
@@ -698,73 +696,83 @@ class TCPCoTServiceMain(DigitalPyService):
         # we can include it's instantiation during the component processing.
         from FreeTAKServer.model.SpecificCoT.SendOther import SendOther
 
-        # get the responses from the routing proxy
+        # Get the responses from the routing proxy
         responses = self.component_receiver()
 
         for response in responses:
             try:
-                # get the sender of the initial cot data
-                sender = response.get_value("sender")
+                # Get the sender of the initial cot data
+                sender = response.get_sender()
+
+                # Check if the response model object is a list
                 if isinstance(response.get_value("model_object"), list):
                     for model_object in response.get_value("model_object"):
-                        # define the specific cot object
+                        # Define the specific cot object
                         cot_object = SendOther()
                         cot_object.modelObject = model_object
-                        # TODO: decide where the serialization should be preformed.
-                        # for now it's preformed within the actions called by the routing worker
-                        # to reduce the cpu consumption in the current process.
-                        cot_object.xmlString = response.get_value(
-                            "serialized_message"
-                        ).pop()
+
+                        # TODO: Decide where the serialization should be performed.
+                        # For now it's performed within the actions called by the routing worker
+                        # to reduce the CPU consumption in the current process.
+                        cot_object.xmlString = response.get_value("serialized_message").pop()
+
                         self.send_message(sender, cot_object)
                 else:
-                    # get the model object from the response
+                    # Get the model object from the response
                     model_object = response.get_value("model_object")
 
-                    # define the specific cot object
+                    # Define the specific cot object
                     cot_object = SendOther()
                     cot_object.modelObject = model_object
-                    # TODO: decide where the serialization should be preformed.
-                    # for now it's preformed by whatever process is receiving the data
+
+                    # TODO: Decide where the serialization should be performed.
+                    # For now it's performed by whatever process is receiving the data
                     # in this case using the convert_to_xml method.
                     cot_object.xmlString = self.convert_to_xml(model_object)
 
                     self.send_message(sender, cot_object)
             except Exception as e:
                 self.logger.error(
-                    f"there was an exception sending a single response\nsender:{sender}\nmodel_object:{model_object}\source:{response.get_source()}\ncontext:{response.get_context()}\naction:{response.get_action()}"
+                    f"There was an exception sending a single response:\n"
+                    f"Sender: {sender}\n"
+                    f"Model object: {model_object}\n"
+                    f"Source: {response.get_source()}\n"
+                    f"Context: {response.get_context()}\n"
+                    f"Action: {response.get_action()}\n"
                 )
 
     def send_message(self, sender, message, use_share_pipe=True):
         return SendDataController().sendDataInQueue(
                     sender,
                     message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
-                    self.clientInformationQueue,
+                    self.client_information_queue,
                     self.CoTSharePipe,
                 )
 
     def monitor_raw_cot(self, data: RawCoT) -> object:
-        """this method takes as input a sent CoT and calls it's associated function
+        """
+        This method takes as input a sent CoT and calls its associated function. This method supports three handlers defined
+        in XMLCoTController which handle connect, disconnect, and misc messages respectively.
 
-        this method supports three handlers defined in XMLCoTController which handle, connect, disconnect
-        and misc messages respectively
+        Args:
+            data (RawCoT): The raw CoT data to be processed.
 
-        :param data:
-        :return:
+        Returns:
+            object: The output of the handler function called on the CoT data.
         """
         try:
             if isinstance(data, int):
                 return None
             else:
-                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(
-                    data, self.clientInformationQueue
-                )
-                handler = getattr(self, cot[0])
-                output = handler(cot[1])
+                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data, self.client_information_queue)
+                handler_name, handler_data = cot
+                handler = getattr(self, handler_name, None)
+                if handler is None:
+                    self.logger.error(f"No handler found for {handler_name}")
+                    return -1
+                output = handler(handler_data)
                 if output != 1:  # when the process is a disconnect the output is 1
-                    output.clientInformation = self.clientInformationQueue[
-                        data.clientInformation
-                    ][1]
+                    output.clientInformation = self.client_information_queue[data.clientInformation][1]
                 return output
         except Exception as e:
             self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
@@ -856,7 +864,6 @@ class TCPCoTServiceMain(DigitalPyService):
                                 ReceiveConnections().listen,
                                 (
                                     sock,
-                                    ssl,
                                 ),
                             )
                             receiveconntimeoutcount = datetime.datetime.now()
@@ -914,7 +921,7 @@ class TCPCoTServiceMain(DigitalPyService):
                         else:
                             clientData = pool.apply_async(
                                 ClientReceptionHandler().startup,
-                                (self.clientInformationQueue,),
+                                (self.client_information_queue,),
                             )
                             raise Exception(
                                 "client reception handler has returned data which is not of type list data is "
@@ -923,7 +930,7 @@ class TCPCoTServiceMain(DigitalPyService):
                         self.get_client_information()
                         clientData = pool.apply_async(
                             ClientReceptionHandler().startup,
-                            (self.clientInformationQueue,),
+                            (self.client_information_queue,),
                         )
                     except multiprocessing.TimeoutError:
                         pass
@@ -981,7 +988,7 @@ class TCPCoTServiceMain(DigitalPyService):
                                 + str(recent_client_data_output[0][0].xmlString)
                             )
                         self.logger.debug(
-                            "client dict: " + str(self.clientInformationQueue)
+                            "client dict: " + str(self.client_information_queue)
                         )
                 except Exception as e:
                     self.logger.error(
@@ -1014,7 +1021,7 @@ class TCPCoTServiceMain(DigitalPyService):
             self.logger.error("data base connection error " + str(e))
 
     def handle_sub_message(self, message):
-        with self.tracer.get_current_span() as span:
+        with self.tracer.start_as_current_span("handle_sub_message") as span:
             if message[0] == "/outbound/cots":
                 span.add_event("outbound cot received")
                 if hasattr(message[1], "clientInformation"):
@@ -1024,66 +1031,63 @@ class TCPCoTServiceMain(DigitalPyService):
                     self.sent_message_count += 1
                     self.send_message(None, message[1], use_share_pipe=False)
     
-    def handle_regular_data(self, clientDataOutput: RawCoT):
-        """this method initiates the serializtion and distribution of
-        "regular" data being sent by clients. regular data entails data which
-        is neither a new connection nor a disconnection.
-
-        :argument clientDataOutput: list of RawCoT objects
-
-        :rtype: None
-
+    def handle_regular_data(self, clientDataOutput: List[RawCoT]):
         """
+        Handle "regular" data being sent by clients. Regular data is data that is neither a new connection nor a disconnection.
+
+        This method initiates the serialization and distribution of regular data.
+
+        Args:
+            clientDataOutput (List[RawCoT]): List of RawCoT objects
+
+        Returns:
+            None
+        """
+        # Iterate through each piece of client data
         try:
             for clientDataOutputSingle in clientDataOutput:
                 try:
-                    if not self.ssl:
-                        self.logger.debug("Handling regular data")
+                    # Skip this iteration if the data is invalid
                     if clientDataOutputSingle == -1:
                         continue
+
+                    # Process the raw CoT data and serialize it
                     CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
-                    self.logger.info("cot serialized " + str(CoTOutput.modelObject.uid))
+                    self.logger.info(f"CoT serialized {CoTOutput.modelObject.uid}")
+
+                    # Skip this iteration if the CoT data is invalid
                     if CoTOutput == 1:
                         continue
-                    elif self.checkOutput(CoTOutput):
+
+                    # Check if the CoT data is valid and can be sent
+                    if self.checkOutput(CoTOutput):
+                        # Get client information and send the message
                         self.get_client_information()
                         self.sent_message_count += 1
                         self.messages_to_core_count += 1
                         output = self.send_message(CoTOutput.clientInformation, CoTOutput)
-                        if (
-                            self.checkOutput(output)
-                            and isinstance(output, tuple) == False
-                        ):
+
+                        # Check if the message was sent successfully
+                        if self.checkOutput(output) and not isinstance(output, tuple):
+                            # Message was sent successfully
                             pass
                         elif isinstance(output, tuple):
-                            self.logger.error(
-                                "issue sending data to client now disconnecting"
-                            )
+                            # There was an issue sending the message, so disconnect the client
+                            self.logger.error("Issue sending data to client, now disconnecting")
                             self.clientDisconnected(output[1])
-
                         else:
-                            self.logger.error(
-                                "send data failed in main run function with data "
-                                + str(CoTOutput.xmlString)
-                                + " from client "
-                                + CoTOutput.clientInformation.modelObject.detail.contact.callsign
-                            )  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type and should thus have all specified members
-
+                            # There was an issue sending the message
+                            self.logger.error(f"Send data failed with data {CoTOutput.xmlString} from client {CoTOutput.clientInformation.modelObject.detail.contact.callsign}")
                     else:
-                        raise Exception("error in general data processing")
+                        # The CoT data is invalid, raise an exception
+                        raise Exception("Error in general data processing")
                 except Exception as e:
-                    self.logger.info(
-                        "exception in client data, data processing within main run function "
-                        + str(e)
-                        + " data is "
-                        + str(CoTOutput)
-                    )
+                    self.logger.info(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
         except Exception as e:
-            self.logger.info(
-                "there has been an error iterating client data output " + str(e)
-            )
+            self.logger.info(f"Error iterating client data output {e}")
             return -1
         return 1
+
 
     def handle_connection_data(self, receive_connection_output: RawCoT) -> None:
         """this method should be called to initiate the process for receiving new connection data
@@ -1114,7 +1118,6 @@ class TCPCoTServiceMain(DigitalPyService):
                 + str(CoTOutput)
             )
             return -1
-        self.sendInternalCoT(CoTOutput)
         return 1
 
     def stop(self):
@@ -1151,7 +1154,7 @@ class TCPCoTServiceMain(DigitalPyService):
                     f"messages shared with core in {logging_interval} seconds: {self.messages_from_core_count}"
                 )
                 self.logger.debug(
-                    f"number of connected client: {str(len(self.clientInformationQueue.keys()))}"
+                    f"number of connected client: {str(len(self.client_information_queue.keys()))}"
                 )
                 self.sent_message_count = 0
                 self.received_message_count = 0
