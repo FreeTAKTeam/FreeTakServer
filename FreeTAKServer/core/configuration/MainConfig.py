@@ -13,7 +13,7 @@ API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
 USERPATH = "/usr/local/lib/"
-MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
+MAINPATH = rf"C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer"
 
 
 class MainConfig:
@@ -47,7 +47,7 @@ class MainConfig:
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},
         "UserPersistencePath": {
-            "default": Path("/opt/user_persistence.txt"),
+            "default": Path("C:/Users/Natha Paquette/work/FreeTakServer/persistence/user_persistence.txt"),
             "type": str,
         },
         # number of milliseconds to wait between each iteration of main loop
@@ -55,7 +55,7 @@ class MainConfig:
         # increasing will decrease CPU usage and server performance
         "MainLoopDelay": {"default": 100, "type": int},
         # this is the port to which clients will connect
-        "CoTServicePort": {"default": 8087, "type": int},
+        "CoTServicePort": {"default": 15777, "type": int},
         "SSLCoTServicePort": {"default": 8089, "type": int},
         # this needs to be changed for private data packages to work
         "DataPackageServiceDefaultIP": {"default": _ip, "type": str},
@@ -74,7 +74,7 @@ class MainConfig:
         # whether or not to save CoT's to the DB
         "SaveCoTToDB": {"default": True, "type": bool},
         # this should be set before startup
-        "DBFilePath": {"default": r"/opt/FTSDataBase.db", "type": str},
+        "DBFilePath": {"default": r"C:\Users\Natha Paquette\work\FreeTakServer\persistence\FTSDataBase.db", "type": str},
         "MainPath": {"default": Path(MAINPATH), "type": str},
         "certsPath": {"default": Path(rf"{MAINPATH}/certs"), "type": str},
         "ExCheckMainPath": {"default": Path(rf"{MAINPATH}/ExCheck"), "type": str},
@@ -229,6 +229,7 @@ class MainConfig:
         "FTS_INTEGRATION_MANAGER_PUBLISHER_PORT": "IntegrationManagerPublisherPort",
         # address from which to publish messages by the integration manager
         "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
+
     }
 
     # This is a simple representation of the YAML config schema with
@@ -243,6 +244,7 @@ class MainConfig:
             "FTS_SECRET_KEY": "SecretKey",
             "FTS_DATA_RECEPTION_BUFFER": "DataReceptionBuffer",
             "FTS_MAX_RECEPTION_TIME": "MaxReceptionTime",
+            
         },
         "Addresses": {
             "FTS_COT_PORT": "CoTServicePort",
@@ -448,4 +450,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y')
+    first_start = os.environ.get("FTS_FIRST_START", "false").lower() in ('true', 't', '1', 'yes', 'y')
