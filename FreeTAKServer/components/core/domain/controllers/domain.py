@@ -1,10 +1,10 @@
-from digitalpy.routing.action_mapper import ActionMapper
-from digitalpy.config.configuration import Configuration
-from digitalpy.routing.request import Request
-from digitalpy.routing.response import Response
-from digitalpy.model.load_configuration import Configuration
-from digitalpy.model.node import Node
-from digitalpy.routing.controller import Controller
+from digitalpy.core.zmanager.action_mapper import ActionMapper
+from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.zmanager.request import Request
+from digitalpy.core.zmanager.response import Response
+from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.domain.node import Node
+from digitalpy.core.main.controller import Controller
 
 from .. import domain
 

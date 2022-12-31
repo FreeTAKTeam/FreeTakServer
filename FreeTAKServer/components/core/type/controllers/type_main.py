@@ -1,5 +1,5 @@
 from .. import mapping_strategies
-from digitalpy.routing.controller import Controller
+from digitalpy.core.main.controller import Controller
 
 
 class TypeMain(Controller):

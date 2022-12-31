@@ -1,7 +1,7 @@
 """this file contains the emergency component's persistency layer"""
 import codecs
 from ..configuration.emergency_constants import PERSISTENCE_PATH
-from digitalpy.routing.controller import Controller
+from digitalpy.core.main.controller import Controller
 import json
 import os
 import pickle

@@ -1,4 +1,4 @@
-from digitalpy.component.impl.default_facade import DefaultFacade
+from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.components.core.domain.configuration.domain_constants import (
     ACTION_MAPPING_PATH,

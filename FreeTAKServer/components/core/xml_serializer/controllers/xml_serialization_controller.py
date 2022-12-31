@@ -1,8 +1,8 @@
 from typing import Union
-from digitalpy.routing.controller import (
+from digitalpy.core.main.controller import (
     Controller,
 )
-from digitalpy.model.node import Node
+from digitalpy.core.domain.node import Node
 from copy import deepcopy
 from lxml.etree import Element  # pylint: disable=no-name-in-module
 from lxml import etree

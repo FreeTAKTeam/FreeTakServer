@@ -9,7 +9,7 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 
-from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.core.main.object_factory import ObjectFactory
 
 import time
 

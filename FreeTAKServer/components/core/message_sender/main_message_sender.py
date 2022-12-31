@@ -1,9 +1,9 @@
 import socket
 from typing import Dict, Tuple
-from digitalpy.routing.request import Request
-from digitalpy.routing.response import Response
-from digitalpy.routing.controller import Controller
-from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.core.zmanager.request import Request
+from digitalpy.core.zmanager.response import Response
+from digitalpy.core.main.controller import Controller
+from digitalpy.core.main.object_factory import ObjectFactory
 
 from FreeTAKServer.model.ClientInformation import ClientInformation
 

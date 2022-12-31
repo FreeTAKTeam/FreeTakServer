@@ -5,11 +5,11 @@ from geopy import distance
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
-from digitalpy.logic.impl.default_business_rule_controller import (
+from digitalpy.core.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
-from digitalpy.telemetry.tracer import Tracer
-from digitalpy.model.load_configuration import Configuration, ConfigurationEntry
+from digitalpy.core.telemetry.tracer import Tracer
+from digitalpy.core.parsing.load_configuration import Configuration, ConfigurationEntry
 
 from FreeTAKServer.components.core.domain.domain._event import Event
 from FreeTAKServer.components.core.domain.domain._dest import dest
