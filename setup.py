@@ -41,7 +41,7 @@ setup(
         "itsdangerous==2.0.1",
         "testresources==2.0.1",
         "Jinja2==2.11.2",
-        "lxml==4.9.1",
+        "lxml",
         "MarkupSafe==2.0.1",
         "monotonic==1.6",
         "pathlib2==2.3.7.post1",
