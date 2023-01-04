@@ -1,5 +1,5 @@
 from types import ModuleType
-from typing import List, Optional, Type
+from typing import Any, List, Optional, Type
 from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
 from digitalpy.core.zmanager.request import Request
@@ -97,14 +97,14 @@ class Domain(Controller):
             ),
         )
 
-def get_first_child(self, node: Node, child_type: Type[Node], values: Dict[str, Any], properties: Dict[str, Any], use_regex: bool = True, **kwargs) -> Optional[Node]:
+def get_first_child(self, node: Node, child_type: Type[Node], values: "dict[str, Any]", properties: "dict[str, Any]", use_regex: bool = True, **kwargs) -> Optional[Node]:
     """Returns the first child of the given node that matches the given child type, values, and properties.
     
     Args:
         node (Node): The node to get the first child of.
         child_type (Type[Node]): The type of the child to find.
-        values (Dict[str, Any]): The values the child must have.
-        properties (Dict[str, Any]): The properties the child must have.
+        values (dict[str, Any]): The values the child must have.
+        properties (dict[str, Any]): The properties the child must have.
         use_regex (bool, optional): Whether to use regular expressions to match values and properties. Defaults to True.
         **kwargs: Additional keyword arguments.
     

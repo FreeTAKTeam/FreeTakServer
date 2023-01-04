@@ -433,12 +433,10 @@ class TCPCoTServiceMain(DigitalPyService):
             request = ObjectFactory.get_new_instance("request")
             request.set_action("SendEmergenciesToClient")
             request.set_sender(self.__class__.__name__.lower())
-            request.set_value("client_uid", clientInformation.modelObject.uid)
-            request.set_value("model_object_parser", "ParseModelObjectToXML")
+            request.set_value("user", clientInformation.modelObject)
+
             request.set_format("pickled")
-            actionmapper = ObjectFactory.get_instance("actionMapper")
-            response = ObjectFactory.get_new_instance("response")
-            actionmapper.process_action(request, response, False)
+            self.subject_send_request(request, APPLICATION_PROTOCOL)
 
             return clientInformation
         except Exception as e:
@@ -712,9 +710,9 @@ class TCPCoTServiceMain(DigitalPyService):
                         cot_object.modelObject = model_object
 
                         # TODO: Decide where the serialization should be performed.
-                        # For now it's performed within the actions called by the routing worker
-                        # to reduce the CPU consumption in the current process.
-                        cot_object.xmlString = response.get_value("serialized_message").pop()
+                        # For now it's performed by whatever process is receiving the data
+                        # in this case using the convert_to_xml method.
+                        cot_object.xmlString = self.convert_to_xml(model_object)
 
                         self.send_message(sender, cot_object)
                 else:
