@@ -12,7 +12,7 @@ from digitalpy.core.telemetry.tracer import Tracer
 from digitalpy.core.parsing.load_configuration import Configuration, ConfigurationEntry
 
 from FreeTAKServer.components.core.domain.domain._event import Event
-from FreeTAKServer.components.core.domain.domain._dest import dest
+from ..domain import emergency
 
 from ..configuration.emergency_constants import (
     EMERGENCY_ON_BUSINESS_RULES_PATH,
@@ -123,6 +123,8 @@ class EmergencyOnController(DefaultBusinessRuleController):
             configuration = config_loader.find_configuration(EMERGENCY_ALERT)
 
             self.request.set_value("configuration", configuration)
+
+            self.request.set_value("extended_domain", {"emergency": emergency})
 
             self.request.set_value(
                 "source_format", self.request.get_value("source_format")
