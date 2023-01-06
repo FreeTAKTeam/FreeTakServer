@@ -1,4 +1,4 @@
-from digitalpy.model.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import Configuration
 from .model_constants import EventVariables as vars
 import uuid
 from datetime import datetime as dt

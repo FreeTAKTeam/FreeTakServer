@@ -1,4 +1,4 @@
-from digitalpy.model.node import Node
+from digitalpy.core.domain.node import Node
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 import inspect
 

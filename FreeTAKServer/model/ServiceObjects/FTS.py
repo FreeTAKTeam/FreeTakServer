@@ -8,7 +8,7 @@ from .SSLCoTService import SSLCoTService
 from .SSLDataPackageService import SSLDataPackageService
 from .TCPDataPackageService import TCPDataPackageService
 from .ComponentRegistration import ComponentRegistration
-
+from .IntegrationManagerService import IntegrationManagerService
 
 class FTS:
     def __init__(self):
@@ -21,3 +21,4 @@ class FTS:
         self.FederationServerService = FederationServerService()
         self.RoutingProxyService = RoutingProxyService()
         self.ComponentRegistration = ComponentRegistration()
+        self.IntegrationManagerService = IntegrationManagerService()

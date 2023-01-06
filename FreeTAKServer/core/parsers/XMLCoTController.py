@@ -9,7 +9,7 @@
 #######################################################
 from defusedxml import ElementTree as etree
 import re
-from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.core.main.object_factory import ObjectFactory
 
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController

@@ -1,4 +1,4 @@
-from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.core.main.object_factory import ObjectFactory
 import pathlib
 from asyncio import Queue
 import multiprocessing
@@ -9,8 +9,8 @@ from FreeTAKServer.core.connection.ReceiveConnections import ReceiveConnections
 from FreeTAKServer.core.connection.TCPSocketController import TCPSocketController
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 import os
-from digitalpy.core.impl.default_factory import DefaultFactory
-from digitalpy.config.impl.inifile_configuration import InifileConfiguration
+from digitalpy.core.main.impl.default_factory import DefaultFactory
+from digitalpy.core.digipy_configuration.impl.inifile_configuration import InifileConfiguration
 from multiprocessing.pool import ThreadPool
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
@@ -93,27 +93,27 @@ class TCPCoTServiceController(Orchestrator):
             )
             return e
 
-    def add_service_user(self, client_information: ClientInformation):
+    def add_service_user(self, clientInformation: ClientInformation):
         """this method generates the presence and connection objects from the
-        client_information parameter and sends it to
+        clientInformation parameter and sends it to
 
-        :param client_information: this is the information of the client to be added
+        :param clientInformation: this is the information of the client to be added
         :return:
         """
         try:
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
                 presence_object = Presence()
-                presence_object.setModelObject(client_information.modelObject)
+                presence_object.setModelObject(clientInformation.modelObject)
 
                 # TODO why is this not xmlString?
-                presence_object.setXmlString(client_information.idData)
+                presence_object.setXmlString(clientInformation.idData)
                 # Is this duplicate of modelObject?
-                presence_object.setClientInformation(client_information.modelObject)
+                presence_object.setClientInformation(clientInformation.modelObject)
 
                 connection_object = TCPConnection()
                 connection_object.sock = None
-                connection_object.user_id = client_information.modelObject.uid
+                connection_object.user_id = clientInformation.modelObject.uid
 
                 # Updating clientDataPipe
                 # TODO add blocking...
@@ -122,7 +122,7 @@ class TCPCoTServiceController(Orchestrator):
                 )
                 self.logger.debug(
                     "client addition has been sent through queue "
-                    + str(client_information)
+                    + str(clientInformation)
                 )
             else:
                 self.logger.critical("client data pipe is Full !")

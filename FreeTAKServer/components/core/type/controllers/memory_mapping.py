@@ -1,6 +1,6 @@
 from .mapping_interface import MappingInterface
 from ..configuration.type_constants import PERSISTENCE_PATH
-from digitalpy.routing.controller import Controller
+from digitalpy.core.main.controller import Controller
 import json
 import os
 

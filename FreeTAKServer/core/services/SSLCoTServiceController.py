@@ -1,4 +1,4 @@
-from digitalpy.core.object_factory import ObjectFactory
+from digitalpy.core.main.object_factory import ObjectFactory
 from FreeTAKServer.core.services.Orchestrator import Orchestrator
 from FreeTAKServer.core.connection.ClientReceptionHandler import ClientReceptionHandler
 from FreeTAKServer.core.connection.ReceiveConnections import ReceiveConnections
@@ -81,28 +81,28 @@ class SSLCoTServiceController(Orchestrator):
             )
             return e
 
-    def add_service_user(self, client_information: ClientInformation):
+    def add_service_user(self, clientInformation: ClientInformation):
         """this method generates the presence and connection objects from the
-        client_information parameter and sends it to the clientDataPipe for processing
+        clientInformation parameter and sends it to the clientDataPipe for processing
 
-        :param client_information: this is the information of the client to be added
+        :param clientInformation: this is the information of the client to be added
         """
         try:
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
             if not self.clientDataPipe.full():
                 presence_object = Presence()
-                presence_object.setModelObject(client_information.modelObject)
+                presence_object.setModelObject(clientInformation.modelObject)
 
                 # TODO why is this not xmlString?
-                presence_object.setXmlString(client_information.idData)
+                presence_object.setXmlString(clientInformation.idData)
                 # is this duplicate of modelobject ?
-                presence_object.setClientInformation(client_information.modelObject)
+                presence_object.setClientInformation(clientInformation.modelObject)
 
                 connection_object = SSLConnection()
                 # TODO: add certificate name derived from socket
                 connection_object.certificate_name = None
                 connection_object.sock = None
-                connection_object.user_id = client_information.modelObject.uid
+                connection_object.user_id = clientInformation.modelObject.uid
 
                 # Updating clientDataPipe
                 # TODO add blocking...
@@ -111,7 +111,7 @@ class SSLCoTServiceController(Orchestrator):
                 )
                 self.logger.debug(
                     "client addition has been sent through queue "
-                    + str(client_information)
+                    + str(clientInformation)
                 )
             else:
                 self.logger.critical("client data pipe is Full !")

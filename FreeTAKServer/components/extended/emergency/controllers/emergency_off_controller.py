@@ -1,8 +1,8 @@
 """this file contains the class with the logic responsible for emergency off events"""
-from digitalpy.logic.impl.default_business_rule_controller import (
+from digitalpy.core.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
-from digitalpy.telemetry.tracer import Tracer
+from digitalpy.core.telemetry.tracer import Tracer
 
 from ..configuration.emergency_constants import (
     EMERGENCY_OFF_BUSINESS_RULES_PATH,

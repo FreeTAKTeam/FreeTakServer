@@ -1,7 +1,7 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.DestVariables import DestVariables as vars
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from digitalpy.model.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import Configuration
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 
 

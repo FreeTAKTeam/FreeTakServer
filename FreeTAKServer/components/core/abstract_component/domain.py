@@ -1,6 +1,6 @@
-from digitalpy.routing.controller import Controller
-from digitalpy.model.load_configuration import LoadConfiguration
-from digitalpy.model.node import Node
+from digitalpy.core.main.controller import Controller
+from digitalpy.core.parsing.load_configuration import LoadConfiguration
+from digitalpy.core.domain.node import Node
 
 
 class Domain(Controller):

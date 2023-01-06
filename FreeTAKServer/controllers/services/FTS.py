@@ -9,12 +9,12 @@ import random
 import sys
 import threading
 
-from digitalpy.config.impl.inifile_configuration import InifileConfiguration
-from digitalpy.config.configuration import Configuration
-from digitalpy.core.impl.default_factory import DefaultFactory
-from digitalpy.core.object_factory import ObjectFactory
-from digitalpy.registration.registration_handler import RegistrationHandler
-from digitalpy.routing.subject import Subject
+from digitalpy.core.digipy_configuration.impl.inifile_configuration import InifileConfiguration
+from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.main.impl.default_factory import DefaultFactory
+from digitalpy.core.main.object_factory import ObjectFactory
+from digitalpy.core.component_management.impl.component_registration_handler import ComponentRegistrationHandler
+from digitalpy.core.zmanager.subject import Subject
 
 from FreeTAKServer.core.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
@@ -48,9 +48,10 @@ from FreeTAKServer.core.services.SSLCoTServiceController import (
 from FreeTAKServer.core.services.SSLDataPackageService import (
     SSLDataPackageService as SSLFlaskFunctions,
 )
-from FreeTAKServer.core.connection.TCPCoTServiceController import (
-    TCPCoTServiceController,
-)
+from FreeTAKServer.services.tcp_cot_service.tcp_cot_service_main import TCPCoTServiceMain
+#from FreeTAKServer.core.connection.TCPCoTServiceController import (
+#    TCPCoTServiceController,
+#)
 from FreeTAKServer.core.services.TCPDataPackageService import (
     TCPDataPackageService as TCPFlaskFunctions,
 )
@@ -165,18 +166,66 @@ class FTS:
         :return:
         """
         try:
+
+            # define configureation for the tcp cot service
+            # TODO: in theory this should all be dynamic but for the time being it is hardcoded
+            self.configuration.set_value(
+                key="subject_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}",
+                section="TCPCoTService",
+            )
+
+            self.configuration.set_value(
+                key="subject_port",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
+                section="TCPCoTService"
+            )
+
+            self.configuration.set_value(
+                key="subject_protocol",
+                value=FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol,
+                section="TCPCoTService"
+            )
+
+            # TODO: replace placeholder values with real implementation values
+            self.configuration.set_value(
+                key="integration_manager_address",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
+                section="TCPCoTService"
+            )
+
+             # TODO: replace placeholder values with real implementation values
+            self.configuration.set_value(
+                key="integration_manager_port",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
+                section="TCPCoTService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_protocol",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherProtocol,
+                section="TCPCoTService"
+            )
+
+
+            self.configuration.set_value(
+                key="service_id",
+                value="tcp_cot_service",
+                section="TCPCoTService"
+            )
+
             self.core_tcp_user_queue_send = Queue()
             self.service_tcp_user_queue_send = Queue()
             TCPCoTServiceThread = Queue()
             TCPCoTServiceFTS = Queue()
             self.TCPCoTService = QueueManager(TCPCoTServiceThread, TCPCoTServiceFTS)
             TCPCoTService = QueueManager(TCPCoTServiceFTS, TCPCoTServiceThread)
-            print("event event about to be created")
             self.CoTPoisonPill = multiprocessing.Event()
             self.CoTPoisonPill.set()
             self.ReceiveConnectionsReset = multiprocessing.Event()
+            tcp_cot_service = ObjectFactory.get_instance("TCPCoTService")
             self.CoTService = multiprocessing.Process(
-                target=TCPCoTServiceController().start,
+                target=tcp_cot_service.start,
                 args=(
                     FTSServiceStartupConfigObject.CoTService.CoTServiceIP,
                     FTSServiceStartupConfigObject.CoTService.CoTServicePort,
@@ -186,6 +235,7 @@ class FTS:
                     TCPCoTService,
                     self.core_tcp_user_queue_send,
                     ObjectFactory.get_instance("factory"),
+                    ObjectFactory.get_instance("tracingprovider")
                 ),
             )
             self.CoTService.start()
@@ -544,28 +594,28 @@ class FTS:
         ObjectFactory.register_instance("configuration", self.configuration)
 
         # register the internal components
-        core_components = RegistrationHandler.discover_components(
+        core_components = ComponentRegistrationHandler.discover_components(
             component_folder_path=pathlib.PurePath(
                 FTSServiceStartupConfigObject.ComponentRegistration.core_components_path
             ),
         )
 
         for core_component in core_components:
-            RegistrationHandler.register_component(
+            ComponentRegistrationHandler.register_component(
                 core_component,
                 FTSServiceStartupConfigObject.ComponentRegistration.core_components_import_root,
                 self.configuration,
             )
 
         # register the external components
-        external_components = RegistrationHandler.discover_components(
+        external_components = ComponentRegistrationHandler.discover_components(
             component_folder_path=pathlib.PurePath(
                 FTSServiceStartupConfigObject.ComponentRegistration.external_components_path
             ),
         )
 
         for external_component in external_components:
-            RegistrationHandler.register_component(
+            ComponentRegistrationHandler.register_component(
                 external_component,
                 FTSServiceStartupConfigObject.ComponentRegistration.external_components_import_root,
                 self.configuration,
@@ -588,6 +638,12 @@ class FTS:
                 section="RoutingWorker",
             )
 
+            self.configuration.set_value(
+                key="integration_manager_address",
+                value=f"{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerProtocol}://{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerAddress}:{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerPort}",
+                section="RoutingWorker",
+            )   
+
             # define the configuration for the action mapper (the default action mapper is
             # specified as utilization of this service implicitly assumes that the async
             # action mapper is the default action mapper)
@@ -606,21 +662,21 @@ class FTS:
             # define the configuration for the routing proxy service
 
             self.configuration.set_value(
-                key="frontend_sub_address",
+                key="frontend_pull_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
-                section="RoutingProxy",
+                section="Subject",
             )
 
             self.configuration.set_value(
                 key="frontend_pub_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherPort}",
-                section="RoutingProxy",
+                section="Subject",
             )
 
             self.configuration.set_value(
                 key="backend_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerPort}",
-                section="RoutingProxy",
+                section="Subject",
             )
 
             self.configuration.set_value(
@@ -628,7 +684,7 @@ class FTS:
                 value=int(
                     FTSServiceStartupConfigObject.RoutingProxyService.NumRoutingWorkers
                 ),
-                section="RoutingProxy",
+                section="Subject",
             )
 
             # begin the routing proxy
@@ -657,6 +713,68 @@ class FTS:
         except Exception as e:
             return -1
 
+    def start_integration_manager_service(self, FTSServiceStartupConfigObject: FTSObj) -> bool:
+        """Starts the integration manager service.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        try:
+            self.configuration.set_value(
+                key="integration_manager_puller_protocol",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerProtocol,
+                section="IntegrationManager",
+            )
+            self.configuration.set_value(
+                key="integration_manager_puller_address",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerAddress,
+                section="IntegrationManager",
+            )
+            self.configuration.set_value(
+                key="integration_manager_puller_port",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerPort,
+                section="IntegrationManager",
+            )
+            self.configuration.set_value(
+                key="integration_manager_publisher_protocol",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherProtocol,
+                section="IntegrationManager",
+            )
+            self.configuration.set_value(
+                key="integration_manager_publisher_address",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
+                section="IntegrationManager",
+            )
+            self.configuration.set_value(
+                key="integration_manager_publisher_port",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
+                section="IntegrationManager",
+            )
+            # begin the integration_manager_service
+            self.integration_manager_service = ObjectFactory.get_instance("IntegrationManager")
+            proc = multiprocessing.Process(target=self.integration_manager_service.start)
+            proc.start()
+
+            return True
+        except Exception as ex:
+            return False
+
+    def stop_integration_manager_service(self) -> bool:
+        """Stops the integration manager service.
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        try:
+            if self.integration_manager_service.is_alive():
+                self.integration_manager_service.terminate()
+                self.integration_manager_service.join()
+            else:
+                self.routing_proxy_service.join()
+            return True
+        except Exception:
+            return False
+            
     # change object name to FTSServiceStartupConfigObject
     def start_all(self, FTSServiceStartupConfigObject):
         import copy
@@ -1258,6 +1376,7 @@ class FTS:
                 self.start_rest_api_service(StartupObject)
                 self.register_components(StartupObject)
                 self.start_routing_proxy_service(StartupObject)
+                self.start_integration_manager_service(StartupObject)
                 self.start_all(StartupObject)
 
             start_timer = time.time() - 60

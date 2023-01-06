@@ -1,6 +1,6 @@
-from digitalpy.routing.controller import Controller
-from digitalpy.telemetry.tracer import Tracer
-from digitalpy.model.node import Node
+from digitalpy.core.main.controller import Controller
+from digitalpy.core.telemetry.tracer import Tracer
+from digitalpy.core.domain.node import Node
 
 
 class DictToNodeController(Controller):

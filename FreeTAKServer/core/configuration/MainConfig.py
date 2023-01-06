@@ -155,6 +155,14 @@ class MainConfig:
         "RoutingProxyPublisherIP": {"default": "127.0.0.1", "type": str},
         # port to send requests from the routing proxy to the routing workers
         "RoutingProxyRequestServerIP": {"default": "127.0.0.1", "type": str},
+        # port to receive worker responses by the integration manager
+        "IntegrationManagerPullerPort": {"default": 19033, "type": int},
+        # address to receive worker responses by the integration manager
+        "IntegrationManagerPullerAddress": {"default": "127.0.0.1", "type": str},
+        # port from which to publish messages by the integration manager
+        "IntegrationManagerPublisherPort": {"default": 19034, "type": int},
+        # address from which to publish messages by the integration manager
+        "IntegrationManagerPublisherAddress": {"default": "127.0.0.1", "type": str},
         "yaml_path": {"default": r"/opt/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
     }
@@ -213,6 +221,14 @@ class MainConfig:
         "FTS_CORE_COMPONENTS_IMPORT_ROOT": "CoreComponentsImportRoot",
         "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
         "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT": "ExternalComponentsImportRoot",
+        # port to receive worker responses by the integration manager
+        "FTS_INTEGRATION_MANAGER_PULLER_PORT": "IntegrationManagerPullerPort",
+        # address to receive worker responses by the integration manager
+        "FTS_INTEGRATION_MANAGER_PULLER_ADDRESS": "IntegrationManagerPullerAddress",
+        # port from which to publish messages by the integration manager
+        "FTS_INTEGRATION_MANAGER_PUBLISHER_PORT": "IntegrationManagerPublisherPort",
+        # address from which to publish messages by the integration manager
+        "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
     }
 
     # This is a simple representation of the YAML config schema with
@@ -251,6 +267,15 @@ class MainConfig:
             "RoutingProxyPublisherIP": {"default": "127.0.0.1", "type": str},
             # port to send requests from the routing proxy to the routing workers
             "RoutingProxyRequestServerIP": {"default": "127.0.0.1", "type": str},
+            # port to receive worker responses by the integration manager
+            "FTS_INTEGRATION_MANAGER_PULLER_PORT": "IntegrationManagerPullerPort",
+            # address to receive worker responses by the integration manager
+            "FTS_INTEGRATION_MANAGER_PULLER_ADDRESS": "IntegrationManagerPullerAddress",
+            # port from which to publish messages by the integration manager
+            "FTS_INTEGRATION_MANAGER_PUBLISHER_PORT": "IntegrationManagerPublisherPort",
+            # address from which to publish messages by the integration manager
+            "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
+
         },
         "Filesystem": {
             "FTS_COT_TO_DB": "SaveCoTToDB",
