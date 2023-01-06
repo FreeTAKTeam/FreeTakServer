@@ -449,6 +449,7 @@ class Node(DefaultPersistentObject):
         return True
 
     def filter(
+        self,
         node_list: list,
         oid: ObjectId = None,
         node_type: Any = None,
