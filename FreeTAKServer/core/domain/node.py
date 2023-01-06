@@ -267,7 +267,7 @@ class Node(DefaultPersistentObject):
         type: Any = None,
         values: Any = None,
         properties: Any = None,
-        use_reg_exp: Any = True,
+        use_regex: Any = True,
     ):
         """Get the first super() that matches given conditions.
            @param role The role that the super() should match (optional, default:
