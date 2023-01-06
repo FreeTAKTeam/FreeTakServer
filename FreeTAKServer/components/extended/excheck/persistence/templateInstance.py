@@ -1,4 +1,4 @@
-from FreeTAKServer.model.ExCheck.templateInstanceContents import templateInstanceContents
+from FreeTAKServer.components.extended.excheck.persistence.templateInstanceContents import templateInstanceContents
 import datetime as dt
 
 class templateInstance:

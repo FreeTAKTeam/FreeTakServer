@@ -44,7 +44,7 @@ from FreeTAKServer.core.RestMessageControllers.SendVideoStreamController import 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
-from FreeTAKServer.components.extended.excheck.ExCheckController import ExCheckController
+from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
 
 app = Flask(__name__)
 login_manager = LoginManager()

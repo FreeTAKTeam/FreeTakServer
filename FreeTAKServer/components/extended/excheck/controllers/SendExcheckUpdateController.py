@@ -2,7 +2,7 @@ from FreeTAKServer.core.configuration.CreateLoggerController import CreateLogger
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.SpecificCoT.SendExcheckUpdate import SendExcheckUpdate
 
-from .SendCoTAbstractController import SendCoTAbstractController
+from FreeTAKServer.core.SpecificCoTControllers.SendCoTAbstractController import SendCoTAbstractController
 
 loggingConstants = LoggingConstants()
 logger = CreateLoggerController("SendExcheckUpdateController").getLogger()

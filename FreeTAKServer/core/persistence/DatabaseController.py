@@ -10,8 +10,8 @@ from sqlalchemy.exc import IntegrityError
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.core.persistence import APIUsersController
-from FreeTAKServer.core.persistence import ExCheckController
-from FreeTAKServer.core.persistence import ExCheckChecklistController
+from FreeTAKServer.components.extended.excheck.persistence import ExCheckController
+from FreeTAKServer.components.extended.excheck.persistence import ExCheckChecklistController
 from FreeTAKServer.core.persistence import APICallController
 from FreeTAKServer.core.persistence import _VideoTableController, ActiveEmergencysController
 from FreeTAKServer.core.persistence import ActiveFederationsController
@@ -43,8 +43,8 @@ import FreeTAKServer.model.SQLAlchemy.system_user
 import FreeTAKServer.model.SQLAlchemy.ActiveEmergencys
 import FreeTAKServer.model.SQLAlchemy.ExCheckKeywords
 import FreeTAKServer.model.SQLAlchemy.ExCheckData
-import FreeTAKServer.model.SQLAlchemy.ExCheck
-import FreeTAKServer.model.SQLAlchemy.ExCheckChecklist
+import FreeTAKServer.components.extended.excheck.persistence.ExCheck
+import FreeTAKServer.components.extended.excheck.persistence.ExCheckChecklist
 import FreeTAKServer.model.SQLAlchemy.APICalls
 
 class DatabaseController:

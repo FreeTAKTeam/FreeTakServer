@@ -1,11 +1,9 @@
 from sqlalchemy import Column
-from FreeTAKServer.model.SQLAlchemy.Root import Base, Root
+from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy import String
 from sqlalchemy.orm import relationship
-from FreeTAKServer.model.SQLAlchemy.ExCheckData import ExCheckData
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
-from sqlalchemy import ForeignKey
 
 
 class ExCheck(Base):
