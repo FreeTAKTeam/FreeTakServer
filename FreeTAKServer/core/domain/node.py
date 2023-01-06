@@ -398,25 +398,23 @@ class Node(DefaultPersistentObject):
             self.relation_states[name] = Node.RELATION_STATE_UNINITIALIZED
             self.set_value_internal(name, None)
 
-    def delete_node(
-        self, other: PersistentObject, role: Any = None, update_other_side: Any = True
-    ) -> bool:
+    def delete_node(self, other: PersistentObject, role: Any = None, update_other_side: Any = True) -> bool:
         """Delete a Node from the given relation."""
         mapper = self.get_Mapper()
 
         # set role if missing
-        if role == None:
+        if role is None:
             other_Type = other.get_type()
             relations = mapper.get_relations_by_type(other_Type)
-            if len(relations) > 0:
+            if relations:
                 role = relations[0].get_other_role()
             else:
                 role = other_Type
 
         nodes = self.get_value(role)
-        if len(nodes) == 0:
+        if not nodes:
             # nothing to delete
-            return
+            return False
 
         # get the relation description
         rel_desc = mapper.get_relation(role)
@@ -424,12 +422,11 @@ class Node(DefaultPersistentObject):
         oid = other.get_O_I_D()
         if isinstance(nodes, list):
             # multi valued relation
-            for i in range(len(nodes)):
-                if nodes[i].get_oid() == oid:
+            for i, node in enumerate(nodes):
+                if node.get_oid() == oid:
                     # remove child
-                    array_splice(nodes, i, 1)
+                    nodes.pop(i)
                     break
-
         else:
             # single valued relation
             if nodes.get_oid() == oid:
@@ -439,10 +436,7 @@ class Node(DefaultPersistentObject):
         super().set_value(role, nodes)
 
         # remember the deletion
-        if not role in self.deleted_nodes:
-            self.deleted_Nodes[role] = []
-
-        self.deleted_Nodes[role].append(other.get_oid())
+        self.deleted_Nodes.setdefault(role, []).append(other.get_oid())
         self.set_State(PersistentObject.STATE_DIRTY)
 
         # propagate add action to the other object
@@ -452,6 +446,7 @@ class Node(DefaultPersistentObject):
             else:
                 this_role = None
             other.delete_node(self, this_role, False)
+        return True
 
     def filter(
         node_list: list,
