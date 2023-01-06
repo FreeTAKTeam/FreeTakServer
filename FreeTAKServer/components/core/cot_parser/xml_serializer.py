@@ -1,18 +1,15 @@
 from copy import deepcopy
-from pyexpat import model
-from .abstract_serializer import SerializerAbstract
-from FreeTAKServer.model.FTSModel.Event import Event
-from typing import NewType, List
+from typing import List, NewType
+
 from defusedxml import ElementTree as etree
-from lxml.etree import Element  # pylint: disable=no-name-in-module
-from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-from FreeTAKServer.controllers.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.controllers.CreateLoggerController import CreateLoggerController
-
 from digitalpy.core.object_factory import ObjectFactory
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.model.FTSModel.Event import Event
+from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
+from lxml.etree import Element  # pylint: disable=no-name-in-module
 
-import time
-
+from .abstract_serializer import SerializerAbstract
 
 loggingConstants = LoggingConstants(log_name="FTS_XmlSerializer")
 logger = CreateLoggerController(

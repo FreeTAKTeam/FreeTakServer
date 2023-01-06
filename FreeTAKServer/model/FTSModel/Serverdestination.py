@@ -17,11 +17,7 @@ class _Serverdestination(FTSProtocolObject):
         self.destinations = None
         # destinations getter
 
-    @staticmethod
-    def geochat(DESTINATIONS = vars.geochat().DESTINATIONS):
-        serverdestinations = _Serverdestination()
-        serverdestinations.setdestinations(DESTINATIONS)
-        return serverdestinations
+  
 
     def getdestinations(self):
         return self.destinations

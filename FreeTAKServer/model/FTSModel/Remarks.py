@@ -22,7 +22,11 @@ class Remarks(FTSProtocolObject):
     self.sourceID = None
     self.to = None
     self.INTAG = None
-
+	
+  def __init__(self, structure ):
+	for item, key in structure
+		setattr(self, key, item)
+  
   @staticmethod
   def connection():
     remarks = Remarks()
