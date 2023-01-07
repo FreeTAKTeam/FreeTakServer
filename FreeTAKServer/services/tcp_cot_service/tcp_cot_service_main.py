@@ -734,7 +734,6 @@ class TCPCoTServiceMain(DigitalPyService):
                     f"There was an exception sending a single response:\n"
                     f"Sender: {sender}\n"
                     f"Model object: {model_object}\n"
-                    f"Source: {response.get_source()}\n"
                     f"Context: {response.get_context()}\n"
                     f"Action: {response.get_action()}\n"
                 )
