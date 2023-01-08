@@ -1,0 +1,37 @@
+name: Build Docker image
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    name: Docker Build
+    runs-on: ubuntu-22.04
+    needs:
+      - lint
+      - test
+    steps:
+      - name: Publishing info
+        run: |
+          echo "Pushing docker image: ghcr.io/freetakteam/freetakserver:$GITHUB_REF_NAME"
+          echo "Pushing docker image: ghcr.io/freetakteam/freetakserver:$GITHUB_SHA"
+      - uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Auth to GitHub registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/freetakteam/freetakserver:${{ github.ref_name }}
+            ghcr.io/freetakteam/freetakserver:${{ github.sha }}
