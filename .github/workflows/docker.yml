@@ -5,7 +5,7 @@ on:
   push:
 
 jobs:
-  build:
+  build_docker_image:
     name: Docker Build
     runs-on: ubuntu-22.04
     needs:
