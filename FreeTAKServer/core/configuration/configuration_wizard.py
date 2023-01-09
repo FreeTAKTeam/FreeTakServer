@@ -36,8 +36,6 @@ def add_to_config(path: List[str], data: str, source: dict):
             source[entry] = {}
             source = source[entry]
 
-    print(data)
-
 def ask_user_for_config():
     use_yaml = get_user_input(question="would you like to use a yaml config file, \n if yes you will be prompted for further configuration options", default="yes")
     if use_yaml != "yes":
