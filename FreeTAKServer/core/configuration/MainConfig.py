@@ -311,6 +311,97 @@ class MainConfig:
         },
     }
 
+    @property
+    def MainPath(self):
+        return self.get("MainPath")
+
+    @property
+    def DBFilePath(self):
+        return self.get("DBFilePath")
+
+    @property
+    def certsPath(self):
+        return self.get("certsPath")
+
+    @property
+    def ExCheckMainPath(self):
+        return self.get("ExCheckMainPath")
+
+    @property
+    def ExCheckFilePath(self):
+        return self.get("ExCheckFilePath")
+
+    @property
+    def ExCheckChecklistFilePath(self):
+        return self.get("ExCheckChecklistFilePath")
+
+    @property
+    def DataPackageFilePath(self):
+        return self.get("DataPackageFilePath")
+
+    @property
+    def LogFilePath(self):
+        return self.get("LogFilePath")
+
+    @property
+    def keyDir(self):
+        return self.get("keyDir")
+
+    @property
+    def pemDir(self):
+        return self.get("pemDir")
+
+    @property
+    def testPem(self):
+        return self.get("testPem")
+
+    @property
+    def testKey(self):
+        return self.get("testKey")
+
+    @property
+    def unencryptedKey(self):
+        return self.get("unencryptedKey")
+
+    @property
+    def p12Dir(self):
+        return self.get("p12Dir")
+
+    @property
+    def CA(self):
+        return self.get("CA")
+
+    @property
+    def CAKey(self):
+        return self.get("CAKey")
+
+    @property
+    def federationCert(self):
+        return self.get("federationCert")
+
+    @property
+    def CRLFile(self):
+        return self.get("CRLFile")
+
+    @property
+    def ClientPackages(self):
+        return self.get("ClientPackages")
+
+    @property
+    def CoreComponentsPath(self):
+        return self.get("CoreComponentsPath")
+
+    @property
+    def ExternalComoponentsPath(self):
+        return self.get("ExternalComoponentsPath")
+
+    @property
+    def yaml_path(self):
+        return self.get("yaml_path")
+
+    def validate_path(self):
+        pass 
+
     def __init__(self):
         raise RuntimeError("Call instance() instead")
 
