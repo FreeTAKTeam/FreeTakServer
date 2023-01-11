@@ -48,11 +48,10 @@ class SSLSocketController(MainSocketController):
     def createClientSocket(self, serverIP):
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
         context.load_verify_locations(cafile=self.MainSocket.CA)
-        context.load_cert_chain(certfile=self.MainSocket.testPemDir, keyfile=self.MainSocket.testKeyDir)
-        # self.MainSocket.password
-        context.verify_mode = ssl.CERT_REQUIRED
+        context.load_cert_chain(certfile=self.MainSocket.pemDir, keyfile=self.MainSocket.keyDir,password=self.MainSocket.password)
+        context.options |= ssl.OP_NO_SSLv2
+        context.options |= ssl.OP_NO_SSLv3
         context.check_hostname = False
-        context.set_ciphers('DEFAULT@SECLEVEL=1')
         self.MainSocket.sock = socket.socket(self.MainSocket.socketAF, self.MainSocket.socketSTREAM)
         self.MainSocket.sock = context.wrap_socket(self.MainSocket.sock)
         return self.MainSocket.sock
