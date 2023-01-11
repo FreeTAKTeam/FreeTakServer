@@ -403,45 +403,89 @@ class FTS:
         :return:
         """
         try:
+
+            # define configureation for the tcp cot service
+            # TODO: in theory this should all be dynamic but for the time being it is hardcoded
+            self.configuration.set_value(
+                key="subject_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}",
+                section="SSLCoTService",
+            )
+
+            self.configuration.set_value(
+                key="subject_port",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
+                section="SSLCoTService"
+            )
+
+            self.configuration.set_value(
+                key="subject_protocol",
+                value=FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol,
+                section="SSLCoTService"
+            )
+
+            # TODO: replace placeholder values with real implementation values
+            self.configuration.set_value(
+                key="integration_manager_address",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
+                section="SSLCoTService"
+            )
+
+             # TODO: replace placeholder values with real implementation values
+            self.configuration.set_value(
+                key="integration_manager_port",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
+                section="SSLCoTService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_protocol",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherProtocol,
+                section="SSLCoTService"
+            )
+
+
+            self.configuration.set_value(
+                key="service_id",
+                value="ssl_cot_service",
+                section="SSLCoTService"
+            )
+
             self.core_ssl_user_queue_send = Queue()
             self.service_ssl_user_queue_send = Queue()
-            SSLCoTServicePipeFTS = Queue()
-            SSLCoTServicePipeController = Queue()
-            self.SSLCoTServicePipe = QueueManager(
-                SSLCoTServicePipeFTS, SSLCoTServicePipeController
-            )
-            SSLCoTServicePipe = QueueManager(
-                SSLCoTServicePipeController, SSLCoTServicePipeFTS
-            )
-            self.SSLCoTPoisonPill = multiprocessing.Event()
-            self.SSLCoTPoisonPill.set()
+            SSLCoTServiceThread = Queue()
+            SSLCoTServiceFTS = Queue()
+            self.SSLCoTService = QueueManager(SSLCoTServiceThread, SSLCoTServiceFTS)
+            SSLCoTService = QueueManager(SSLCoTServiceFTS, SSLCoTServiceThread)
+            self.CoTPoisonPill = multiprocessing.Event()
+            self.CoTPoisonPill.set()
             self.ReceiveConnectionsReset = multiprocessing.Event()
-            self.SSLCoTService = multiprocessing.Process(
-                target=SSLCoTServiceController().start,
+            ssl_cot_service = ObjectFactory.get_instance("SSLCoTService")
+            self.CoTService = multiprocessing.Process(
+                target=ssl_cot_service.start,
                 args=(
                     FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServiceIP,
                     FTSServiceStartupConfigObject.SSLCoTService.SSLCoTServicePort,
-                    self.SSLCoTPoisonPill,
+                    self.CoTPoisonPill,
                     self.service_ssl_user_queue_send,
                     self.ReceiveConnectionsReset,
-                    SSLCoTServicePipe,
+                    SSLCoTService,
                     self.core_ssl_user_queue_send,
                     ObjectFactory.get_instance("factory"),
+                    ObjectFactory.get_instance("tracingprovider")
                 ),
             )
-            self.SSLCoTService.start()
-            self.pipeList["SSLCoTServiceFTSPipe"] = self.SSLCoTServicePipe
-            self.FilterGroup.add_source(
-                self.SSLCoTServicePipe, ServiceTypes.SSLCOTSERVICE
-            )
+            self.CoTService.start()
+            self.pipeList["SSLCoTServiceFTSPipe"] = self.SSLCoTService
             self.FilterGroup.add_receiver(
-                self.SSLCoTServicePipe, ServiceTypes.SSLCOTSERVICE
+                self.SSLCoTService, ServiceTypes.SSLCOTSERVICE
             )
-            print("SSL CoTService started")
+            self.FilterGroup.add_source(self.SSLCoTService, ServiceTypes.SSLCOTSERVICE)
+            print("CoTService started")
             return 1
         except Exception as e:
             logger.error(
-                "an exception has been thrown in SSL CoT service startup " + str(e)
+                "an exception has been thrown in CoT service startup " + str(e)
             )
             return -1
 
