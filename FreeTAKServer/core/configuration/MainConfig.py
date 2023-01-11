@@ -12,7 +12,8 @@ FTS_VERSION = "FreeTAKServer-1.9.10.8 Public"
 API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
-USERPATH = "/usr/local/lib/"
+ROOTPATH = "/"
+USERPATH = rf"{ROOTPATH}usr/local/lib/"
 MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
 
 
@@ -311,97 +312,6 @@ class MainConfig:
         },
     }
 
-    @property
-    def MainPath(self):
-        return self.get("MainPath")
-
-    @property
-    def DBFilePath(self):
-        return self.get("DBFilePath")
-
-    @property
-    def certsPath(self):
-        return self.get("certsPath")
-
-    @property
-    def ExCheckMainPath(self):
-        return self.get("ExCheckMainPath")
-
-    @property
-    def ExCheckFilePath(self):
-        return self.get("ExCheckFilePath")
-
-    @property
-    def ExCheckChecklistFilePath(self):
-        return self.get("ExCheckChecklistFilePath")
-
-    @property
-    def DataPackageFilePath(self):
-        return self.get("DataPackageFilePath")
-
-    @property
-    def LogFilePath(self):
-        return self.get("LogFilePath")
-
-    @property
-    def keyDir(self):
-        return self.get("keyDir")
-
-    @property
-    def pemDir(self):
-        return self.get("pemDir")
-
-    @property
-    def testPem(self):
-        return self.get("testPem")
-
-    @property
-    def testKey(self):
-        return self.get("testKey")
-
-    @property
-    def unencryptedKey(self):
-        return self.get("unencryptedKey")
-
-    @property
-    def p12Dir(self):
-        return self.get("p12Dir")
-
-    @property
-    def CA(self):
-        return self.get("CA")
-
-    @property
-    def CAKey(self):
-        return self.get("CAKey")
-
-    @property
-    def federationCert(self):
-        return self.get("federationCert")
-
-    @property
-    def CRLFile(self):
-        return self.get("CRLFile")
-
-    @property
-    def ClientPackages(self):
-        return self.get("ClientPackages")
-
-    @property
-    def CoreComponentsPath(self):
-        return self.get("CoreComponentsPath")
-
-    @property
-    def ExternalComoponentsPath(self):
-        return self.get("ExternalComoponentsPath")
-
-    @property
-    def yaml_path(self):
-        return self.get("yaml_path")
-
-    def validate_path(self):
-        pass 
-
     def __init__(self):
         raise RuntimeError("Call instance() instead")
 
@@ -479,8 +389,18 @@ class MainConfig:
             if sect in yamlConfig:
                 for attr, var_name in MainConfig._yaml_keys[sect].items():
                     if yamlConfig[sect] is not None and attr in yamlConfig[sect]:
+                        value = yamlConfig[sect][attr]
+                        if attr.endswith(('PATH', 'DIR')):
+                            value = self.validate_and_sanitize_path(value)
                         # found a setting we can update the config
-                        self.set(var_name, value=yamlConfig[sect][attr])
+                        self.set(var_name, value=value)
+
+    def validate_and_sanitize_path(self, path):
+        # sanitize and validate any path specified in config
+        sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
+
+        if not os.access(sanitized_path, os.F_OK) or os.access(sanitized_path, os.W_OK):
+            raise ValueError
 
     # import_env_config() will inspect the current environment and detect
     # configuration values. Detected values will then be applied to the
