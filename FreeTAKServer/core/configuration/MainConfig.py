@@ -12,7 +12,8 @@ FTS_VERSION = "FreeTAKServer-1.9.10.8 Public"
 API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
-USERPATH = "/usr/local/lib/"
+ROOTPATH = "/"
+USERPATH = rf"{ROOTPATH}usr/local/lib/"
 MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
 
 
@@ -388,8 +389,18 @@ class MainConfig:
             if sect in yamlConfig:
                 for attr, var_name in MainConfig._yaml_keys[sect].items():
                     if yamlConfig[sect] is not None and attr in yamlConfig[sect]:
+                        value = yamlConfig[sect][attr]
+                        if attr.endswith(('PATH', 'DIR')):
+                            value = self.validate_and_sanitize_path(value)
                         # found a setting we can update the config
-                        self.set(var_name, value=yamlConfig[sect][attr])
+                        self.set(var_name, value=value)
+
+    def validate_and_sanitize_path(self, path):
+        # sanitize and validate any path specified in config
+        sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
+
+        if not os.access(sanitized_path, os.F_OK) or os.access(sanitized_path, os.W_OK):
+            raise ValueError
 
     # import_env_config() will inspect the current environment and detect
     # configuration values. Detected values will then be applied to the
