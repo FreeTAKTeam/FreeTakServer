@@ -151,3 +151,4 @@ dmypy.json
 certs/
 FreeTAKServerDataPackageFolder/
 logs/
+FreeTAKServer/components/core/domain/ignore_me/
