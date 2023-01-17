@@ -1375,8 +1375,8 @@ class FTS:
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
                 self.start_rest_api_service(StartupObject)
                 self.register_components(StartupObject)
-                self.start_routing_proxy_service(StartupObject)
                 self.start_integration_manager_service(StartupObject)
+                self.start_routing_proxy_service(StartupObject)
                 self.start_all(StartupObject)
 
             start_timer = time.time() - 60
