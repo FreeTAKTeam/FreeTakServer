@@ -69,6 +69,9 @@ MANIFEST_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/manifest.ini")
 )
 
+DATABASE_ADDRESS = "sqlite:///"+str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/fts_emergencies.db")
+)
 
 BASE_OBJECT_NAME = "Event"
 

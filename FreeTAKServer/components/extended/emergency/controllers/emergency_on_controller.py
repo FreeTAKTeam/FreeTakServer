@@ -20,6 +20,7 @@ from ..configuration.emergency_constants import (
     BASE_OBJECT_NAME,
 )
 
+from .persistence_controller import PersistenceController
 from .emergency_general_controller import EmergencyGeneralController
 
 config = MainConfig.instance()
@@ -58,6 +59,8 @@ class EmergencyOnController(DefaultBusinessRuleController):
         )
         self.emergency_general_controller = EmergencyGeneralController(request, response, sync_action_mapper, configuration)
         self.emergency_general_controller.initialize(request, response)
+        self.persistence_controller = PersistenceController(request, response, sync_action_mapper, configuration)
+        self.persistence_controller.initialize(request, response)
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -91,6 +94,8 @@ class EmergencyOnController(DefaultBusinessRuleController):
             )
             self.request.set_value("target_format", "node")
 
+            self.request.set_value('registry', self.persistence_controller.registry)
+
             span.add_event("creating emergency on object")
 
             response = self.execute_sub_action("CreateNode")
@@ -99,8 +104,16 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
             response = self.execute_sub_action("DictToNode")
 
+            #TODO: this is a bad strategy as it attempts to re-create the database with every request
+            # this must be fixed ASAP and is only a temporary solution            
+            engine = self.persistence_controller.create_engine()
+
+            self.persistence_controller.create_database(engine)
+
             self.emergency_general_controller.initialize(self.request, self.response)
             self.emergency_general_controller.filter_by_distance(response.get_value("model_object"))
+
+            self.response.set_value("registry", None)
 
             for key, value in response.get_values().items():
                 self.response.set_value(key, value)

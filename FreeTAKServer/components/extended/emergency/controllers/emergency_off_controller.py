@@ -4,6 +4,7 @@ from digitalpy.core.logic.impl.default_business_rule_controller import (
 )
 from digitalpy.core.telemetry.tracer import Tracer
 
+from .persistence_controller import PersistenceController
 from ..configuration.emergency_constants import (
     EMERGENCY_OFF_BUSINESS_RULES_PATH,
     EMERGENCY_OFF,
@@ -42,6 +43,8 @@ class EmergencyOffController(DefaultBusinessRuleController):
             # the DefaultBusinessRuleController evaluate_request
             internal_action_mapper=emergency_action_mapper,
         )
+        self.persistence_controller = PersistenceController(request, response, sync_action_mapper, configuration)
+        self.persistence_controller.initialize(request, response)
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -63,6 +66,8 @@ class EmergencyOffController(DefaultBusinessRuleController):
                 "source_format", self.request.get_value("source_format")
             )
             self.request.set_value("target_format", "node")
+
+            self.request.set_value('registry', self.persistence_controller.registry)
 
             span.add_event("creating emergency off object")
 
