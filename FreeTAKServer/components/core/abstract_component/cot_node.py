@@ -1,27 +1,28 @@
-from digitalpy.core.domain.node import Node
-from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 import inspect
+import uuid
+from digitalpy.core.domain.node import Node
+from digitalpy.core.domain.object_id import ObjectId
+from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
+
 
 
 class CoTNode(Node, FTSProtocolObject):
-    def __init__(self, node_type, configuration, model):
-        self.cot_attributes = {}
+
+    
+
+    def __init__(self, node_type, configuration, model, registry, cot_attributes):
+        self.cot_attributes = cot_attributes
         self.text = ""
-        super().__init__(node_type, configuration, model)
+        oid = ObjectId(node_type, str(uuid.uuid4()))
+        super().__init__(node_type=node_type, oid=oid, configuration=configuration, model=model, registry=registry, initial_data=self.cot_attributes)
 
     def get_all_properties(self):
         methods = inspect.getmembers(self.__class__)
+        # iterate through the cot_attributes and for each, verify it is neither a none n'or a type value
         return [
             m[0]
             for m in methods
             if getattr(m[1], "is_cot", False)
             and self.cot_attributes.get(m[0], None) != None
+            and not isinstance(self.cot_attributes.get(m[0], str), type)
         ]
-
-    def add_child(self, child):
-        if self.validate_child_addition(child):
-            self._children[child.get_oid().str_val] = child
-            self.cot_attributes[child.__class__.__name__] = child
-            child.set_parent(self)
-        else:
-            raise TypeError("child must be an instance of Node")

@@ -4,60 +4,61 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 
 
 class link(CoTNode):
-    def __init__(self, configuration, model):
-        super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["uid"] = None
-        self.cot_attributes["relation"] = None
-        self.cot_attributes["production_time"] = None
-        self.cot_attributes["type"] = None
-        self.cot_attributes["parent_callsign"] = None
+    def __init__(self, configuration, model, registry=None):
+        attributes = {}
+        self.__uid = None
+        self.__relation = None
+        self.__production_time = None
+        self.__type = None
+        self.__parent_callsign = None
+        super().__init__(self.__class__.__name__, configuration, model, registry, attributes)
 
     @CoTProperty
     def remarks(self):
-        return self.cot_attributes.get("remarks", None)
+        return self.__remarks
 
     @remarks.setter
-    def remarks(self, remarks):
+    def remarks(self, remarks: str):
         self.__modified = True
-        self.cot_attributes["remarks"] = remarks
+        self.__remarks = remarks
 
     @CoTProperty
     def callsign(self):
-        return self.cot_attributes.get("callsign", None)
+        return self.__callsign
 
     @callsign.setter
-    def callsign(self, callsign):
-        self.cot_attributes["callsign"] = callsign
+    def callsign(self, callsign: str):
+        self.__callsign = callsign
 
     @CoTProperty
     def point(self):
-        return self.cot_attributes.get("point", None)
+        return self.__point
 
     @point.setter
     def point(self, point):
-        self.cot_attributes["point"] = point
+        self.__point = point
 
     @CoTProperty
     def uid(self):
         import uuid
 
         if "uid" in self.cot_attributes:
-            return self.cot_attributes.get("uid", None)
+            return self.__uid
         else:
-            self.cot_attributes["uid"] = uuid.uuid1()
-            return self.cot_attributes.get("uid", None)
+            self.__uid = uuid.uuid1()
+            return self.__uid
 
     @uid.setter
-    def uid(self, uid=0):
+    def uid(self, uid: str):
         self.__modified = True
-        self.cot_attributes["uid"] = uid
+        self.__uid = uid
 
     @CoTProperty
     def production_time(self):
-        return self.cot_attributes.get("production_time", None)
+        return self.__production_time
 
     @production_time.setter
-    def production_time(self, production_time=0):
+    def production_time(self, production_time: dt):
         self.__modified = True
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         if production_time == None:
@@ -72,35 +73,35 @@ class link(CoTNode):
 
     @CoTProperty
     def relation(self):
-        return self.cot_attributes.get("relation", None)
+        return self.__relation
 
     @relation.setter
-    def relation(self, relation=0):
+    def relation(self, relation: str):
         self.__modified = True
-        self.cot_attributes["relation"] = relation
+        self.__relation = relation
 
     @CoTProperty
     def type(self):
-        return self.cot_attributes.get("type", None)
+        return self.__type
 
     @type.setter
-    def type(self, type=0):
+    def type(self, type: str):
         self.__modified = True
-        self.cot_attributes["type"] = type
+        self.__type = type
 
     @CoTProperty
     def parent_callsign(self):
-        return self.cot_attributes.get("parent_callsign", None)
+        return self.__parent_callsign
 
     @parent_callsign.setter
-    def parent_callsign(self, parent_callsign=0):
+    def parent_callsign(self, parent_callsign: str):
         self.__modified = True
-        self.cot_attributes["parent_callsign"] = parent_callsign
+        self.__parent_callsign = parent_callsign
 
     @CoTProperty
     def relationship(self):
-        return self.cot_attributes.get("relationship", None)
+        return self.__relationship
 
     @relationship.setter
-    def relationship(self, relationship):
-        self.cot_attributes["relationship"] = relationship
+    def relationship(self, relationship: str):
+        self.__relationship = relationship

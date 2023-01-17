@@ -16,18 +16,9 @@ class marti(
 ):  # ignore this because the class name must match that of the CoT ignore pylint: disable=invalid-name
     __counter = counter()
 
-    def __init__(self, configuration: Configuration, model):
+    def __init__(self, configuration: Configuration, model, registry=None):
         # self.__dest = [DestObject(self.__counter)]
         # self.__tempdest = self.__dest
-        super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["dest"] = []
         self.__index = 0
         # self.__firstrun = True
-
-    @CoTProperty
-    def dest(self):
-        return self.cot_attributes["dest"]
-
-    @dest.setter
-    def dest(self, dest):
-        self.cot_attributes["dest"].append(dest)
+        super().__init__(self.__class__.__name__, configuration, model, registry, {})

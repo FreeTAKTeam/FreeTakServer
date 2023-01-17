@@ -17,42 +17,43 @@ class emergency(CoTNode):
     deactivated from the original creator
     """
 
-    def __init__(self, configuration, model):
-        super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["type"] = None
-        self.cot_attributes["alert"] = None
+    def __init__(self, configuration, model, registry=None):
+        attributes = {}
+        self.__type = None
+        self.__alert = None
         # if true the Emergency beacon is canceled
-        self.cot_attributes["cancel"] = None
-        self.cot_attributes["INTAG"] = None
+        self.__cancel = None
+        self.__INTAG = None
+        super().__init__(self.__class__.__name__, configuration, model, registry, attributes)
 
     @CoTProperty
     def type(self):
-        return self.cot_attributes.get("type", None)
+        return self.__type
 
     @type.setter
-    def type(self, type=None):
-        self.cot_attributes["type"] = type
+    def type(self, type: str):
+        self.__type = type
 
     @CoTProperty
     def Alert(self):
-        return self.cot_attributes.get("alert", None)
+        return self.__alert
 
     @Alert.setter
-    def Alert(self, alert=None):
-        self.cot_attributes["alert"] = alert
+    def Alert(self, alert: str):
+        self.__alert = alert
 
     @CoTProperty
     def cancel(self):
-        return self.cot_attributes.get("cancel", None)
+        return self.__cancel
 
     @cancel.setter
-    def cancel(self, cancel=None):
-        self.cot_attributes["cancel"] = cancel
+    def cancel(self, cancel: str):
+        self.__cancel = cancel
 
     @CoTProperty
     def INTAG(self):
-        return self.cot_attributes.get("INTAG", None)
+        return self.__INTAG
 
     @INTAG.setter
-    def INTAG(self, INTAG=None):
-        self.cot_attributes["INTAG"] = INTAG
+    def INTAG(self, INTAG: str):
+        self.__INTAG = INTAG

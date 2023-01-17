@@ -17,60 +17,60 @@ class detail(CoTNode):
 
     __index = -1
 
-    def __init__(self, configuration, model):
-        super().__init__(self.__class__.__name__, configuration, model)
+    def __init__(self, configuration, model, registry=None):
+        super().__init__(self.__class__.__name__, configuration, model, registry, {})
 
     @CoTProperty
     def marti(self):
-        data = self.cot_attributes.get("marti", None)
+        data = self.__marti
         if data is None:
             raise AttributeError("attribute 'marti' doesnt exist")
         return data
 
     @marti.setter
     def marti(self, marti):
-        self.cot_attributes["marti"] = marti
+        self.__marti = marti
 
     @CoTProperty
     def link(self):
-        data = self.cot_attributes.get("link", None)
+        data = self.__link
         if data is None:
             raise AttributeError("attribute 'link' doesnt exist")
         return data
 
     @link.setter
     def link(self, link):
-        self.cot_attributes["link"] = link
+        self.__link = link
 
     @CoTProperty
     def contact(self):
-        data = self.cot_attributes.get("contact", None)
+        data = self.__contact
         if data is None:
             raise AttributeError("attribute 'contact' doesnt exist")
         return data
 
     @contact.setter
     def contact(self, contact):
-        self.cot_attributes["contact"] = contact
+        self.__contact = contact
 
     @CoTProperty
     def emergency(self):
-        data = self.cot_attributes.get("emergency", None)
+        data = self.__emergency
         if data is None:
             raise AttributeError("attribute 'emergency' doesnt exist")
         return data
 
     @emergency.setter
     def emergency(self, emergency):
-        self.cot_attributes["emergency"] = emergency
+        self.__emergency = emergency
 
     @CoTProperty
     def remarks(self):
-        data = self.cot_attributes.get("remarks", None)
+        data = self.__remarks
         if data is None:
             raise AttributeError("attribute 'remarks' doesnt exist")
         return data
 
     @remarks.setter
     def remarks(self, remarks):
-        self.cot_attributes["remarks"] = remarks
+        self.__remarks = remarks

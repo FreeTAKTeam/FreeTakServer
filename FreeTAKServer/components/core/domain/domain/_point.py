@@ -15,50 +15,51 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 
 class point(CoTNode):
 
-    def __init__(self, configuration, model, le=vars().LE, ce=vars().CE, hae=vars().HAE, lon=vars().LON, lat=vars().LAT):
-        super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["le"] = le
-        self.cot_attributes["ce"] = ce
-        self.cot_attributes["hae"] = hae
-        self.cot_attributes["lon"] = lon
-        self.cot_attributes["lat"] = lat
+    def __init__(self, configuration, model, registry=None, le=vars().LE, ce=vars().CE, hae=vars().HAE, lon=vars().LON, lat=vars().LAT):
+        attributes = {}
+        attributes["le"] = int
+        attributes["ce"] = int
+        attributes["hae"] = int
+        attributes["lon"] = int
+        attributes["lat"] = int
+        super().__init__(self.__class__.__name__, configuration, model, registry, attributes)
 
     @CoTProperty
     def ce(self): 
-        return self.cot_attributes.get("ce", None)
+        return self.__ce
 
     @ce.setter
-    def ce(self, ce):
-        self.cot_attributes["ce"]=ce 
+    def ce(self, ce: int):
+        self.__ce=ce 
 
     @CoTProperty
     def le(self): 
-        return self.cot_attributes.get("le", None)
+        return self.__le
 
     @le.setter
-    def le(self,le):  
-        self.cot_attributes["le"]=le
+    def le(self,le: int):  
+        self.__le=le
 
     @CoTProperty
     def lat(self):
-        return self.cot_attributes.get("lat", None)
+        return self.__lat
 
     @lat.setter
-    def lat(self, lat):  
-        self.cot_attributes["lat"]=lat
+    def lat(self, lat: int):  
+        self.__lat=lat
 
     @CoTProperty
     def lon(self):
-        return self.cot_attributes.get("lon", None)
+        return self.__lon
 
     @lon.setter
-    def lon(self,lon):
-        self.cot_attributes["lon"]=lon
+    def lon(self,lon: int):
+        self.__lon=lon
 
     @CoTProperty
     def hae(self):
-        return self.cot_attributes.get("hae", None)
+        return self.__hae
 
     @hae.setter
-    def hae(self,hae):
-        self.cot_attributes["hae"] = hae
+    def hae(self, hae: int):
+        self.__hae = hae

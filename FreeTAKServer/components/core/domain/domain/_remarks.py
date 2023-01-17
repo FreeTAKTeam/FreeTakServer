@@ -4,47 +4,48 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 
 
 class remarks(CoTNode):
-    def __init__(self, configuration, model):
-        super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["keywords"] = None
-        self.cot_attributes["relation"] = None
-        self.cot_attributes["time"] = None
-        self.cot_attributes["to"] = None
-        self.cot_attributes["version"] = None
+    def __init__(self, configuration, model, registry=None):
+        attributes = {}
+        self.__keywords = None
+        self.__relation = None
+        self.__time = None
+        self.__to = None
+        self.__version = None
+        super().__init__(self.__class__.__name__, configuration, model, registry, attributes)
 
     @CoTProperty
     def keywords(self):
-        return self.cot_attributes.get("keywords", None)
+        return self.__keywords
 
     @keywords.setter
-    def keywords(self, keywords):
+    def keywords(self, keywords: str):
         self.__modified = True
         self.keywords = keywords
 
     @CoTProperty
     def source(self):
-        return self.cot_attributes.get("source", None)
+        return self.__source
 
     @source.setter
-    def source(self, source):
+    def source(self, source: str):
         self.__modified = True
         self.source = source
 
     @CoTProperty
     def sourceID(self):
-        return self.cot_attributes.get("sourceID", None)
+        return self.__sourceID
 
     @sourceID.setter
-    def sourceID(self, sourceID):
+    def sourceID(self, sourceID: str):
         self.__modified = True
         self.sourceID = sourceID
 
     @CoTProperty
     def time(self):
-        return self.cot_attributes.get("time", None)
+        return self.__time
 
     @time.setter
-    def time(self, time=0):
+    def time(self, time: dt):
         self.__modified = True
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%SZ"
         if time == None:
@@ -59,24 +60,24 @@ class remarks(CoTNode):
 
     @CoTProperty
     def to(self):
-        return self.cot_attributes.get("to", None)
+        return self.__to
 
     @to.setter
-    def to(self, to):
-        self.cot_attributes["to"] = to
+    def to(self, to: str):
+        self.__to = to
 
     @CoTProperty
     def version(self):
-        return self.cot_attributes.get("version", None)
+        return self.__version
 
     @version.setter
-    def version(self, version=0):
-        self.cot_attributes["version"] = version
+    def version(self, version: str):
+        self.__version = version
 
     @property
     def text(self):
-        return self.cot_attributes.get("text", None)
+        return self.__text
 
     @text.setter
-    def text(self, text):
-        self.cot_attributes["text"] = text
+    def text(self, text: str):
+        self.__text = text

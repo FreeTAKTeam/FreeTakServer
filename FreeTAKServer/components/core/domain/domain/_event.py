@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime as dt
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-
+DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 class Event(CoTNode):
     # TODO: fix emergency methods
@@ -22,16 +22,18 @@ class Event(CoTNode):
 
     # default constructor
 
-    def __init__(self, configuration: Configuration, model):
-
-        super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["version"] = None
-        self.cot_attributes["uid"] = None
-        self.cot_attributes["type"] = None
-        self.cot_attributes["how"] = None
-        self.cot_attributes["stale"] = None
-        self.cot_attributes["start"] = None
-        self.cot_attributes["time"] = None
+    def __init__(self, configuration: Configuration, model, registry = None):
+        attributes = {}
+        self.__version = None
+        self.__uid = None
+        self.__type = None
+        self.__how = None
+        self.__stale = None
+        self.__start = None
+        self.__time = None
+        self.__point = None
+        self.__detail = None
+        super().__init__(self.__class__.__name__, configuration, model, registry, attributes)
 
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
@@ -60,53 +62,53 @@ class Event(CoTNode):
 
     @CoTProperty
     def start(self):
-        return self.cot_attributes.get("start", None)
+        return self.__start
 
     @start.setter
-    def start(self, start=0):
+    def start(self, start: str):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if start == None:
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
-            self.cot_attributes["start"] = zulu
+            self.__start = zulu
         else:
-            self.cot_attributes["start"] = start
+            self.__start = start
 
     @CoTProperty
     def how(self):
-        return self.cot_attributes.get("how", None)
+        return self.__how
 
     @how.setter
-    def how(self, how=0):
-        self.cot_attributes["how"] = how
+    def how(self, how: str):
+        self.__how = how
 
     @CoTProperty
     def uid(self):
-        return self.cot_attributes.get("uid", None)
+        return self.__uid
 
     @uid.setter
-    def uid(self, uid):
+    def uid(self, uid: str):
         if uid == None:
             self.uid = str(uuid.uuid1())
 
         else:
-            self.cot_attributes["uid"] = uid
+            self.__uid = uid
 
     @CoTProperty
     def version(self):
-        return self.cot_attributes.get("version", None)
+        return self.__version
 
     @version.setter
-    def version(self, version):
-        self.cot_attributes["version"] = version
+    def version(self, version: str):
+        self.__version = version
 
     @CoTProperty
     def time(self):
-        return self.cot_attributes.get("time", None)
+        return self.__time
 
     @time.setter
-    def time(self, time=0):
+    def time(self, time: str):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if time == None:
             timer = dt.datetime
@@ -114,45 +116,44 @@ class Event(CoTNode):
             zulu = now.strftime(DATETIME_FMT)
             self.time = zulu
         else:
-            self.cot_attributes["time"] = time
+            self.__time = time
 
     @CoTProperty
     def stale(self):
-        return self.cot_attributes.get("stale", None)
+        return self.__stale
 
     @stale.setter
-    def stale(self, stale=None, staletime=60):
+    def stale(self, stale=None, staletime: dt = dt.utcnow().strftime(DATETIME_FMT)):
         if stale == None:
-            DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt.datetime
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
             add = dt.timedelta(seconds=staletime)
             stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-            self.cot_attributes["stale"] = stale_part.strftime(DATETIME_FMT)
+            self.__stale = stale_part.strftime(DATETIME_FMT)
         else:
-            self.cot_attributes["stale"] = stale
+            self.__stale = stale
 
     @CoTProperty
     def type(self):
-        return self.cot_attributes.get("type", None)
+        return self.__type
 
     @type.setter
-    def type(self, type=0):
-        self.cot_attributes["type"] = type
+    def type(self, type: str):
+        self.__type = type
 
     @CoTProperty
     def point(self):
-        return self.cot_attributes.get("point", None)
+        return self.__point
 
     @point.setter
     def point(self, point=None):
-        self.cot_attributes["point"] = point
+        self.__point = point
 
     @CoTProperty
     def detail(self):
-        return self.cot_attributes.get("detail", None)
+        return self.__detail
 
     @detail.setter
-    def detail(self, detail=None):
-        self.cot_attributes["detail"] = detail
+    def detail(self, detail):
+        self.__detail = detail

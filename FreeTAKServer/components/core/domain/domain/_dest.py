@@ -6,14 +6,15 @@ from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 
 
 class dest(CoTNode):
-    def __init__(self, configuration: Configuration, model):
-        super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["callsign"] = None
+    def __init__(self, configuration: Configuration, model, registry=None):
+        attributes = {}
+        attributes["callsign"] = None
+        super().__init__(self.__class__.__name__, configuration, model, registry, attributes)
 
     @CoTProperty
     def callsign(self):
-        return self.cot_attributes["callsign"]
+        return self.__callsign
 
     @callsign.setter
     def callsign(self, callsign: str):
-        self.cot_attributes["callsign"] = callsign
+        self.__callsign = callsign
