@@ -8,8 +8,8 @@ class checklistColumns(CoTNode):
 
     @CoTProperty
     def checklistColumn(self):
-        return self.cot_attributes.get("checklistColumn", None)
+        return self.__checklistColumn
 
     @checklistColumn.setter
     def checklistColumn(self, checklistColumn=None):
-        self.cot_attributes["checklistColumn"] = checklistColumn
+        self.__checklistColumn = checklistColumn

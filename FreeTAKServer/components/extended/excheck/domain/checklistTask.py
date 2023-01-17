@@ -7,48 +7,48 @@ class checklistTasks(CoTNode):
 
     @CoTProperty
     def lineBreak(self):
-        return self.cot_attributes.get("lineBreak", None)
+        return self.__lineBreak
 
     @lineBreak.setter
     def lineBreak(self, lineBreak=None):
-        self.cot_attributes["lineBreak"] = lineBreak
+        self.__lineBreak = lineBreak
 
     @CoTProperty
     def number(self):
-        return self.cot_attributes.get("number", None)
+        return self.__number
 
     @number.setter
     def number(self, number=None):
-        self.cot_attributes["number"] = number
+        self.__number = number
     
     @CoTProperty
     def uid(self):
-        return self.cot_attributes.get("uid", None)
+        return self.__uid
 
     @uid.setter
     def uid(self, uid=None):
-        self.cot_attributes["uid"] = uid
+        self.__uid = uid
 
     @CoTProperty
     def value(self):
-        return self.cot_attributes.get("value", None)
+        return self.__value
 
     @value.setter
     def value(self, value=None):
-        self.cot_attributes["value"] = value
+        self.__value = value
 
     @CoTProperty
     def status(self):
-        return self.cot_attributes.get("status", None)
+        return self.__status
 
     @status.setter
     def status(self, status=None):
-        self.cot_attributes["status"] = status
+        self.__status = status
 
     @CoTProperty
     def CompleteDTG(self):
-        return self.cot_attributes.get("CompleteDTG", None)
+        return self.__CompleteDTG
 
     @CompleteDTG.setter
     def CompleteDTG(self, CompleteDTG=None):
-        self.cot_attributes["CompleteDTG"] = CompleteDTG
+        self.__CompleteDTG = CompleteDTG

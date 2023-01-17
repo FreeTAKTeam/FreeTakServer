@@ -7,24 +7,24 @@ class checklistColumn(CoTNode):
 
     @CoTProperty
     def columnName(self):
-        return self.cot_attributes.get("columnName", None)
+        return self.__columnName
 
     @columnName.setter
     def columnName(self, columnName=None):
-        self.cot_attributes["columnName"] = columnName
+        self.__columnName = columnName
 
     @CoTProperty
     def columnType(self):
-        return self.cot_attributes.get("columnType", None)
+        return self.__columnType
 
     @columnType.setter
     def columnType(self, columnType=None):
-        self.cot_attributes["columnType"] = columnType
+        self.__columnType = columnType
 
     @CoTProperty
     def columnWidth(self):
-        return self.cot_attributes.get("columnWidth", None)
+        return self.__columnWidth
 
     @columnWidth.setter
     def columnWidth(self, columnWidth=None):
-        self.cot_attributes["columnWidth"] = columnWidth
+        self.__columnWidth = columnWidth

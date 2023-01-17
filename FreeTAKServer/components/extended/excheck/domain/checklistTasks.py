@@ -7,8 +7,8 @@ class checklistTasks(CoTNode):
 
     @CoTProperty
     def checklistTask(self):
-        return self.cot_attributes.get("checklistTask", None)
+        return self.__checklistTask
 
     @checklistTask.setter
     def checklistTask(self, checklistTask=None):
-        self.cot_attributes["checklistTask"] = checklistTask
+        self.__checklistTask = checklistTask

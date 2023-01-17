@@ -5,31 +5,31 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 class checklist(CoTNode):
     def __init__(self, configuration, model):
         super().__init__(self.__class__.__name__, configuration, model)
-        self.cot_attributes["checklist"] = None
+        self.__checklist = None
 
     @CoTProperty
     def checklistDetails(self):
-        return self.cot_attributes.get("checklistDetails", None)
+        return self.__checklistDetails
 
     @checklistDetails.setter
     def checklistDetails(self, checklistDetails=None):
-        self.cot_attributes["checklistDetails"] = checklistDetails
+        self.__checklistDetails = checklistDetails
 
     @CoTProperty
     def checklistColumns(self):
-        return self.cot_attributes.get("checklistColumns", None)
+        return self.__checklistColumns
 
     @checklistColumns.setter
     def checklistColumns(self, checklistColumns=None):
-        self.cot_attributes["checklistColumns"] = checklistColumns
+        self.__checklistColumns = checklistColumns
 
     @CoTProperty
     def checklistTasks(self):
-        return self.cot_attributes.get("checklistTasks", None)
+        return self.__checklistTasks
 
     @checklistTasks.setter
     def checklistTasks(self, checklistTasks=None):
-        self.cot_attributes["checklistTasks"] = checklistTasks
+        self.__checklistTasks = checklistTasks
 
     
 

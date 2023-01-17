@@ -7,56 +7,56 @@ class checklistDetails(CoTNode):
     
     @CoTProperty
     def name(self):
-        return self.cot_attributes.get("name", None)
+        return self.__name
 
     @name.setter
     def name(self, name=None):
-        self.cot_attributes["name"] = name
+        self.__name = name
 
     @CoTProperty
     def uid(self):
-        return self.cot_attributes.get("uid", None)
+        return self.__uid
 
     @uid.setter
     def uid(self, uid=None):
-        self.cot_attributes["uid"] = uid
+        self.__uid = uid
 
     @CoTProperty
     def description(self):
-        return self.cot_attributes.get("description", None)
+        return self.__description
 
     @description.setter
     def description(self, description=None):
-        self.cot_attributes["description"] = description
+        self.__description = description
 
     @CoTProperty
     def startTime(self):
-        return self.cot_attributes.get("startTime", None)
+        return self.__startTime
 
     @startTime.setter
     def startTime(self, startTime=None):
-        self.cot_attributes["startTime"] = startTime
+        self.__startTime = startTime
 
     @CoTProperty
     def templateName(self):
-        return self.cot_attributes.get("templateName", None)
+        return self.__templateName
 
     @templateName.setter
     def templateName(self, templateName=None):
-        self.cot_attributes["templateName"] = templateName
+        self.__templateName = templateName
 
     @CoTProperty
     def creatorUid(self):
-        return self.cot_attributes.get("creatorUid", None)
+        return self.__creatorUid
 
     @creatorUid.setter
     def creatorUid(self, creatorUid=None):
-        self.cot_attributes["creatorUid"] = creatorUid
+        self.__creatorUid = creatorUid
 
     @CoTProperty
     def creatorCallsign(self):
-        return self.cot_attributes.get("creatorCallsign", None)
+        return self.__creatorCallsign
 
     @creatorCallsign.setter
     def creatorCallsign(self, creatorCallsign=None):
-        self.cot_attributes["creatorCallsign"] = creatorCallsign
+        self.__creatorCallsign = creatorCallsign
