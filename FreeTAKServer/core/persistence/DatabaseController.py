@@ -4,7 +4,7 @@ from FreeTAKServer.core.persistence import VideoStreamTableController
 from FreeTAKServer.core.persistence import EventTableController
 from FreeTAKServer.core.persistence import DataPackageTableController
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import make_transient
 from sqlalchemy.exc import IntegrityError
 from FreeTAKServer.model.SQLAlchemy.Root import Base
@@ -81,7 +81,7 @@ class DatabaseController:
         :arg
         """
         engine = create_engine(DatabaseConfiguration().DataBaseConnectionString, echo=False)
-        if engine.dialect.has_table(engine, 'SystemUser') == False:
+        if inspect(engine).has_table("SystemUser") == False:
             Base.metadata.create_all(engine)
             tempsession = sessionmaker(bind=engine)()
             tempsession.add(FreeTAKServer.model.SQLAlchemy.system_user.SystemUser(uid="1", name="admin", password="password", token="token", device_type="mobile"))
