@@ -1,5 +1,7 @@
 from types import ModuleType
 from typing import Any, List, Optional, Type
+from sqlalchemy.orm import registry
+
 from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
 from digitalpy.core.zmanager.request import Request
@@ -38,7 +40,7 @@ class Domain(Controller):
         """
         return node.add_child(child)
 
-    def create_node(self, configuration: Configuration, object_class_name: str, **kwargs) -> None:
+    def create_node(self, configuration: Configuration, object_class_name: str, registry: registry, **kwargs) -> None:
         """this method creates a new node object
 
         Args:
@@ -50,9 +52,10 @@ class Domain(Controller):
         # retrieve the original object class
         object_class = getattr(self.domain, object_class_name)
         # instantiate the object class
-        object_class_instance = object_class(configuration, self.domain)
+        object_class_instance = object_class(configuration, self.domain, registry)
         # set the module object
         self.response.set_value("model_object", object_class_instance)
+        
 
     def _extend_domain(self, domain: ModuleType, extended_domain: dict) -> ModuleType:
         """this method is responsible for adding domain extensions from a given component

@@ -59,19 +59,8 @@ class XMLSerializationController(Controller):
         for attribName in node.get_all_properties():
             # below line is required because get_all_properties function returns only cot property names
             value = getattr(node, attribName)
-            if hasattr(value, "__dict__"):
-                tagElement = self._serialize_node(value, attribName, level=level + 1)
-                # TODO: modify so double underscores are handled differently
-                try:
-                    if attribName[0] == "_":
-                        tagElement.tag = "_" + tagElement.tag
-                        xml.append(tagElement)
-                except:
-                    pass
-                else:
-                    xml.append(tagElement)
 
-            elif value == None:
+            if value == None:
                 continue
 
             elif isinstance(value, list):
@@ -99,6 +88,19 @@ class XMLSerializationController(Controller):
                     pass
                 else:
                     xml.attrib[attribName] = str(value)
+
+        for child in node.get_children():
+            tagElement = self._serialize_node(child, child.get_type(), level=level + 1)
+            # TODO: modify so double underscores are handled differently
+            try:
+                if attribName[0] == "_":
+                    tagElement.tag = "_" + tagElement.tag
+                    xml.append(tagElement)
+            except:
+                pass
+            else:
+                xml.append(tagElement)
+        
         if hasattr(node, "xml_string"):
             # this method combines the xml object parsed from
             # the model object with the xml_string found in the node
