@@ -86,6 +86,7 @@ class Detail(FTSProtocolObject):
         detail.link = Link.emergency_on()
         detail.contact = Contact.emergency_on()
         detail.emergency = Emergency.emergency_on()
+        detail.remarks = Remarks.emergency_on()
         return detail
 
     @staticmethod

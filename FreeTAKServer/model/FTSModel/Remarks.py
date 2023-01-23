@@ -69,6 +69,22 @@ class Remarks(FTSProtocolObject):
         return remarks
 
     @staticmethod
+    def emergency_on(
+        TIME=vars.emerygency_on().TIME,
+        SOURCE=vars.emerygency_on().SOURCE,
+        SOURCEID=vars.emerygency_on().SOURCEID,
+        INTAG=vars.emerygency_on().INTAG,
+        TO=vars.emerygency_on().TO,
+    ):
+        remarks = Remarks()
+        remarks.settime(time=TIME)
+        remarks.setsource(source=SOURCE)
+        remarks.setsourceID(SOURCEID)
+        remarks.setINTAG(INTAG)
+        remarks.setto(TO)
+        return remarks
+
+    @staticmethod
     def UserUpdate(
         TIME=vars.geochat().TIME,
         SOURCE=vars.geochat().SOURCE,

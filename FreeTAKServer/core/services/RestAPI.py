@@ -627,6 +627,7 @@ def getemergencys():
             output[i]["lon"] = original.event.point.lon
             output[i]["type"] = original.event.detail.emergency.type
             output[i]["name"] = original.event.detail.contact.callsign
+            output[i]["remarks"] = original.event.detail.remarks.INTAG
             del (output[i]['_sa_instance_state'])
             del (output[i]['event'])
         except:
@@ -1137,8 +1138,6 @@ def getEmergency():
 @auth.login_required
 def postEmergency():
     try:
-        from json import dumps
-
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_emergency_post(jsondata)
         EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()

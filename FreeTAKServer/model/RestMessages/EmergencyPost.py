@@ -1,6 +1,8 @@
 from FreeTAKServer.model.RestMessages.Emergency import Emergency
 
 class EmergencyPost(Emergency):
+    remarks = ''
+
     def __init__(self):
         pass
 
@@ -12,6 +14,12 @@ class EmergencyPost(Emergency):
             return self.address
         except:
             return None
+
+    def setremarks(self, remarks):
+        self.remarks = remarks
+
+    def getremarks(self):
+        return self.remarks
 
     def setemergencyType(self, emergencyType):
         self.emergencyType = emergencyType
