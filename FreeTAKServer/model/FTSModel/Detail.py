@@ -147,6 +147,7 @@ class Detail(FTSProtocolObject):
         detail = Detail()
         detail.contact = Contact.Presence()
         detail._group = _Group.Presence()
+        detail.remarks = Remarks.Presence()
         return detail
 
     @staticmethod

@@ -37,3 +37,11 @@ class RemarksVariables:
         cls.SOURCEID = None
         cls.INTAG = None
         return cls
+
+    @classmethod
+    def Presence(cls):
+        cls.TIME = None
+        cls.SOURCE = None
+        cls.SOURCEID = None
+        cls.INTAG = None
+        return cls

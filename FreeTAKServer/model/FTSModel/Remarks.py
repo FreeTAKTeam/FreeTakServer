@@ -39,6 +39,20 @@ class Remarks(FTSProtocolObject):
         return remarks
 
     @staticmethod
+    def Presence(
+        TIME=vars.Presence().TIME,
+        SOURCE=vars.Presence().SOURCE,
+        SOURCEID=vars.Presence().SOURCEID,
+        INTAG=vars.Presence().INTAG,
+    ):
+        remarks = Remarks()
+        remarks.settime(time=TIME)
+        remarks.setsource(source=SOURCE)
+        remarks.setsourceID(SOURCEID)
+        remarks.setINTAG(INTAG)
+        return remarks
+
+    @staticmethod
     def drop_point(
         TIME=vars.drop_point().TIME,
         SOURCE=vars.drop_point().SOURCE,
