@@ -139,6 +139,7 @@ class Detail(FTSProtocolObject):
     def SimpleCoT():
         detail = Detail()
         detail.contact = Contact.SimpleCoT()
+        detail.remarks = Remarks.geo_object()
         return detail
 
     @staticmethod
