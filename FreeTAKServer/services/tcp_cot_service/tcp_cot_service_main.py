@@ -9,6 +9,7 @@ import importlib
 import socket
 from opentelemetry.trace import Status, StatusCode
 from typing import List, Union
+from FreeTAKServer.services.tcp_cot_service.controllers.send_component_data_controller import SendComponentDataController
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.domain.node import Node
@@ -49,6 +50,8 @@ from FreeTAKServer.model.User import User
 from FreeTAKServer.model.ClientInformation import ClientInformation
 
 from .configuration.tcp_cot_service_constants import SERVICE_NAME
+from .model.tcp_cot_connection import TCPCoTConnection
+
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
 loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
@@ -60,7 +63,7 @@ from .controllers.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
-APPLICATION_PROTOCOL = "COT"
+APPLICATION_PROTOCOL = "XML"
 # MAJOR TODO: Make explicit exception classes!!!
 
 
@@ -83,6 +86,7 @@ class TCPCoTServiceMain(DigitalPyService):
         # Contains info on clients
         self.client_information_queue = {}
         self.clientDataPipe: Queue
+        self.connections: dict[str, TCPCoTConnection] = {} # meant to eventually obsolete the client information queue
 
         # instantiate controllers
         self.ActiveThreadsController = ActiveThreadsController()
@@ -91,6 +95,7 @@ class TCPCoTServiceMain(DigitalPyService):
         self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
         self.XMLCoTController = XMLCoTController()
         self.dbController: DatabaseController
+        self.send_component_data_controller = SendComponentDataController
 
     def start(
         self,
@@ -422,9 +427,28 @@ class TCPCoTServiceMain(DigitalPyService):
 
             # Add client info to queue
             self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation]
-            # Update the geo manager controller with the new client information
-            GeoManagerController.update_users(self.client_information_queue)
-            self.logger.debug("Client added")
+            
+            # instantiate an object_id with a value of the client uid
+            object_id = ObjectFactory.get_new_instance("ObjectId", dynamic_configuration={"id": clientInformation.modelObject.uid, "type": "connection"})
+            
+            # TODO the instantiation of the connection object and the connection action
+            # call should be moved out of the tcp_cot_service main and into the connection
+            # controller
+
+            # instantiate a new TCPCoTConnection with an object_id of the client uid
+            connection = TCPCoTConnection(object_id)
+            connection.model_object = clientInformation.modelObject
+            connection.sock = clientInformation.socket
+            self.connections[str(connection.get_oid())] = connection
+
+            # Update the iam component with the new client information
+            request = ObjectFactory.get_new_instance("request")
+            request.set_action("connection")
+            request.set_sender(self.__class__.__name__.lower())
+            request.set_value("connection", connection)
+            request.set_format("pickled")
+            self.subject_send_request(request, APPLICATION_PROTOCOL)
+            self.logger.debug("Client saved")
 
             # Broadcast user in geochat
             self.send_user_connection_geo_chat(clientInformation)
@@ -510,8 +534,19 @@ class TCPCoTServiceMain(DigitalPyService):
         # Removes the user id from client info queue
         try:
             del self.client_information_queue[clientInformation.user_id]
-            # update the geo manager controller with the new client information
-            GeoManagerController.update_users(self.client_information_queue)
+            # Update the iam component with the new client information
+            request = ObjectFactory.get_new_instance("request")
+            request.set_action("disconnection")
+            request.set_sender(self.__class__.__name__.lower())
+            if hasattr(clientInformation, "modelObject"):
+                uid = clientInformation.modelObject.uid
+            elif hasattr(clientInformation, "m_presence"):
+                uid = clientInformation.m_presence.modelObject.uid
+            conn_id = str(ObjectFactory.get_instantce("ObjectId", {"id": uid, "type": "connection"}))
+            del self.connections[conn_id]
+            request.set_value("connection_id", conn_id)
+            request.set_format("pickled")
+            self.subject_send_request(request, APPLICATION_PROTOCOL)
         except Exception as e:
             self.logger.critical("client removal failed " + str(e))
 
@@ -716,19 +751,7 @@ class TCPCoTServiceMain(DigitalPyService):
 
                         self.send_message(sender, cot_object)
                 else:
-                    # Get the model object from the response
-                    model_object = response.get_value("model_object")
-
-                    # Define the specific cot object
-                    cot_object = SendOther()
-                    cot_object.modelObject = model_object
-
-                    # TODO: Decide where the serialization should be performed.
-                    # For now it's performed by whatever process is receiving the data
-                    # in this case using the convert_to_xml method.
-                    cot_object.xmlString = self.convert_to_xml(model_object)
-
-                    self.send_message(sender, cot_object)
+                    self.send_component_message(response)
             except Exception as e:
                 self.logger.error(
                     f"There was an exception sending a single response:\n"
@@ -737,6 +760,12 @@ class TCPCoTServiceMain(DigitalPyService):
                     f"Context: {response.get_context()}\n"
                     f"Action: {response.get_action()}\n"
                 )
+
+    def send_component_message(self, request):
+        response = ObjectFactory.get_instance("response")
+        send_component_data_controller_inst = self.send_component_data_controller(None, None, None, None)
+        send_component_data_controller_inst.initialize(request, response)
+        send_component_data_controller_inst.send_message(self.connections, request.get_value("message"), request.get_value("recipients"))
 
     def send_message(self, sender, message, use_share_pipe=True):
         return SendDataController().sendDataInQueue(
