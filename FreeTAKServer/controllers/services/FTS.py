@@ -15,6 +15,7 @@ from digitalpy.core.main.impl.default_factory import DefaultFactory
 from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.component_management.impl.component_registration_handler import ComponentRegistrationHandler
 from digitalpy.core.zmanager.subject import Subject
+from digitalpy.core.main.DigitalPy import DigitalPy
 
 from FreeTAKServer.core.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
@@ -76,8 +77,9 @@ loggingConstants = LoggingConstants()
 
 
 # noinspection PyUnresolvedReferences
-class FTS:
+class FTS(DigitalPy):
     def __init__(self):
+        super().__init__()
         self.data_from_services = 0
         self.FederationClientService = None
         self.FederationServerService = None
@@ -99,8 +101,7 @@ class FTS:
         self.dbController = DatabaseController()
         logger.propagate = True
 
-        # the central digitalpy configuration used throughout the application
-        self.configuration: Configuration = None
+        
 
     def start_rest_api_service(self, StartupObjects):
         """this method starts the rest api service and instantiates ISC protocols
@@ -617,153 +618,20 @@ class FTS:
         except:
             return -1
 
-    def register_components(self, FTSServiceStartupConfigObject: FTSObj):
-        """this method is responsible for registering all FTS components"""
-        # define routing configuration
-        self.configuration = InifileConfiguration("")
-        self.configuration.add_configuration(
-            str(
-                pathlib.PurePath(
-                    str(config.MainPath),
-                    "configuration",
-                    "routing",
-                    "action_mapping.ini",
-                )
-            ),
-        )
+    def configure(self, FTSServiceStartupConfigObject: FTSObj):
+        """Set or modify the configuration of the application
 
-        factory = DefaultFactory(self.configuration)
-
-        ObjectFactory.configure(factory)
-        ObjectFactory.register_instance("configuration", self.configuration)
-
-        # register the internal components
-        core_components = ComponentRegistrationHandler.discover_components(
-            component_folder_path=pathlib.PurePath(
-                FTSServiceStartupConfigObject.ComponentRegistration.core_components_path
-            ),
-        )
-
-        for core_component in core_components:
-            ComponentRegistrationHandler.register_component(
-                core_component,
-                FTSServiceStartupConfigObject.ComponentRegistration.core_components_import_root,
-                self.configuration,
-            )
-
-        # register the external components
-        external_components = ComponentRegistrationHandler.discover_components(
-            component_folder_path=pathlib.PurePath(
-                FTSServiceStartupConfigObject.ComponentRegistration.external_components_path
-            ),
-        )
-
-        for external_component in external_components:
-            ComponentRegistrationHandler.register_component(
-                external_component,
-                FTSServiceStartupConfigObject.ComponentRegistration.external_components_import_root,
-                self.configuration,
-            )
-
-        # factory instance is registered for use by the routing worker so that
-        # the instances in the instance dictionary can be preserved when the
-        # new object factory is instantiated in the sub-process
-        ObjectFactory.register_instance("factory", factory)
-
-    def start_routing_proxy_service(self, FTSServiceStartupConfigObject: FTSObj):
-        """this function is responsible for starting the routing proxy service"""
-        try:
-            # define routing configuration
-
-            # define the configuration for the routing worker
-            self.configuration.set_value(
-                key="server_address",
-                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerPort}",
-                section="RoutingWorker",
-            )
-
-            self.configuration.set_value(
-                key="integration_manager_address",
-                value=f"{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerProtocol}://{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerAddress}:{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerPort}",
-                section="RoutingWorker",
-            )   
-
-            # define the configuration for the action mapper (the default action mapper is
-            # specified as utilization of this service implicitly assumes that the async
-            # action mapper is the default action mapper)
-            self.configuration.set_value(
-                key="routing_publisher_address",
-                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherPort}",
-                section="ActionMapper",
-            )
-
-            self.configuration.set_value(
-                key="routing_subscriber_address",
-                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
-                section="ActionMapper",
-            )
-
-            # define the configuration for the routing proxy service
-
-            self.configuration.set_value(
-                key="frontend_pull_address",
-                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
-                section="Subject",
-            )
-
-            self.configuration.set_value(
-                key="frontend_pub_address",
-                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherPort}",
-                section="Subject",
-            )
-
-            self.configuration.set_value(
-                key="backend_address",
-                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerPort}",
-                section="Subject",
-            )
-
-            self.configuration.set_value(
-                key="worker_count",
-                value=int(
-                    FTSServiceStartupConfigObject.RoutingProxyService.NumRoutingWorkers
-                ),
-                section="Subject",
-            )
-
-            # begin the routing proxy
-            self.routing_proxy_service = ObjectFactory.get_instance("Subject")
-            proc = multiprocessing.Process(
-                target=self.routing_proxy_service.begin_routing
-            )
-            proc.start()
-
-            return 1
-
-        except Exception as e:
-            return -1
-
-    def stop_routing_proxy_service(self):
-        """this function is responsible for stopping the routing proxy service"""
-        try:
-            # TODO: add a pre termination call to shutdown workers and sockets before a
-            # termination to prevent hanging resources
-            if self.routing_proxy_service.is_alive():
-                self.routing_proxy_service.terminate()
-                self.routing_proxy_service.join()
-            else:
-                self.routing_proxy_service.join()
-            return 1
-        except Exception as e:
-            return -1
-
-    def start_integration_manager_service(self, FTSServiceStartupConfigObject: FTSObj) -> bool:
-        """Starts the integration manager service.
-
-        Returns:
-            bool: True if successful, False otherwise.
+        Args:
+            FTSServiceStartupConfigObject (FTSObj): _description_
         """
-        try:
+        super().configure()
+
+        def _configure_integration_manager(self, FTSServiceStartupConfigObject: FTSObj):
+            """define the configuration for the integration_manager class
+
+            Args:
+                FTSServiceStartupConfigObject (FTSObj): the general FTS configuration object
+            """
             self.configuration.set_value(
                 key="integration_manager_puller_protocol",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerProtocol,
@@ -794,35 +662,138 @@ class FTS:
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
                 section="IntegrationManager",
             )
-            # begin the integration_manager_service
-            self.integration_manager_service = ObjectFactory.get_instance("IntegrationManager")
-            proc = multiprocessing.Process(target=self.integration_manager_service.start)
-            proc.start()
 
-            return True
-        except Exception as ex:
-            return False
+        def _configure_subject(self, FTSServiceStartupConfigObject: FTSObj):
+            """define the configuration for the subject class
 
-    def stop_integration_manager_service(self) -> bool:
-        """Stops the integration manager service.
+            Args:
+                FTSServiceStartupConfigObject (FTSObj): the general FTS configuration object
+            """
+            self.configuration.set_value(
+                key="frontend_pull_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
+                section="Subject",
+            )
 
-        Returns:
-            bool: True if successful, False otherwise.
-        """
-        try:
-            if self.integration_manager_service.is_alive():
-                self.integration_manager_service.terminate()
-                self.integration_manager_service.join()
-            else:
-                self.routing_proxy_service.join()
-            return True
-        except Exception:
-            return False
+            self.configuration.set_value(
+                key="frontend_pub_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherPort}",
+                section="Subject",
+            )
+
+            self.configuration.set_value(
+                key="backend_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerPort}",
+                section="Subject",
+            )
+
+            self.configuration.set_value(
+                key="worker_count",
+                value=int(
+                    FTSServiceStartupConfigObject.RoutingProxyService.NumRoutingWorkers
+                ),
+                section="Subject",
+            )
+
+        def _configure_action_mapper(self, FTSServiceStartupConfigObject: FTSObj):
+            """define the configuration for the action mapper class
+
+            Args:
+                FTSServiceStartupConfigObject (FTSObj): the general FTS configuration object
+            """
+            self.configuration.set_value(
+                key="routing_publisher_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyPublisherPort}",
+                section="ActionMapper",
+            )
+
+            self.configuration.set_value(
+                key="routing_subscriber_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
+                section="ActionMapper",
+            )
+
+        def _configure_routing_worker(self, FTSServiceStartupConfigObject: FTSObj):
+            """define the configuration for the routing worker class
+
+            Args:
+                FTSServiceStartupConfigObject (FTSObj): the general FTS configuration object
+            """
+            self.configuration.set_value(
+                key="server_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerProtocol}://{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerIP}:{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxyRequestServerPort}",
+                section="RoutingWorker",
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_address",
+                value=f"{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerProtocol}://{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerAddress}:{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerPort}",
+                section="RoutingWorker",
+            )
+                
+        # define routing configuration
+
+        # define the configuration for the routing worker
+        _configure_routing_worker(self, FTSServiceStartupConfigObject)   
+
+        # define the configuration for the action mapper (the default action mapper is
+        # specified as utilization of this service implicitly assumes that the async
+        # action mapper is the default action mapper)
+        _configure_action_mapper(self, FTSServiceStartupConfigObject)
+
+        # define the configuration for the routing proxy service
+        _configure_subject(self, FTSServiceStartupConfigObject)
+
+        _configure_integration_manager(self, FTSServiceStartupConfigObject)
+
+    def register_components(self, FTSServiceStartupConfigObject: FTSObj):
+        """this method is responsible for registering all FTS components"""
+        super().register_components()
+
+        # define routing configuration
+        self.configuration.add_configuration(
+            str(
+                pathlib.PurePath(
+                    str(config.MainPath),
+                    "configuration",
+                    "routing",
+                    "action_mapping.ini",
+                )
+            ),
+        )
+        
+        # register the internal components
+        core_components = ComponentRegistrationHandler.discover_components(
+            component_folder_path=pathlib.PurePath(
+                FTSServiceStartupConfigObject.ComponentRegistration.core_components_path
+            ),
+        )
+
+        for core_component in core_components:
+            ComponentRegistrationHandler.register_component(
+                core_component,
+                FTSServiceStartupConfigObject.ComponentRegistration.core_components_import_root,
+                self.configuration,
+            )
+
+        # register the external components
+        external_components = ComponentRegistrationHandler.discover_components(
+            component_folder_path=pathlib.PurePath(
+                FTSServiceStartupConfigObject.ComponentRegistration.external_components_path
+            ),
+        )
+
+        for external_component in external_components:
+            ComponentRegistrationHandler.register_component(
+                external_component,
+                FTSServiceStartupConfigObject.ComponentRegistration.external_components_import_root,
+                self.configuration,
+            )
+
+        
             
     # change object name to FTSServiceStartupConfigObject
     def start_all(self, FTSServiceStartupConfigObject):
-        import copy
-
         try:
             if (
                 FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceStatus
@@ -1417,10 +1388,10 @@ class FTS:
                 StartupObject.SSLCoTService.SSLCoTServiceStatus = "start"
                 StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
+                self.configure(StartupObject)
                 self.start_rest_api_service(StartupObject)
                 self.register_components(StartupObject)
-                self.start_routing_proxy_service(StartupObject)
-                self.start_integration_manager_service(StartupObject)
+                self.start_services()
                 self.start_all(StartupObject)
 
             start_timer = time.time() - 60
