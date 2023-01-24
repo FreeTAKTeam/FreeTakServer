@@ -62,5 +62,5 @@ class EmergencySenderController(Controller):
         configuration = config_loader.find_configuration(EMERGENCY_ALERT)
         self.request.set_value("configuration", configuration)
         for emergency in model_objects:
-            self.emergency_general_controller.add_user_to_marti(emergency, user)
+            self.emergency_general_controller.add_user(emergency, user)
         self.response.set_value("model_object", model_objects)
