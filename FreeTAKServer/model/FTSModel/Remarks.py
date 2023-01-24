@@ -39,6 +39,20 @@ class Remarks(FTSProtocolObject):
         return remarks
 
     @staticmethod
+    def Presence(
+        TIME=vars.Presence().TIME,
+        SOURCE=vars.Presence().SOURCE,
+        SOURCEID=vars.Presence().SOURCEID,
+        INTAG=vars.Presence().INTAG,
+    ):
+        remarks = Remarks()
+        remarks.settime(time=TIME)
+        remarks.setsource(source=SOURCE)
+        remarks.setsourceID(SOURCEID)
+        remarks.setINTAG(INTAG)
+        return remarks
+
+    @staticmethod
     def drop_point(
         TIME=vars.drop_point().TIME,
         SOURCE=vars.drop_point().SOURCE,
@@ -59,6 +73,38 @@ class Remarks(FTSProtocolObject):
         SOURCEID=vars.geochat().SOURCEID,
         INTAG=vars.geochat().INTAG,
         TO=vars.geochat().TO,
+    ):
+        remarks = Remarks()
+        remarks.settime(time=TIME)
+        remarks.setsource(source=SOURCE)
+        remarks.setsourceID(SOURCEID)
+        remarks.setINTAG(INTAG)
+        remarks.setto(TO)
+        return remarks
+
+    @staticmethod
+    def emergency_on(
+        TIME=vars.emerygency_on().TIME,
+        SOURCE=vars.emerygency_on().SOURCE,
+        SOURCEID=vars.emerygency_on().SOURCEID,
+        INTAG=vars.emerygency_on().INTAG,
+        TO=vars.emerygency_on().TO,
+    ):
+        remarks = Remarks()
+        remarks.settime(time=TIME)
+        remarks.setsource(source=SOURCE)
+        remarks.setsourceID(SOURCEID)
+        remarks.setINTAG(INTAG)
+        remarks.setto(TO)
+        return remarks
+    
+    @staticmethod
+    def geo_object(
+        TIME=vars.geo_object().TIME,
+        SOURCE=vars.geo_object().SOURCE,
+        SOURCEID=vars.geo_object().SOURCEID,
+        INTAG=vars.geo_object().INTAG,
+        TO=vars.geo_object().TO,
     ):
         remarks = Remarks()
         remarks.settime(time=TIME)

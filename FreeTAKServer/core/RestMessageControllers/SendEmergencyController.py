@@ -36,6 +36,7 @@ class SendEmergencyController:
             object.settype(RestEnumerations.emergencyTypes[json.getemergencyType()])
             object.detail.contact.setcallsign(json.getname())
             object.detail.emergency.settype(json.getemergencyType())
+            object.detail.remarks.setINTAG(json.getremarks())
             if json.getaddress():
                 locator = Nominatim(user_agent=str(uuid.uuid4()))
                 location = locator.geocode(json.getaddress())

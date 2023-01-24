@@ -17,8 +17,8 @@ class JsonController:
         """
         :arg json: the json to be serialized to an emergency
         """
-        object = EmergencyPost()
-        return self.serialize_json_to_object(object, json)
+        obj = EmergencyPost()
+        return self.serialize_json_to_object(obj, json)
 
     def serialize_emergency_delete(self, json):
         object = EmergencyDelete()
@@ -56,15 +56,10 @@ class JsonController:
         object = VideoStreamDelete()
         return self.serialize_json_to_object(object, json)
 
-    def serialize_json_to_object(self, object, json):
+    def serialize_json_to_object(self, obj, json):
         for key in json.keys():
-            s = dir(object)
-            if key in dir(object):
-
-                setter = getattr(object, 'set'+str(key))
+            if key in dir(obj):
+                setter = getattr(obj, 'set'+str(key))
                 setter(json[key])
 
-            else:
-                pass
-
-        return object
+        return obj
