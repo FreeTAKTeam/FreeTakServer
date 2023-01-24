@@ -83,7 +83,7 @@ class SSLCoTServiceMain(DigitalPyService):
         # Contains info on clients
         self.client_information_queue = {}
         self.clientDataPipe: Queue
-        self.connections:Dict[str, SSLCoTConnection] = {} # meant to eventually obsolete the client information queue
+        self.connections: dict[str, SSLCoTConnection] = {} # meant to eventually obsolete the client information queue
 
         # instantiate controllers
         self.ActiveThreadsController = ActiveThreadsController()
