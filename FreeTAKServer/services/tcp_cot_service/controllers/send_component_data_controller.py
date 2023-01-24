@@ -1,3 +1,5 @@
+from typing import Dict
+
 from FreeTAKServer.services.tcp_cot_service.model.tcp_cot_connection import TCPCoTConnection
 from ..configuration.tcp_cot_service_constants import MessageTypes
 
@@ -27,7 +29,7 @@ class SendComponentDataController(Controller):
         else:
             return MessageTypes.SEND_TO_SOME
     
-    def send_message_to_some(self, connections: dict[str, TCPCoTConnection], message: bytes):
+    def send_message_to_some(self, connections:Dict[str, TCPCoTConnection], message: bytes):
         """send a given message to some connections based on value of recipients
 
         Args:
@@ -41,7 +43,7 @@ class SendComponentDataController(Controller):
             if oid != None:
                 connection.sock.send(message)
 
-    def send_message_to_all(self, connections: dict[str, TCPCoTConnection], message: bytes):
+    def send_message_to_all(self, connections:Dict[str, TCPCoTConnection], message: bytes):
         """send a message to all connections
 
         Args:

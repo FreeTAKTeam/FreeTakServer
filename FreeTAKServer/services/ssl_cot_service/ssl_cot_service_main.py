@@ -8,7 +8,7 @@ import multiprocessing
 import importlib
 import socket
 from opentelemetry.trace import Status, StatusCode
-from typing import List, Union
+from typing import List, Union, Dict
 from FreeTAKServer.services.ssl_cot_service.controllers.send_component_data_controller import SendComponentDataController
 from FreeTAKServer.services.ssl_cot_service.model.ssl_cot_connection import SSLCoTConnection
 
@@ -83,7 +83,7 @@ class SSLCoTServiceMain(DigitalPyService):
         # Contains info on clients
         self.client_information_queue = {}
         self.clientDataPipe: Queue
-        self.connections: dict[str, SSLCoTConnection] = {} # meant to eventually obsolete the client information queue
+        self.connections:Dict[str, SSLCoTConnection] = {} # meant to eventually obsolete the client information queue
 
         # instantiate controllers
         self.ActiveThreadsController = ActiveThreadsController()

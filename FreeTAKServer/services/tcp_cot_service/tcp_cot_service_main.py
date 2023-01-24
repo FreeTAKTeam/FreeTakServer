@@ -8,7 +8,7 @@ import multiprocessing
 import importlib
 import socket
 from opentelemetry.trace import Status, StatusCode
-from typing import List, Union
+from typing import List, Union, Dict
 from FreeTAKServer.services.tcp_cot_service.controllers.send_component_data_controller import SendComponentDataController
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
@@ -86,7 +86,7 @@ class TCPCoTServiceMain(DigitalPyService):
         # Contains info on clients
         self.client_information_queue = {}
         self.clientDataPipe: Queue
-        self.connections: dict[str, TCPCoTConnection] = {} # meant to eventually obsolete the client information queue
+        self.connections:Dict[str, TCPCoTConnection] = {} # meant to eventually obsolete the client information queue
 
         # instantiate controllers
         self.ActiveThreadsController = ActiveThreadsController()
