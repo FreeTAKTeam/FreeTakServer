@@ -35,7 +35,7 @@ class TCPCoTConnection(Connection):
 
     # defined to avoid pickling the socket
     def __getstate__(self):
-        state = super().__getstate__()
+        state = self.__dict__
         state_cp = copy.copy(state)
         state_cp["_sock"] = None
         return state_cp
