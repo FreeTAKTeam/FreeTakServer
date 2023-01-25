@@ -188,14 +188,12 @@ class FTS(DigitalPy):
                 section="TCPCoTService"
             )
 
-            # TODO: replace placeholder values with real implementation values
             self.configuration.set_value(
                 key="integration_manager_address",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
                 section="TCPCoTService"
             )
 
-             # TODO: replace placeholder values with real implementation values
             self.configuration.set_value(
                 key="integration_manager_port",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
@@ -425,14 +423,12 @@ class FTS(DigitalPy):
                 section="SSLCoTService"
             )
 
-            # TODO: replace placeholder values with real implementation values
             self.configuration.set_value(
                 key="integration_manager_address",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
                 section="SSLCoTService"
             )
 
-             # TODO: replace placeholder values with real implementation values
             self.configuration.set_value(
                 key="integration_manager_port",
                 value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
