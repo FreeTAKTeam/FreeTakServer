@@ -15,7 +15,7 @@ class SendComponentDataController(Controller):
             self.send_message_to_all(connections, message)
         
         elif message_type == MessageTypes.SEND_TO_SOME:
-            self.send_message_to_some(connections, message)
+            self.send_message_to_some(connections, message, recipients)
 
     def determine_message_type(self, recipients) -> MessageTypes:
         """determine whether the message is to be sent to all or only
@@ -29,18 +29,17 @@ class SendComponentDataController(Controller):
         else:
             return MessageTypes.SEND_TO_SOME
     
-    def send_message_to_some(self, connections:Dict[str, SSLCoTConnection], message: bytes):
+    def send_message_to_some(self, connections:Dict[str, SSLCoTConnection], message: bytes, recipients):
         """send a given message to some connections based on value of recipients
 
         Args:
             connections (dict[str, SSLCoTConnection]): a dictionary of connections indexed by their OIDs
             message (bytes): the message to be sent to some clients
         """
-        recipient_oids = self.request.get_value("recipients")
         
-        for oid in recipient_oids:
+        for oid in recipients:
             connection = connections.get(oid)
-            if oid != None:
+            if connection != None:
                 connection.sock.send(message)
 
     def send_message_to_all(self, connections:Dict[str, SSLCoTConnection], message: bytes):
