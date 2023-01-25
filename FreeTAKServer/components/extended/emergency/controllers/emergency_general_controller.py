@@ -50,7 +50,7 @@ class EmergencyGeneralController(Controller):
         sub_response = self.execute_sub_action("GetAllConnections")
         return sub_response.get_value("connections")
 
-    def convert_type(self, model_object)->None:
+    def convert_type(self, model_object, **kwargs)->None:
         """convert the model_object type from machine readable to human readable"""
         self.request.set_value("human_readable_type", model_object.type)
         response = self.execute_sub_action("ConvertHumanReadableToMachineReadable")
