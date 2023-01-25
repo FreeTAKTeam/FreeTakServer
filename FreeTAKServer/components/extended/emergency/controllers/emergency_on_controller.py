@@ -109,7 +109,6 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
             self.emergency_general_controller.initialize(self.request, self.response)
             self.emergency_general_controller.filter_by_distance(response.get_value("model_object"))
-            self.emergency_general_controller.convert_type(self.response.get_value('message'))
 
             # validate the users in the recipients list
             response = self.execute_sub_action("ValidateUsers")
