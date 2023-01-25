@@ -409,7 +409,7 @@ class SSLCoTServiceMain(DigitalPyService):
             request = ObjectFactory.get_new_instance("request")
             request.set_action("SendEmergenciesToClient")
             request.set_sender(self.__class__.__name__.lower())
-            request.set_value("user", clientInformation.modelObject)
+            request.set_value("user", connection)
 
             request.set_format("pickled")
             self.subject_send_request(request, APPLICATION_PROTOCOL)
