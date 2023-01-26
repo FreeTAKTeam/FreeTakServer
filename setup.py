@@ -45,7 +45,7 @@ setup(
         "MarkupSafe==2.0.1",
         "monotonic==1.6",
         "pathlib2==2.3.7.post1",
-        "protobuf==3.14.0",
+        "protobuf==3.18.3",
         "psutil==5.9.0",
         "pykml==0.2.0",
         "python-engineio==3.13.2",

@@ -17,6 +17,7 @@ import zipfile
 import shutil
 import pathlib
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
+from werkzeug.utils import secure_filename
 
 try:
     import requests
@@ -259,7 +260,7 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
            </Contents>
         </MissionPackageManifest>
         """)
-    username = user_filename[:-4]
+    username = secure_filename(user_filename[:-4])
     random_id = uuid.uuid4()
     new_uid = uuid.uuid4()
     folder = "5c2bfcae3d98c9f4d262172df99ebac5"

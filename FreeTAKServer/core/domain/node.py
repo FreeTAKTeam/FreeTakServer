@@ -267,7 +267,7 @@ class Node(DefaultPersistentObject):
         type: Any = None,
         values: Any = None,
         properties: Any = None,
-        use_reg_exp: Any = True,
+        use_regex: Any = True,
     ):
         """Get the first super() that matches given conditions.
            @param role The role that the super() should match (optional, default:
@@ -449,6 +449,7 @@ class Node(DefaultPersistentObject):
         return True
 
     def filter(
+        self,
         node_list: list,
         oid: ObjectId = None,
         node_type: Any = None,

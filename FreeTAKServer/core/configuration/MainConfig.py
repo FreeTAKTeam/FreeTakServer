@@ -12,7 +12,8 @@ FTS_VERSION = "FreeTAKServer-2.0.1 Alpha"
 API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
-USERPATH = "/usr/local/lib/"
+ROOTPATH = "/"
+USERPATH = rf"{ROOTPATH}usr/local/lib/"
 MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
 
 
@@ -209,7 +210,7 @@ class MainConfig:
         "FTS_CRLDIR": "CRLFile",
         "FTS_CONNECTION_MESSAGE": "ConnectionMessage",
         "FTS_DATABASE_TYPE": "DataBaseType",
-        "FTS_CLIENT_PACKAGES": "ClientPackages",
+        "FTS_CLIENT_PACKAGES_PATH": "ClientPackages",
         "FTS_NUM_ROUTING_WORKERS": "NumRoutingWorkers",
         "FTS_ROUTING_PROXY_SUBSCRIBE_PORT": "RoutingProxySubscriberPort",
         "FTS_ROUTING_PROXY_SUBSCRIBE_IP": "RoutingProxySubscriberIP",
@@ -287,7 +288,7 @@ class MainConfig:
             "FTS_EXCHECK_CHECKLIST_PATH": "ExCheckChecklistFilePath",
             "FTS_DATAPACKAGE_PATH": "DataPackageFilePath",
             "FTS_LOGFILE_PATH": "LogFilePath",
-            "FTS_CLIENT_PACKAGES": "ClientPackages",
+            "FTS_CLIENT_PACKAGES_PATH": "ClientPackages",
             "FTS_CORE_COMPONENTS_PATH": "CoreComponentsPath",
             "FTS_CORE_COMPONENTS_IMPORT_ROOT": "CoreComponentsImportRoot",
             "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
@@ -388,8 +389,20 @@ class MainConfig:
             if sect in yamlConfig:
                 for attr, var_name in MainConfig._yaml_keys[sect].items():
                     if yamlConfig[sect] is not None and attr in yamlConfig[sect]:
+                        value = yamlConfig[sect][attr]
+                        if attr.endswith(('PATH', 'DIR')):
+                            value = self.validate_and_sanitize_path(value)
                         # found a setting we can update the config
-                        self.set(var_name, value=yamlConfig[sect][attr])
+                        self.set(var_name, value=value)
+
+    def validate_and_sanitize_path(self, path):
+        # sanitize and validate any path specified in config
+        sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
+
+        if not os.access(sanitized_path, os.F_OK) or not os.access(sanitized_path, os.W_OK):
+            raise ValueError
+
+        return sanitized_path
 
     # import_env_config() will inspect the current environment and detect
     # configuration values. Detected values will then be applied to the
