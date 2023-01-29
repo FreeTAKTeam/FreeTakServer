@@ -36,13 +36,26 @@ def add_to_config(path: List[str], data: str, source: dict):
             source[entry] = {}
             source = source[entry]
 
+def get_yaml_config(yaml_path):
+    # if the path doesnt exist create a new file
+    if not os.path.exists(yaml_path):
+        open(yaml_path, 'w+').close()
+        return {}
+    # otherwise load the existing file
+    else:
+        with open(yaml_path, "r+") as fp:
+            return yaml.load(fp)
+    
+
 def ask_user_for_config():
     use_yaml = get_user_input(question="would you like to use a yaml config file, \n if yes you will be prompted for further configuration options", default="yes")
     if use_yaml != "yes":
         return
 
     yaml_path = get_user_input(question="where would you like to save the yaml config", default=config.yaml_path)
-    yaml_config = yaml.load(config.yaml_path)
+    
+    yaml_config = get_yaml_config(yaml_path)
+
     ip = get_user_input(question="enter ip", default=config.UserConnectionIP)
     add_to_config(data=ip, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
     add_to_config(data=ip, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
