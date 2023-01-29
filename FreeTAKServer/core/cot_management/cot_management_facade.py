@@ -79,3 +79,12 @@ class CotManagement(DefaultFacade):
 
     def connection(self, *args, **kwargs):
         self.repeater_controller.connected_user(*args, **kwargs)
+
+    def get_repeated_messages(self, *args, **kwargs):
+        self.repeater_controller.get_repeated_messages(*args, **kwargs)
+
+    def create_repeated_message(self, *args, **kwargs):
+        self.repeater_controller.create_repeated_messages(*args, **kwargs)
+
+    def delete_repeated_message(self, *args, **kwargs):
+        self.repeater_controller.delete_repeated_message(*args, **kwargs)

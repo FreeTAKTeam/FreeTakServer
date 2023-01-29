@@ -58,7 +58,7 @@ class CotManagementRepeaterController(Controller):
         nodes = []
 
         # convert the list to a dictionary
-        for node in messages.values:
+        for node in messages.values():
             nodes.append(node)
 
         # set the response value of the messages
@@ -68,14 +68,14 @@ class CotManagementRepeaterController(Controller):
         """add a message to be repeated
 
         Args:
-            message (List[Node]): a list of or a single node to be added to repeated messages
+            message (List[Node]): a list of nodes to be added to repeated messages
         """
         cur_messages = self.persistency_controller._load_repeated_messages()
         if isinstance(message, list):
             for node in message:
-                cur_messages[str(node.get_id())] = node
+                cur_messages[str(node.get_oid())] = node
         else:
-            cur_messages[str(node.get_id())]
+            cur_messages[str(node.get_oid())]
         self.persistency_controller._save_repeated_messages(cur_messages)
         self.response.set_value("success", True)
 
@@ -83,7 +83,7 @@ class CotManagementRepeaterController(Controller):
         """delete a repeated message
 
         Args:
-            ids (Union[List[str], str]): a list of or a single object id of a repeated message to be deleted
+            ids (List[str]): a list of object ids of repeated messages to be deleted
         """
         cur_messages = self.persistency_controller._load_repeated_messages()
         for id in ids:
