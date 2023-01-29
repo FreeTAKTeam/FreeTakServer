@@ -10,6 +10,8 @@ from digitalpy.core.digipy_configuration.configuration import Configuration
 from ..configuration.cot_management_constants import PERSISTENCE_PATH
 
 class CotManagementRepeaterPersistence(Controller):
+    """this class is responsible for persisting repeated messages
+    """
     def __init__(self,
         request: Request,
         response: Response,
@@ -37,7 +39,11 @@ class CotManagementRepeaterPersistence(Controller):
             with open(PERSISTENCE_PATH, "rb+") as f:
                 try:
                     return pickle.load(f)
+                # handle the case where the persistence file is empty in which case we simply return an empty dict and save it to the file
                 except EOFError:
+                    self._save_repeated_messages({})
                     return {}
         except FileNotFoundError:
+            # handle the case where the persistence file doesnt exist in which case we simply return an empty dict and save it to the file
             self._save_repeated_messages({})
+            return {}

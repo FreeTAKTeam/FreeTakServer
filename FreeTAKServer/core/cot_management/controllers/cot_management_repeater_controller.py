@@ -11,6 +11,8 @@ from typing import List, Union
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence import CotManagementRepeaterPersistence
 
 class CotManagementRepeaterController(Controller):
+    """this class is responsible for handling the business logic regarding the repeated messages
+    """
     def __init__(
         self,
         request: Request,
@@ -70,13 +72,15 @@ class CotManagementRepeaterController(Controller):
         Args:
             message (List[Node]): a list of nodes to be added to repeated messages
         """
+        # load existing repeated messages
         cur_messages = self.persistency_controller._load_repeated_messages()
-        if isinstance(message, list):
-            for node in message:
-                cur_messages[str(node.get_oid())] = node
-        else:
-            cur_messages[str(node.get_oid())]
+        # iterate the passed list of nodes and add each one to the dict of current messages with the oid as the
+        # key and the object as the value
+        for node in message:
+            cur_messages[str(node.get_oid())] = node
+        # save the updated dict of current messages
         self.persistency_controller._save_repeated_messages(cur_messages)
+        # return that the operation was successful
         self.response.set_value("success", True)
 
     def delete_repeated_message(self, ids: List[str], **kwargs):
@@ -85,8 +89,15 @@ class CotManagementRepeaterController(Controller):
         Args:
             ids (List[str]): a list of object ids of repeated messages to be deleted
         """
+        # load existing repeated messages
         cur_messages = self.persistency_controller._load_repeated_messages()
+        
+        # iterate through passed ids and remove each one from the current repeated messages
         for id in ids:
             del cur_messages[id]
+
+        # save the repeated messages with passed id's deleted
         self.persistency_controller._save_repeated_messages(cur_messages)
+
+        # return that the operation was successful
         self.response.set_value("success", True)
