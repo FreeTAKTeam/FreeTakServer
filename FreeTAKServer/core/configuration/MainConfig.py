@@ -399,7 +399,7 @@ class MainConfig:
         # sanitize and validate any path specified in config
         sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
 
-        if not os.access(sanitized_path, os.F_OK) or not os.access(sanitized_path, os.W_OK):
+        if not os.access(sanitized_path, os.F_OK) or not os.access(sanitized_path, os.W_OK) or not os.path.exists(sanitized_path):
             raise ValueError
 
         return sanitized_path
