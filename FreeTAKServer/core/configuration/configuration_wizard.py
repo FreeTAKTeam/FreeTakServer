@@ -3,6 +3,7 @@ from typing import List
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from ruamel.yaml import YAML
+from pathlib import Path
 yaml = YAML()
 
 # TODO  This code may have problems with the rewrite of MainConfig
@@ -109,10 +110,31 @@ def ask_user_for_config():
 def valid_and_safe_path(path):
     """Method that sanitized path and determines if it exists and writable
     """
-    sanitized_path = os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
-
-    return os.access(sanitized_path, os.F_OK) and os.access(sanitized_path, os.W_OK)
-
+    # Check if the input is a string
+    if not isinstance(path, str):
+        raise ValueError("Input must be a string")
+    
+    # Check if the input is an absolute path
+    path = Path(path).resolve()
+    if not path.is_absolute():
+        raise ValueError("Input must be an absolute path")
+    sanitized_path = path.relative_to(path.parent)
+    sanitized_parent = path.parent.relative_to(path.parent)
+    return (
+        (
+            sanitized_path.exists()
+            and os.access(sanitized_path, os.F_OK)
+            and os.access(sanitized_path, os.W_OK)
+            and os.access(sanitized_path, os.R_OK)
+        ) or
+        (
+            not sanitized_path.exists()
+            and sanitized_parent.exists()
+            and os.access(sanitized_parent, os.F_OK)
+            and os.access(sanitized_parent, os.W_OK)
+            and os.access(sanitized_parent, os.R_OK)
+        )
+    )
 
 default_yaml_file = f"""
 System:
