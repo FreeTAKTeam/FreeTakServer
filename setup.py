@@ -66,6 +66,7 @@ setup(
         "pyzmq",
         "digitalpy>=0.2.7",
         "opentelemetry-sdk",
+        "flask_classy"
     ],
     extras_require={
         "ui": ["FreeTAKServer_UI"],
