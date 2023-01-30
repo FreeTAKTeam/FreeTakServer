@@ -94,7 +94,8 @@ class CotManagementRepeaterController(Controller):
         
         # iterate through passed ids and remove each one from the current repeated messages
         for id in ids:
-            del cur_messages[id]
+            if id in cur_messages:
+                del cur_messages[id]
 
         # save the repeated messages with passed id's deleted
         self.persistency_controller._save_repeated_messages(cur_messages)
