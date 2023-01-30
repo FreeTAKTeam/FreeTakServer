@@ -1,5 +1,5 @@
-SERVICE_NAME = 'tcp_cot_service'
-XML = 'XML'
+SERVICE_NAME = 'ssl_cot_service'
+XML = "XML"
 DATA_RECEPTION_BUFFER_SIZE = 1024
 
 class MessageTypes(enumerate):

@@ -6,7 +6,8 @@
     "rules": {
         "type == 'EmergencyCancelled'": {
             "actions": [
-                "DeleteEmergency"
+                "DeleteEmergency",
+                "ConvertType"
             ]
         }
     }
