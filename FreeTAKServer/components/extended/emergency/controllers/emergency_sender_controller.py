@@ -61,6 +61,15 @@ class EmergencySenderController(Controller):
         model_objects = list(emergencies)
         configuration = config_loader.find_configuration(EMERGENCY_ALERT)
         self.request.set_value("configuration", configuration)
-        for emergency in model_objects:
-            self.emergency_general_controller.add_user_to_marti(emergency, user)
-        self.response.set_value("model_object", model_objects)
+        
+        self.response.set_value("message", model_objects)
+        # Serializer called by service manager requires the message value
+        self.request.set_value("message", model_objects)
+
+        self.response.set_value('recipients', [str(user.get_oid())])
+        response = self.execute_sub_action("ValidateUsers")
+        
+        for emergency in self.response.get_value('message'):
+            self.emergency_general_controller.convert_type(emergency)
+        
+        self.response.set_action('publish')

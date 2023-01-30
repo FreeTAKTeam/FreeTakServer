@@ -66,8 +66,8 @@ class XmlSerializer(SerializerAbstract):
         if hasattr(modelObject, "text"):
             xml.text = modelObject.text
 
-        for attribName in modelObject.get_all_properties():
-            # below line is required because get_all_properties function returns only cot property names
+        for attribName in modelObject.get_properties():
+            # below line is required because get_properties function returns only cot property names
             value = getattr(modelObject, attribName)
             if hasattr(value, "__dict__"):
                 tagElement = self.serialize_model_to_CoT(
@@ -241,7 +241,7 @@ class XmlSerializer(SerializerAbstract):
         return self._fts_object_attrib_to_xml_attrib(FTSObject, root)
 
     def _fts_object_nested_to_xml_tags(self, FTSObject, root):
-        for property_name in FTSObject.get_all_properties():
+        for property_name in FTSObject.get_properties():
             value = getattr(FTSObject, property_name)
             if issubclass(type(value), FTSProtocolObject):
                 updatedValue = self.from_fts_object_to_format(
@@ -337,7 +337,7 @@ class XmlSerializer(SerializerAbstract):
         xmlobj = Element(name)
 
         # iterate variables and create attributes
-        for property_name in FTSObject.get_all_properties():
+        for property_name in FTSObject.get_properties():
             value = getattr(FTSObject, property_name)
             if (
                 "_" + FTSObject.__class__.__name__.lower() + "__"

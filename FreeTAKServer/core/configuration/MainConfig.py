@@ -8,7 +8,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-1.9.10.8 Public"
+FTS_VERSION = "FreeTAKServer-2.0.5 Alpha"
 API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
@@ -399,7 +399,7 @@ class MainConfig:
         # sanitize and validate any path specified in config
         sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
 
-        if not os.access(sanitized_path, os.F_OK) or not os.access(sanitized_path, os.W_OK):
+        if (not os.access(sanitized_path, os.F_OK) or not os.access(sanitized_path, os.W_OK)) and os.path.exists(sanitized_path):
             raise ValueError
 
         return sanitized_path
