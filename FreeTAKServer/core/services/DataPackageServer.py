@@ -22,8 +22,9 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
 
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, escape
 from flask.logging import default_handler
+from werkzeug.utils import secure_filename
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
@@ -176,16 +177,12 @@ def clientEndPoint():
 def upload():
     from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
     logger.info('datapackage upload started')
-    file_hash = request.args.get('hash')
-    if not sanitize_path_input(file_hash):
-        return "invalid hash sent", 500
+    file_hash = sanitize_hash(request.args.get('hash'))
     app.logger.info(f"Data Package hash = {str(file_hash)}")
     letters = string.ascii_letters
     uid = ''.join(random.choice(letters) for i in range(4))
     uid = 'uid-' + str(uid)
-    filename = request.args.get('filename')
-    if not sanitize_path_input(filename):
-        return "invalid hash sent", 500
+    filename = secure_filename(request.args.get('filename'))
     creatorUid = request.args.get('creatorUid')
     file = request.files.getlist('assetfile')[0]
     directory = Path(dp_directory, file_hash)
@@ -207,19 +204,18 @@ def upload():
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
+    file_hash = sanitize_hash(hash)
     if request.data == b'private':
-        dbController.update_datapackage(query=f'Hash = "{hash}"', column_value={"Privacy": 1})
+        dbController.update_datapackage(query=f'Hash = "{file_hash}"', column_value={"Privacy": 1})
     return "Okay", 200
 
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.GET])
 @cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
-    from flask import make_response
-    if not sanitize_path_input(hash):
-        return "invalid hash sent", 500
-    file_list = os.listdir(os.path.join(Path(str(dp_directory)), Path(str(hash))))
-    path = PurePath(dp_directory, str(hash), file_list[0])
+    file_hash = sanitize_hash(hash)
+    file_list = os.listdir(os.path.join(Path(str(dp_directory)), Path(str(file_hash))))
+    path = PurePath(dp_directory, str(file_hash), file_list[0])
     app.logger.info(f"Sending data package from {str(path)}")
     resp = send_file(str(path))
     return resp
@@ -261,18 +257,18 @@ def specificPackage():
             except Exception as e:
                 logger.error(str(e))
     else:
-        hash = request.args.get('hash')
-        import hashlib
-        if os.path.exists(str(PurePath(Path(dp_directory), Path(hash)))):
+        file_hash = sanitize_hash(request.args.get('hash'))
+
+        if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
             logger.info('marti sync content triggerd')
-            app.logger.debug(str(PurePath(Path(dp_directory), Path(hash))))
-            file_list = os.listdir(str(PurePath(Path(dp_directory), Path(hash))))
-            app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(hash), Path(file_list[0])))
-            path = PurePath(dp_directory, str(hash), file_list[0])
+            app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
+            file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
+            app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
+            path = PurePath(dp_directory, str(file_hash), file_list[0])
             app.logger.debug(str(path))
             return send_file(str(path))
         else:
-            obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{hash}"')
+            obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{file_hash}"')
             data = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(obj[0].data.filename))))
             data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find(
                 'checklistTasks').find("checklistTask").find("checklistUid").text
@@ -289,15 +285,16 @@ def returnVersion():
 @app.route('/Marti/sync/missionquery', methods=const.HTTPMETHODS)
 def checkPresent():
     logger.info('synce missionquery triggered')
-    hash = request.args.get('hash')
-    if FlaskFunctions().hashIsPresent(hash, dbController):
-        app.logger.info(f"Data package with hash {hash} exists")
+    file_hash = sanitize_hash(request.args.get('hash'))
+
+    if FlaskFunctions().hashIsPresent(file_hash, dbController):
+        app.logger.info(f"Data package with hash {file_hash} exists")
         if USINGSSL == False:
-            return "http://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + hash + "/tool"
+            return "http://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
         else:
-            return "https://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + hash + "/tool"
+            return "https://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
     else:
-        app.logger.info(f"Data package with hash {hash} does not exist")
+        app.logger.info(f"Data package with hash {file_hash} does not exist")
         return '404', 404
 
 
@@ -394,6 +391,9 @@ def sanitize_path_input(user_input: str) -> bool:
     #    return True
     #else:
     #    return False
+
+def sanitize_hash(hash: str) -> str:
+    return escape(hash)
 
 def allowed_file(filename):
     return '.' in filename and \
