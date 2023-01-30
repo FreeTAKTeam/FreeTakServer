@@ -7,27 +7,32 @@
         "type == 'EmergencyAlert'": {
             "actions": [
                 "AddCallPoliceRemark",
-                "SaveEmergency"
+                "SaveEmergency",
+                "ConvertType"
             ]
         },
         "type == 'EmergencyInContact'": {
             "actions": [
-                "SaveEmergency"
+                "SaveEmergency",
+                "ConvertType"
             ]
         },
         "type == 'EmergencyRingTheBell'": {
             "actions": [
-                "SaveEmergency"
+                "SaveEmergency",
+                "ConvertType"
             ]
         },
         "type == 'EmergencyGeoFenceBreached'": {
             "actions": [
-                "SaveEmergency"
+                "SaveEmergency",
+                "ConvertType"
             ]
         },
         "type == 'EmergencyCancelled'": {
             "actions": [
-                "SaveEmergency"
+                "SaveEmergency",
+                "ConvertType"
             ]
         }
     }

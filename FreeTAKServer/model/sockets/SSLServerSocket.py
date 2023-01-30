@@ -13,3 +13,4 @@ class SSLServerSocket(MainSocket):
         self.testPemDir = config.testPem
         self.password = config.password
         self.CA = config.CA
+        self.CRLFile = config.CRLFile

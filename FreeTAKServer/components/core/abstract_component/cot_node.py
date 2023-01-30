@@ -9,7 +9,7 @@ class CoTNode(Node, FTSProtocolObject):
         self.text = ""
         super().__init__(node_type, configuration, model)
 
-    def get_all_properties(self):
+    def get_properties(self):
         methods = inspect.getmembers(self.__class__)
         return [
             m[0]

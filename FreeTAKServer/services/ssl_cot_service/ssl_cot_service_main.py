@@ -9,7 +9,8 @@ import importlib
 import socket
 from opentelemetry.trace import Status, StatusCode
 from typing import List, Union, Dict
-from FreeTAKServer.services.tcp_cot_service.controllers.send_component_data_controller import SendComponentDataController
+from FreeTAKServer.services.ssl_cot_service.controllers.send_component_data_controller import SendComponentDataController
+from FreeTAKServer.services.ssl_cot_service.model.ssl_cot_connection import SSLCoTConnection
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.domain.node import Node
@@ -18,7 +19,7 @@ from digitalpy.core.telemetry.tracer import Tracer
 from digitalpy.core.parsing.formatter import Formatter
 
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
-from .controllers.TCPSocketController import TCPSocketController
+from .controllers.SSLSocketController import SSLSocketController
 from FreeTAKServer.core.util.geo_manager_controller import GeoManagerController
 from FreeTAKServer.core.connection.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.core.connection.ClientInformationController import (
@@ -45,32 +46,28 @@ from FreeTAKServer.core.configuration.OrchestratorConstants import (
 )
 from FreeTAKServer.model.FTSModel.Event import Event
 from FreeTAKServer.model.SpecificCoT.Presence import Presence
-from FreeTAKServer.model.TCPConnection import TCPConnection
+from FreeTAKServer.model.SSLConnection import SSLConnection
 from FreeTAKServer.model.User import User
 from FreeTAKServer.model.ClientInformation import ClientInformation
 
-from .configuration.tcp_cot_service_constants import SERVICE_NAME
-from .model.tcp_cot_connection import TCPCoTConnection
-
+from .configuration.ssl_cot_service_constants import SERVICE_NAME
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
-loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
+loggingConstants = LoggingConstants(log_name="FTS-SSL_CoT_Service")
 logger = CreateLoggerController(
-    "FTS-TCP_CoT_Service", logging_constants=loggingConstants
+    "FTS-SSL_CoT_Service", logging_constants=loggingConstants
 ).getLogger()
 
 from .controllers.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
+# TODO: the application protocol should be COT not SSL COT
 APPLICATION_PROTOCOL = "XML"
 # MAJOR TODO: Make explicit exception classes!!!
 
-
-class TCPCoTServiceMain(DigitalPyService):
-    """this service is responsible for handling the CoT listener for XML"""
-
-    # TODO: prevent repeat add user
+class SSLCoTServiceMain(DigitalPyService):
+     # TODO: fix repeat attempts to add user
     def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
         super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
         self.logger = logger
@@ -86,7 +83,7 @@ class TCPCoTServiceMain(DigitalPyService):
         # Contains info on clients
         self.client_information_queue = {}
         self.clientDataPipe: Queue
-        self.connections:Dict[str, TCPCoTConnection] = {} # meant to eventually obsolete the client information queue
+        self.connections: dict[str, SSLCoTConnection] = {} # meant to eventually obsolete the client information queue
 
         # instantiate controllers
         self.ActiveThreadsController = ActiveThreadsController()
@@ -97,66 +94,9 @@ class TCPCoTServiceMain(DigitalPyService):
         self.dbController: DatabaseController
         self.send_component_data_controller = SendComponentDataController
 
-    def start(
-        self,
-        IP,
-        CoTPort,
-        Event,
-        clientDataPipe,
-        ReceiveConnectionKillSwitch,
-        RestAPIPipe,
-        clientDataRecvPipe,
-        factory,
-        tracing_provider_instance
-    ):
-        try:
-            # configure the object factory with the passed factory instance
-            ObjectFactory.configure(factory)
-
-            # instantiate the tracer instance for this service
-            self.tracer: Tracer = tracing_provider_instance.create_tracer(
-                SERVICE_NAME
-            )
-            
-            actionmapper = ObjectFactory.get_instance("actionMapper")
-            # subscribe to responses originating from this controller
-            actionmapper.add_topic(
-                f"/routing/response/{self.__class__.__name__.lower()}"
-            )
-
-            self.dbController = DatabaseController()
-            # self.clear_user_table()
-            os.chdir("../../../")
-            # create socket controller
-            self.TCPSocketController = TCPSocketController()
-            self.TCPSocketController.changeIP(IP)
-            self.TCPSocketController.changePort(CoTPort)
-            sock = self.TCPSocketController.createSocket()
-            pool = ThreadPool(processes=2)
-            self.pool = pool
-            self.clientDataRecvPipe = clientDataRecvPipe
-            clientData = pool.apply_async(
-                ClientReceptionHandler().startup, (self.client_information_queue,)
-            )
-            self.initialize_connections(APPLICATION_PROTOCOL)
-            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-            # instantiate domain model and save process as object
-            self.mainRunFunction(
-                clientData,
-                receiveConnection,
-                sock,
-                pool,
-                Event,
-                clientDataPipe,
-                ReceiveConnectionKillSwitch,
-                RestAPIPipe,
-            )
-        except Exception as ex:
-            return ex
-        
     @property
     def connection_type(self):
-        return ConnectionTypes.TCP    
+        return ConnectionTypes.SSL
 
     def remove_service_user(self, clientInformation: ClientInformation):
         """Generates the presence object from the
@@ -234,10 +174,9 @@ class TCPCoTServiceMain(DigitalPyService):
 
     def add_service_user(self, clientInformation: ClientInformation):
         """this method generates the presence and connection objects from the
-        clientInformation parameter and sends it to
+        clientInformation parameter and sends it to the clientDataPipe for processing
 
         :param clientInformation: this is the information of the client to be added
-        :return:
         """
         try:
             # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
@@ -247,10 +186,12 @@ class TCPCoTServiceMain(DigitalPyService):
 
                 # TODO why is this not xmlString?
                 presence_object.setXmlString(clientInformation.idData)
-                # Is this duplicate of modelObject?
+                # is this duplicate of modelobject ?
                 presence_object.setClientInformation(clientInformation.modelObject)
 
-                connection_object = TCPConnection()
+                connection_object = SSLConnection()
+                # TODO: add certificate name derived from socket
+                connection_object.certificate_name = None
                 connection_object.sock = None
                 connection_object.user_id = clientInformation.modelObject.uid
 
@@ -387,11 +328,15 @@ class TCPCoTServiceMain(DigitalPyService):
             3. Add the client to the database
             4. Send the connection message
 
-        :param raw_connection_information: RawCoT object containing client connection information
-        :return: ClientInformation object for the newly connected client, or -1 if there was an error
+        :param raw_connection_information:
+        :return:
         """
         try:
-            from FreeTAKServer.core.persistence.EventTableController import EventTableController
+            from FreeTAKServer.core.persistence.EventTableController import (
+                EventTableController,
+            )
+
+            clientPipe = None
 
             self.logger.info(loggingConstants.CLIENTCONNECTED)
 
@@ -399,11 +344,19 @@ class TCPCoTServiceMain(DigitalPyService):
             clientInformation = self.ClientInformationController.intstantiateClientInformationModelFromConnection(
                 raw_connection_information, None
             )
+
+            # TODO remove
             if clientInformation == -1:
-                self.logger.info("Client had invalid connection information and has been disconnected")
+                self.logger.info(
+                    "client had invalid connection information and has been disconnected"
+                )
                 return -1
 
-            # Add client to database
+            # TODO remove or handle better
+            if not self.checkOutput(clientInformation):
+                raise Exception("Error in the creation of client information")
+            self.openSockets += 1
+            # breaks ssl
             try:
                 if hasattr(clientInformation.socket, "getpeercert"):
                     cn = "placeholder"
@@ -434,9 +387,9 @@ class TCPCoTServiceMain(DigitalPyService):
             # TODO the instantiation of the connection object and the connection action
             # call should be moved out of the tcp_cot_service main and into the connection
             # controller
-
-            # instantiate a new TCPCoTConnection with an object_id of the client uid
-            connection = TCPCoTConnection(object_id)
+            
+            # instantiate a new SSLCoTConnection with an object_id of the client uid
+            connection = SSLCoTConnection(object_id)
             connection.model_object = clientInformation.modelObject
             connection.sock = clientInformation.socket
             self.connections[str(connection.get_oid())] = connection
@@ -453,7 +406,6 @@ class TCPCoTServiceMain(DigitalPyService):
             # Broadcast user in geochat
             self.send_user_connection_geo_chat(clientInformation)
 
-            # Send emergency information to newly connected client
             request = ObjectFactory.get_new_instance("request")
             request.set_action("SendEmergenciesToClient")
             request.set_sender(self.__class__.__name__.lower())
@@ -542,7 +494,7 @@ class TCPCoTServiceMain(DigitalPyService):
                 uid = clientInformation.modelObject.uid
             elif hasattr(clientInformation, "m_presence"):
                 uid = clientInformation.m_presence.modelObject.uid
-            conn_id = str(ObjectFactory.get_instantce("ObjectId", {"id": uid, "type": "connection"}))
+            conn_id = str(ObjectFactory.get_instance("ObjectId", {"id": uid, "type": "connection"}))
             del self.connections[conn_id]
             request.set_value("connection_id", conn_id)
             request.set_format("pickled")
@@ -768,11 +720,15 @@ class TCPCoTServiceMain(DigitalPyService):
         send_component_data_controller_inst.send_message(self.connections, request.get_value("message"), request.get_value("recipients"))
 
     def send_message(self, sender, message, use_share_pipe=True):
+        if not use_share_pipe:
+            cot_share_pipe = None
+        else: 
+            cot_share_pipe = self.CoTSharePipe
         return SendDataController().sendDataInQueue(
                     sender,
                     message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
                     self.client_information_queue,
-                    self.CoTSharePipe,
+                    cot_share_pipe,
                 )
 
     def monitor_raw_cot(self, data: RawCoT) -> object:
@@ -865,8 +821,6 @@ class TCPCoTServiceMain(DigitalPyService):
         while event.is_set():
             self.CoTSharePipe = CoTSharePipe
             try:
-                if ssl == True:
-                    pass
                 self.clientDataPipe = clientDataPipe
                 if event.is_set():
                     try:
@@ -909,7 +863,7 @@ class TCPCoTServiceMain(DigitalPyService):
                                 pass
                             except Exception as e:
                                 print(str(e))
-                        elif ssl == True and (
+                        elif (
                             datetime.datetime.now() - lastprint
                         ) > datetime.timedelta(seconds=30):
                             print(
@@ -1145,6 +1099,71 @@ class TCPCoTServiceMain(DigitalPyService):
             )
             return -1
         return 1
+
+    def start(
+        self,
+        IP,
+        CoTPort,
+        Event,
+        clientDataPipe,
+        ReceiveConnectionKillSwitch,
+        RestAPIPipe,
+        clientDataRecvPipe,
+        factory,
+        tracing_provider_instance
+    ):
+        try:
+             # configure the object factory with the passed factory instance
+            ObjectFactory.configure(factory)
+
+            # instantiate the tracer instance for this service
+            self.tracer: Tracer = tracing_provider_instance.create_tracer(
+                SERVICE_NAME
+            )
+            
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            # subscribe to responses originating from this controller
+            actionmapper.add_topic(
+                f"/routing/response/{self.__class__.__name__.lower()}"
+            )
+
+            self.dbController = DatabaseController()
+            print("ssl cot service starting")
+            os.chdir("../../")
+            # create socket controller
+            self.SSLSocketController = SSLSocketController()
+            self.SSLSocketController.changeIP(IP)
+            self.SSLSocketController.changePort(CoTPort)
+            sock = self.SSLSocketController.createSocket()
+            # threadpool is used as it allows the transfer of SSL socket unlike processes
+            pool = ThreadPool(processes=2)
+            self.clientDataRecvPipe = clientDataRecvPipe
+            self.pool = pool
+            clientData = pool.apply_async(
+                ClientReceptionHandler().startup, (self.client_information_queue,)
+            )
+            self.initialize_connections(APPLICATION_PROTOCOL)
+
+            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+            # instantiate domain model and save process as object
+            self.mainRunFunction(
+                clientData,
+                receiveConnection,
+                sock,
+                pool,
+                Event,
+                clientDataPipe,
+                ReceiveConnectionKillSwitch,
+                RestAPIPipe,
+                True,
+            )
+        except Exception as e:
+            print(e)
+            logger.error(
+                "there has been an exception thrown in"
+                " the starting of the ssl service " + str(e)
+            )
+            return e
 
     def stop(self):
         self.clientDataPipe.close()
