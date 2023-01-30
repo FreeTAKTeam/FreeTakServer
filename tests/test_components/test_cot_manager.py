@@ -180,3 +180,36 @@ def test_delete_repeated_message(mock_load, mock_dump):
     assert_response_val('success', bool, True, response)
     # assert that the was deleted and an empty dictionary was saved instead
     assert_saved(mock_dump, {})
+
+@patch('pickle.dump')
+@patch('pickle.load')
+def test_delete_non_existent_repeated_message(mock_load, mock_dump):
+
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("DeleteRepeatedMessage")
+    
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # get a mock node object
+    mock_node = get_mock_node()
+
+    # define the output dictionary of the mocked persistency output
+    mock_load.return_value = {}
+
+    request.set_value("ids", [str(mock_node.get_oid())])
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the delete_repeated_messages method from the facade
+    facade.delete_repeated_message(**request.get_values())
+
+    assert response.get_action() == "DeleteRepeatedMessage"
+    # assert the success value is correct
+    assert_response_val('success', bool, True, response)
+    # assert that the was deleted and an empty dictionary was saved instead
+    assert_saved(mock_dump, {})
