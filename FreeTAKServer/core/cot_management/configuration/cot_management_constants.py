@@ -7,6 +7,8 @@ CONFIGURATION_FORMAT = "json"
 
 CURRENT_COMPONENT_PATH = pathlib.Path(__file__).parent.parent.absolute()
 
+GEO_OBJECT = "GeoObject"
+
 CONFIGURATION_PATH_TEMPLATE = Template(
     str(
         pathlib.PurePath(
@@ -49,3 +51,5 @@ PERSISTENCE_PATH = str(
 MANIFEST_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/manifest.ini")
 )
+
+BASE_OBJECT_NAME = "Event"

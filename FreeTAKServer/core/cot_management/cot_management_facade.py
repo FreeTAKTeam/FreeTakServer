@@ -1,6 +1,7 @@
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_controller import CotManagementRepeaterController
+from FreeTAKServer.core.cot_management.controllers.cot_management_geo_object_controller import CotManagementGeoObjectController
 from FreeTAKServer.core.cot_management.configuration.cot_management_constants import (
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
@@ -60,26 +61,30 @@ class CotManagement(DefaultFacade):
             manifest_path=MANIFEST_PATH,
         )
         self.repeater_controller = CotManagementRepeaterController(request, response, cot_management_action_mapper, configuration)
-    
+        self.geo_object_controller = CotManagementGeoObjectController(request, response, cot_management_action_mapper, configuration)
+
     def execute(self, method):
-        self.request.set_value("logger", self.logger)
-        self.request.set_value("config_loader", self.config_loader)
-        self.request.set_value("tracer", self.tracer)
+        
         try:
             if hasattr(self, method):
                 getattr(self, method)(**self.request.get_values())
             else:
+                self.request.set_value("logger", self.logger)
+                self.request.set_value("config_loader", self.config_loader)
+                self.request.set_value("tracer", self.tracer)
                 response = self.execute_sub_action(self.request.get_action())
                 self.response.set_values(response.get_values())
         except Exception as e:
             self.logger.fatal(str(e))
 
     def initialize(self, request, response):
+        super().initialize(request, response)
         self.repeater_controller.initialize(request, response)
-
+        self.geo_object_controller.initialize(request, response)
     def connection(self, *args, **kwargs):
         self.repeater_controller.connected_user(*args, **kwargs)
 
+    @DefaultFacade.public
     def get_repeated_messages(self, *args, **kwargs):
         self.repeater_controller.get_repeated_messages(*args, **kwargs)
 
@@ -88,3 +93,7 @@ class CotManagement(DefaultFacade):
 
     def delete_repeated_message(self, *args, **kwargs):
         self.repeater_controller.delete_repeated_message(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def create_geo_object(self, *args, **kwargs):
+        self.geo_object_controller.create_geo_object(*args, **kwargs)
