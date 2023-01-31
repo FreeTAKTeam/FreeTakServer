@@ -64,8 +64,12 @@ class CotManagementRepeaterController(Controller):
             nodes.append(node)
 
         # set the response value of the messages
-        self.response.set_value("message", nodes)        
+        self.response.set_value("message", nodes)
 
+        # copy request values to response
+        for key, value in self.request.get_values().items():
+            self.response.set_value(key, value)
+            
     def create_repeated_messages(self, message: List[Node], **kwargs):
         """add a message to be repeated
 
