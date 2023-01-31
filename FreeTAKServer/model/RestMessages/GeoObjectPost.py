@@ -69,3 +69,19 @@ class GeoObjectPost(GeoObject):
 
     def getremarks(self):
         return self.remarks
+
+    def setrepeat(self, repeat: bool):
+        """the new repeat value for this instance
+
+        Args:
+            repeat (bool): whether or not the message should be repeated
+        """
+        self.repeat = repeat
+        
+    def getrepeat(self) -> bool:
+        """get the repeat value for this instance
+
+        Returns:
+            bool: whether or not the geo object should be repeated 
+        """
+        return self.repeat

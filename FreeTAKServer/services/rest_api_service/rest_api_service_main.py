@@ -1,9 +1,8 @@
-from flask import Flask, request, jsonify, session, send_file
+from flask import Flask, request, jsonify, session, send_file, views
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from flask_httpauth import HTTPTokenAuth
 from flask_login import current_user, LoginManager
-from flask_classy import FlaskView, route
 import threading
 from functools import wraps
 import uuid
@@ -17,13 +16,14 @@ from flask_cors import CORS
 import qrcode
 import io
 from typing import Dict, List
-import zmq
+from geopy import Point, distance
 import time
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.request import Request
+from digitalpy.core.parsing.formatter import Formatter
 
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 
@@ -961,7 +961,7 @@ def getGeoObject():
         return "An error occurred retrieving geo object.", 500
 
 
-@app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
+#@app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
 @auth.login_required
 def postGeoObject():
     try:
@@ -1843,16 +1843,131 @@ APPLICATION_PROTOCOL = "xml"
 # API Request timeout in ms
 API_REQUEST_TIMEOUT = 5000
 
-class RestAPI(DigitalPyService, FlaskView):
-    route_base = '/'
+class ManageGeoObjects(views.View):
+    #decorators = [auth.login_required]
+
+    def dispatch_request(self, method):
+        endpoints: Dict[str, callable] = {
+            "GetRepeatedMessages": self.get_repeated_messages,
+            "postGeoObject": self.post_geo_object,
+            "DeleteRepeatedMessages": self.delete_repeated_messages,
+        }
+        return endpoints[method]()
+
+    def make_request(self, action: str, values: Dict = {}):
+        rest_api_service = ObjectFactory.get_instance("RestAPIService")
+
+        # request to get repeated messages
+        request: Request = ObjectFactory.get_new_instance("request")
+        request.set_action(action)
+        request.set_sender(rest_api_service.__class__.__name__.lower())
+        request.set_format("pickled")
+        request.set_values(values)
+        rest_api_service.subject_send_request(request, APPLICATION_PROTOCOL)
+        response = rest_api_service.retrieve_response(request.get_id())
+        return response
+
+    def get_repeated_messages(self):
+        """method to retrieve a repeated messages
+
+        Returns:
+            str: example of json output {"messages": {"example-oid": <event><detail/><point/></event>}}
+        """
+        try:
+            response = self.make_request("GetRepeatedMessages")
+            message_nodes = response.get_value("message")
+
+            # request to serialize repeated messages to CoT
+            # TODO: parameterize message protocol
+            response = self.make_request("serialize", {"message": message_nodes, "protocol": "XML"})
+
+            # convert response to json
+            # TODO: this conversion should be automated 
+            output = {"messages": {}}
+            message = response.get_value("message")
+            for i in range(len(message)):
+                output["messages"][str(message_nodes[i].get_oid())] = message[i].decode()
+            
+            return json.dumps(output)
+
+        except Exception as e:
+            return str(e), 500
+
+    def post_geo_object(self):
+        """this method is responsible for creating publishing and saving a geoobject to the repeater
+
+        Returns:
+            str: the uid of the generated object
+        """
+        try:
+            # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
+            jsondata = request.get_json(force=True)
+            # conver the json body to an object
+            jsonobj = JsonController().serialize_geoobject_post(jsondata)
+            
+            # check if the message it expected to be repeated
+            if "distance" in jsondata:
+                start_point = Point(jsonobj.getlatitude(), jsonobj.getlongitude())
+                d = distance.distance(meters=jsondata["distance"])
+                if "bearing" in jsondata:
+                    end_point = d.destination(point=start_point, bearing=jsondata["bearing"])
+                else:
+                    end_point = d.destination(point=start_point, bearing=360)
+                jsonobj.setlatitude(end_point.latitude)
+                jsonobj.setlongitude(end_point.longitude)
+
+            simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
+
+            # if the message should be repeated then make a request to repeat it
+            if jsonobj.getrepeat():
+                # make request to create a geoobject node
+                response = self.make_request("CreateGeoObject", {"id": jsonobj.getuid()})
+                
+                # apply the given values to the model object
+                model_object = response.get_value("model_object")
+                model_object.uid = jsonobj.getuid()
+                model_object.type = jsonobj.getattitude()
+                model_object.point.latitude = jsonobj.getlatitude()
+               
+                # make request to persist the model object to be re-sent
+                response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})
+
+            print("putting in queue")
+            APIPipe.put(simpleCoTObject)
+            print(simpleCoTObject.xmlString)
+            print('put in queue')
+            return simpleCoTObject.modelObject.getuid(), 200
+        except Exception as e:
+            logger.error(str(e))
+            return "An error occurred adding geo object.", 500
+    
+    def delete_repeated_messages(self):
+        """delete an existing repeated message
+
+        Returns:
+            str: whether or not the operation was sucessful
+        """
+        try:
+            # get and blowup id list
+            ids: List[str] = request.args.get("ids").split(",")
+            response = self.make_request("DeleteRepeatedMessage", {"ids": ids})
+            if response.get_value("success"):    
+                return 'operation successful', 200
+            else:
+                return 'operation failed', 500
+        except Exception as e:
+            return str(e), 500
+
+app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
+
+class RestAPI(DigitalPyService):
+    
+    # a dictionary cotaining the request_id and response objects for all received requests
+    # to prevent confusion between endpoints
+    responses: Dict[str, Response] = {}
 
     def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
         super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
-        # a dictionary cotaining the request_id and response objects for all received requests
-        # to prevent confusion between endpoints
-        self.responses: Dict[str, Response] = {}
-        self.poller = zmq.Poller()
-        self.poller.register(self.subscriber_socket, zmq.POLLIN)
 
     def get_response_in_responses(self, id):
         # check if the response has already been received
@@ -1884,17 +1999,20 @@ class RestAPI(DigitalPyService, FlaskView):
             # the poller is only registered to the zmq_subscriber socket
             # so if there are available messages it should only be coming
             # from the zmq_subscriber socket.
-            socks = self.poller.poll(1000)
-            if len(socks)>0:
-                response = super().broker_receive(blocking=True)
+            self.subscriber_socket.RCVTIMEO = 1000
+
+            responses = super().broker_receive(blocking=True)
+            for response in responses:
                 if response.get_id() != id:
                     # use shared memory of responses dictionary
                     self.responses[response.get_id()] = response
-            
-            # check if the response has already been received
-            existing_response = self.get_response_in_responses(id)
-            if existing_response is not None:
-                return existing_response
+                else:
+                    return response
+                    
+                # check if the response has already been received
+                existing_response = self.get_response_in_responses(id)
+                if existing_response is not None:
+                    return existing_response
 
         # check if the response has already been received
         existing_response = self.get_response_in_responses(id)
@@ -1902,57 +2020,16 @@ class RestAPI(DigitalPyService, FlaskView):
             return existing_response
         else:
             raise TimeoutError("zmanager failed to return a response")
-    
-    @route("/ManageGeoObject/GetRepeatedMessages")
-    @auth.login_required
-    def get_repeated_messages(self):
-        try:
-            # request to get repeated messages
-            request: Request = ObjectFactory.get_new_instance("request")
-            request.set_action("GetRepeatedMessages")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            response = self.retrieve_response(request.get_id())
-            message_nodes = response.get_value("message_nodes")
 
-            # request to serialize repeated messages to CoT
-            request: Request = ObjectFactory.get_new_instance("request")
-            request.set_action("serialize")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_format("pickled")
-            request.set_value("message", message_nodes)
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            response = self.retrieve_response(request.get_id())
+    def stop(self):
+        super().stop()
+        socketio.stop()
 
-            # convert response to json
-            # TODO: this conversion should be automated 
-            output = {"messages": {}}
-            message = response.get_value("message")
-            for i in range(message):
-                output[str(message_nodes[i].get_oid())] = message[i]
-            
-            return json.dump(output)
-
-        except Exception as e:
-            return str(e), 500
-
-    @route("/ManageGeoObject/DeleteRepeatedMessages")
-    @auth.login_required
-    def delete_repeated_messages(self, ids: List[str]):
-        try:
-            request: Request = ObjectFactory.get_new_instance("request")
-            request.set_action("DeleteRepeatedMessage")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_format("pickled")
-            request.set_value('ids', ids)
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            response = self.retrieve_response(request.get_id())
-        except Exception as e:
-            return str(e), 500
-
-    def startup(self, APIPipea, CommandPipea, IP, Port, starttime, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
+    def start(self, APIPipea, CommandPipea, IP, Port, starttime, factory):
         print('running api')
+        super().start()
+        self.initialize_connections(APPLICATION_PROTOCOL)
+        ObjectFactory.configure(factory)
         init_config()
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime
@@ -1971,3 +2048,4 @@ class RestAPI(DigitalPyService, FlaskView):
             else:
                 setattr(model, key, value)
         return model
+

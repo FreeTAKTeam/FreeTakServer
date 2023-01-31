@@ -43,3 +43,5 @@ class GeoObject:
     # 300 seconds or 5 minutes.
     timeout = ""
     remarks = ""
+
+    repeat = False
