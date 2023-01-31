@@ -22,9 +22,9 @@ class Event(CoTNode):
 
     # default constructor
 
-    def __init__(self, configuration: Configuration, model):
+    def __init__(self, configuration: Configuration, model, oid=None):
 
-        super().__init__(self.__class__.__name__, configuration, model)
+        super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["version"] = None
         self.cot_attributes["uid"] = None
         self.cot_attributes["type"] = None

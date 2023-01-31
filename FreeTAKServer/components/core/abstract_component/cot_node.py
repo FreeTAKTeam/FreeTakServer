@@ -4,10 +4,10 @@ import inspect
 
 
 class CoTNode(Node, FTSProtocolObject):
-    def __init__(self, node_type, configuration, model):
+    def __init__(self, node_type, configuration, model, oid=None):
         self.cot_attributes = {}
         self.text = ""
-        super().__init__(node_type, configuration, model)
+        super().__init__(node_type, configuration, model, oid)
 
     def get_properties(self):
         methods = inspect.getmembers(self.__class__)
