@@ -6,6 +6,8 @@ from digitalpy.core.zmanager.impl.default_request import DefaultRequest
 from digitalpy.core.zmanager.impl.default_response import DefaultResponse
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.main.object_factory import ObjectFactory
+from digitalpy.core.parsing.load_configuration import Configuration
+
 from FreeTAKServer.core.cot_management.cot_management_facade import CotManagement
 
 def setup():
@@ -49,7 +51,7 @@ def assert_saved(persistency_save_method: callable, value):
 
 # patch the persistency output
 @patch('pickle.load')
-def test_connection(mock_load):
+def test_connection_direct(mock_load):
     """test the connection action in the cot manager
     """
     # instnatiate request and response objects
@@ -84,11 +86,50 @@ def test_connection(mock_load):
     # assert the message value is correct
     assert_response_val('message', list, [mock_node], response)
     
+# patch the persistency output
+@patch('pickle.load')
+def test_connection_execute(mock_load):
+    """test the connection action in the cot manager
+    """
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("connection")
+
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # get a mock node object
+    mock_node = get_mock_node()
+
+    # define the output dictionary of the mocked persistency output
+    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+
+    # instantiate a mock connection object
+    mock_connection = get_mock_connection()
+
+    # set the content of the connection value to be a mock connection
+    request.set_value("connection", mock_connection)
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the connection method from the facade
+    facade.execute("connection")
+
+    # assert that the next action is publish
+    assert response.get_action() == "publish"
+    # assert the message value is correct
+    assert_response_val('message', list, [mock_node], response)
+
 @patch('pickle.load')
 def test_get_repeated_messages(mock_load):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("GetRepeatedMessages")
+
+    request.set_value("extra", True)
 
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
@@ -112,6 +153,41 @@ def test_get_repeated_messages(mock_load):
     assert response.get_action() == "GetRepeatedMessages"
     # assert the message value is correct
     assert_response_val('message', list, [mock_node], response)
+    # assert the extra value was passed through
+    assert_response_val('extra', bool, True, response)
+
+@patch('pickle.load')
+def test_get_repeated_messages_execute(mock_load):
+
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("GetRepeatedMessages")
+
+    request.set_value("extra", True)
+
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # get a mock node object
+    mock_node = get_mock_node()
+
+    # define the output dictionary of the mocked persistency output
+    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the get_repeated_messages method from the facade
+    facade.execute("get_repeated_messages")
+
+    # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
+    assert response.get_action() == "GetRepeatedMessages"
+    # assert the message value is correct
+    assert_response_val('message', list, [mock_node], response)
+    # assert the extra value was passed through
+    assert_response_val('extra', bool, True, response)
 
 @patch('pickle.dump')
 @patch('pickle.load')
@@ -140,6 +216,41 @@ def test_create_repeated_message(mock_load, mock_dump):
 
     # call the create repeated message method from the facade
     facade.create_repeated_message(**request.get_values())
+
+    # assert that the next action is CreateRepeatedMessage
+    assert response.get_action() == "CreateRepeatedMessage"
+    # assert the success value is correct
+    assert_response_val('success', bool, True, response)
+    # assert that the node was saved
+    assert_saved(mock_dump, {str(mock_node.get_oid()): mock_node})
+
+@patch('pickle.dump')
+@patch('pickle.load')
+def test_create_repeated_message_execute(mock_load, mock_dump):
+
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("CreateRepeatedMessage")
+
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # get a mock node object
+    mock_node = get_mock_node()
+
+    # define the output dictionary of the mocked persistency output
+    mock_load.return_value = {}
+
+    # set the content of the message value to be a list containing one mocked node
+    request.set_value("message", [mock_node])
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the create repeated message method from the facade
+    facade.execute("create_repeated_message")
 
     # assert that the next action is CreateRepeatedMessage
     assert response.get_action() == "CreateRepeatedMessage"
@@ -183,6 +294,39 @@ def test_delete_repeated_message(mock_load, mock_dump):
 
 @patch('pickle.dump')
 @patch('pickle.load')
+def test_delete_repeated_message_execute(mock_load, mock_dump):
+
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("DeleteRepeatedMessage")
+    
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # get a mock node object
+    mock_node = get_mock_node()
+
+    # define the output dictionary of the mocked persistency output
+    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+
+    request.set_value("ids", [str(mock_node.get_oid())])
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the delete_repeated_messages method from the facade
+    facade.execute("delete_repeated_message")
+
+    assert response.get_action() == "DeleteRepeatedMessage"
+    # assert the success value is correct
+    assert_response_val('success', bool, True, response)
+    # assert that the was deleted and an empty dictionary was saved instead
+    assert_saved(mock_dump, {})
+
+@patch('pickle.dump')
+@patch('pickle.load')
 def test_delete_non_existent_repeated_message(mock_load, mock_dump):
 
     # instnatiate request and response objects
@@ -213,3 +357,86 @@ def test_delete_non_existent_repeated_message(mock_load, mock_dump):
     assert_response_val('success', bool, True, response)
     # assert that the was deleted and an empty dictionary was saved instead
     assert_saved(mock_dump, {})
+
+@patch('pickle.dump')
+@patch('pickle.load')
+def test_delete_non_existent_repeated_message(mock_load, mock_dump):
+
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("DeleteRepeatedMessage")
+    
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # get a mock node object
+    mock_node = get_mock_node()
+
+    # define the output dictionary of the mocked persistency output
+    mock_load.return_value = {}
+
+    request.set_value("ids", [str(mock_node.get_oid())])
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the delete_repeated_messages method from the facade
+    facade.execute("delete_repeated_message")
+
+    assert response.get_action() == "DeleteRepeatedMessage"
+    # assert the success value is correct
+    assert_response_val('success', bool, True, response)
+    # assert that the was deleted and an empty dictionary was saved instead
+    assert_saved(mock_dump, {})
+
+@patch('pickle.load')
+def test_create_geo_object(mock_load):
+
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("CreateGeoObject")
+
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the get_repeated_messages method from the facade
+    facade.create_geo_object(**request.get_values())
+
+    # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
+    assert response.get_action() == "CreateNode"
+    # assert the message object_class_name is correct
+    assert_response_val('object_class_name', str, "Event", response)
+    # assert the configuration is of correct type
+    assert isinstance(response.get_value("configuration"), Configuration)
+
+@patch('pickle.load')
+def test_create_geo_object_execute(mock_load):
+
+    # instnatiate request and response objects
+    request, response = instantiate_request_response("CreateGeoObject")
+
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the get_repeated_messages method from the facade
+    facade.execute("create_geo_object")
+
+    # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
+    assert response.get_action() == "CreateNode"
+    # assert the message object_class_name is correct
+    assert_response_val('object_class_name', str, "Event", response)
+    # assert the configuration is of correct type
+    assert isinstance(response.get_value("configuration"), Configuration)
