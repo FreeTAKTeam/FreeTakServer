@@ -1845,7 +1845,6 @@ API_REQUEST_TIMEOUT = 5000
 
 class ManageGeoObjects(views.View):
     #decorators = [auth.login_required]
-
     def dispatch_request(self, method):
         endpoints: Dict[str, callable] = {
             "GetRepeatedMessages": self.get_repeated_messages,
@@ -1926,8 +1925,20 @@ class ManageGeoObjects(views.View):
                 # apply the given values to the model object
                 model_object = response.get_value("model_object")
                 model_object.uid = jsonobj.getuid()
-                model_object.type = jsonobj.getattitude()
-                model_object.point.latitude = jsonobj.getlatitude()
+                COTTYPE = jsonobj.getgeoObject()
+                if "-.-" in COTTYPE:
+                    ID = jsonobj.getattitude()
+                    COTTYPE = COTTYPE.replace('-.-', ID)
+                else:
+                    pass
+                model_object.type = COTTYPE
+                model_object.how = jsonobj.gethow()
+                model_object.start = None # set to default val
+                model_object.time = None  # set to default val
+                model_object.stale = None # set to default val
+                model_object.point.lat = jsonobj.getlatitude()
+                model_object.point.lon = jsonobj.getlongitude()
+                model_object.detail.contact.callsign = jsonobj.getname()
                
                 # make request to persist the model object to be re-sent
                 response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})
@@ -1962,7 +1973,7 @@ app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view
 
 class RestAPI(DigitalPyService):
     
-    # a dictionary cotaining the request_id and response objects for all received requests
+    # a dictionary containing the request_id and response objects for all received requests
     # to prevent confusion between endpoints
     responses: Dict[str, Response] = {}
 
