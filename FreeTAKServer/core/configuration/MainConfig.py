@@ -135,7 +135,7 @@ class MainConfig:
             "type": str,
         },
         "InternalComponentsPath": {
-            "default": Path(rf"{MAINPATH}/components/internal"),
+            "default": Path(rf"{MAINPATH}/components/core"),
             "type": str,
         },
         "InternalComponentsImportRoot": {
