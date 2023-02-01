@@ -81,6 +81,8 @@ class CotManagement(DefaultFacade):
         super().initialize(request, response)
         self.repeater_controller.initialize(request, response)
         self.geo_object_controller.initialize(request, response)
+
+    @DefaultFacade.public
     def connection(self, *args, **kwargs):
         self.repeater_controller.connected_user(*args, **kwargs)
 
