@@ -47,9 +47,14 @@ class CotManagementRepeaterController(Controller):
         self.response.set_value("message", nodes)
 
         # validate the users in the recipients list
-        response = self.execute_sub_action("ValidateUsers")
-        self.response.set_value("message", response.get_value("message"))
+        # TODO figure out better way of accessing external actions (actions in other components)
+        #response = self.execute_sub_action("ValidateUsers")
+        #self.response.set_value("recipients", response.get_value("recipients"))
         self.response.set_action("publish")
+
+        # copy request values to response
+        for key, value in self.request.get_values().items():
+            self.response.set_value(key, value)
 
     def get_repeated_messages(self, **kwargs):
         """get all the repeated messages
