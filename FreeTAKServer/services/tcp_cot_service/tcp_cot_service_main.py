@@ -19,7 +19,6 @@ from digitalpy.core.parsing.formatter import Formatter
 
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 from .controllers.TCPSocketController import TCPSocketController
-from FreeTAKServer.core.util.geo_manager_controller import GeoManagerController
 from FreeTAKServer.core.connection.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.core.connection.ClientInformationController import (
     ClientInformationController,
@@ -222,8 +221,6 @@ class TCPCoTServiceMain(DigitalPyService):
                     1
                 ] = clientInformation
                 self.get_client_information()
-                # update the geo manager controller with the new client information
-                GeoManagerController.update_users(self.client_information_queue)
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
@@ -552,7 +549,7 @@ class TCPCoTServiceMain(DigitalPyService):
                 uid = clientInformation.modelObject.uid
             elif hasattr(clientInformation, "m_presence"):
                 uid = clientInformation.m_presence.modelObject.uid
-            conn_id = str(ObjectFactory.get_instantce("ObjectId", {"id": uid, "type": "connection"}))
+            conn_id = str(ObjectFactory.get_instance("ObjectId", {"id": uid, "type": "connection"}))
             del self.connections[conn_id]
             request.set_value("connection_id", conn_id)
             request.set_format("pickled")
