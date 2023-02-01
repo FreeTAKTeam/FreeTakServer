@@ -104,7 +104,7 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
             self.request.set_value('message', response.get_value("model_object"))
             # Serializer called by service manager requires the message value
-            self.response.set_value('message', response.get_value("model_object"))
+            self.response.set_value('message', [response.get_value("model_object")])
             self.request.set_value('recipients', [])
 
             self.emergency_general_controller.initialize(self.request, self.response)
