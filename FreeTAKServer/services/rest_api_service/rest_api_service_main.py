@@ -1840,8 +1840,10 @@ def emitUpdates(Updates):
     return 1
 
 APPLICATION_PROTOCOL = "xml"
-# API Request timeout in ms
-API_REQUEST_TIMEOUT = 5000
+# API Request timeout
+API_REQUEST_TIMEOUT = 50
+# default repeated message stale time
+REPEATER_STALE = 6000000
 
 class ManageGeoObjects(views.View):
     #decorators = [auth.login_required]
@@ -1933,12 +1935,15 @@ class ManageGeoObjects(views.View):
                     pass
                 model_object.type = COTTYPE
                 model_object.how = jsonobj.gethow()
-                model_object.start = None # set to default val
                 model_object.time = None  # set to default val
                 model_object.stale = None # set to default val
                 model_object.point.lat = jsonobj.getlatitude()
                 model_object.point.lon = jsonobj.getlongitude()
                 model_object.detail.contact.callsign = jsonobj.getname()
+                if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
+                    model_object.stale = jsonobj.gettimeout()
+                else:
+                    model_object.stale = REPEATER_STALE
                
                 # make request to persist the model object to be re-sent
                 response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})

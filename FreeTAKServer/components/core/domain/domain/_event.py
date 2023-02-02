@@ -122,17 +122,19 @@ class Event(CoTNode):
         return self.cot_attributes.get("stale", None)
 
     @stale.setter
-    def stale(self, stale=None, staletime=60):
-        if stale == None:
+    def stale(self, stale=None):
+        # for case where stale is explicitly stated as a string
+        if isinstance(stale, str):
+            self.cot_attributes["stale"]=stale
+        # for case where a int representing the timeout is passed
+        elif isinstance(stale,int):
             DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             timer = dt
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
-            add = datetime.timedelta(seconds=staletime)
+            add = datetime.timedelta(seconds=stale)
             stale_part = dt.strptime(zulu, DATETIME_FMT) + add
             self.cot_attributes["stale"] = stale_part.strftime(DATETIME_FMT)
-        else:
-            self.cot_attributes["stale"] = stale
 
     @CoTProperty
     def type(self):
