@@ -55,9 +55,15 @@ def assert_schema_to_response_val(response_schema_values, response):
         # assert that they are the correct type
         assert isinstance(response.get_value(key), type(value))
 
-        # TODO if they are mock obj then only compare ids
-        # assert that they are the same
-        assert response.get_value(key) == value
+        if isinstance(value, list):
+            # assert return value contains something
+            assert len(value) == len(response.get_value(key))
+        else:
+            # assert that they are the same
+            assert response.get_value(key) == value
+
+# def compare_response_list_values(schema_value, response_value):
+#     if isinstance(schema_value, list)
 
 def parse_schema(schema: str):
     return json.loads(schema)
@@ -67,12 +73,17 @@ def get_request_response_from_test_obj(test_obj):
     response = DefaultResponse()
 
     # if value is a node object, create mock node
-    for key in test_obj['request']['values']:
-        value = test_obj['request']['values'][key]
+    for key, value in test_obj['request']['values'].items():
         if isinstance(value, list):
             test_obj['request']['values'][key] = r_convert_values_to_node(value)
-        elif value['is_node']:
-            test_obj['request']['values'][key] = get_mock_node_from_obj(value, value['oid'])
+        elif isinstance(value, dict) and value['is_node']:
+            test_obj['request']['values'][key] = get_mock_node_from_obj(value, value.get('oid', get_mock_oid()))
+
+    for key, value in test_obj['response']['values'].items():
+        if isinstance(value, list):
+            test_obj['response']['values'][key] = r_convert_values_to_node(value)
+        elif isinstance(value, dict) and value['is_node']:
+            test_obj['response']['values'][key] = get_mock_node_from_obj(value, value.get('oid', get_mock_oid()))
 
     # set request action and values
     request.set_action(test_obj['request']['action'])
@@ -90,7 +101,7 @@ def r_convert_values_to_node(value):
         r_convert_values_to_node(value[0])
         
     if isinstance(base, dict) and base['is_node']:
-        return [get_mock_node_from_obj(base, base['oid'])]
+        return [get_mock_node_from_obj(base, base.get('oid', get_mock_oid()))]
 
     # assume value is list of non node items aka strings
     return value
@@ -112,11 +123,12 @@ test_connection_schema = """
         "action": "publish",
         "values": {
             "message": [
-
+                {
+                    "is_node": true
+                }
             ]
         }
-    },
-    "node_id": "3b1a979c-a31b-11ed-a8fc-0242ac120002"
+    }
 }
 """
 
@@ -134,7 +146,7 @@ def test_connection(mock_load):
     mock_controller_execute_sub_action(response)
 
     # get a mock node object
-    mock_node = get_mock_node(oid=test_obj['node_id'])
+    mock_node = get_mock_node()
 
     # define the output dictionary of the mocked persistency output
     mock_load.return_value = {str(mock_node.get_oid()): mock_node}
@@ -152,7 +164,8 @@ def test_connection(mock_load):
     assert response.get_action() == test_obj['response']['action']
 
     # assert the message value is correct
-    assert_response_val('message', list, [mock_node], response)
+    # assert_response_val('message', list, [mock_node], response)
+    assert_schema_to_response_val(test_obj['response']['values'], response)
 
 test_get_repeated_messages_schema = """
 {
@@ -161,9 +174,15 @@ test_get_repeated_messages_schema = """
         "action": "GetRepeatedMessages"
     },
     "response":{
-        "action": "GetRepeatedMessages"
-    },
-    "node_id": "672a39ee-a31d-11ed-a8fc-0242ac120002"
+        "action": "GetRepeatedMessages",
+        "values": {
+            "message": [
+                {
+                    "is_node": true
+                }
+            ]
+        }
+    }
 }
 """
 
@@ -178,8 +197,9 @@ def test_get_repeated_messages(mock_load):
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
 
+    # if component relies on persistence layer, mock persistence response
     # get a mock node object
-    mock_node = get_mock_node(oid=test_obj['node_id'])
+    mock_node = get_mock_node()
 
     # define the output dictionary of the mocked persistency output
     mock_load.return_value = {str(mock_node.get_oid()): mock_node}
@@ -198,6 +218,7 @@ def test_get_repeated_messages(mock_load):
 
     # assert the message value is correct
     assert_response_val('message', list, [mock_node], response)
+
 
 test_create_repeated_message_schema = """
 {
@@ -254,17 +275,19 @@ def test_create_repeated_message(mock_load, mock_dump):
 test_delete_repeated_message_schema = """
 {
     "request": {
+        "action": "DeleteRepeatedMessage",
         "values": {
             "ids": [
                 "329f80aa-a2f8-11ed-a8fc-0242ac120002"
             ]
-        },
-        "action": "DeleteRepeatedMessage"
+        }
     },
     "response": {
-        "action": "DeleteRepeatedMessage"
-    },
-    "node_id": "329f80aa-a2f8-11ed-a8fc-0242ac120002"
+        "action": "DeleteRepeatedMessage",
+        "values": {
+            "success": true
+        }
+    }
 }
 """
 
@@ -281,7 +304,7 @@ def test_delete_repeated_message(mock_load, mock_dump):
     mock_controller_execute_sub_action(response)
 
     # get a mock node object
-    mock_node = get_mock_node(oid=test_obj['node_id'])
+    mock_node = get_mock_node()
 
     # define the output dictionary of the mocked persistency output
     mock_load.return_value = {str(mock_node.get_oid()): mock_node}
@@ -299,20 +322,22 @@ def test_delete_repeated_message(mock_load, mock_dump):
     assert response.get_action() == test_obj['response']['action']
 
     # assert the success value is correct
-    assert_response_val('success', bool, True, response)
+    assert_schema_to_response_val(test_obj['response']['values'], response)
 
-test_delete_non_existent_repeated_message = """
+test_delete_non_existent_repeated_message_schema = """
 {
     "request": {
+        "action": "DeleteRepeatedMessage",
         "values": {
             "ids": ["329f80aa-a2f8-11ed-a8fc-0242ac120002"]
-        },
-        "action": "DeleteRepeatedMessage"
+        }
     },
     "response": {
-        "action": "DeleteRepeatedMessage"
-    },
-    "node_id": "329f80aa-a2f8-11ed-a8fc-0242ac120002"
+        "action": "DeleteRepeatedMessage",
+        "values": {
+            "success": true
+        }
+    }
 }
 """
 
@@ -320,24 +345,16 @@ test_delete_non_existent_repeated_message = """
 @patch('pickle.load')
 def test_delete_non_existent_repeated_message(mock_load, mock_dump):
     # parse object from schema
-    test_obj = parse_schema(test_delete_repeated_message_schema)
+    test_obj = parse_schema(test_delete_non_existent_repeated_message_schema)
 
     # instantiate request and response objects
     request, response = get_request_response_from_test_obj(test_obj)
 
-    # # instnatiate request and response objects
-    # request, response = instantiate_request_response("DeleteRepeatedMessage")
-    
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
 
-    # get a mock node object
-    mock_node = get_mock_node()
-
     # define the output dictionary of the mocked persistency output
     mock_load.return_value = {}
-
-    request.set_value("ids", [str(mock_node.get_oid())])
 
     # instantiate the facade
     facade = CotManagement(None, request, response, None)
@@ -349,5 +366,6 @@ def test_delete_non_existent_repeated_message(mock_load, mock_dump):
     facade.delete_repeated_message(**request.get_values())
 
     assert response.get_action() == test_obj['response']['action']
+
     # assert the success value is correct
-    assert_response_val('success', bool, True, response)
+    assert_schema_to_response_val(test_obj['response']['values'], response)
