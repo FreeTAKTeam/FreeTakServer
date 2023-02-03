@@ -386,12 +386,9 @@ def updateSystemUserRest():
 def updateSystemUser(jsondata):
     """ this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
     exist operation will return an error
-
     Args:
         jsondata: dict
-
     Returns: None
-
     """
     for systemuser in jsondata['systemUsers']:
         update_column = {}
@@ -896,7 +893,6 @@ def getGeoObject():
                             Point.lat < 0,
                             ((((Point.lon * -1) - lon_abs) * 111302.62) + (((Point.lat * -1) - lat_abs) * 110574.61)) > 0,
                             ((((Point.lon * -1) - lon_abs) * 111302.62) + (((Point.lat * -1) - lat_abs) * 110574.61)) <= radius + 10),
-
                         and_(
                             Point.lon < 0,
                             Point.lat >= 0,
@@ -908,7 +904,6 @@ def getGeoObject():
                                     ((((lon_abs * -1) - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) <= radius + 10,
                                     ((((lon_abs * -1) - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) > 0)
                             ),
-
                         ),
                         and_(
                             Point.lon >= 0,
@@ -1840,10 +1835,8 @@ def emitUpdates(Updates):
     return 1
 
 APPLICATION_PROTOCOL = "xml"
-# API Request timeout
-API_REQUEST_TIMEOUT = 50
-# default repeated message stale time
-REPEATER_STALE = 6000000
+# API Request timeout in ms
+API_REQUEST_TIMEOUT = 5000
 
 class ManageGeoObjects(views.View):
     #decorators = [auth.login_required]
@@ -1870,7 +1863,6 @@ class ManageGeoObjects(views.View):
 
     def get_repeated_messages(self):
         """method to retrieve a repeated messages
-
         Returns:
             str: example of json output {"messages": {"example-oid": <event><detail/><point/></event>}}
         """
@@ -1896,7 +1888,6 @@ class ManageGeoObjects(views.View):
 
     def post_geo_object(self):
         """this method is responsible for creating publishing and saving a geoobject to the repeater
-
         Returns:
             str: the uid of the generated object
         """
@@ -1935,15 +1926,28 @@ class ManageGeoObjects(views.View):
                     pass
                 model_object.type = COTTYPE
                 model_object.how = jsonobj.gethow()
+                
+                model_object.start = None # set to default val
                 model_object.time = None  # set to default val
-                model_object.stale = None # set to default val
+                if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
+                    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                    timer = dt.datetime
+                    now = timer.utcnow()
+                    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+                    stale = now+add
+                    model_object.stale = stale.strftime(DATETIME_FMT)
+                else:
+                    model_object.stale = None # set to default val
+                #    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                #    timer = dt.datetime
+                #    now = timer.utcnow()
+                #    zulu = now.strftime(DATETIME_FMT)
+                #    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+                #    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+                #model_object.stale = stale_part
                 model_object.point.lat = jsonobj.getlatitude()
                 model_object.point.lon = jsonobj.getlongitude()
                 model_object.detail.contact.callsign = jsonobj.getname()
-                if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
-                    model_object.stale = jsonobj.gettimeout()
-                else:
-                    model_object.stale = REPEATER_STALE
                
                 # make request to persist the model object to be re-sent
                 response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})
@@ -1959,7 +1963,6 @@ class ManageGeoObjects(views.View):
     
     def delete_repeated_messages(self):
         """delete an existing repeated message
-
         Returns:
             str: whether or not the operation was sucessful
         """
@@ -1999,7 +2002,6 @@ class RestAPI(DigitalPyService):
         requests, instead we pass the id to this method which then checks
         in the responses dict if the response has been received by another
         thread, if not then it goes on receiving the next response
-
         Args:
             id (str): the id of the response being waited for
         """
@@ -2064,4 +2066,3 @@ class RestAPI(DigitalPyService):
             else:
                 setattr(model, key, value)
         return model
-
