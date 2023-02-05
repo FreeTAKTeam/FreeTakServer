@@ -64,7 +64,7 @@ setup(
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
-        "digitalpy>=0.3.5",
+        "digitalpy>=0.3.7",
         "opentelemetry-sdk",
     ],
     extras_require={
