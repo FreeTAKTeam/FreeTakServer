@@ -2,6 +2,7 @@ from digitalpy.core.parsing.load_configuration import Configuration
 from .model_constants import EventVariables as vars
 import uuid
 from datetime import datetime as dt
+import datetime
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
@@ -22,9 +23,9 @@ class Event(CoTNode):
 
     # default constructor
 
-    def __init__(self, configuration: Configuration, model):
+    def __init__(self, configuration: Configuration, model, oid=None):
 
-        super().__init__(self.__class__.__name__, configuration, model)
+        super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["version"] = None
         self.cot_attributes["uid"] = None
         self.cot_attributes["type"] = None
@@ -66,7 +67,7 @@ class Event(CoTNode):
     def start(self, start=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if start == None:
-            timer = dt.datetime
+            timer = dt
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
             self.cot_attributes["start"] = zulu
@@ -109,7 +110,7 @@ class Event(CoTNode):
     def time(self, time=0):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if time == None:
-            timer = dt.datetime
+            timer = dt
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
             self.time = zulu
@@ -124,11 +125,11 @@ class Event(CoTNode):
     def stale(self, stale=None, staletime=60):
         if stale == None:
             DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-            timer = dt.datetime
+            timer = dt
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
-            add = dt.timedelta(seconds=staletime)
-            stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+            add = datetime.timedelta(seconds=staletime)
+            stale_part = dt.strptime(zulu, DATETIME_FMT) + add
             self.cot_attributes["stale"] = stale_part.strftime(DATETIME_FMT)
         else:
             self.cot_attributes["stale"] = stale

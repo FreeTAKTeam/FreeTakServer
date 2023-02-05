@@ -8,7 +8,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.5 Alpha"
+FTS_VERSION = "FreeTAKServer-2.0.9 Alpha"
 API_VERSION = "1.9.5"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
@@ -127,10 +127,18 @@ class MainConfig:
             "type": str,
         },
         "CoreComponentsPath": {
-            "default": Path(rf"{MAINPATH}/components/core"),
+            "default": Path(rf"{MAINPATH}/core"),
             "type": str,
         },
         "CoreComponentsImportRoot": {
+            "default": "FreeTAKServer.core",
+            "type": str,
+        },
+        "InternalComponentsPath": {
+            "default": Path(rf"{MAINPATH}/components/core"),
+            "type": str,
+        },
+        "InternalComponentsImportRoot": {
             "default": "FreeTAKServer.components.core",
             "type": str,
         },
@@ -220,6 +228,8 @@ class MainConfig:
         "FTS_ROUTING_PROXY_SERVER_IP": "RoutingProxyRequestServerIP",
         "FTS_CORE_COMPONENTS_PATH": "CoreComponentsPath",
         "FTS_CORE_COMPONENTS_IMPORT_ROOT": "CoreComponentsImportRoot",
+        "FTS_INTERNAL_COMPONENTS_PATH": "InternalComponentsPath",
+        "FTS_INTERNAL_COMPONENTS_IMPORT_ROOT": "InternalComponentsImportRoot",
         "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
         "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT": "ExternalComponentsImportRoot",
         # port to receive worker responses by the integration manager
@@ -291,6 +301,8 @@ class MainConfig:
             "FTS_CLIENT_PACKAGES_PATH": "ClientPackages",
             "FTS_CORE_COMPONENTS_PATH": "CoreComponentsPath",
             "FTS_CORE_COMPONENTS_IMPORT_ROOT": "CoreComponentsImportRoot",
+            "FTS_INTERNAL_COMPONENTS_PATH": "InternalComponentsPath",
+            "FTS_INTERNAL_COMPONENTS_IMPORT_ROOT": "InternalComponentsImportRoot",
             "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
             "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT": "ExternalComponentsImportRoot",
         },

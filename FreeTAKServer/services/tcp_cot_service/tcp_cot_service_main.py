@@ -19,7 +19,6 @@ from digitalpy.core.parsing.formatter import Formatter
 
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 from .controllers.TCPSocketController import TCPSocketController
-from FreeTAKServer.core.util.geo_manager_controller import GeoManagerController
 from FreeTAKServer.core.connection.ActiveThreadsController import ActiveThreadsController
 from FreeTAKServer.core.connection.ClientInformationController import (
     ClientInformationController,
@@ -222,8 +221,6 @@ class TCPCoTServiceMain(DigitalPyService):
                     1
                 ] = clientInformation
                 self.get_client_information()
-                # update the geo manager controller with the new client information
-                GeoManagerController.update_users(self.client_information_queue)
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
@@ -458,7 +455,17 @@ class TCPCoTServiceMain(DigitalPyService):
             request.set_action("SendEmergenciesToClient")
             request.set_sender(self.__class__.__name__.lower())
             request.set_value("user", connection)
+            request.set_format("pickled")
+            self.subject_send_request(request, APPLICATION_PROTOCOL)
 
+            
+            # Send repeated messages to newly connected clients
+            request = ObjectFactory.get_new_instance("request")
+            request.set_sender(self.__class__.__name__.lower())
+            request.set_action("connection")
+            request.set_context("Repeater")
+            request.set_value("connection", connection)
+            request.set_value("recipients", [str(connection.get_oid())])
             request.set_format("pickled")
             self.subject_send_request(request, APPLICATION_PROTOCOL)
 
@@ -542,7 +549,7 @@ class TCPCoTServiceMain(DigitalPyService):
                 uid = clientInformation.modelObject.uid
             elif hasattr(clientInformation, "m_presence"):
                 uid = clientInformation.m_presence.modelObject.uid
-            conn_id = str(ObjectFactory.get_instantce("ObjectId", {"id": uid, "type": "connection"}))
+            conn_id = str(ObjectFactory.get_instance("ObjectId", {"id": uid, "type": "connection"}))
             del self.connections[conn_id]
             request.set_value("connection_id", conn_id)
             request.set_format("pickled")
@@ -738,20 +745,11 @@ class TCPCoTServiceMain(DigitalPyService):
                 sender = response.get_sender()
 
                 # Check if the response model object is a list
-                if isinstance(response.get_value("model_object"), list):
-                    for model_object in response.get_value("model_object"):
-                        # Define the specific cot object
-                        cot_object = SendOther()
-                        cot_object.modelObject = model_object
-
-                        # TODO: Decide where the serialization should be performed.
-                        # For now it's performed by whatever process is receiving the data
-                        # in this case using the convert_to_xml method.
-                        cot_object.xmlString = self.convert_to_xml(model_object)
-
-                        self.send_message(sender, cot_object)
+                if isinstance(response.get_value("message"), list):
+                    for model_object in response.get_value("message"):
+                        self.send_component_message(response, model_object)
                 else:
-                    self.send_component_message(response)
+                    self.send_component_message(response, response.get_value("message"))
             except Exception as e:
                 self.logger.error(
                     f"There was an exception sending a single response:\n"
@@ -761,11 +759,11 @@ class TCPCoTServiceMain(DigitalPyService):
                     f"Action: {response.get_action()}\n"
                 )
 
-    def send_component_message(self, request):
+    def send_component_message(self, request, message):
         response = ObjectFactory.get_instance("response")
         send_component_data_controller_inst = self.send_component_data_controller(None, None, None, None)
         send_component_data_controller_inst.initialize(request, response)
-        send_component_data_controller_inst.send_message(self.connections, request.get_value("message"), request.get_value("recipients"))
+        send_component_data_controller_inst.send_message(self.connections, message, request.get_value("recipients"))
 
     def send_message(self, sender, message, use_share_pipe=True):
         return SendDataController().sendDataInQueue(
@@ -1045,17 +1043,6 @@ class TCPCoTServiceMain(DigitalPyService):
                 self.send_message(None, modelData, use_share_pipe=False)
         except Exception as e:
             self.logger.error("data base connection error " + str(e))
-
-    def handle_sub_message(self, message):
-        with self.tracer.start_as_current_span("handle_sub_message") as span:
-            if message[0] == "/outbound/cots":
-                span.add_event("outbound cot received")
-                if hasattr(message[1], "clientInformation"):
-                    self.sent_message_count += 1
-                    self.send_message(message[1].clientInformation, message[1], use_share_pipe=False)
-                else:
-                    self.sent_message_count += 1
-                    self.send_message(None, message[1], use_share_pipe=False)
     
     def handle_regular_data(self, clientDataOutput: List[RawCoT]):
         """

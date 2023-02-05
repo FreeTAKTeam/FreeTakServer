@@ -1,9 +1,8 @@
-from flask import Flask, request, jsonify, session, send_file, escape
+from flask import Flask, request, jsonify, session, send_file, views
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from flask_httpauth import HTTPTokenAuth
 from flask_login import current_user, LoginManager
-from flask_classy import FlaskView, route
 import threading
 from functools import wraps
 import uuid
@@ -17,13 +16,14 @@ from flask_cors import CORS
 import qrcode
 import io
 from typing import Dict, List
-import zmq
+from geopy import Point, distance
 import time
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.request import Request
+from digitalpy.core.parsing.formatter import Formatter
 
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 
@@ -386,12 +386,9 @@ def updateSystemUserRest():
 def updateSystemUser(jsondata):
     """ this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
     exist operation will return an error
-
     Args:
         jsondata: dict
-
     Returns: None
-
     """
     for systemuser in jsondata['systemUsers']:
         update_column = {}
@@ -429,13 +426,7 @@ def addSystemUserRest():
         return "An error occured attempting to add user(s) to the system.", 500
 
 def addSystemUser(jsondata):
-    """Method that adds new users to the system
-
-    :param jsondata: data #TODO create schema for this, also rename arg
-    :type jsondata: dict
-    :raises Exception: Malformed data exception
-    :return: message and response code (message: str, response code: int)
-    :rtype: tuple
+    """ method which adds new system user
     """
     errors = []
     for systemuser in jsondata['systemUsers']:
@@ -446,38 +437,23 @@ def addSystemUser(jsondata):
                 # if certs are to be generated the certificate generation is called DP is created and CoT is sent to
                 # client resulting in an automatic download of the certificate
 
-                # sanitize system user name
-                system_user_name = str(escape(systemuser['Name']))
-
-                # sanitize system user group
-                system_user_group = str(escape(systemuser['Group']))
-
-                # sanitize system user token
-                system_user_token = str(escape(systemuser['Token']))
-
-                # sanitize system user pass
-                system_user_pw = str(escape(systemuser['Password']))
-
-                #sanitize system user device type
-                system_user_device_type = str(escape(systemuser['DeviceType']))
-
-                cert_name = system_user_name + user_id
-
+                cert_name = systemuser["Name"] + user_id
                 # create certs
                 certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
-
-                if system_user_device_type.lower() == "wintak":
+                if systemuser["DeviceType"].lower() == "wintak":
                     certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
-                elif system_user_device_type.lower() == "mobile":
+                elif systemuser["DeviceType"].lower() == "mobile":
                     certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
                 else:
                     raise Exception("invalid device type, must be either mobile or wintak")
                 # add DP
+                import string
+                import random
                 from pathlib import PurePath, Path
                 import hashlib
+                from defusedxml import ElementTree as etree
                 import shutil
                 import os
-
                 dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
                 openfile = open(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                                 mode='rb')
@@ -491,10 +467,10 @@ def addSystemUser(jsondata):
                 dbController.create_datapackage(uid=user_id, Name=cert_name + '.zip', Hash=file_hash,
                                                 SubmissionUser='server',
                                                 CreatorUid='server-uid', Size=fileSize, Privacy=1)
-                dbController.create_systemUser(name=system_user_name, group=system_user_group,
-                                                token=system_user_token, password=system_user_pw,
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                token=systemuser["Token"], password=systemuser["Password"],
                                                 uid=user_id,
-                                                certificate_package_name=cert_name + '.zip', device_type = system_user_device_type)
+                                                certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
                 import datetime as dt
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
@@ -511,20 +487,20 @@ def addSystemUser(jsondata):
                 from FreeTAKServer.model.RawCoT import RawCoT
                 cot = RawCoT()
                 DPIP = getStatus().TCPDataPackageService.TCPDataPackageServiceIP
-                clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{user_id}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{cert_name}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{cert_name + ".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{cert_name + ".zip"}" /><marti><dest callsign="{system_user_name}" /></marti></detail></event>'
+                clientXML = f'<?xml version="1.0"?><event version="2.0" uid="{user_id}" type="b-f-t-r" time="{time}" start="{time}" stale="{stale}" how="h-e"><point lat="43.85570300" lon="-66.10801200" hae="19.55866360" ce="3.21600008" le="nan" /><detail><fileshare filename="{cert_name}" senderUrl="{DPIP}:8080/Marti/api/sync/metadata/{str(file_hash)}/tool" sizeInBytes="{fileSize}" sha256="{str(file_hash)}" senderUid="{"server-uid"}" senderCallsign="{"server"}" name="{cert_name + ".zip"}" /><ackrequest uid="{uuid.uuid4()}" ackrequested="true" tag="{cert_name + ".zip"}" /><marti><dest callsign="{systemuser["Name"]}" /></marti></detail></event>'
                 cot.xmlString = clientXML.encode()
                 newCoT = SendOtherController(cot, addToDB=False)
                 APIPipe.put(newCoT.getObject())
 
             else:
                 # in the event no certificate is to be generated simply create a system user
-                dbController.create_systemUser(name=system_user_name, group=system_user_group,
-                                                token=system_user_token, password=system_user_pw,
-                                                uid=user_id, device_type = system_user_device_type)
+                dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
+                                                token=systemuser["Token"], password=systemuser["Password"],
+                                                uid=user_id, device_type = systemuser["DeviceType"])
         except Exception as e:
             logger.error(str(e))
             if isinstance(systemuser, dict) and "Name" in systemuser:
-                errors.append(f"operation failed for user {system_user_name}")
+                errors.append(f"operation failed for user {systemuser['Name']}")
             else:
                 errors.append(f"operation failed for user. missing name parameter.")
 
@@ -917,7 +893,6 @@ def getGeoObject():
                             Point.lat < 0,
                             ((((Point.lon * -1) - lon_abs) * 111302.62) + (((Point.lat * -1) - lat_abs) * 110574.61)) > 0,
                             ((((Point.lon * -1) - lon_abs) * 111302.62) + (((Point.lat * -1) - lat_abs) * 110574.61)) <= radius + 10),
-
                         and_(
                             Point.lon < 0,
                             Point.lat >= 0,
@@ -929,7 +904,6 @@ def getGeoObject():
                                     ((((lon_abs * -1) - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) <= radius + 10,
                                     ((((lon_abs * -1) - Point.lon) * 111302.62) + ((lat_abs - Point.lat) * 110574.61)) > 0)
                             ),
-
                         ),
                         and_(
                             Point.lon >= 0,
@@ -982,7 +956,7 @@ def getGeoObject():
         return "An error occurred retrieving geo object.", 500
 
 
-@app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
+#@app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
 @auth.login_required
 def postGeoObject():
     try:
@@ -1864,16 +1838,155 @@ APPLICATION_PROTOCOL = "xml"
 # API Request timeout in ms
 API_REQUEST_TIMEOUT = 5000
 
-class RestAPI(DigitalPyService, FlaskView):
-    route_base = '/'
+class ManageGeoObjects(views.View):
+    #decorators = [auth.login_required]
+    def dispatch_request(self, method):
+        endpoints: Dict[str, callable] = {
+            "GetRepeatedMessages": self.get_repeated_messages,
+            "postGeoObject": self.post_geo_object,
+            "DeleteRepeatedMessages": self.delete_repeated_messages,
+        }
+        return endpoints[method]()
+
+    def make_request(self, action: str, values: Dict = {}):
+        rest_api_service = ObjectFactory.get_instance("RestAPIService")
+
+        # request to get repeated messages
+        request: Request = ObjectFactory.get_new_instance("request")
+        request.set_action(action)
+        request.set_sender(rest_api_service.__class__.__name__.lower())
+        request.set_format("pickled")
+        request.set_values(values)
+        rest_api_service.subject_send_request(request, APPLICATION_PROTOCOL)
+        response = rest_api_service.retrieve_response(request.get_id())
+        return response
+
+    def get_repeated_messages(self):
+        """method to retrieve a repeated messages
+        Returns:
+            str: example of json output {"messages": {"example-oid": <event><detail/><point/></event>}}
+        """
+        try:
+            response = self.make_request("GetRepeatedMessages")
+            message_nodes = response.get_value("message")
+
+            # request to serialize repeated messages to CoT
+            # TODO: parameterize message protocol
+            response = self.make_request("serialize", {"message": message_nodes, "protocol": "XML"})
+
+            # convert response to json
+            # TODO: this conversion should be automated 
+            output = {"messages": {}}
+            message = response.get_value("message")
+            for i in range(len(message)):
+                output["messages"][str(message_nodes[i].get_oid())] = message[i].decode()
+            
+            return json.dumps(output)
+
+        except Exception as e:
+            return str(e), 500
+
+    def post_geo_object(self):
+        """this method is responsible for creating publishing and saving a geoobject to the repeater
+        Returns:
+            str: the uid of the generated object
+        """
+        try:
+            # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
+            jsondata = request.get_json(force=True)
+            # conver the json body to an object
+            jsonobj = JsonController().serialize_geoobject_post(jsondata)
+            
+            # check if the message it expected to be repeated
+            if "distance" in jsondata:
+                start_point = Point(jsonobj.getlatitude(), jsonobj.getlongitude())
+                d = distance.distance(meters=jsondata["distance"])
+                if "bearing" in jsondata:
+                    end_point = d.destination(point=start_point, bearing=jsondata["bearing"])
+                else:
+                    end_point = d.destination(point=start_point, bearing=360)
+                jsonobj.setlatitude(end_point.latitude)
+                jsonobj.setlongitude(end_point.longitude)
+
+            simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
+
+            # if the message should be repeated then make a request to repeat it
+            if jsonobj.getrepeat():
+                # make request to create a geoobject node
+                response = self.make_request("CreateGeoObject", {"id": jsonobj.getuid()})
+                
+                # apply the given values to the model object
+                model_object = response.get_value("model_object")
+                model_object.uid = jsonobj.getuid()
+                COTTYPE = jsonobj.getgeoObject()
+                if "-.-" in COTTYPE:
+                    ID = jsonobj.getattitude()
+                    COTTYPE = COTTYPE.replace('-.-', ID)
+                else:
+                    pass
+                model_object.type = COTTYPE
+                model_object.how = jsonobj.gethow()
+                
+                model_object.start = None # set to default val
+                model_object.time = None  # set to default val
+                if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
+                    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                    timer = dt.datetime
+                    now = timer.utcnow()
+                    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+                    stale = now+add
+                    model_object.stale = stale.strftime(DATETIME_FMT)
+                else:
+                    model_object.stale = None # set to default val
+                #    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                #    timer = dt.datetime
+                #    now = timer.utcnow()
+                #    zulu = now.strftime(DATETIME_FMT)
+                #    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+                #    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+                #model_object.stale = stale_part
+                model_object.point.lat = jsonobj.getlatitude()
+                model_object.point.lon = jsonobj.getlongitude()
+                model_object.detail.contact.callsign = jsonobj.getname()
+               
+                # make request to persist the model object to be re-sent
+                response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})
+
+            print("putting in queue")
+            APIPipe.put(simpleCoTObject)
+            print(simpleCoTObject.xmlString)
+            print('put in queue')
+            return simpleCoTObject.modelObject.getuid(), 200
+        except Exception as e:
+            logger.error(str(e))
+            return "An error occurred adding geo object.", 500
+    
+    def delete_repeated_messages(self):
+        """delete an existing repeated message
+        Returns:
+            str: whether or not the operation was sucessful
+        """
+        try:
+            # get and blowup id list
+            ids: List[str] = request.args.get("ids").split(",")
+            response = self.make_request("DeleteRepeatedMessage", {"ids": ids})
+            if response.get_value("success"):    
+                return 'operation successful', 200
+            else:
+                return 'operation failed', 500
+        except Exception as e:
+            return str(e), 500
+
+app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
+
+class RestAPI(DigitalPyService):
+    
+    # a dictionary containing the request_id and response objects for all received requests
+    # to prevent confusion between endpoints
+    responses: Dict[str, Response] = {}
 
     def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
         super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
-        # a dictionary cotaining the request_id and response objects for all received requests
-        # to prevent confusion between endpoints
-        self.responses: Dict[str, Response] = {}
-        self.poller = zmq.Poller()
-        self.poller.register(self.subscriber_socket, zmq.POLLIN)
 
     def get_response_in_responses(self, id):
         # check if the response has already been received
@@ -1889,7 +2002,6 @@ class RestAPI(DigitalPyService, FlaskView):
         requests, instead we pass the id to this method which then checks
         in the responses dict if the response has been received by another
         thread, if not then it goes on receiving the next response
-
         Args:
             id (str): the id of the response being waited for
         """
@@ -1905,17 +2017,20 @@ class RestAPI(DigitalPyService, FlaskView):
             # the poller is only registered to the zmq_subscriber socket
             # so if there are available messages it should only be coming
             # from the zmq_subscriber socket.
-            socks = self.poller.poll(1000)
-            if len(socks)>0:
-                response = super().broker_receive(blocking=True)
+            self.subscriber_socket.RCVTIMEO = 1000
+
+            responses = super().broker_receive(blocking=True)
+            for response in responses:
                 if response.get_id() != id:
                     # use shared memory of responses dictionary
                     self.responses[response.get_id()] = response
-            
-            # check if the response has already been received
-            existing_response = self.get_response_in_responses(id)
-            if existing_response is not None:
-                return existing_response
+                else:
+                    return response
+                    
+                # check if the response has already been received
+                existing_response = self.get_response_in_responses(id)
+                if existing_response is not None:
+                    return existing_response
 
         # check if the response has already been received
         existing_response = self.get_response_in_responses(id)
@@ -1923,57 +2038,16 @@ class RestAPI(DigitalPyService, FlaskView):
             return existing_response
         else:
             raise TimeoutError("zmanager failed to return a response")
-    
-    @route("/ManageGeoObject/GetRepeatedMessages")
-    @auth.login_required
-    def get_repeated_messages(self):
-        try:
-            # request to get repeated messages
-            request: Request = ObjectFactory.get_new_instance("request")
-            request.set_action("GetRepeatedMessages")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            response = self.retrieve_response(request.get_id())
-            message_nodes = response.get_value("message_nodes")
 
-            # request to serialize repeated messages to CoT
-            request: Request = ObjectFactory.get_new_instance("request")
-            request.set_action("serialize")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_format("pickled")
-            request.set_value("message", message_nodes)
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            response = self.retrieve_response(request.get_id())
+    def stop(self):
+        super().stop()
+        socketio.stop()
 
-            # convert response to json
-            # TODO: this conversion should be automated 
-            output = {"messages": {}}
-            message = response.get_value("message")
-            for i in range(message):
-                output[str(message_nodes[i].get_oid())] = message[i]
-            
-            return json.dump(output)
-
-        except Exception as e:
-            return str(e), 500
-
-    @route("/ManageGeoObject/DeleteRepeatedMessages")
-    @auth.login_required
-    def delete_repeated_messages(self, ids: List[str]):
-        try:
-            request: Request = ObjectFactory.get_new_instance("request")
-            request.set_action("DeleteRepeatedMessage")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_format("pickled")
-            request.set_value('ids', ids)
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            response = self.retrieve_response(request.get_id())
-        except Exception as e:
-            return str(e), 500
-
-    def startup(self, APIPipea, CommandPipea, IP, Port, starttime, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
+    def start(self, APIPipea, CommandPipea, IP, Port, starttime, factory):
         print('running api')
+        super().start()
+        self.initialize_connections(APPLICATION_PROTOCOL)
+        ObjectFactory.configure(factory)
         init_config()
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime

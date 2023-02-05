@@ -42,7 +42,6 @@ from FreeTAKServer.core.services.federation.federation import (
 from FreeTAKServer.core.services.federation.FederationClientService import (
     FederationClientServiceController,
 )
-from FreeTAKServer.core.services.RestAPI import RestAPI
 from FreeTAKServer.core.services.SSLCoTServiceController import (
     SSLCoTServiceController,
 )
@@ -103,13 +102,56 @@ class FTS(DigitalPy):
 
         
 
-    def start_rest_api_service(self, StartupObjects):
+    def start_rest_api_service(self, FTSServiceStartupConfigObject):
         """this method starts the rest api service and instantiates ISC protocols
 
         :param StartupObjects:
         :return:
         """
         try:
+            self.configuration.set_value(
+                key="subject_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}",
+                section="RestAPIService",
+            )
+
+            self.configuration.set_value(
+                key="subject_port",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
+                section="RestAPIService"
+            )
+
+            self.configuration.set_value(
+                key="subject_protocol",
+                value=FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol,
+                section="RestAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_address",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
+                section="RestAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_port",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
+                section="RestAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_protocol",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherProtocol,
+                section="RestAPIService"
+            )
+
+
+            self.configuration.set_value(
+                key="service_id",
+                value="rest_api_service",
+                section="RestAPIService"
+            )
+
             self.RestAPIPipe = Queue()
             restapicommandsthread = Queue()
             restapicommandsmain = Queue()
@@ -124,14 +166,16 @@ class FTS(DigitalPy):
             self.receive_Rest = threading.Thread(
                 target=self.receive_Rest_commands, args=(self.receive_Rest_stopper,)
             )
+            rest_api_service = ObjectFactory.get_instance("RestAPIService")
             self.RestAPIProcess = multiprocessing.Process(
-                target=RestAPI().startup,
+                target=rest_api_service.start,
                 args=(
                     self.RestAPIPipe,
                     RestAPICommandsFTS,
-                    StartupObjects.RestAPIService.RestAPIServiceIP,
-                    StartupObjects.RestAPIService.RestAPIServicePort,
+                    FTSServiceStartupConfigObject.RestAPIService.RestAPIServiceIP,
+                    FTSServiceStartupConfigObject.RestAPIService.RestAPIServicePort,
                     self.StartupTime,
+                    ObjectFactory.get_instance("factory")
                 ),
             )
             self.receive_Rest.start()
@@ -726,7 +770,7 @@ class FTS(DigitalPy):
                 value=f"{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerProtocol}://{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerAddress}:{FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPullerPort}",
                 section="RoutingWorker",
             )
-                
+        
         # define routing configuration
 
         # define the configuration for the routing worker
@@ -759,6 +803,20 @@ class FTS(DigitalPy):
         )
         
         # register the internal components
+        internal_components = ComponentRegistrationHandler.discover_components(
+            component_folder_path=pathlib.PurePath(
+                FTSServiceStartupConfigObject.ComponentRegistration.internal_components_path
+            ),
+        )
+
+        for internal_component in internal_components:
+            ComponentRegistrationHandler.register_component(
+                internal_component,
+                FTSServiceStartupConfigObject.ComponentRegistration.internal_components_import_root,
+                self.configuration,
+            )
+
+        # register the core components
         core_components = ComponentRegistrationHandler.discover_components(
             component_folder_path=pathlib.PurePath(
                 FTSServiceStartupConfigObject.ComponentRegistration.core_components_path
@@ -785,6 +843,7 @@ class FTS(DigitalPy):
                 FTSServiceStartupConfigObject.ComponentRegistration.external_components_import_root,
                 self.configuration,
             )
+
 
         
             
@@ -1385,9 +1444,9 @@ class FTS(DigitalPy):
                 StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
                 self.configure(StartupObject)
-                self.start_rest_api_service(StartupObject)
                 self.register_components(StartupObject)
                 self.start_services()
+                self.start_rest_api_service(StartupObject)
                 self.start_all(StartupObject)
 
             start_timer = time.time() - 60

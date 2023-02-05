@@ -999,17 +999,6 @@ class SSLCoTServiceMain(DigitalPyService):
                 self.send_message(None, modelData, use_share_pipe=False)
         except Exception as e:
             self.logger.error("data base connection error " + str(e))
-
-    def handle_sub_message(self, message):
-        with self.tracer.start_as_current_span("handle_sub_message") as span:
-            if message[0] == "/outbound/cots":
-                span.add_event("outbound cot received")
-                if hasattr(message[1], "clientInformation"):
-                    self.sent_message_count += 1
-                    self.send_message(message[1].clientInformation, message[1], use_share_pipe=False)
-                else:
-                    self.sent_message_count += 1
-                    self.send_message(None, message[1], use_share_pipe=False)
     
     def handle_regular_data(self, clientDataOutput: List[RawCoT]):
         """
