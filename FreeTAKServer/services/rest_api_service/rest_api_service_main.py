@@ -1890,7 +1890,7 @@ class ManageGeoObjects(views.View):
             output = {"messages": {}}
             message = response.get_value("message")
             for i in range(len(message)):
-                output["messages"][str(message_nodes[i].get_oid())] = message[i].decode()
+                output["messages"][str(message_nodes[i].uid)] = message[i].decode()
             
             return json.dumps(output)
 
@@ -1984,11 +1984,16 @@ class ManageGeoObjects(views.View):
             if response.get_value("success"):
                 delete_objs = []  
                 for id in ids:
+                    # TODO move strings out to constants
                     response = self.make_request("DeleteGeoObject", {"uid": id})
                     model_obj = response.get_value("model_object")
                     model_obj.detail.link.uid = id
                     model_obj.type = "t-x-d-d"
                     model_obj.uid = id
+                    model_obj.how = "h-g"
+                    model_obj.start = None # set to default val
+                    model_obj.time = None  # set to default val
+                    model_obj.stale = None # set to default val
                     delete_objs.append(model_obj)
                 self.make_request("publish", {"recipients": "*", "message": delete_objs}, False)
                 return 'operation successful', 200
