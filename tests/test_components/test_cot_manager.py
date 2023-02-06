@@ -9,9 +9,6 @@ from digitalpy.core.zmanager.impl.default_response import DefaultResponse
 from FreeTAKServer.core.cot_management.cot_management_facade import CotManagement
 
 
-def setup():
-    pass
-
 def mock_controller_execute_sub_action(sub_response = Mock()):
     Controller.execute_sub_action = Mock(return_value=sub_response)
 
@@ -61,9 +58,6 @@ def assert_schema_to_response_val(response_schema_values, response):
         else:
             # assert that they are the same
             assert response.get_value(key) == value
-
-# def compare_response_list_values(schema_value, response_value):
-#     if isinstance(schema_value, list)
 
 def parse_schema(schema: str):
     return json.loads(schema)
@@ -164,7 +158,6 @@ def test_connection(mock_load):
     assert response.get_action() == test_obj['response']['action']
 
     # assert the message value is correct
-    # assert_response_val('message', list, [mock_node], response)
     assert_schema_to_response_val(test_obj['response']['values'], response)
 
 test_get_repeated_messages_schema = """
