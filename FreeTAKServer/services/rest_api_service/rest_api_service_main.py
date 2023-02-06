@@ -1848,7 +1848,17 @@ class ManageGeoObjects(views.View):
         }
         return endpoints[method]()
 
-    def make_request(self, action: str, values: Dict = {}):
+    def make_request(self, action: str, values: Dict = {}, synchronous:bool=True) -> Response:
+        """make a request to the zmanager
+
+        Args:
+            action (str): the action key to be sent
+            values (Dict, optional): the values to be sent in the reques. Defaults to {}.
+            synchronous (bool, optional): whether or not to wait for a response from the zmanager. Defaults to True.
+
+        Returns:
+            Response: the response coming from the the zmanager
+        """
         rest_api_service = ObjectFactory.get_instance("RestAPIService")
 
         # request to get repeated messages
@@ -1858,8 +1868,9 @@ class ManageGeoObjects(views.View):
         request.set_format("pickled")
         request.set_values(values)
         rest_api_service.subject_send_request(request, APPLICATION_PROTOCOL)
-        response = rest_api_service.retrieve_response(request.get_id())
-        return response
+        if synchronous:
+            response = rest_api_service.retrieve_response(request.get_id())
+            return response
 
     def get_repeated_messages(self):
         """method to retrieve a repeated messages
@@ -1970,7 +1981,16 @@ class ManageGeoObjects(views.View):
             # get and blowup id list
             ids: List[str] = request.args.get("ids").split(",")
             response = self.make_request("DeleteRepeatedMessage", {"ids": ids})
-            if response.get_value("success"):    
+            if response.get_value("success"):
+                delete_objs = []  
+                for id in ids:
+                    response = self.make_request("DeleteGeoObject", {"uid": id})
+                    model_obj = response.get_value("model_object")
+                    model_obj.detail.link.uid = id
+                    model_obj.type = "t-x-d-d"
+                    model_obj.uid = id
+                    delete_objs.append(model_obj)
+                self.make_request("publish", {"recipients": "*", "message": delete_objs}, False)
                 return 'operation successful', 200
             else:
                 return 'operation failed', 500

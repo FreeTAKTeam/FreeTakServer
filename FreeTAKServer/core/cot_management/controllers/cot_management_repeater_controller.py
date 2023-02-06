@@ -9,6 +9,9 @@ from digitalpy.core.domain.node import Node
 from typing import List, Union
 
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence import CotManagementRepeaterPersistence
+from FreeTAKServer.core.cot_management.controllers.cot_management_geo_object_controller import CotManagementGeoObjectController
+# used for type hinting
+from FreeTAKServer.components.core.domain.domain import Event
 
 class CotManagementRepeaterController(Controller):
     """this class is responsible for handling the business logic regarding the repeated messages
@@ -22,8 +25,10 @@ class CotManagementRepeaterController(Controller):
     ) -> None:
         super().__init__(request, response, cot_management_action_mapper, configuration)
         self.persistency_controller = CotManagementRepeaterPersistence(request, response, cot_management_action_mapper, configuration)
+        self.geo_object_cotroller = CotManagementGeoObjectController(request, response, cot_management_action_mapper, configuration)
 
     def initialize(self, request, response):
+        self.geo_object_cotroller.initialize(request, response)
         self.request = request
         self.response = response
 
@@ -75,18 +80,19 @@ class CotManagementRepeaterController(Controller):
         for key, value in self.request.get_values().items():
             self.response.set_value(key, value)
             
-    def create_repeated_messages(self, message: List[Node], **kwargs):
+    def create_repeated_messages(self, message: List[Event], **kwargs):
         """add a message to be repeated
 
         Args:
-            message (List[Node]): a list of nodes to be added to repeated messages
+            message (List[Event]): a list of events to be added to repeated messages.
         """
         # load existing repeated messages
         cur_messages = self.persistency_controller._load_repeated_messages()
         # iterate the passed list of nodes and add each one to the dict of current messages with the oid as the
         # key and the object as the value
         for node in message:
-            cur_messages[str(node.get_oid())] = node
+            # use the event id 
+            cur_messages[str(node.uid)] = node
         # save the updated dict of current messages
         self.persistency_controller._save_repeated_messages(cur_messages)
         # return that the operation was successful

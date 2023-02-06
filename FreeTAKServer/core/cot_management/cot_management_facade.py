@@ -93,9 +93,14 @@ class CotManagement(DefaultFacade):
     def create_repeated_message(self, *args, **kwargs):
         self.repeater_controller.create_repeated_messages(*args, **kwargs)
 
+    @DefaultFacade.public
     def delete_repeated_message(self, *args, **kwargs):
         self.repeater_controller.delete_repeated_message(*args, **kwargs)
     
     @DefaultFacade.public
     def create_geo_object(self, *args, **kwargs):
         self.geo_object_controller.create_geo_object(*args, **kwargs)
+
+    @DefaultFacade.public
+    def delete_geo_object(self, *args, **kwargs):
+        self.geo_object_controller.delete_geo_object(*args, **kwargs)

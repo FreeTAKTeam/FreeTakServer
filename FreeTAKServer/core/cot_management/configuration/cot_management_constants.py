@@ -7,7 +7,9 @@ CONFIGURATION_FORMAT = "json"
 
 CURRENT_COMPONENT_PATH = pathlib.Path(__file__).parent.parent.absolute()
 
-GEO_OBJECT = "GeoObject"
+GEO_OBJECT = "geoobject"
+
+DELETE_GEO_OBJECT = "deletegeoobject"
 
 CONFIGURATION_PATH_TEMPLATE = Template(
     str(

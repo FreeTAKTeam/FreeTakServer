@@ -19,11 +19,16 @@ def mock_controller_execute_sub_action(sub_response = Mock()):
 def get_mock_oid(oid_str = str(uuid.uuid1())):
     mock_oid = MagicMock()
     mock_oid.__str__.return_value = oid_str
-    return mock_oid
+    return 
 
 def get_mock_node(oid = get_mock_oid()):
     mock_node = Mock()
     mock_node.get_oid.return_value = oid
+    return mock_node
+
+def get_mock_event(mock_node = get_mock_node(), uid = '', type = ''):
+    mock_node.uid = uid
+    mock_node.type = type
     return mock_node
 
 def get_mock_connection(node = get_mock_node(), service_id = "test-service", protocol = "test-protocol"):
@@ -200,13 +205,13 @@ def test_create_repeated_message(mock_load, mock_dump):
     mock_controller_execute_sub_action(response)
 
     # get a mock node object
-    mock_node = get_mock_node()
+    mock_event = get_mock_event()
 
     # define the output dictionary of the mocked persistency output
     mock_load.return_value = {}
 
     # set the content of the message value to be a list containing one mocked node
-    request.set_value("message", [mock_node])
+    request.set_value("message", [mock_event])
 
     # instantiate the facade
     facade = CotManagement(None, request, response, None)
@@ -222,7 +227,7 @@ def test_create_repeated_message(mock_load, mock_dump):
     # assert the success value is correct
     assert_response_val('success', bool, True, response)
     # assert that the node was saved
-    assert_saved(mock_dump, {str(mock_node.get_oid()): mock_node})
+    assert_saved(mock_dump, {str(mock_event.uid): mock_event})
 
 @patch('pickle.dump')
 @patch('pickle.load')
@@ -235,13 +240,13 @@ def test_create_repeated_message_execute(mock_load, mock_dump):
     mock_controller_execute_sub_action(response)
 
     # get a mock node object
-    mock_node = get_mock_node()
+    mock_event = get_mock_event()
 
     # define the output dictionary of the mocked persistency output
     mock_load.return_value = {}
 
     # set the content of the message value to be a list containing one mocked node
-    request.set_value("message", [mock_node])
+    request.set_value("message", [mock_event])
 
     # instantiate the facade
     facade = CotManagement(None, request, response, None)
@@ -257,7 +262,7 @@ def test_create_repeated_message_execute(mock_load, mock_dump):
     # assert the success value is correct
     assert_response_val('success', bool, True, response)
     # assert that the node was saved
-    assert_saved(mock_dump, {str(mock_node.get_oid()): mock_node})
+    assert_saved(mock_dump, {str(mock_event.uid): mock_event})
 
 @patch('pickle.dump')
 @patch('pickle.load')
@@ -433,6 +438,52 @@ def test_create_geo_object_execute(mock_load):
 
     # call the get_repeated_messages method from the facade
     facade.execute("create_geo_object")
+
+    # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
+    assert response.get_action() == "CreateNode"
+    # assert the message object_class_name is correct
+    assert_response_val('object_class_name', str, "Event", response)
+    # assert the configuration is of correct type
+    assert isinstance(response.get_value("configuration"), Configuration)
+
+def test_delete_geo_object():
+        # instnatiate request and response objects
+    request, response = instantiate_request_response("DeleteGeoObject")
+
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the get_repeated_messages method from the facade
+    facade.delete_geo_object(**request.get_values())
+
+    # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
+    assert response.get_action() == "CreateNode"
+    # assert the message object_class_name is correct
+    assert_response_val('object_class_name', str, "Event", response)
+    # assert the configuration is of correct type
+    assert isinstance(response.get_value("configuration"), Configuration)
+
+def test_delete_geo_object_execute():
+        # instnatiate request and response objects
+    request, response = instantiate_request_response("DeleteGeoObject")
+
+    # mock the execute sub action method in the controller class
+    mock_controller_execute_sub_action(response)
+
+    # instantiate the facade
+    facade = CotManagement(None, request, response, None)
+
+    # initialize the facade
+    facade.initialize(request, response)
+
+    # call the get_repeated_messages method from the facade
+    facade.execute("delete_geo_object")
 
     # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
     assert response.get_action() == "CreateNode"
