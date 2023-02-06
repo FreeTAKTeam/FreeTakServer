@@ -63,7 +63,7 @@ class EmergencyGeneralController(Controller):
     def filter_by_distance(self, emergency: Event):
         """filter who receives this emergency based on their distance from the emergency"""
         self.connections = self.retrieve_users()
-        for _, connection_obj in self.connections.items():
+        for connection_obj in self.connections:
             if self.validate_user_distance(emergency, connection_obj):
                 self.request.get_value('recipients').append(str(connection_obj.get_oid()))
             
