@@ -30,6 +30,10 @@ class EmergencyGeneralController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
 
+    def initialize(self, request, response):
+        self.request = request
+        self.response = response
+
     def serialize_emergency(self, **kwargs):
         """this is the general method used to serialize the emergency to a given format"""
         # serialize the emergency model object in a sub-action
@@ -60,17 +64,20 @@ class EmergencyGeneralController(Controller):
         """filter who receives this emergency based on their distance from the emergency"""
         self.connections = self.retrieve_users()
         for _, connection_obj in self.connections.items():
-            connection_model_object = connection_obj.model_object
-            connection_location = connection_model_object.point
-
-            # check that the distance between the user and the emergency is less than 10km
-            # TODO: this hardcoded distance should be added to the business rules
-            if (
-                MAXIMUM_EMERGENCY_DISTANCE==0 or
-                distance.geodesic(
-                    (connection_location.lat, connection_location.lon),
-                    (emergency.point.lat, emergency.point.lon),
-                ).km
-                < MAXIMUM_EMERGENCY_DISTANCE
-            ):
+            if self.validate_user_distance(emergency, connection_obj):
                 self.request.get_value('recipients').append(str(connection_obj.get_oid()))
+            
+    def validate_user_distance(self, emergency: Event, connection):
+        connection_model_object = connection.model_object
+        connection_location = connection_model_object.point
+
+        # check that the distance between the user and the emergency is less than 10km
+        # TODO: this hardcoded distance should be added to the business rules
+        return (
+            MAXIMUM_EMERGENCY_DISTANCE==0 or
+            distance.geodesic(
+                (connection_location.lat, connection_location.lon),
+                (emergency.point.lat, emergency.point.lon),
+            ).km
+            < MAXIMUM_EMERGENCY_DISTANCE
+        )
