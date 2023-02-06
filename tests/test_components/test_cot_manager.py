@@ -127,8 +127,9 @@ test_connection_schema = """
 """
 
 # patch the persistency output
+@patch('pickle.dump')
 @patch('pickle.load')
-def test_connection(mock_load):
+def test_connection(mock_load, mock_dump):
     """test the connection action in the cot manager
     """
     test_obj = parse_schema(test_connection_schema)
@@ -179,8 +180,9 @@ test_get_repeated_messages_schema = """
 }
 """
 
+@patch('pickle.dump')
 @patch('pickle.load')
-def test_get_repeated_messages(mock_load):
+def test_get_repeated_messages(mock_load, mock_dump):
 
     test_obj = parse_schema(test_get_repeated_messages_schema)
 
