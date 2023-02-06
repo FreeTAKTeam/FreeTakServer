@@ -81,10 +81,10 @@ class EmergencyOffController(DefaultBusinessRuleController):
             self.request.set_value('message', response.get_value("model_object"))
             # Serializer called by service manager requires the message value
             self.response.set_value('message', [response.get_value("model_object")])
-            self.request.set_value('recipients', [])
+            self.request.set_value('recipients', "*")
 
-            self.emergency_general_controller.initialize(self.request, self.response)
-            self.emergency_general_controller.filter_by_distance(response.get_value("model_object"))
+            # self.emergency_general_controller.initialize(self.request, self.response)
+            # self.emergency_general_controller.filter_by_distance(response.get_value("model_object"))
 
             # validate the users in the recipients list
             response = self.execute_sub_action("ValidateUsers")
