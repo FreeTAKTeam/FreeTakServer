@@ -8,8 +8,8 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.10 Alpha"
-API_VERSION = "1.9.5"
+FTS_VERSION = "FreeTAKServer-2.0.11 Alpha"
+API_VERSION = "1.9.6"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
 ROOTPATH = "/"
