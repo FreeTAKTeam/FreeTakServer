@@ -162,8 +162,6 @@ class SSLCoTServiceMain(DigitalPyService):
                     1
                 ] = clientInformation
                 self.get_client_information()
-                # update the geo manager controller with the new client information
-                GeoManagerController.update_users(self.client_information_queue)
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
@@ -406,11 +404,22 @@ class SSLCoTServiceMain(DigitalPyService):
             # Broadcast user in geochat
             self.send_user_connection_geo_chat(clientInformation)
 
+            # Send emergency information to newly connected client
             request = ObjectFactory.get_new_instance("request")
             request.set_action("SendEmergenciesToClient")
             request.set_sender(self.__class__.__name__.lower())
             request.set_value("user", connection)
+            request.set_format("pickled")
+            self.subject_send_request(request, APPLICATION_PROTOCOL)
 
+            
+            # Send repeated messages to newly connected clients
+            request = ObjectFactory.get_new_instance("request")
+            request.set_sender(self.__class__.__name__.lower())
+            request.set_action("connection")
+            request.set_context("Repeater")
+            request.set_value("connection", connection)
+            request.set_value("recipients", [str(connection.get_oid())])
             request.set_format("pickled")
             self.subject_send_request(request, APPLICATION_PROTOCOL)
 
@@ -690,20 +699,11 @@ class SSLCoTServiceMain(DigitalPyService):
                 sender = response.get_sender()
 
                 # Check if the response model object is a list
-                if isinstance(response.get_value("model_object"), list):
-                    for model_object in response.get_value("model_object"):
-                        # Define the specific cot object
-                        cot_object = SendOther()
-                        cot_object.modelObject = model_object
-
-                        # TODO: Decide where the serialization should be performed.
-                        # For now it's performed by whatever process is receiving the data
-                        # in this case using the convert_to_xml method.
-                        cot_object.xmlString = self.convert_to_xml(model_object)
-
-                        self.send_message(sender, cot_object)
+                if isinstance(response.get_value("message"), list):
+                    for model_object in response.get_value("message"):
+                        self.send_component_message(response, model_object)
                 else:
-                    self.send_component_message(response)
+                    self.send_component_message(response, response.get_value("message"))
             except Exception as e:
                 self.logger.error(
                     f"There was an exception sending a single response:\n"
@@ -713,11 +713,11 @@ class SSLCoTServiceMain(DigitalPyService):
                     f"Action: {response.get_action()}\n"
                 )
 
-    def send_component_message(self, request):
+    def send_component_message(self, request, message):
         response = ObjectFactory.get_instance("response")
         send_component_data_controller_inst = self.send_component_data_controller(None, None, None, None)
         send_component_data_controller_inst.initialize(request, response)
-        send_component_data_controller_inst.send_message(self.connections, request.get_value("message"), request.get_value("recipients"))
+        send_component_data_controller_inst.send_message(self.connections, message, request.get_value("recipients"))
 
     def send_message(self, sender, message, use_share_pipe=True):
         if not use_share_pipe:
