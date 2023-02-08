@@ -2,32 +2,12 @@ from unittest.mock import patch
 
 from FreeTAKServer.core.cot_management.cot_management_facade import CotManagement
 from tests.test_components.misc import ComponentTest
+from tests.test_components.test_cot_manager.test_cot_manager_schemas import (
+    TEST_CONNECTION_SCHEMA, TEST_CREATE_REPEATED_MESSAGE_SCHEMA,
+    TEST_DELETE_NON_EXISTENT_REPEATED_MESSAGE_SCHEMA,
+    TEST_DELETE_REPEATED_MESSAGE_SCHEMA, TEST_GET_REPEATED_MESSAGES_SCHEMA
+)
 
-TEST_CONNECTION_SCHEMA = """
-{
-    "request": {
-        "values": {
-            "connection": {
-                "oid": "3b1a979c-a31b-11ed-a8fc-0242ac120002",
-                "service_id": "test_service",
-                "protocol": "test_protocol",
-                "is_node": true 
-            }
-        },
-        "action": "connection"
-    },
-    "response": {
-        "action": "publish",
-        "values": {
-            "message": [
-                {
-                    "is_node": true
-                }
-            ]
-        }
-    }
-}
-"""
 
 # patch the persistency output
 @patch('pickle.dump')
@@ -55,26 +35,6 @@ def test_connection(mock_load, mock_dump):
     # assert the message value is correct
     setup.assert_schema_to_response_val(setup.test_obj['response']['values'])
 
-
-TEST_GET_REPEATED_MESSAGES_SCHEMA = """
-{
-    "request": {
-        "values": {},
-        "action": "GetRepeatedMessages"
-    },
-    "response":{
-        "action": "GetRepeatedMessages",
-        "values": {
-            "message": [
-                {
-                    "is_node": true
-                }
-            ]
-        }
-    }
-}
-"""
-
 @patch('pickle.dump')
 @patch('pickle.load')
 def test_get_repeated_messages(mock_load, mock_dump):
@@ -98,29 +58,6 @@ def test_get_repeated_messages(mock_load, mock_dump):
 
     # assert the message value is correct
     setup.assert_schema_to_response_val(setup.test_obj['response']['values'])
-
-
-TEST_CREATE_REPEATED_MESSAGE_SCHEMA = """
-{
-    "request": {
-        "values": {
-            "message": [
-                {
-                    "oid": "59886b34-a31e-11ed-a8fc-0242ac120002",
-                    "is_node": true
-                }
-            ]
-        },
-        "action": "CreateRepeatedMessage"
-    },
-    "response": {
-        "action": "CreateRepeatedMessage",
-        "values": {
-            "success": true
-        }
-    }
-}
-"""
 
 @patch('pickle.dump')
 @patch('pickle.load')
@@ -146,26 +83,6 @@ def test_create_repeated_message(mock_load, mock_dump):
     # assert the success value is correct
     setup.assert_schema_to_response_val(setup.test_obj['response']['values'])
 
-
-TEST_DELETE_REPEATED_MESSAGE_SCHEMA = """
-{
-    "request": {
-        "action": "DeleteRepeatedMessage",
-        "values": {
-            "ids": [
-                "329f80aa-a2f8-11ed-a8fc-0242ac120002"
-            ]
-        }
-    },
-    "response": {
-        "action": "DeleteRepeatedMessage",
-        "values": {
-            "success": true
-        }
-    }
-}
-"""
-
 @patch('pickle.dump')
 @patch('pickle.load')
 def test_delete_repeated_message(mock_load, mock_dump):
@@ -189,24 +106,6 @@ def test_delete_repeated_message(mock_load, mock_dump):
 
     # assert the success value is correct
     setup.assert_schema_to_response_val(setup.test_obj['response']['values'])
-
-
-TEST_DELETE_NON_EXISTENT_REPEATED_MESSAGE_SCHEMA = """
-{
-    "request": {
-        "action": "DeleteRepeatedMessage",
-        "values": {
-            "ids": ["329f80aa-a2f8-11ed-a8fc-0242ac120002"]
-        }
-    },
-    "response": {
-        "action": "DeleteRepeatedMessage",
-        "values": {
-            "success": true
-        }
-    }
-}
-"""
 
 @patch('pickle.dump')
 @patch('pickle.load')
