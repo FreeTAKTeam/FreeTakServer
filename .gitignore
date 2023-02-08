@@ -152,3 +152,4 @@ certs/
 FreeTAKServerDataPackageFolder/
 logs/
 FreeTAKServer/components/core/domain/ignore_me/
+FreeTAKServer/services/ssl_cot_service/ignore_me

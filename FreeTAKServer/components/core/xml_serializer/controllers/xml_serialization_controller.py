@@ -56,8 +56,8 @@ class XMLSerializationController(Controller):
         if hasattr(node, "text"):
             xml.text = node.text
 
-        for attribName in node.get_all_properties():
-            # below line is required because get_all_properties function returns only cot property names
+        for attribName in node.get_properties():
+            # below line is required because get_properties function returns only cot property names
             value = getattr(node, attribName)
 
             if value == None:

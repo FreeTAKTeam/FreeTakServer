@@ -53,3 +53,9 @@ class PresencePost(Presence):
 
     def gettimeout(self):
         return self.timeout
+
+    def setremarks(self, remarks):
+        self.remarks = remarks
+
+    def getremarks(self):
+        return self.remarks

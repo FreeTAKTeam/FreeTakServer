@@ -31,6 +31,11 @@ class EmergencySenderController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
 
+    def initialize(self, request, response):
+        self.request = request
+        self.response = response
+        self.emergency_general_controller.initialize(request, response)
+
     def broadcast_emergency(self, model_object, **kwargs):
         """this method will broadcast a specific emergency
 
@@ -58,9 +63,25 @@ class EmergencySenderController(Controller):
         )
         self.request.set_value("object_class_name", BASE_OBJECT_NAME)
         self.emergency_general_controller.initialize(self.request, self.response)
-        model_objects = list(emergencies)
         configuration = config_loader.find_configuration(EMERGENCY_ALERT)
         self.request.set_value("configuration", configuration)
-        for emergency in model_objects:
-            self.emergency_general_controller.add_user_to_marti(emergency, user)
-        self.response.set_value("model_object", model_objects)
+        
+        self.response.set_value("message", [])
+
+        # Serializer called by service manager requires the message value
+        self.request.set_value("message", [])
+
+        self.response.set_value('recipients', [])
+
+        for emergency in emergencies:
+            if self.emergency_general_controller.validate_user_distance(emergency, user):
+                self.response.get_value('recipients').append(str(user.get_oid()))
+                self.response.get_value("message").append(emergency)
+                self.request.get_value("message").append(emergency)
+
+        response = self.execute_sub_action("ValidateUsers")
+        
+        for emergency in self.response.get_value('message'):
+            self.emergency_general_controller.convert_type(emergency)
+        
+        self.response.set_action('publish')

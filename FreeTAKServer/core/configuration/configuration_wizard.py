@@ -1,9 +1,10 @@
+import os
 from typing import List
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from ruamel.yaml import YAML
+from pathlib import Path
 yaml = YAML()
-import pathlib
 
 # TODO  This code may have problems with the rewrite of MainConfig
 # Make a connection to the MainConfig object for all routines below
@@ -36,12 +37,26 @@ def add_to_config(path: List[str], data: str, source: dict):
             source[entry] = {}
             source = source[entry]
 
+def get_yaml_config(yaml_path):
+    # if the path doesnt exist create a new file
+    if not os.path.exists(yaml_path):
+        open(yaml_path, 'w+').close()
+        return {}
+    # otherwise load the existing file
+    else:
+        with open(yaml_path, "r+") as fp:
+            return yaml.load(fp)
+    
+
 def ask_user_for_config():
     use_yaml = get_user_input(question="would you like to use a yaml config file, \n if yes you will be prompted for further configuration options", default="yes")
     if use_yaml != "yes":
         return
+
     yaml_path = get_user_input(question="where would you like to save the yaml config", default=config.yaml_path)
-    yaml_config = yaml.load(default_yaml_file)
+    
+    yaml_config = get_yaml_config(yaml_path)
+
     ip = get_user_input(question="enter ip", default=config.UserConnectionIP)
     add_to_config(data=ip, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
     add_to_config(data=ip, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
@@ -50,6 +65,10 @@ def ask_user_for_config():
 
         if database == "SQLite":
             database_path = get_user_input(question="enter the preferred database path", default=config.DBFilePath)
+
+            while not valid_and_safe_path(database_path):
+                print("Invalid path. Path does not exist or insufficient permissions exist.")
+                database_path = get_user_input(question="enter the preferred database path", default=config.DBFilePath)
             break
         elif database == "MySQL":
             username = get_user_input(question="please enter MySQL username")
@@ -64,23 +83,58 @@ def ask_user_for_config():
             print('invalid database type')
     config.DBFilePath = database_path
     add_to_config(data=database_path, path=["FileSystem", "FTS_DB_PATH"], source=yaml_config)
-    main_path = get_user_input(question="enter the preferred main_path", default=config.MainPath)
+
+    main_path = get_user_input(question="enter the preferred main path", default=config.MainPath)
+    while not valid_and_safe_path(main_path):
+        print("Invalid path. Path does not exist or insufficient permissions exist.")
+        main_path = get_user_input(question="enter the preferred main path", default=config.MainPath)
+
     config.MainPath = main_path
     add_to_config(path=["FileSystem", "FTS_MAINPATH"], data= main_path, source= yaml_config)
+
     log_path = get_user_input(question="enter the preferred log file path", default=config.LogFilePath)
+    while not valid_and_safe_path(log_path):
+        print("Invalid path. Path does not exist or insufficient permissions exist.")
+        log_path = get_user_input(question="enter the preferred log file path", default=config.LogFilePath)
+
     add_to_config(path=["FileSystem", "FTS_LOGFILE_PATH"], data=log_path, source=yaml_config)
     config.yaml_path = yaml_path
     file = open(yaml_path, mode="w+")
     yaml.dump(yaml_config, file)
     file.close()
+
     """ip = get_user_input(question="enter ip", default=MainConfig.ip)
     MainConfig.ip = ip
-    database_path = get_user_input(question="enter the preferred database path", default=MainConfig.DBFilePath)
-    MainConfig.DBFilePath = database_path
-    main_path = get_user_input(question="enter the preferred main_path", default=MainConfig.MainPath)
-    MainConfig.MainPath = main_path
-    log_path = get_user_input(question="enter the preferred log file path", default=MainConfig.LogFilePath)
-    MainConfig.LogFilePath = log_path"""
+    """
+
+def valid_and_safe_path(path):
+    """Method that sanitized path and determines if it exists and writable
+    """
+    # Check if the input is a string
+    if not isinstance(path, str):
+        raise ValueError("Input must be a string")
+    
+    # Check if the input is an absolute path
+    path = Path(path).resolve()
+    if not path.is_absolute():
+        raise ValueError("Input must be an absolute path")
+    sanitized_path = path.relative_to(path.parent)
+    sanitized_parent = path.parent.relative_to(path.parent)
+    return (
+        (
+            sanitized_path.exists()
+            and os.access(sanitized_path, os.F_OK)
+            and os.access(sanitized_path, os.W_OK)
+            and os.access(sanitized_path, os.R_OK)
+        ) or
+        (
+            not sanitized_path.exists()
+            and sanitized_parent.exists()
+            and os.access(sanitized_parent, os.F_OK)
+            and os.access(sanitized_parent, os.W_OK)
+            and os.access(sanitized_parent, os.R_OK)
+        )
+    )
 
 default_yaml_file = f"""
 System:

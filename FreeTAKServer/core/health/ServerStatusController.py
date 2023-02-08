@@ -127,7 +127,7 @@ class ServerStatusController:
             sock = SSLSocketController().createClientSocket(IP)
             sock.settimeout(10)
             sock.connect((IP, SSLCoTPort))
-            sock.send(b'TEST')
+            sock.send(b'success')
             returnMessage = sock.recv(100)
             sock.close()
             if returnMessage == b'success':

@@ -10,13 +10,13 @@ class CoTNode(Node, FTSProtocolObject):
 
     
 
-    def __init__(self, node_type, configuration, model, registry, cot_attributes):
-        self.cot_attributes = cot_attributes
+    def __init__(self, node_type, configuration, model, registry, cot_attributes, oid=None):
+        self.cot_attributes = {}
         self.text = ""
         oid = ObjectId(node_type, str(uuid.uuid4()))
         super().__init__(node_type=node_type, oid=oid, configuration=configuration, model=model, registry=registry, initial_data=self.cot_attributes)
 
-    def get_all_properties(self):
+    def get_properties(self):
         methods = inspect.getmembers(self.__class__)
         # iterate through the cot_attributes and for each, verify it is neither a none n'or a type value
         return [

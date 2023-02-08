@@ -2,6 +2,7 @@ from digitalpy.core.parsing.load_configuration import Configuration
 from .model_constants import EventVariables as vars
 import uuid
 from datetime import datetime as dt
+import datetime
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -22,7 +23,7 @@ class Event(CoTNode):
 
     # default constructor
 
-    def __init__(self, configuration: Configuration, model, registry = None):
+    def __init__(self, configuration: Configuration, model, registry = None, oid=None):
         attributes = {}
         self.__version = None
         self.__uid = None
@@ -33,7 +34,7 @@ class Event(CoTNode):
         self.__time = None
         self.__point = None
         self.__detail = None
-        super().__init__(self.__class__.__name__, configuration, model, registry, attributes)
+        super().__init__(self.__class__.__name__, configuration, model, registry, attributes, oid)
 
         # flag to determin e if this event is a geo chcat if so, will be added as a
         # prefix to the uid
@@ -68,7 +69,7 @@ class Event(CoTNode):
     def start(self, start: str):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if start == None:
-            timer = dt.datetime
+            timer = dt
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
             self.__start = zulu
@@ -111,7 +112,7 @@ class Event(CoTNode):
     def time(self, time: str):
         DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
         if time == None:
-            timer = dt.datetime
+            timer = dt
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
             self.time = zulu
@@ -125,11 +126,12 @@ class Event(CoTNode):
     @stale.setter
     def stale(self, stale=None, staletime: dt = dt.utcnow().strftime(DATETIME_FMT)):
         if stale == None:
-            timer = dt.datetime
+            DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+            timer = dt
             now = timer.utcnow()
             zulu = now.strftime(DATETIME_FMT)
-            add = dt.timedelta(seconds=staletime)
-            stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+            add = datetime.timedelta(seconds=staletime)
+            stale_part = dt.strptime(zulu, DATETIME_FMT) + add
             self.__stale = stale_part.strftime(DATETIME_FMT)
         else:
             self.__stale = stale
