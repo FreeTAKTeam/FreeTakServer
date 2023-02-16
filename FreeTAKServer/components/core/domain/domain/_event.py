@@ -157,5 +157,5 @@ class Event(CoTNode):
         return self.__detail
 
     @detail.setter
-    def detail(self, detail):
+    def detail(self, detail: detail):
         self.__detail = detail
