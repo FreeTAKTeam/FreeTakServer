@@ -56,7 +56,7 @@ setup(
         "six==1.16.0",
         "SQLAlchemy==1.3.20",
         "tabulate==0.8.7",
-        "Werkzeug==2.0.3",
+        "Werkzeug==2.2.3",
         "WTForms==2.3.3",
         "pyOpenSSL==22.0.0",
         "qrcode==7.3.1",
