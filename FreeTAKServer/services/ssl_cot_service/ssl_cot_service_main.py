@@ -10,6 +10,7 @@ import socket
 from opentelemetry.trace import Status, StatusCode
 from typing import List, Union, Dict
 from FreeTAKServer.services.ssl_cot_service.controllers.send_component_data_controller import SendComponentDataController
+from FreeTAKServer.services.ssl_cot_service.model.raw_ssl_connection_information import RawSSLConnectionInformation
 from FreeTAKServer.services.ssl_cot_service.model.ssl_cot_connection import SSLCoTConnection
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
@@ -240,7 +241,7 @@ class SSLCoTServiceMain(DigitalPyService):
 
                     elif (
                         client_id in user_dict.keys()
-                        and len(self.client_information_queue[client_id]) == 2
+                        and len(self.client_information_queue[client_id]) == 3
                     ):
                         self.client_information_queue[client_id][1] = user_dict[client_id]
 
@@ -319,7 +320,7 @@ class SSLCoTServiceMain(DigitalPyService):
         else:
             return 1
 
-    def clientConnected(self, raw_connection_information: RawCoT):
+    def clientConnected(self, raw_connection_information: RawSSLConnectionInformation):
         """Controls the client connection sequence, calling methods which perform the following:
             1. Instantiate the client object
             2. Share the client with core
@@ -377,7 +378,7 @@ class SSLCoTServiceMain(DigitalPyService):
             self.add_service_user(clientInformation=clientInformation)
 
             # Add client info to queue
-            self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation]
+            self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation, raw_connection_information.unwrapped_sock]
             
             # instantiate an object_id with a value of the client uid
             object_id = ObjectFactory.get_new_instance("ObjectId", dynamic_configuration={"id": clientInformation.modelObject.uid, "type": "connection"})
@@ -475,6 +476,7 @@ class SSLCoTServiceMain(DigitalPyService):
                     clientInformation.clientInformation
                 ][1]
             sock = self.client_information_queue[clientInformation.user_id][0]
+            unwrapped_sock = self.client_information_queue[clientInformation.user_id][2]
         except Exception as e:
             self.logger.critical(
                 "getting sock from client information queue failed " + str(e)
@@ -522,7 +524,7 @@ class SSLCoTServiceMain(DigitalPyService):
 
         try:
             self.remove_service_user(clientInformation=clientInformation)
-            self.disconnect_socket(sock)
+            self.disconnect_socket(sock, unwrapped_sock)
 
             self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
 
@@ -568,7 +570,7 @@ class SSLCoTServiceMain(DigitalPyService):
         self.messages_to_core_count += 1
         self.send_message(disconnect.getObject().clientInformation, disconnect.getObject())
 
-    def disconnect_socket(self, sock: socket.socket) -> None:
+    def disconnect_socket(self, sock: socket.socket, unwrapped_socket: socket.socket) -> None:
         """this method is responsible for disconnecting all socket objects
 
         :param sock: socket object to be disconnected
@@ -587,6 +589,14 @@ class SSLCoTServiceMain(DigitalPyService):
         except Exception as e:
             self.logger.error(
                 "error closing socket in client disconnection "
+                + str(e)
+                + "\n".join(traceback.format_stack())
+            )
+        try:
+            unwrapped_socket.close()
+        except Exception as e:
+            self.logger.error(
+                "error closing unwrapped socket in client disconnection "
                 + str(e)
                 + "\n".join(traceback.format_stack())
             )
@@ -1022,11 +1032,11 @@ class SSLCoTServiceMain(DigitalPyService):
 
                     # Process the raw CoT data and serialize it
                     CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
-                    self.logger.info(f"CoT serialized {CoTOutput.modelObject.uid}")
-
                     # Skip this iteration if the CoT data is invalid
                     if CoTOutput == 1:
                         continue
+                    
+                    self.logger.info(f"CoT serialized {CoTOutput.modelObject.uid}")
 
                     # Check if the CoT data is valid and can be sent
                     if self.checkOutput(CoTOutput):
