@@ -20,10 +20,9 @@ from typing import Union
 
 from FreeTAKServer.core.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation as sat
+from FreeTAKServer.services.ssl_cot_service.model.raw_ssl_connection_information import RawSSLConnectionInformation as sat
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.configuration.ReceiveConnectionsConstants import ReceiveConnectionsConstants
-from FreeTAKServer.model.RawConnectionInformation import RawConnectionInformation
 from FreeTAKServer.services.ssl_cot_service.controllers.SSLSocketController import SSLSocketController
 
 loggingConstants = LoggingConstants(log_name="FTS_ReceiveConnections")
@@ -80,62 +79,68 @@ class ReceiveConnections:
             # logger.debug('receive connection started')
             try:
                 client, address = sock.accept()
-                #client = SSLSocketController().wrap_client_sock(client)
+                ssl_client = SSLSocketController().wrap_client_socket(client)
             except ssl.SSLError as ex:
                 print(ex)
-                client.close()
+                self.disconnect_socket(client, ssl_client)
                 logger.warning('ssl error thrown in connection attempt ' + str(ex))
                 return -1
 
             except asyncio.TimeoutError as ex:
-                client.close()
+                self.disconnect_socket(client, ssl_client)
                 logger.warning('timeout error thrown in connection attempt '+str(ex))
                 return -1
 
             logger.info('client connected over ssl ' + str(address) + ' ' + str(time.time()))
             # wait to receive client
             try:
-                events = self.receive_connection_data(client=client)
+                events = self.receive_connection_data(client=ssl_client)
             except Exception:
                 try:
-                    events = self.receive_connection_data(client=client)
+                    events = self.receive_connection_data(client=ssl_client)
                 except Exception as exb:
-                    client.close()
+                    self.disconnect_socket(client, ssl_client)
                     logger.warning("receiving connection data from client failed with exception "+str(exb))
                     return -1
             # TODO: move out to separate function
             if events.text == TEST_SUCCESS:
-                client.send(b'success')
-            client.settimeout(0) # set the socket to non blocking
+                ssl_client.send(b'success')
+            ssl_client.settimeout(0) # set the socket to non blocking
             logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
             # establish the socket array containing important information about the client
-            raw_connection_information = self.instantiate_client_object(address, client, events)
+            raw_connection_information = self.instantiate_client_object(address, client, ssl_client, events)
             logger.info("client accepted")
             try:
                 if socket is not None and raw_connection_information.xmlString != b'':
                     return raw_connection_information
                 else:
                     logger.warning("final socket entry is invalid")
-                    client.close()
+                    self.disconnect_socket(client, ssl_client)
                     return -1
             except Exception as ex:
-                client.close()
+                self.disconnect_socket(client, ssl_client)
                 logger.warning('exception in returning data ' + str(ex))
                 return -1
 
         except Exception as ex:
             logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR)
             try:
-                client.close()
+                self.disconnect_socket(client, ssl_client)
             except Exception as ex:
                 pass
             finally:
                 return -1
 
-    def instantiate_client_object(self, address, client, events):
+    def disconnect_socket(self, client, ssl_client):
+        ssl_client.shutdown(socket.SHUT_RDWR)
+        ssl_client.close()
+        client.close()
+
+    def instantiate_client_object(self, address, unwrapped_client, client, events):
         raw_connection_information = sat()
         raw_connection_information.ip = address[0]
         raw_connection_information.socket = client
+        raw_connection_information.unwrapped_sock = unwrapped_client
         raw_connection_information.xmlString = etree.tostring(events.findall('event')[0]).decode('utf-8')
         return raw_connection_information
 
