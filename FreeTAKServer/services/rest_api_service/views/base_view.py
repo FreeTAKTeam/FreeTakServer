@@ -26,7 +26,6 @@ class BaseView(views.View):
         """
         self.endpoints = endpoints
 
-    #decorators = [auth.login_required]
     def dispatch_request(self, method: str):
         try:
             return self.endpoints[method]()

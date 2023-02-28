@@ -1806,6 +1806,8 @@ class ManageGeoObjects(BaseView):
     """this class is responsible for creating the flask views required for managing
     geo objects in FTS
     """
+    decorators = [auth.login_required]
+    
     def __init__(self) -> None:
         endpoints: Dict[str, callable] = {
             "GetRepeatedMessages": self.get_repeated_messages,
@@ -1960,6 +1962,8 @@ loggingConstants = LoggingConstants(log_name="FTS-ManageEmergencyView")
 logger = CreateLoggerController("FTS-ManageEmergencyView", logging_constants=loggingConstants).getLogger()
 
 class ManageEmergency(BaseView):
+    decorators = [auth.login_required]
+    
     def __init__(self) -> None:
         endpoints = {
             "getEmergency": self.get_emergency,
