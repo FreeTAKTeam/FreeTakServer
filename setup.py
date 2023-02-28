@@ -42,7 +42,7 @@ setup(
         "testresources==2.0.1",
         "Jinja2==2.11.2",
         "lxml",
-        "MarkupSafe==2.0.1",
+        "MarkupSafe>=2.0.1",
         "monotonic==1.6",
         "pathlib2==2.3.7.post1",
         "protobuf==3.18.3",
