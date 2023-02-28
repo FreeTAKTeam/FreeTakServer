@@ -174,6 +174,8 @@ class MainConfig:
         "IntegrationManagerPublisherAddress": {"default": "127.0.0.1", "type": str},
         "yaml_path": {"default": r"/opt/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
+        # radius of emergency within-which users will receive it
+        "EmergencyRadius": {"default": 10, "type": int}
     }
 
     # This structure maps environmental vars to config vars
@@ -240,6 +242,8 @@ class MainConfig:
         "FTS_INTEGRATION_MANAGER_PUBLISHER_PORT": "IntegrationManagerPublisherPort",
         # address from which to publish messages by the integration manager
         "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
+        # radius of emergency within-which users will receive it
+        "FTS_EMERGENCY_RADIUS": "EmergencyRadius"
     }
 
     # This is a simple representation of the YAML config schema with
@@ -254,6 +258,7 @@ class MainConfig:
             "FTS_SECRET_KEY": "SecretKey",
             "FTS_DATA_RECEPTION_BUFFER": "DataReceptionBuffer",
             "FTS_MAX_RECEPTION_TIME": "MaxReceptionTime",
+            "FTS_EMERGENCY_RADIUS": "EmergencyRadius"
         },
         "Addresses": {
             "FTS_COT_PORT": "CoTServicePort",
