@@ -16,7 +16,6 @@ from flask_cors import CORS
 import qrcode
 import io
 from typing import Dict, List
-from geopy import Point, distance
 import time
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
@@ -1128,47 +1127,6 @@ def postChatToAll():
         logger.error(str(e))
         return "An error occurred sending chat.", 500
 
-
-@app.route("/ManageEmergency/getEmergency", methods=[restMethods.GET])
-@auth.login_required
-def getEmergency():
-    try:
-        output = getemergencys()
-        return jsonify(json_list=output), 200
-    except Exception as e:
-        logger.error(str(e))
-        return "An error occurred retreiving emergency details.", 500
-
-
-@app.route("/ManageEmergency/postEmergency", methods=[restMethods.POST])
-@auth.login_required
-def postEmergency():
-    try:
-        jsondata = request.get_json(force=True)
-        jsonobj = JsonController().serialize_emergency_post(jsondata)
-        EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()
-        APIPipe.put(EmergencyObject)
-        return EmergencyObject.modelObject.getuid(), 200
-    except Exception as e:
-        logger.error(str(e))
-        return "An error occurred adding emergency.", 500
-
-
-@app.route("/ManageEmergency/deleteEmergency", methods=[restMethods.DELETE])
-@auth.login_required
-def deleteEmergency():
-    try:
-        from json import dumps
-        jsondata = request.get_json(force=True)
-        jsonobj = JsonController().serialize_emergency_delete(jsondata)
-        EmergencyObject = SendEmergencyController(jsonobj).getCoTObject()
-        APIPipe.put(EmergencyObject)
-        return 'success', 200
-    except Exception as e:
-        logger.error(str(e))
-        return "An error occurred deleting emergency.", 500
-
-
 @app.route("/Sensor")
 @auth.login_required
 def sensor():
@@ -1267,13 +1225,6 @@ def authenticate_user():
     except Exception as e:
         logger.error(str(e))
         return "An error occurred authenticating user.", 500
-
-
-@app.route("/ManageEmergency")
-@auth.login_required
-def Emergency():
-    pass
-
 
 # @app.route("/ConnectionMessage", methods=[restMethods.POST])
 def ConnectionMessage():
@@ -1834,43 +1785,36 @@ def emitUpdates(Updates):
     socketio.emit('up', json.dumps(returnValue), broadcast=True)
     return 1
 
-APPLICATION_PROTOCOL = "xml"
-# API Request timeout in ms
-API_REQUEST_TIMEOUT = 5000
+# TODO: move this out of the rest_api_service and into it's own file in views
+# this will require changing it from using the API Pipe to use the ZManager instead
+import json
+import datetime as dt
+import datetime
 
-class ManageGeoObjects(views.View):
-    #decorators = [auth.login_required]
-    def dispatch_request(self, method):
+from flask import request
+from typing import Dict, List
+from digitalpy.core.main.object_factory import ObjectFactory
+from digitalpy.core.zmanager.request import Request
+from geopy import Point, distance
+
+from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
+from FreeTAKServer.core.parsers.JsonController import JsonController
+
+from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
+
+class ManageGeoObjects(BaseView):
+    """this class is responsible for creating the flask views required for managing
+    geo objects in FTS
+    """
+    decorators = [auth.login_required]
+    
+    def __init__(self) -> None:
         endpoints: Dict[str, callable] = {
             "GetRepeatedMessages": self.get_repeated_messages,
             "postGeoObject": self.post_geo_object,
             "DeleteRepeatedMessages": self.delete_repeated_messages,
         }
-        return endpoints[method]()
-
-    def make_request(self, action: str, values: Dict = {}, synchronous:bool=True) -> Response:
-        """make a request to the zmanager
-
-        Args:
-            action (str): the action key to be sent
-            values (Dict, optional): the values to be sent in the reques. Defaults to {}.
-            synchronous (bool, optional): whether or not to wait for a response from the zmanager. Defaults to True.
-
-        Returns:
-            Response: the response coming from the the zmanager
-        """
-        rest_api_service = ObjectFactory.get_instance("RestAPIService")
-
-        # request to get repeated messages
-        request: Request = ObjectFactory.get_new_instance("request")
-        request.set_action(action)
-        request.set_sender(rest_api_service.__class__.__name__.lower())
-        request.set_format("pickled")
-        request.set_values(values)
-        rest_api_service.subject_send_request(request, APPLICATION_PROTOCOL)
-        if synchronous:
-            response = rest_api_service.retrieve_response(request.get_id())
-            return response
+        super().__init__(endpoints)
 
     def get_repeated_messages(self):
         """method to retrieve a repeated messages
@@ -2002,7 +1946,79 @@ class ManageGeoObjects(views.View):
         except Exception as e:
             return str(e), 500
 
+# TODO: move this out of the rest_api_service and into it's own file in views
+# this will require changing it from using the API Pipe to use the ZManager instead
+
+from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
+from typing import Dict
+from flask import request
+
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
+from FreeTAKServer.core.parsers.JsonController import JsonController
+from FreeTAKServer.core.RestMessageControllers.SendEmergencyController import SendEmergencyController
+
+loggingConstants = LoggingConstants(log_name="FTS-ManageEmergencyView")
+logger = CreateLoggerController("FTS-ManageEmergencyView", logging_constants=loggingConstants).getLogger()
+
+class ManageEmergency(BaseView):
+    decorators = [auth.login_required]
+    
+    def __init__(self) -> None:
+        endpoints = {
+            "getEmergency": self.get_emergency,
+            "postEmergency": self.post_emergency,
+            "deleteEmergency": self.delete_emergency,
+        }
+        super().__init__(endpoints)
+    
+    def get_emergency(self):
+        """method to retrieve all emergency's
+        Returns:
+            str: returns a json string containing dictionary of emergency's
+
+        """
+        response = self.make_request("GetAllEmergencies") # retrieve emergencies from the emergency component
+        emergencies = response.get_value("emergencies")
+        output = {"json_list": []}
+        for emergency in emergencies:
+            try:
+                serialized_emergency = {
+                    "lat": emergency.point.lat,
+                    "lon": emergency.point.lon,
+                    "type": emergency.detail.emergency.type,
+                    "name": emergency.detail.contact.callsign,
+                    "uid": emergency.uid
+                }
+                output["json_list"].append(serialized_emergency)
+            except AttributeError as ex:
+                logger.error("emergency model object missing attribute %s", ex)
+        return output
+    
+    def post_emergency(self):
+        jsondata = request.get_json(force=True)
+        jsonobj = JsonController().serialize_emergency_post(jsondata)
+        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
+        self.make_request("SaveEmergency", {"model_object": emergency_object.modelObject})
+        APIPipe.put(emergency_object)
+        return emergency_object.modelObject.getuid(), 200
+    
+    def delete_emergency(self) -> str:
+        """delete an emergency from the emergency persistence
+
+        """
+        jsondata = request.get_json(force=True)
+        jsonobj = JsonController().serialize_emergency_delete(jsondata)
+        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
+        APIPipe.put(emergency_object)
+        self.make_request("DeleteEmergency", {"model_object": emergency_object.modelObject})
+        return 'success', 200
+
+app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET", "DELETE"])
 app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
+
+APPLICATION_PROTOCOL = "xml"
+API_REQUEST_TIMEOUT = 5000
 
 class RestAPI(DigitalPyService):
     
