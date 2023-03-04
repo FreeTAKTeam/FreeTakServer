@@ -20,14 +20,6 @@ class MessageSender(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
 
-    # TODO: the issue is we need to deal with different formats of messages being sent to users,
-    # I see a number of different ways this can be implemented at a high level
-    # 1. add the logic to the orchestrator, basically call the serializer before calling broadcast and send the message strings
-    # 2. add the logic to the orchestrator, basically call a separate sender component per message format (xml, protobuf etc...)
-    # 3. add the logic to the broadcast layer, basically call the broadcast layer which will then determine the client type and pass it off to the respective component
-    # 4. add the logic to the client layer, basically abstract the send method so the client object will serialize the message itself before being sent
-    # 5. add the parser as part of the message context?
-    # temporarily decided on a form of dependencie injection where the parsing action is passed as a parameter and then called
     def broadcast(
         self,
         model_objects: list,

@@ -10,7 +10,7 @@ setup(
     packages=find_packages(
         include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini", "*.conf"]
     ),
-    version="2.0.0 Alpha",
+    version="0.2.0.14",
     license="EPL-2.0",
     description="An open source server for the TAK family of applications.",
     long_description=long_description,
@@ -37,7 +37,7 @@ setup(
         "Flask-SQLAlchemy==2.4.4",
         "geographiclib==1.52",
         "geopy==2.2.0",
-        "greenlet==2.0.0",
+        "greenlet==2.0.2",
         "itsdangerous==2.0.1",
         "testresources==2.0.1",
         "Jinja2==2.11.2",
@@ -46,7 +46,7 @@ setup(
         "monotonic==1.6",
         "pathlib2==2.3.7.post1",
         "protobuf==3.18.3",
-        "psutil==5.9.0",
+        "psutil==5.9.4",
         "pykml==0.2.0",
         "python-engineio==3.13.2",
         "python-socketio==4.6.0",
@@ -64,7 +64,7 @@ setup(
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
-        "digitalpy>=0.2.7",
+        "digitalpy>=0.3.7",
         "opentelemetry-sdk",
     ],
     extras_require={

@@ -80,4 +80,5 @@ DEST_SCHEMA = "dest_schema"
 
 DEST_CLASS = "dest"
 
+# if set to 0 there is no max emergency distance
 MAXIMUM_EMERGENCY_DISTANCE = 10

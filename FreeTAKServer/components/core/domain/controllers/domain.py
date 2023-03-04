@@ -7,6 +7,8 @@ from digitalpy.core.zmanager.response import Response
 from digitalpy.core.parsing.load_configuration import Configuration
 from digitalpy.core.domain.node import Node
 from digitalpy.core.main.controller import Controller
+from digitalpy.core.main.object_factory import ObjectFactory
+import uuid
 
 from .. import domain
 
@@ -38,19 +40,23 @@ class Domain(Controller):
         """
         return node.add_child(child)
 
-    def create_node(self, configuration: Configuration, object_class_name: str, **kwargs) -> None:
+    def create_node(self, configuration: Configuration, object_class_name: str, id:str=str(uuid.uuid1()), **kwargs) -> None:
         """this method creates a new node object
 
         Args:
             configuration (Configuration): _description_
             object_class_name (str): _description_
+            id (str): the id of the created node
         """
+
         # allow the domain to be extended
         self.domain = self._extend_domain(self.domain, getattr(kwargs, 'extended_domain', {}))
         # retrieve the original object class
         object_class = getattr(self.domain, object_class_name)
+        # instantiate an oid for the instance
+        oid = ObjectFactory.get_instance("ObjectId", {"id": id, "type": object_class_name})
         # instantiate the object class
-        object_class_instance = object_class(configuration, self.domain)
+        object_class_instance = object_class(configuration, self.domain, oid=oid)
         # set the module object
         self.response.set_value("model_object", object_class_instance)
 

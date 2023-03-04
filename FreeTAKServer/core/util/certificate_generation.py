@@ -348,7 +348,7 @@ class AtakOfTheCerts:
         if not os.path.exists(config.certsPath):
             print("The directory for storing certificates doesn't exist.")
             print("Creating one at " + config.certsPath)
-            os.makedirs(os.path.dirname(config.certsPath))
+            os.makedirs(config.certsPath)
 
         ca_key = crypto.PKey()
         ca_key.generate_key(crypto.TYPE_RSA, 2048)

@@ -99,8 +99,21 @@ class EmergencyOnController(DefaultBusinessRuleController):
 
             response = self.execute_sub_action("DictToNode")
 
+            for key, value in response.get_values().items():
+                self.response.set_value(key, value)
+
+            self.request.set_value('message', response.get_value("model_object"))
+            # Serializer called by service manager requires the message value
+            self.response.set_value('message', [response.get_value("model_object")])
+            self.request.set_value('recipients', [])
+
             self.emergency_general_controller.initialize(self.request, self.response)
             self.emergency_general_controller.filter_by_distance(response.get_value("model_object"))
 
+            # validate the users in the recipients list
+            response = self.execute_sub_action("ValidateUsers")
+
             for key, value in response.get_values().items():
                 self.response.set_value(key, value)
+            
+            self.response.set_action("publish")

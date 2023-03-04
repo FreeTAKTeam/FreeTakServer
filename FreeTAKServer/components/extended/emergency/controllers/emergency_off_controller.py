@@ -10,6 +10,7 @@ from ..configuration.emergency_constants import (
     BASE_OBJECT_NAME,
 )
 
+from .emergency_general_controller import EmergencyGeneralController
 
 class EmergencyOffController(DefaultBusinessRuleController):
     """this controller is responsible for executing the business logic required
@@ -42,6 +43,8 @@ class EmergencyOffController(DefaultBusinessRuleController):
             # the DefaultBusinessRuleController evaluate_request
             internal_action_mapper=emergency_action_mapper,
         )
+        self.emergency_general_controller = EmergencyGeneralController(request, response, sync_action_mapper, configuration)
+        self.emergency_general_controller.initialize(request, response)
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -74,3 +77,19 @@ class EmergencyOffController(DefaultBusinessRuleController):
 
             for key, value in response.get_values().items():
                 self.response.set_value(key, value)
+
+            self.request.set_value('message', response.get_value("model_object"))
+            # Serializer called by service manager requires the message value
+            self.response.set_value('message', [response.get_value("model_object")])
+            self.request.set_value('recipients', "*")
+
+            # self.emergency_general_controller.initialize(self.request, self.response)
+            # self.emergency_general_controller.filter_by_distance(response.get_value("model_object"))
+
+            # validate the users in the recipients list
+            response = self.execute_sub_action("ValidateUsers")
+
+            for key, value in response.get_values().items():
+                self.response.set_value(key, value)
+            
+            self.response.set_action("publish")

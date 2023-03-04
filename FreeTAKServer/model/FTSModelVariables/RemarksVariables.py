@@ -21,3 +21,27 @@ class RemarksVariables:
         cls.INTAG = 'DEFAULT'
         cls.TO = 'All Chat Rooms'
         return cls
+
+    @classmethod
+    def geo_object(cls):
+        cls.TIME = None
+        cls.SOURCE = None
+        cls.SOURCEID = None
+        cls.INTAG = None
+        return cls
+
+    @classmethod
+    def emerygency_on(cls):
+        cls.TIME = None
+        cls.SOURCE = None
+        cls.SOURCEID = None
+        cls.INTAG = None
+        return cls
+
+    @classmethod
+    def Presence(cls):
+        cls.TIME = None
+        cls.SOURCE = None
+        cls.SOURCEID = None
+        cls.INTAG = None
+        return cls

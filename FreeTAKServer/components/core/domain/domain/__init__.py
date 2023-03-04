@@ -11,3 +11,4 @@ from ._point import point as point
 from ._remarks import remarks as remarks
 from ._marti import marti as marti
 from ._dest import dest as dest
+from ._usericon import usericon as usericon

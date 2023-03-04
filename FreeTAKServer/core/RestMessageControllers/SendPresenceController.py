@@ -32,6 +32,7 @@ class UpdatePresenceController:
             object.detail.contact.setcallsign(json.getname())
             object.detail._group.setname(json.getteam())
             object.detail._group.setrole(json.getrole())
+            object.detail.remarks.setINTAG(json.getremarks())
             if json.gettimeout() != '':
                 object.setstale(staletime=int(json.gettimeout()))
             else:
@@ -69,6 +70,7 @@ class SendPresenceController:
             object.detail.contact.setcallsign(json.getname())
             object.detail._group.setname(json.getteam())
             object.detail._group.setrole(json.getrole())
+            object.detail.remarks.setINTAG(json.getremarks())
             if json.gettimeout() != '':
                 object.setstale(staletime=int(json.gettimeout()))
             else:

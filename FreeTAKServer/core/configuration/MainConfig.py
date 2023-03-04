@@ -8,8 +8,8 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-1.9.10.8 Public"
-API_VERSION = "1.9.5"
+FTS_VERSION = "FreeTAKServer-2.0.14 Alpha"
+API_VERSION = "1.9.6"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
 ROOTPATH = "/"
@@ -127,10 +127,18 @@ class MainConfig:
             "type": str,
         },
         "CoreComponentsPath": {
-            "default": Path(rf"{MAINPATH}/components/core"),
+            "default": Path(rf"{MAINPATH}/core"),
             "type": str,
         },
         "CoreComponentsImportRoot": {
+            "default": "FreeTAKServer.core",
+            "type": str,
+        },
+        "InternalComponentsPath": {
+            "default": Path(rf"{MAINPATH}/components/core"),
+            "type": str,
+        },
+        "InternalComponentsImportRoot": {
             "default": "FreeTAKServer.components.core",
             "type": str,
         },
@@ -166,6 +174,8 @@ class MainConfig:
         "IntegrationManagerPublisherAddress": {"default": "127.0.0.1", "type": str},
         "yaml_path": {"default": r"/opt/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
+        # radius of emergency within-which users will receive it
+        "EmergencyRadius": {"default": 10, "type": int}
     }
 
     # This structure maps environmental vars to config vars
@@ -220,6 +230,8 @@ class MainConfig:
         "FTS_ROUTING_PROXY_SERVER_IP": "RoutingProxyRequestServerIP",
         "FTS_CORE_COMPONENTS_PATH": "CoreComponentsPath",
         "FTS_CORE_COMPONENTS_IMPORT_ROOT": "CoreComponentsImportRoot",
+        "FTS_INTERNAL_COMPONENTS_PATH": "InternalComponentsPath",
+        "FTS_INTERNAL_COMPONENTS_IMPORT_ROOT": "InternalComponentsImportRoot",
         "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
         "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT": "ExternalComponentsImportRoot",
         # port to receive worker responses by the integration manager
@@ -230,6 +242,8 @@ class MainConfig:
         "FTS_INTEGRATION_MANAGER_PUBLISHER_PORT": "IntegrationManagerPublisherPort",
         # address from which to publish messages by the integration manager
         "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
+        # radius of emergency within-which users will receive it
+        "FTS_EMERGENCY_RADIUS": "EmergencyRadius"
     }
 
     # This is a simple representation of the YAML config schema with
@@ -244,6 +258,7 @@ class MainConfig:
             "FTS_SECRET_KEY": "SecretKey",
             "FTS_DATA_RECEPTION_BUFFER": "DataReceptionBuffer",
             "FTS_MAX_RECEPTION_TIME": "MaxReceptionTime",
+            "FTS_EMERGENCY_RADIUS": "EmergencyRadius"
         },
         "Addresses": {
             "FTS_COT_PORT": "CoTServicePort",
@@ -291,6 +306,8 @@ class MainConfig:
             "FTS_CLIENT_PACKAGES_PATH": "ClientPackages",
             "FTS_CORE_COMPONENTS_PATH": "CoreComponentsPath",
             "FTS_CORE_COMPONENTS_IMPORT_ROOT": "CoreComponentsImportRoot",
+            "FTS_INTERNAL_COMPONENTS_PATH": "InternalComponentsPath",
+            "FTS_INTERNAL_COMPONENTS_IMPORT_ROOT": "InternalComponentsImportRoot",
             "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
             "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT": "ExternalComponentsImportRoot",
         },
