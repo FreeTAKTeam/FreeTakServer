@@ -73,6 +73,8 @@ config = MainConfig.instance()
 app.config["SECRET_KEY"] = config.SecretKey
 eventDict = {}
 
+config = MainConfig.instance()
+
 UpdateArray = []
 StartTime = None
 

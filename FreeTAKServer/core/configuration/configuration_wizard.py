@@ -151,27 +151,27 @@ Addresses:
   #FTS_FED_PORT: 9000
   #FTS_API_ADDRESS: 0.0.0.0
 FileSystem:
-  FTS_DB_PATH: /opt/FreeTAKServer.db
+  FTS_DB_PATH: /opt/fts/FreeTAKServer.db
   #FTS_COT_TO_DB: True
-  FTS_MAINPATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer
-  #FTS_CERTS_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs
-  #FTS_EXCHECK_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck
-  #FTS_EXCHECK_TEMPLATE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/template
-  #FTS_EXCHECK_CHECKLIST_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/checklist
-  #FTS_DATAPACKAGE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/FreeTAKServerDataPackageFolder
-  #FTS_LOGFILE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/Logs
+  FTS_PERSISTENCE_PATH: /opt/fts/
+  #FTS_CERTS_PATH: /opt/fts/certs
+  #FTS_EXCHECK_PATH: /opt/fts/ExCheck
+  #FTS_EXCHECK_TEMPLATE_PATH: /opt/fts/ExCheck/template
+  #FTS_EXCHECK_CHECKLIST_PATH: /opt/fts/ExCheck/checklist
+  #FTS_DATAPACKAGE_PATH: /opt/fts/FreeTAKServerDataPackageFolder
+  #FTS_LOGFILE_PATH: /opt/fts/Logs
 Certs:
-  #FTS_SERVER_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
-  #FTS_SERVER_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
-  #FTS_TESTCLIENT_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.pem
-  #FTS_TESTCLIENT_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.key
-  #FTS_UNENCRYPTED_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key.unencrypted
-  #FTS_SERVER_P12DIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.p12
-  #FTS_CADIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.pem
-  #FTS_CAKEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.key
-  #FTS_FEDERATION_CERTDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
-  #FTS_FEDERATION_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
-  #FTS_CRLDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/FTS_CRL.json
+  #FTS_SERVER_KEYDIR: /opt/fts/certs/server.key
+  #FTS_SERVER_PEMDIR: /opt/fts/certs/server.pem
+  #FTS_TESTCLIENT_PEMDIR: /opt/fts/certs/Client.pem
+  #FTS_TESTCLIENT_KEYDIR: /opt/fts/certs/Client.key
+  #FTS_UNENCRYPTED_KEYDIR: /opt/fts/certs/server.key.unencrypted
+  #FTS_SERVER_P12DIR: /opt/fts/certs/server.p12
+  #FTS_CADIR: /opt/fts/certs/ca.pem
+  #FTS_CAKEYDIR: /opt/fts/certs/ca.key
+  #FTS_FEDERATION_CERTDIR: /opt/fts/certs/server.pem
+  #FTS_FEDERATION_KEYDIR: /opt/fts/certs/server.key
+  #FTS_CRLDIR: /opt/fts/certs/FTS_CRL.json
   #FTS_FEDERATION_KEYPASS: demopassfed
   #FTS_CLIENT_CERT_PASSWORD: demopasscert
   #FTS_WEBSOCKET_KEY: YourWebsocketKey
