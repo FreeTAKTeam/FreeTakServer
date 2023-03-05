@@ -9,7 +9,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.14 Alpha"
+FTS_VERSION = "FreeTAKServer-2.0.15 Alpha"
 API_VERSION = "1.9.6"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
@@ -366,7 +366,7 @@ class MainConfig:
 
             # if config_file not specified, check env or use default location
             if config_file == None:
-                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["configPath"]))
+                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["yaml_path"]))
 
             # overlay the yaml config if found
             if os.path.exists(config_file):
