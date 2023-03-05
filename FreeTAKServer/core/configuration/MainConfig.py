@@ -1,8 +1,9 @@
 import os
+import sys
 import re
 import yaml
-
 currentPath = os.path.dirname(os.path.abspath(__file__))
+
 from pathlib import Path
 from uuid import uuid4
 
@@ -15,19 +16,19 @@ PYTHON_VERSION = "python3.8"
 ROOTPATH = "/"
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
 MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
-
+PERSISTENCE_PATH = r'/opt/fts/'
 
 class MainConfig:
     """
     this is the main configuration file and is the only one which
     should need to be changed
     """
+
     _instance = None
     _values = {}
 
     try:
         import socket
-
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         _ip = s.getsockname()[0]
@@ -35,6 +36,14 @@ class MainConfig:
     except:
         _ip = "0.0.0.0"
 
+    # create the persistence path if it doesn't exist
+    if not os.path.exists(PERSISTENCE_PATH):
+        try:
+            os.mkdir(PERSISTENCE_PATH)
+        except Exception as e:
+            print(f"failed to create the fts persistence directory at {PERSISTENCE_PATH} with error: {e}")
+            sys.exit(1)
+    
     _node_id = str(uuid4())
 
     # All available config vars should be defined here
@@ -75,46 +84,46 @@ class MainConfig:
         # whether or not to save CoT's to the DB
         "SaveCoTToDB": {"default": True, "type": bool},
         # this should be set before startup
-        "DBFilePath": {"default": r"/opt/FTSDataBase.db", "type": str},
+        "DBFilePath": {"default": f"{PERSISTENCE_PATH}/FTSDataBase.db", "type": str},
         "MainPath": {"default": Path(MAINPATH), "type": str},
-        "certsPath": {"default": Path(rf"{MAINPATH}/certs"), "type": str},
-        "ExCheckMainPath": {"default": Path(rf"{MAINPATH}/ExCheck"), "type": str},
+        "certsPath": {"default": Path(rf"{PERSISTENCE_PATH}/certs"), "type": str},
+        "ExCheckMainPath": {"default": Path(rf"{PERSISTENCE_PATH}/ExCheck"), "type": str},
         "ExCheckFilePath": {
-            "default": Path(rf"{MAINPATH}/ExCheck/template"),
+            "default": Path(rf"{PERSISTENCE_PATH}/ExCheck/template"),
             "type": str,
         },
         "ExCheckChecklistFilePath": {
-            "default": Path(rf"{MAINPATH}/ExCheck/checklist"),
+            "default": Path(rf"{PERSISTENCE_PATH}/ExCheck/checklist"),
             "type": str,
         },
         "DataPackageFilePath": {
-            "default": Path(rf"{MAINPATH}/FreeTAKServerDataPackageFolder"),
+            "default": Path(rf"{PERSISTENCE_PATH}/FreeTAKServerDataPackageFolder"),
             "type": str,
         },
-        "LogFilePath": {"default": Path(rf"{MAINPATH}/Logs"), "type": str},
+        "LogFilePath": {"default": Path(rf"{PERSISTENCE_PATH}/Logs"), "type": str},
         "federationKeyPassword": {"default": "defaultpass", "type": str},
-        "keyDir": {"default": Path(rf"{MAINPATH}/certs/server.key"), "type": str},
-        "pemDir": {"default": Path(rf"{MAINPATH}/certs/server.pem"), "type": str},
-        "testPem": {"default": Path(rf"{MAINPATH}/certs/server.key"), "type": str},
-        "testKey": {"default": Path(rf"{MAINPATH}/certs/server.pem"), "type": str},
+        "keyDir": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.key"), "type": str},
+        "pemDir": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.pem"), "type": str},
+        "testPem": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.key"), "type": str},
+        "testKey": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.pem"), "type": str},
         "unencryptedKey": {
-            "default": Path(rf"{MAINPATH}/certs/server.key.unencrypted"),
+            "default": Path(rf"{PERSISTENCE_PATH}/certs/server.key.unencrypted"),
             "type": str,
         },
-        "p12Dir": {"default": Path(rf"{MAINPATH}/certs/server.p12"), "type": str},
-        "CA": {"default": Path(rf"{MAINPATH}/certs/ca.pem"), "type": str},
-        "CAkey": {"default": Path(rf"{MAINPATH}/certs/ca.key"), "type": str},
+        "p12Dir": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.p12"), "type": str},
+        "CA": {"default": Path(rf"{PERSISTENCE_PATH}/certs/ca.pem"), "type": str},
+        "CAkey": {"default": Path(rf"{PERSISTENCE_PATH}/certs/ca.key"), "type": str},
         "federationCert": {
-            "default": Path(rf"{MAINPATH}/certs/server.pem"),
+            "default": Path(rf"{PERSISTENCE_PATH}/certs/server.pem"),
             "type": str,
         },
         "federationKey": {
-            "default": Path(rf"{MAINPATH}/certs/server.key"),
+            "default": Path(rf"{PERSISTENCE_PATH}/certs/server.key"),
             "type": str,
         },
         "password": {"default": "supersecret", "type": str},
         "websocketkey": {"default": "YourWebsocketKey", "type": str},
-        "CRLFile": {"default": Path(rf"{MAINPATH}/certs/FTS_CRL.json"), "type": str},
+        "CRLFile": {"default": Path(rf"{PERSISTENCE_PATH}/certs/FTS_CRL.json"), "type": str},
         # set to None if you don't want a message sent
         "ConnectionMessage": {
             "default": f"Welcome to FreeTAKServer {FTS_VERSION}. The Parrot is not dead. It’s just resting",
@@ -123,7 +132,7 @@ class MainConfig:
         "DataBaseType": {"default": "SQLite", "type": str},
         # location to backup client packages
         "ClientPackages": {
-            "default": Path(rf"{MAINPATH}/certs/clientPackages"),
+            "default": Path(rf"{PERSISTENCE_PATH}/certs/clientPackages"),
             "type": str,
         },
         "CoreComponentsPath": {
@@ -172,7 +181,7 @@ class MainConfig:
         "IntegrationManagerPublisherPort": {"default": 19034, "type": int},
         # address from which to publish messages by the integration manager
         "IntegrationManagerPublisherAddress": {"default": "127.0.0.1", "type": str},
-        "yaml_path": {"default": r"/opt/FTSConfig.yaml", "type": str},
+        "yaml_path": {"default": f"{PERSISTENCE_PATH}/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
         # radius of emergency within-which users will receive it
         "EmergencyRadius": {"default": 10, "type": int}
@@ -357,9 +366,7 @@ class MainConfig:
 
             # if config_file not specified, check env or use default location
             if config_file == None:
-                config_file = str(
-                    os.environ.get("FTS_CONFIG_PATH", "/opt/FTSConfig.yaml")
-                )
+                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["configPath"]))
 
             # overlay the yaml config if found
             if os.path.exists(config_file):
@@ -389,7 +396,7 @@ class MainConfig:
         if name in self._values:
             return self._values[name]
         else:
-            raise RuntimeError(f"MainConfig unknown setting name: {name}")
+            raise RuntimeError(f'MainConfig unknown setting name: {name}')
 
     # read_yaml_config() will parse a YAML config and apply to the current
     # config vars. This should only be called from instance() and only
@@ -435,13 +442,13 @@ class MainConfig:
                 # Handle boolean types
                 if self._var_type(config_var) == bool:
                     # bools are actually specified as a string
-                    if env_value.upper() in ("1", "TRUE", "YES", "Y"):
+                    if env_value.upper() in ('1', 'TRUE', 'YES', 'Y'):
                         env_value = True
                     else:
                         env_value = False
                 # Handle lists and split the value apart
                 elif self._var_type(config_var) == list:
-                    env_value = re.split(r":|,", env_value)
+                    env_value = re.split(r':|,', env_value)
 
                 self[config_var] = env_value
 
@@ -449,7 +456,7 @@ class MainConfig:
     # settings of config vars
     def dump_values(self):
         for var_name, value in self._values.items():
-            print(f"{var_name} = {value}")
+            print(f'{var_name} = {value}')
 
     # test if the config var should allow being set
     def _readonly(self, name):
@@ -462,7 +469,7 @@ class MainConfig:
 
     # helper function to return the type of a config var
     def _var_type(self, name):
-        return MainConfig._defaults[name]["type"]
+        return MainConfig._defaults[name]['type']
 
     # Attribute access magic methods
     def __getattr__(self, name):
