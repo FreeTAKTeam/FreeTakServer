@@ -4,7 +4,7 @@ class _Group(FTSProtocolObject):
     def __init__(self):
         self.name = None
         self.role = None
-
+        
     @staticmethod
     def connection(NAME = vars.connection().NAME, ROLE = vars.connection().ROLE):
         _group = _Group()
@@ -25,7 +25,7 @@ class _Group(FTSProtocolObject):
         _group.setname(NAME)
         _group.setrole(ROLE)
         return _group
-
+    
     def getrole(self):
         return self.role
 

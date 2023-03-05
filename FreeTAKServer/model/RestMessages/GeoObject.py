@@ -42,3 +42,6 @@ class GeoObject:
     # the length, expressed in seconds  until the point will stale out. Default is
     # 300 seconds or 5 minutes.
     timeout = ""
+    remarks = ""
+
+    repeat = False

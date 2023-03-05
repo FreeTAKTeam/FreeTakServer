@@ -15,14 +15,14 @@ class _Serverdestination(FTSProtocolObject):
         # string composed by IP:port: protocol:machineID. e.g. 192.168.0.103:4242:tcp:
         # ANDROID-R52JB0CDC4E
         self.destinations = None
-        # destinations getter
-
+        
     @staticmethod
     def geochat(DESTINATIONS = vars.geochat().DESTINATIONS):
         serverdestinations = _Serverdestination()
         serverdestinations.setdestinations(DESTINATIONS)
         return serverdestinations
 
+    # destinations getter
     def getdestinations(self):
         return self.destinations
 

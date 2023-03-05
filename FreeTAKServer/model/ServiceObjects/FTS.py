@@ -1,11 +1,14 @@
-from .FTSVariables import FTSVariables as vars
 from .CoTService import CoTService
-from .TCPDataPackageService import TCPDataPackageService
-from .SSLDataPackageService import SSLDataPackageService
-from .RestAPIService import RestAPIService
-from .SSLCoTService import SSLCoTService
 from .FederationClientService import FederationClientService
 from .FederationServerService import FederationServerService
+from .FTSVariables import FTSVariables as vars
+from .RestAPIService import RestAPIService
+from .RoutingProxyService import RoutingProxyService
+from .SSLCoTService import SSLCoTService
+from .SSLDataPackageService import SSLDataPackageService
+from .TCPDataPackageService import TCPDataPackageService
+from .ComponentRegistration import ComponentRegistration
+from .IntegrationManagerService import IntegrationManagerService
 
 class FTS:
     def __init__(self):
@@ -16,3 +19,6 @@ class FTS:
         self.SSLCoTService = SSLCoTService()
         self.FederationClientService = FederationClientService()
         self.FederationServerService = FederationServerService()
+        self.RoutingProxyService = RoutingProxyService()
+        self.ComponentRegistration = ComponentRegistration()
+        self.IntegrationManagerService = IntegrationManagerService()
