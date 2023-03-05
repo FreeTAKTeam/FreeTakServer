@@ -22,6 +22,8 @@ class SSLSocketController(MainSocketController):
         context.load_verify_locations(cafile=self.MainSocket.CA)
         context.options |= ssl.OP_NO_SSLv3
         context.options |= ssl.OP_NO_SSLv2
+        context.options |= ssl.OP_NO_TLSv1
+        context.options |= ssl.OP_NO_TLSv1_1
         context.verify_mode = ssl.CERT_REQUIRED
         context.verify_flags = ssl.VERIFY_CRL_CHECK_LEAF
         context.load_cert_chain(certfile=self.MainSocket.pemDir, keyfile=self.MainSocket.keyDir,
