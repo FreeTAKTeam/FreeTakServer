@@ -26,7 +26,7 @@ from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.request import Request
 
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
-
+from digitalpy.core.parsing.formatter import Formatter
 from FreeTAKServer.core.util import certificate_generation
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.model.FTSModel.Event import Event

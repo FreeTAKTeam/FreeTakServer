@@ -7,7 +7,7 @@
 # Original author: Giu Platania
 # 
 #######################################################
-from Catalog.Implementation.Libraries.Digitalpy.digitalpy.Async.routing.controller import Controller
+from digitalpy.core.main.controller import Controller
 
 class DataPackageGeneralController(Controller):
     def broadcast(self):
