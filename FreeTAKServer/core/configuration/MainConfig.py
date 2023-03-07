@@ -16,7 +16,7 @@ PYTHON_VERSION = "python3.8"
 ROOTPATH = "/"
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
 MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
-PERSISTENCE_PATH = r'C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer'
+PERSISTENCE_PATH = r'/opt/fts'
 
 class MainConfig:
     """
