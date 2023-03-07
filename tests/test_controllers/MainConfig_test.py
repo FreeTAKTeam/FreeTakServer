@@ -124,7 +124,7 @@ Certs:
 
     def test_get_config_as_attribute(self):
         config = MainConfig.instance()
-        assert(config.persistencePath == fr'/opt/fts/')
+        assert(config.persistencePath == fr'/opt/fts')
         assert(config.SaveCoTToDB == True)
         assert(config.FederationPort == 9000)
 
@@ -139,7 +139,7 @@ Certs:
 
     def test_get_config_as_dictionary(self):
         config = MainConfig.instance()
-        assert(config['persistencePath'] == fr'/opt/fts/')
+        assert(config['persistencePath'] == fr'/opt/fts')
         assert(config['SaveCoTToDB'] == True)
         assert(config['FederationPort'] == 9000)
 
