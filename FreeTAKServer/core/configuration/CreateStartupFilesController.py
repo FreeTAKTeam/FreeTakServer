@@ -2,12 +2,17 @@ import os
 from FreeTAKServer.core.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from pathlib import PurePath
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
+config = MainConfig.instance()
+
 class CreateStartupFilesController:
     def __init__(self):
         self.file_dir = os.path.dirname(os.path.realpath(__file__))
         self.dp_directory = PurePath(self.file_dir, DataPackageServerConstants().DATAPACKAGEFOLDER)
         self.logs_directory = PurePath(LoggingConstants().PARENTPATH)
+        self.client_package = config.ClientPackages
         self.createFolder()
+
     def createFolder(self):
         try:
             os.mkdir(self.dp_directory)
@@ -17,6 +22,11 @@ class CreateStartupFilesController:
             os.mkdir(self.logs_directory)
         except:
             pass
+        try:
+            if not os.path.exists(self.client_package):
+                os.makedirs(self.client_package)
+        except:
+            raise Exception("failed to create client packages directory at "+str(config.ClientPackages))
         ERRORLOG = open(LoggingConstants().ERRORLOG, "w+")
         ERRORLOG.close()
         HTTPLOG = open(LoggingConstants().HTTPLOG, "w+")
