@@ -3,7 +3,7 @@ import pytest
 import os
 import yaml
 
-from FreeTAKServer.controllers.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from pathlib import PosixPath, WindowsPath
 from unittest import mock
 
