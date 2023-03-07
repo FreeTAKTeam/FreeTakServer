@@ -9,14 +9,14 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.16 Beta"
+FTS_VERSION = "FreeTAKServer-2.0.17 Beta"
 API_VERSION = "1.9.6"
 # TODO Need to find a better way to determine python version at runtime
 PYTHON_VERSION = "python3.8"
 ROOTPATH = "/"
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
-MAINPATH = r"C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer"
-PERSISTENCE_PATH = r'C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer'
+MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
+PERSISTENCE_PATH = r'/opt/fts'
 
 class MainConfig:
     """
