@@ -16,7 +16,7 @@ PYTHON_VERSION = "python3.8"
 ROOTPATH = "/"
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
 MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
-PERSISTENCE_PATH = r'/opt/fts/'
+PERSISTENCE_PATH = r'C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer'
 
 class MainConfig:
     """
@@ -184,7 +184,9 @@ class MainConfig:
         "yaml_path": {"default": f"{PERSISTENCE_PATH}/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
         # radius of emergency within-which users will receive it
-        "EmergencyRadius": {"default": 10, "type": int}
+        "EmergencyRadius": {"default": 10, "type": int},
+        # set the persistence path
+        "persistencePath": {"default": PERSISTENCE_PATH, "type": str}
     }
 
     # This structure maps environmental vars to config vars
@@ -252,7 +254,8 @@ class MainConfig:
         # address from which to publish messages by the integration manager
         "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
         # radius of emergency within-which users will receive it
-        "FTS_EMERGENCY_RADIUS": "EmergencyRadius"
+        "FTS_EMERGENCY_RADIUS": "EmergencyRadius",
+        "FTS_PERSISTENCE_PATH": "persistencePath"
     }
 
     # This is a simple representation of the YAML config schema with
@@ -303,6 +306,7 @@ class MainConfig:
 
         },
         "Filesystem": {
+            "FTS_PERSISTENCE_PATH": "persistencePath",
             "FTS_COT_TO_DB": "SaveCoTToDB",
             "FTS_DB_PATH": "DBFilePath",
             "FTS_MAINPATH": "MainPath",
