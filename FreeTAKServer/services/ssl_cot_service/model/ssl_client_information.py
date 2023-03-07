@@ -9,7 +9,7 @@
 # 
 #######################################################
 import copy
-
+from FreeTAKServer.model.ClientInformation import ClientInformation
 
 class SSLClientInformation:
     def __init__(self):  

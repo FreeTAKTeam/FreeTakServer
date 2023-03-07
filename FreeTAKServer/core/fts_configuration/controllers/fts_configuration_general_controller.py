@@ -7,18 +7,15 @@
 # Original author: Giu Platania
 # 
 #######################################################
-from Catalog.Implementation.Libraries.Digitalpy.digitalpy.Async.routing.controller import Controller
+from digitalpy.core.main.controller import Controller
 
 class FTSConfigurationGeneralController(Controller):
 # default constructor  def __init__(self):  
 
-    def __init__(Request, Response, ActionMapper, Configuration):
+    def __init__(self, Request, Response, ActionMapper, Configuration):
         pass
 
-    def execute( = None):
-        pass
-
-    def serialize_component_name():
+    def serialize_component_name(self):
         """this is the general method used to serialize the component to a given format
         """
         pass

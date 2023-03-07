@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 from FreeTAKServer.core.cot_management.cot_management_facade import CotManagement
 from tests.test_components.misc import ComponentTest
-from tests.test_components.test_cot_manager.test_cot_manager_schemas import (
+from tests.test_components.test_cot_manager_component.test_cot_manager_schemas import (
     TEST_CONNECTION_SCHEMA, TEST_CREATE_REPEATED_MESSAGE_SCHEMA,
     TEST_DELETE_NON_EXISTENT_REPEATED_MESSAGE_SCHEMA,
     TEST_DELETE_REPEATED_MESSAGE_SCHEMA, TEST_GET_REPEATED_MESSAGES_SCHEMA

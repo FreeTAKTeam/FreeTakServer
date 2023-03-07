@@ -7,7 +7,7 @@
 # Original author: Giu Platania
 # 
 #######################################################
-from Catalog.Implementation.Libraries.Digitalpy.digitalpy.Async.routing.controller import Controller
+from digitalpy.core.main.controller import Controller
 
 class COTManagementGeneralController(Controller):
     def __init__(self, **kwargs):
@@ -50,58 +50,55 @@ class COTManagementGeneralController(Controller):
         cot_record = medevac_request.cot_record
         drop_point = medevac_request.drop_point
         # process the medevac request...
+    
+    def manage_presence(self, presence_data: dict):
+        """Updates the presence information for a specific COT in the system.
         
-        def manage_presence(self, presence_data: dict):
-            """Updates the presence information for a specific COT in the system.
-            
-            Args:
-                presence_data (dict): A dictionary containing the updated presence information for the COT.
-            """
-            # Validate the presence data
-            if not self._is_valid_presence_data(presence_data):
-                raise InvalidInputError("Invalid presence data provided.")
+        Args:
+            presence_data (dict): A dictionary containing the updated presence information for the COT.
+        """
+        # Validate the presence data
+        if not self._is_valid_presence_data(presence_data):
+            raise InvalidInputError("Invalid presence data provided.")
 
-            # Update the presence information in the database
-            self.db.update_cot_presence(presence_data)
+        # Update the presence information in the database
+        self.db.update_cot_presence(presence_data)
 
+    def share_privately(self, cot_id: str, recipient_id: str):
+        """Shares a specific COT privately with another user.
+        
+        Args:
+            cot_id (str): The ID of the COT to be shared.
+            recipient_id (str): The ID of the user to receive the shared COT.
+        """
+        # Check if the recipient is a valid user
+        if not self.user_manager.is_valid_user(recipient_id):
+            raise InvalidInputError("Invalid recipient provided.")
 
-        def share_privately(self, cot_id: str, recipient_id: str):
-            """Shares a specific COT privately with another user.
-            
-            Args:
-                cot_id (str): The ID of the COT to be shared.
-                recipient_id (str): The ID of the user to receive the shared COT.
-            """
-            # Check if the recipient is a valid user
-            if not self.user_manager.is_valid_user(recipient_id):
-                raise InvalidInputError("Invalid recipient provided.")
+        # Check if the COT exists and is owned by the current user
+        cot = self.db.get_cot(cot_id)
+        if cot is None or cot.owner_id != self.current_user.id:
+            raise InvalidInputError("Invalid COT provided.")
 
-            # Check if the COT exists and is owned by the current user
-            cot = self.db.get_cot(cot_id)
-            if cot is None or cot.owner_id != self.current_user.id:
-                raise InvalidInputError("Invalid COT provided.")
+        # Share the COT privately with the recipient
+        self.db.add_cot_to_user(cot_id, recipient_id)
 
-            # Share the COT privately with the recipient
-            self.db.add_cot_to_user(cot_id, recipient_id)
-
-
-        def broadcast(self, cot_id: str):
-            """Broadcasts a specific COT to all users in the system.
-            
-            Args:
-                cot_id (str): The ID of the COT to be broadcasted.
-            """
-            # Check if the COT exists and is owned by the current user
-            cot = self.db.get_cot(cot_id)
-            if cot is None or cot.owner != self.current_user:
+    def broadcast(self, cot_id: str):
+        """Broadcasts a specific COT to all users in the system.
+        
+        Args:
+            cot_id (str): The ID of the COT to be broadcasted.
+        """
+        # Check if the COT exists and is owned by the current user
+        cot = self.db.get_cot(cot_id)
+        if cot is None or cot.owner != self.current_user:
             raise ValueError("Invalid COT ID or unauthorized access.")
-            # Create a broadcast message with the COT data
-            message = {"type": "cot_broadcast", "cot": cot.to_dict()}
-            self.messaging.broadcast(message)
+        # Create a broadcast message with the COT data
+        message = {"type": "cot_broadcast", "cot": cot.to_dict()}
+        self.messaging.broadcast(message)
 
-
-            def cot_broadcast(self):
-                # retrieve the COT message from the request values
-                cot_message = self.request.get_value("cot_message")
-                # broadcast the COT message to all registered listeners
-                self.broadcast(cot_message)
+    def cot_broadcast(self):
+        # retrieve the COT message from the request values
+        cot_message = self.request.get_value("cot_message")
+        # broadcast the COT message to all registered listeners
+        self.broadcast(cot_message)
