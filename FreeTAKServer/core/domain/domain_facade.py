@@ -1,6 +1,6 @@
-from Catalog.Data.Domain.FTS Model.Facade import Facade
+from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 
-class DomainFacade(Facade, Facade):
+class DomainFacade(DefaultFacade):
     """Facade class for the this component. Responsible for handling all public
     routing. Forwards all requests to the internal router.
       WHY
@@ -14,7 +14,7 @@ class DomainFacade(Facade, Facade):
     clients and the Subsystems.</li>
       </ul>
     """
-# default constructor  def __init__(self):  
+    # default constructor  def __init__(self):  
 
-    def __init__():
+    def __init__(self):
         pass
