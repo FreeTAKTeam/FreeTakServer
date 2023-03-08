@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://iec.ch/TC57/drop_point#",
+    "type": "object",
+    "properties": {
+        "track_manager": {
+            "type": "object",
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/Event"
+                }
+            ]
+        }
+    },
+    "definitions": {
+        "Event": {
+            "type": "object",
+            "description": "represents a TAK event: this class is instantiated with a standard set of values.",
+            "properties": {
+                "access": {
+                    "description": "Specifies access controls that should be applied to the event",
+                    "type": "integer",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "detail": {
+                    "$ref": "#/definitions/detail",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "how": {
+                    "description": "Gives a hint about how the coordinates were generated.  It is used specifically to relay a hint about the types of errors that may be expected in the data and to weight the data in systems that fuse  multiple inputs.",
+                    "type": "string",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "opex": {
+                    "description": "OPTIONAL: Specifies whether the event is part of a live operation, an exercise, or a simulation.",
+                    "type": "integer",
+                    "minItems": 0,
+                    "maxItems": 1
+                },
+                "point": {
+                    "$ref": "#/definitions/point",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "qos": {
+                    "description": "OPTIONAL: Specifies a quality of service desired from applications processing or routing the event",
+                    "type": "integer",
+                    "minItems": 0,
+                    "maxItems": 1
+                },
+                "stale": {
+                    "description": "ending time when an event should no longer be considered valid l (with respect to Zulu time in extended ISO 8601 format)\n\nIn protobuff is in milliseconds",
+                    "type": "integer",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "start": {
+                    "description": "starting time of the event's validity interval (with respect to Zulu time in extended ISO 8601 format) \n. As different from the moment in which the element was generated\n\nin protobuff this is expressed in milliseconds",
+                    "type": "integer",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "time": {
+                    "description": "time stamp with respect to Zulu time indicating when an event was generated in extended ISO 8601 format \n\nin ProtoBuff expressed is in milliseconds",
+                    "type": "integer",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "type": {
+                    "description": "Defines what the event is about. An event may describe a physical object, a set of raw, unprocessed bits, or a tasking. \n# Hierarchically organized hint about event type (<b>default </b>is is 'a-f-G-I' for infrastructure)\nThe \"type\" attribute is a composite of components delimited by the semi-colon character. The first component of this composite attribute is defined below.\n   Future versions of this schema will define other components which we expect    will aid in machine filtering. Despite the exclusion of definitions\n   for additional components in this version of the schema, users of    this schema should expect and design an optional trailing field    delimited by the semi-colon character. This field can be ignored.\n<ul>\n\t<li>   <font color=\"#a52a2a\"><i>component1</i></font>;<font color=\"#32cd32\">optional field</font></li>\n</ul>\n  \n   The first component (<font color=\"#a52a2a\">component1</font>) is a hierarchically organized hint about type.\n   The intention is that this hierarchy be flexible and extensible and facilitate simple filtering, translation and display.  To  facilitate  filtering, the hierarchy needs to present key    fields in an easily parsed and logical order.  To facilitate    this, this component is a composite of fields separated by the \"-\" punctuation   character, so a valid type would be: x-x-X-X-x.  Using a punctuation for field separation allows arbitrary expansion of the  type space, \ne.g., a-fzp-mlk-gm-...\n\n   Field meanings are type specific.  That is, the third field of an  \"<u>atom</u>\" type may represent air vs. ground while the same field for a    \"<u>reservation</u>\" type may represent purpose. \n   The \"Atoms\" portion of the type tree requires some additional explanation past the taxonomy defined below. The \"Atoms\" portion of    the type tree contains CoT defined fields and part of the <b>MIL-STD-2525</b>    type definition. <u>To distinguish MIL-STD-2525 type strings from CoT defined    fields, the MIL-STD-2525 types must be represented in all upper    case</u>. Differentiation of type namespace with upper/lower case   facilitates extension of CoT types and MIL-STD-2525 types without    name space conflict. An example:\n   a-f-A-B-C-x \n   The organization of CoT and MIL-STD-2525 types can be determined   from the taxonomy below, but additional details are provided here.\n\n   The \"Atoms\" portion of the \"type\" tree contains the \"Battle    Dimension\" and  \"Function ID\" fields taken from MIL-STD-2525.\n   \"Battle Dimension\" is a single character taken from   MIL-STD-2525. \n\n   The typical 2525 representation for \"Function ID\" is three groups of    two characters separated by a space (e.g. \"12 34 56\"). The CoT  schema maps this to a \"-\" delimited list of characters. (e.g. \"1-2-3-4-5-6\").\n   The concatenation of the \"Battle Dimension\" and \"Function ID\" fields    from the MIL-STD-2525 specification represented in the CoT schema\n   will be as follows:\n   battle dimension-func id char1-func id char2- ... -func id char6\n\n   When an appropriate MIL-STD-2525 type exists, it should be used. If  there is a MIL-STD-2525 representation which is close, but may be   refined, a CoT extension to the 2525 type can be appended.\n   for example: \na-h-X-X-X-X-X-<b>i</b> might represent hostile MIL-STD-2525 type X-X-X-X-X  of   <b>Israeli </b>(the 'i'<b>) </b>manufacture. Again, the<u> CoT extension uses lower case</u>. \n   Conceptually, this extension defines further branching from the   nearest MIL-STD-2525 tree point.\n\n   If no appropriate 2525 representation exists, a type definition can be added to the CoT tree defined here. The resulting definition    would be represented in all lower case. For example\n   a-h-G-p-i\n   might define atoms-hostile-Ground-photon cannon-infrared.\n   The taxonomy currently looks like this: Note that the coding of the  sub fields are determined entirely by the preceding fields!) The\n   current type tree is defined here. \n\n       <b>+--- First position, this event describes</b>\n<ul>\n\t<li>       a - Atoms - this event describes an actual \"thing\"</li>\n</ul>\n\n      <b>     +--- 2nd CoT affiliation of these atoms</b>\n<ul>\n\t<li><b>     </b>           p - Pending</li>\n\t<li>           u - Unknown</li>\n\t<li>           a - Assumed friend</li>\n\t<li>           f - Friend</li>\n\t<li>           n - Neutral</li>\n\t<li>           s - Suspect</li>\n\t<li>           h - Hostile</li>\n\t<li>           j - Joker</li>\n\t<li>           k - Faker</li>\n\t<li>           o - None specified</li>\n\t<li>           x - Other</li>\n</ul>\n\n<b>               +--- Battle dimension</b>\n<b>               |    Taken from MIL-STD-2525 \"Battle Dimension\" (upper case)</b>\n<b>      </b>\n           <i>    See MIL-STD-2525B specification for single character battle dimension</i>\n\n          <b>         +--- Function (dimension specific!)</b>\n<b>              </b><i>See MIL-STD-2525B specification for  function fields (must be upper case)    </i>\n                   ...\n\n<b>       +--- The event describes ...</b>\n<b>    </b>       b - Bits - Events in the \"Bit\" group carry meta information about raw data sources.  For example, range-doppler\n                  radar returns or SAR imagery represent classes of information that are \"bits\".  However, tracks derived from such sources represent objects on the battlespace and this have event type \"A-...\"\n\n                  The intention with the \"Bit\" type is to facilitate the identification of germane information products.\n                  This hierarchy is not intended to replace more detailed domain-specific meta information (such as that contained in NITF image headers or the GMTI data formats), rather it is intended to provide a domain-neutral mechanism for rapid filtering of information products.\n\n<b>           +--- Dimension     </b>\n<ul>\n\t<li>           i - Imagery</li>\n\t<li>               e - Electro-optical</li>\n\t<li>               i - Infra red</li>\n\t<li>               s - SAR</li>\n\t<li>               v - video</li>\n\t<li>               ...</li>\n\t<li>           r - Radar</li>\n\t<li>               m - MTI data</li>\n\t<li>               ...</li>\n\t<li>           d - Sensor detection events</li>\n\t<li>               s - Seismic</li>\n\t<li>               d - Doppler</li>\n\t<li>               a - Acoustic</li>\n\t<li>               m - Motion (e.g., IR)</li>\n\t<li>           m - Mapping</li>\n\t<li>               p - Designated point (rally point, etc.)</li>\n\t<li>                   i - initial points</li>\n\t<li>                   r - rally points</li>\n\t<li>                   ...</li>\n</ul>\n\n<b>       r - Reservation/Restriction/References </b>\n                  Events in this category are generally \"notices\" about specific areas.  These events are used for deconfliction and conveyance of significant \"area\" conditions.  Generally, the \"point\" entity will describe a conical region that completely encloses the affected area.  The details entity will provide more specific bounds on precisely the region affected.\n<ul>\n\t<li>           u - Unsafe (hostile capability)</li>\n\t<li>           o - Occupied (e.g., SOF forces on ground)</li>\n\t<li>           c - Contaminated (NBC event)</li>\n\t<li>               c - chemical</li>\n\t<li>                   x - agents, direction,</li>\n\t<li>                   y</li>\n\t<li>                   z</li>\n\t<li>           f - Flight restrictions</li>\n</ul>\n\n<b>       t - Tasking (requests/orders)</b>\nEvents in this category are generalized requests for service.  These may be used to request for data collection, request mesuration of a specific object, order an asset to take action against a specific point.  Generally, the \"details\" entity will identify the general or specific entity being tasked.\n<ul>\n\t<li>           s - Surveillance</li>\n\t<li>           r - Relocate</li>\n\t<li>           e - Engage</li>\n\t<li>           m - Mensurate</li>\n</ul>\n\n<ul>\n\t<li> <b>      c - Capability (applied to an area)</b></li>\n\t<li>           s - Surveillance</li>\n\t<li>           r - Rescue</li>\n\t<li>           f - Fires</li>\n\t<li>           d - Direct fires</li>\n\t<li>            i - Indirect fires</li>\n\t<li>           l - Logistics (supply)</li>\n\t<li>            f - Fuel</li>\n</ul>\n               ...\n           c - Communications",
+                    "type": "string",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "uid": {
+                    "description": "Globally unique name for this information on this event.\ncan have additional information attached.\n[EventTYPE].[MACHINESENDERID].Nichname.UniqueID\n\ne.g. -<i>ping </i>means that this event is a ping, \n<i>\n</i><i>GeoChat </i>indicates a chat type structure.\nThe <b>UID</b> should be in the following format: GeoChat.&lt;sender uid&gt;.&lt;recipient callsign or name of the group&gt;.&lt;random string for uniqueness&gt;.  Diverging from this format should not cause significant issues; however, the UID is used as a fallback if other information cannot be parsed from the message, so issues may still be experienced.  If uid does not contain any “.” characters, the chat room will default to “All Chat Rooms”.\n\nGeoChat.ANDROID-7C:91:22:E8:6E:4D.DIPPER.44bf77cd-289e-4ea4-8756-ce295de168ca",
+                    "type": "integer",
+                    "minItems": 1,
+                    "maxItems": 1
+                },
+                "version": {
+                    "description": "Schema version of this event instance (e.g. 2.0)",
+                    "type": "",
+                    "minItems": 1,
+                    "maxItems": 1
+                }
+            }
+        }
+    }
+}
+
