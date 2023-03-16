@@ -105,6 +105,10 @@ class ReceiveConnections:
                     logger.warning("Receiving connection data from client failed with exception " + str(e))
                     return -1
 
+            # TODO: move out to separate function
+            if events == TEST_SUCCESS:
+                client.send(b'success')
+
             # Set the socket to non-blocking
             client.settimeout(0)
 

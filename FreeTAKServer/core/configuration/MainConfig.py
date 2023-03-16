@@ -15,8 +15,10 @@ API_VERSION = "1.9.6"
 PYTHON_VERSION = "python3.11"
 ROOTPATH = "/"
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
-MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
-PERSISTENCE_PATH = r'/opt/fts'
+#MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
+#PERSISTENCE_PATH = r'/opt/fts'
+MAINPATH = r"C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer"
+PERSISTENCE_PATH = r'C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer'
 
 class MainConfig:
     """
@@ -489,4 +491,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y')
+    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y') and not  os.path.exists(os.path.dirname(os.path.realpath(__file__))+os.sep+"installation.json")

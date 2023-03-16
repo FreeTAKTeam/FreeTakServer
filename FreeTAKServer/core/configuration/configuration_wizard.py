@@ -102,10 +102,18 @@ def ask_user_for_config():
     file = open(yaml_path, mode="w+")
     yaml.dump(yaml_config, file)
     file.close()
+    create_installation_file()
 
     """ip = get_user_input(question="enter ip", default=MainConfig.ip)
     MainConfig.ip = ip
     """
+
+def create_installation_file():
+    """create an installation.json file in the directory to inform the application on startup that
+    the installation process has completed"""
+    dir_path = os.path.dirname(os.path.realpath(__file__)) # get file directory (assumed to be constant and in the same directory as MainConfig.py)
+    f = open(dir_path+os.sep+"installation.json", "w+") 
+    f.close()
 
 def valid_and_safe_path(path):
     """Method that sanitized path and determines if it exists and writable
