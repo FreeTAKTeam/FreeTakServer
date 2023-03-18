@@ -286,16 +286,16 @@ class FederationClientServiceController(FederationServiceBase):
                                                 port = federate_db_obj.port, initiator = "Self")
                 self.db.update_Federation({"lastError": None}, query=f'id == "{federate_db_obj.id}"')
                 return None
-            except Exception as e:
+            except Exception as ex_general:
                 try:
                     self.db.remove_ActiveFederation(f'id == "{server_vars[0]}"')
-                except Exception as e:
-                    self.logger.warning("exception thrown removing outgoing federation from DB "+str(e))
-                self.logger.warning("exception thrown creating new federation "+str(e))
+                except Exception as ex:
+                    self.logger.warning("exception thrown removing outgoing federation from DB %s", str(ex))
+                self.logger.warning("exception thrown creating new federation %s", str(ex_general))
                 try:
-                    self.db.update_Federation({"status": "Disabled", "lastError": str(e)}, query=f'id == "{server_vars[0]}"')
-                except Exception as e:
-                    self.logger.warning("exception thrown updating federate in db "+str(e))
+                    self.db.update_Federation({"status": "Disabled", "lastError": str(ex_general)}, query=f'id == "{server_vars[0]}"')
+                except Exception as ex:
+                    self.logger.warning("exception thrown updating federate in db %s", str(ex))
 
     def receive_data_from_federate(self, timeout):
         """called whenever data is available from any federate and immediately proceeds to
