@@ -9,8 +9,8 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.20 Beta"
-API_VERSION = "1.9.6"
+FTS_VERSION = "FreeTAKServer-2.0.21"
+API_VERSION = "3.0"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent
 PERSISTENCE_PATH = r'/opt/fts'
