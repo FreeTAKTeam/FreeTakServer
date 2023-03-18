@@ -11,11 +11,8 @@ from uuid import uuid4
 
 FTS_VERSION = "FreeTAKServer-2.0.19 Beta"
 API_VERSION = "1.9.6"
-# TODO Need to find a better way to determine python version at runtime
-PYTHON_VERSION = "python3.11"
 ROOTPATH = "/"
-USERPATH = rf"{ROOTPATH}usr/local/lib/"
-MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
+MAINPATH = Path(__file__).parent.parent.parent
 PERSISTENCE_PATH = r'/opt/fts'
 
 class MainConfig:
