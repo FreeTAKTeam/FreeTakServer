@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.domain import Domain
-from track_manager.configuration.track_manager_constants import CONFIGURATION_PATH_TEMPLATE
+from ..configuration.track_manager_constants import CONFIGURATION_PATH_TEMPLATE
 from .. import domain
 #protectedstart imports ############################################################################
 #protectedend ######################################################################################

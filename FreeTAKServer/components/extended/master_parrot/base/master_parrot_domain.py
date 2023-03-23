@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.domain import Domain
-from master_parrot.configuration.master_parrot_constants import CONFIGURATION_PATH_TEMPLATE
+from ..configuration.master_parrot_constants import CONFIGURATION_PATH_TEMPLATE
 from .. import domain
 #protectedstart imports ############################################################################
 #protectedend ######################################################################################

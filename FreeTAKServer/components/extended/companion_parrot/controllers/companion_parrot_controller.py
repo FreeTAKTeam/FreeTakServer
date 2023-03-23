@@ -1,4 +1,4 @@
-from digitalpy.logic.impl.default_business_rule_controller import (
+from digitalpy.core.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
 

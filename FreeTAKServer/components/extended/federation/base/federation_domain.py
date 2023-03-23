@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.domain import Domain
-from federation.configuration.federation_constants import CONFIGURATION_PATH_TEMPLATE
+from ..configuration.federation_constants import CONFIGURATION_PATH_TEMPLATE
 from .. import domain
 #protectedstart imports ############################################################################
 #protectedend ######################################################################################

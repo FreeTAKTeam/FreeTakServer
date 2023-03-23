@@ -1,4 +1,5 @@
-from digitalpy.component.impl.default_facade import DefaultFacade
+from digitalpy.core.component_management.impl.default_facade import DefaultFacade
+from FreeTAKServer.components.extended.master_parrot.controllers.master_parrot_general_controller import MasterParrotGeneralController
 #protectedstart imports ############################################################################
 #protectedend ######################################################################################
 

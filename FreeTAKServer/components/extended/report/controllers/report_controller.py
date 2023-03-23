@@ -1,9 +1,9 @@
-from digitalpy.logic.impl.default_business_rule_controller import (
+from digitalpy.core.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
 
 
-from ..configuration.drop_point_constants import (
+from ..configuration.report_constants import (
 	COMPONENT_NAME_BUSINESS_RULES_PATH,
 	COMPONENT_NAME,
 	BASE_OBJECT_NAME

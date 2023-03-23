@@ -1,5 +1,6 @@
+import codecs
 from mission.configuration.mission_constants import PERSISTENCE_PATH
-from digitalpy.routing.controller import Controller
+from digitalpy.core.main.controller import Controller
 import json
 import os
 import pickle
@@ -15,19 +16,19 @@ class MissionPersistence(Controller):
 		action_mapper=action_mapper,
 		configuration=configuration,
 	)
-	self._persistence = {
-		"mission": {},
-	}
+		self._persistence = {
+			"mission": {},
+		}
 
-	# create the mapping persistence if it doesn't exist already
+		# create the mapping persistence if it doesn't exist already
 		if not os.path.exists(PERSISTENCE_PATH):
 			with open(PERSISTENCE_PATH, mode="w+", encoding="utf-8") as f:
 				json.dump(self._persistence, f)
 
-	# load the mapping persistence into memory
-	with open(PERSISTENCE_PATH, mode="r+", encoding="utf-8") as f:
-		self._persistence = json.load(f)
-		self.components = self._persistence["components"]
+		# load the mapping persistence into memory
+		with open(PERSISTENCE_PATH, mode="r+", encoding="utf-8") as f:
+			self._persistence = json.load(f)
+			self.components = self._persistence["components"]
 
 	def execute(self, method=None):
 		getattr(self, method)(**self.request.get_values())
@@ -48,10 +49,10 @@ class MissionPersistence(Controller):
 			f"added component: {component_uid} to components: {self.components}"
 			)
 			self._update_persistence()
-			except Exception as error:
-				self.request.get_value("logger").error(
-				f"error adding component to components {error}"
-				)
+		except Exception as error:
+			self.request.get_value("logger").error(
+			f"error adding component to components {error}"
+			)
 
 	def delete_component(self, model_object, **kwargs) -> None:
 		"""this method removes the specified component from the list of components

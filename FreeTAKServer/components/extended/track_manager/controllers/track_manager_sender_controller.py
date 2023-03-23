@@ -1,10 +1,10 @@
 """this file contains the component sender controller responsible for transmitting all components"""
-from digitalpy.routing.controller import Controller
-from track_manager.domain import Event
-from digitalpy.routing.request import Request
-from digitalpy.routing.response import Response
-from digitalpy.routing.action_mapper import ActionMapper
-from digitalpy.config.configuration import Configuration
+from digitalpy.core.main.controller import Controller
+from ..domain import Event
+from digitalpy.core.zmanager.request import Request
+from digitalpy.core.zmanager.response import Response
+from digitalpy.core.zmanager.action_mapper import ActionMapper
+from digitalpy.core.digipy_configuration.configuration import Configuration
 
 
 class TrackManagerSenderController(Controller):

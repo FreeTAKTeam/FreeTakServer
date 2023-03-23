@@ -1,4 +1,6 @@
-from digitalpy.component.impl.default_facade import DefaultFacade
+from digitalpy.core.component_management.impl.default_facade import DefaultFacade
+
+from FreeTAKServer.components.extended.federation.controllers.federation_general_controller import FederationGeneralController
 #protectedstart imports ############################################################################
 #protectedend ######################################################################################
 

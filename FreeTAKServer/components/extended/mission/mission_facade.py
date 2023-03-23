@@ -1,4 +1,4 @@
-from digitalpy.component.impl.default_facade import DefaultFacade
+from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 #protectedstart imports ############################################################################
 #protectedend ######################################################################################
 
@@ -40,5 +40,4 @@ class MissionFacade(DefaultFacade):
 
 #protectedstart functions ##########################################################################
 #protectedend ######################################################################################
-
-
+		pass
