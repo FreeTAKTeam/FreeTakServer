@@ -44,7 +44,6 @@ jobs:
         pip install setuptools wheel twine
 
     - name: Build Private PyPi Server Droplet
-    - name: Create a new droplet
       id: create_droplet
       run: |
         DROPLET_NAME="${{ github.workflow }}-${{ github.job }}-${{ github.run_id }}"
