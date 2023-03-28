@@ -65,6 +65,38 @@ jobs:
           echo "DROPLET_ID=$(echo "$DROPLET_JSON" | jq '.[].id')" >> $GITHUB_ENV
           echo "DROPLET_IP=$(echo "$DROPLET_JSON" | jq -r '.[].networks.v4[0].ip_address')" >> $GITHUB_ENV
 
+      - name: Wait for Pypi Droplet SSH
+        run: |
+          COUNT=0
+          RETRIES=30
+          while [ $COUNT -lt $RETRIES ]
+            do
+              echo "Attempting to connect to $DROPLET_IP as root (attempt $(($COUNT + 1))/$RETRIES)..."
+              ssh -i private_key -o "BatchMode=yes" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" "root@$DROPLET_IP" 'echo SSH_READY' && break
+              COUNT=$(($COUNT + 1))
+              sleep 5
+            done
+          if [ $COUNT -lt $RETRIES ]; then
+            echo "SSH is ready on $DROPLET_IP"
+            exit 0
+          else
+            echo "Failed to establish an SSH connection to $DROPLET_IP after $RETRIES attempts"
+            exit 1
+          fi
+
+      - name: Configure Pypi Server
+        id: config-pypi-server
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i do_private_key \
+            root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
+              pip3 install virtualenv
+              mkdir ~/packages
+              cd packages
+              virtualenv venv
+              source venv/bin/activate
+              pip install pypiserver
+              nohup pypi-server -p 8080 ~/packages > pypi-server.log 2>&1 &
+          ENDSSH
       - name: Build and publish
         continue-on-error: true
         env:
@@ -72,7 +104,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
         run: |
           python setup.py sdist bdist_wheel
-          twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
+          twine upload --repository-url http://$DROPLET_IP:8080 dist/*
 
       - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
         uses: GuillaumeFalourd/clone-github-repo-action@v2
