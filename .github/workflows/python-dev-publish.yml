@@ -84,8 +84,23 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i do_private_key \
             root@${{secrets.DEV_SERVER_ADDRESS}} "bash -s" <<- 'ENDSSH'
-            # Execute Zerotouch Script
-            git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+            echo -e -n "Checking for FreeTAKHub-Installation in home directory..."
+            # check for FreeTAKHub-Installation repository
+            if [[ ! -d ~/FreeTAKHub-Installation ]]; then
+              echo -e "NOT FOUND"
+              echo -e "Cloning the FreeTAKHub-Installation repository..."
+              git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+            else
+              echo -e "FOUND"
+              cd ~/FreeTAKHub-Installation
+              echo -e "Pulling latest from the FreeTAKHub-Installation repository..."
+              git pull
+            fi
+
+
+
+
+
           ENDSSH
 
       - name: Run Ansible Playbook
