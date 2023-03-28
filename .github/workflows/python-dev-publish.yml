@@ -89,7 +89,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i do_private_key \
             root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
-              apt install python3-pip -y
+              apt update && apt install python3-pip -y
               pip3 install virtualenv
               mkdir ~/packages
               cd packages
