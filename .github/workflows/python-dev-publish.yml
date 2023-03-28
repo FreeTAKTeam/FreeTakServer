@@ -82,7 +82,7 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i dev_private_key \
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i do_private_key \
             root@${{secrets.DEV_SERVER_ADDRESS}} "bash -s" <<- 'ENDSSH'
             # Execute Zerotouch Script
             ~/FreeTAKHub-Installation/scripts/easy_install.sh
