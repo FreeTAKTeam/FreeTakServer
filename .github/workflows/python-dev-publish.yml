@@ -72,7 +72,7 @@ jobs:
           while [ $COUNT -lt $RETRIES ]
             do
               echo "Attempting to connect to $DROPLET_IP as root (attempt $(($COUNT + 1))/$RETRIES)..."
-              ssh -i private_key -o "BatchMode=yes" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" "root@$DROPLET_IP" 'echo SSH_READY' && break
+              ssh -i do_private_key -o "BatchMode=yes" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" "root@$DROPLET_IP" 'echo SSH_READY' && break
               COUNT=$(($COUNT + 1))
               sleep 5
             done
@@ -128,11 +128,6 @@ jobs:
               echo -e "Pulling latest from the FreeTAKHub-Installation repository..."
               git pull
             fi
-
-
-
-
-
           ENDSSH
 
       - name: Run Ansible Playbook
