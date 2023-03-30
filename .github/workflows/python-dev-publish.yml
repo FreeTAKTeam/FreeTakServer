@@ -96,7 +96,7 @@ jobs:
               virtualenv venv
               source venv/bin/activate
               pip install pypiserver
-              nohup pypi-server -p 8080 ~/packages > pypi-server.log 2>&1 &
+              nohup pypi-server -a -P -p 8080 ~/packages > pypi-server.log 2>&1 &
           ENDSSH
       - name: Build and publish
         continue-on-error: true
