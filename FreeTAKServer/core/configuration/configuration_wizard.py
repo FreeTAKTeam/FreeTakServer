@@ -111,8 +111,7 @@ def ask_user_for_config():
 def create_installation_file():
     """create an installation.json file in the directory to inform the application on startup that
     the installation process has completed"""
-    dir_path = os.path.dirname(os.path.realpath(__file__)) # get file directory (assumed to be constant and in the same directory as MainConfig.py)
-    f = open(dir_path+os.sep+"installation.json", "w+") 
+    f = open(f"{config.persistencePath}/installation.json", "w+")
     f.close()
 
 def valid_and_safe_path(path):
