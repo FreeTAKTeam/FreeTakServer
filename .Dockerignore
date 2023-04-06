@@ -1,2 +1,8 @@
 docs/
 model/
+.dockerignore
+.git
+.github
+.gitignore
+.idea
+.vs
