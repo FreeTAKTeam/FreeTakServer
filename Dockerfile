@@ -12,10 +12,10 @@ WORKDIR /app
 
 RUN pip3 install flask lxml flask_login
 
-COPY --chown=freetak:freetak ./requirements.txt setup.py README.md .
+COPY --chown=freetak:freetak ./requirements.txt setup.py README.md ./
 RUN pip3 install -e /app
 
-COPY --chown=freetak:freetak . .
+COPY --chown=freetak:freetak . ./
 
 # DataPackagePort
 EXPOSE 8080
