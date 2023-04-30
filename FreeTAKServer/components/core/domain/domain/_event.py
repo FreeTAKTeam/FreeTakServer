@@ -6,7 +6,8 @@ import datetime
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
-
+DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+DEFAULT_STALE_TIME = 60
 class Event(CoTNode):
     # TODO: fix emergency methods
     # Event.py
@@ -61,11 +62,18 @@ class Event(CoTNode):
 
     @CoTProperty
     def start(self):
-        return self.cot_attributes.get("start", None)
-
+        start_val = self.cot_attributes.get("start", None)
+        if start_val == None:
+            timer = dt
+            now = timer.utcnow()
+            zulu = now.strftime(DATETIME_FMT)
+            self.cot_attributes["start"] = zulu
+            return zulu
+        else:
+            return start_val
     @start.setter
     def start(self, start=0):
-        DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+        
         if start == None:
             timer = dt
             now = timer.utcnow()
@@ -104,7 +112,15 @@ class Event(CoTNode):
 
     @CoTProperty
     def time(self):
-        return self.cot_attributes.get("time", None)
+        time_val = self.cot_attributes.get("time", None)
+        if time_val == None:
+            timer = dt
+            now = timer.utcnow()
+            zulu = now.strftime(DATETIME_FMT)
+            self.cot_attributes["time"] = zulu
+            return zulu
+        else:
+            return time_val
 
     @time.setter
     def time(self, time=0):
@@ -119,6 +135,14 @@ class Event(CoTNode):
 
     @CoTProperty
     def stale(self):
+        stale_val = self.cot_attributes.get("stale", None)
+        if stale_val == None:
+            timer = dt
+            now = timer.utcnow()
+            zulu = now.strftime(DATETIME_FMT)
+            add = datetime.timedelta(seconds=DEFAULT_STALE_TIME)
+            stale_part = dt.strptime(zulu, DATETIME_FMT) + add
+            self.cot_attributes["stale"] = stale_part.strftime(DATETIME_FMT)
         return self.cot_attributes.get("stale", None)
 
     @stale.setter

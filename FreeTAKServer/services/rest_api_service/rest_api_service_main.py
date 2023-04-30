@@ -1785,6 +1785,44 @@ def emitUpdates(Updates):
     socketio.emit('up', json.dumps(returnValue), broadcast=True)
     return 1
 
+@app.route('/v2/<context>/<action>', methods=[restMethods.GET, restMethods.POST])
+@auth.login_required
+def api_routing(context, action):
+    """the main method for the routing based API which uses information fro
+    the route and the method to send the request to the internal router, 
+    returning the response
+
+    Args:
+        context (str): the context of the request, for use in the routing
+        action (str): the action of the request, for use in the routing
+
+    Raises:
+        ValueError: if the synchronous parameter is true and the service_idis 
+
+    Returns:
+        dict: the values of the response returned by the component
+    """
+    synchronous = request.args.get("synchronous", True) # all requests are by default synchronous
+    service_id = request.args.get("service_id")
+    values = request.get_json()
+    rest_api_service = ObjectFactory.get_instance("RestAPIService")
+    service_id_different = service_id is not None and rest_api_service.service_id != service_id
+    if synchronous == True and service_id_different:
+        raise ValueError("synchronous is true and service_id is neither None or rest api service id,\
+                            this will result in an undefined state where we are waiting for a response that will never come")
+
+    # request to get repeated messages
+    internal_request: Request = ObjectFactory.get_new_instance("request")
+    internal_request.set_action(action)
+    internal_request.set_context(context)
+    internal_request.set_sender(rest_api_service.__class__.__name__.lower())
+    internal_request.set_format("pickled")
+    internal_request.set_values(values or {})
+    rest_api_service.subject_send_request(internal_request, APPLICATION_PROTOCOL, service_id)
+    if synchronous == True:
+        response = rest_api_service.retrieve_response(internal_request.get_id())
+        return response.get_values()
+
 # TODO: move this out of the rest_api_service and into it's own file in views
 # this will require changing it from using the API Pipe to use the ZManager instead
 import json
@@ -1801,6 +1839,7 @@ from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import Se
 from FreeTAKServer.core.parsers.JsonController import JsonController
 
 from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
+from FreeTAKServer.services.rest_api_service.views.emergency_view import ManageEmergency
 
 class ManageGeoObjects(BaseView):
     """this class is responsible for creating the flask views required for managing
@@ -1949,73 +1988,8 @@ class ManageGeoObjects(BaseView):
 # TODO: move this out of the rest_api_service and into it's own file in views
 # this will require changing it from using the API Pipe to use the ZManager instead
 
-from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
-from typing import Dict
-from flask import request
-
-from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.core.parsers.JsonController import JsonController
-from FreeTAKServer.core.RestMessageControllers.SendEmergencyController import SendEmergencyController
-
-loggingConstants = LoggingConstants(log_name="FTS-ManageEmergencyView")
-logger = CreateLoggerController("FTS-ManageEmergencyView", logging_constants=loggingConstants).getLogger()
-
-class ManageEmergency(BaseView):
-    decorators = [auth.login_required]
-    
-    def __init__(self) -> None:
-        endpoints = {
-            "getEmergency": self.get_emergency,
-            "postEmergency": self.post_emergency,
-            "deleteEmergency": self.delete_emergency,
-        }
-        super().__init__(endpoints)
-    
-    def get_emergency(self):
-        """method to retrieve all emergency's
-        Returns:
-            str: returns a json string containing dictionary of emergency's
-
-        """
-        response = self.make_request("GetAllEmergencies") # retrieve emergencies from the emergency component
-        emergencies = response.get_value("emergencies")
-        output = {"json_list": []}
-        for emergency in emergencies:
-            try:
-                serialized_emergency = {
-                    "lat": emergency.point.lat,
-                    "lon": emergency.point.lon,
-                    "type": emergency.detail.emergency.type,
-                    "name": emergency.detail.contact.callsign,
-                    "uid": emergency.uid
-                }
-                output["json_list"].append(serialized_emergency)
-            except AttributeError as ex:
-                logger.error("emergency model object missing attribute %s", ex)
-        return output
-    
-    def post_emergency(self):
-        jsondata = request.get_json(force=True)
-        jsonobj = JsonController().serialize_emergency_post(jsondata)
-        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
-        self.make_request("SaveEmergency", {"model_object": emergency_object.modelObject})
-        APIPipe.put(emergency_object)
-        return emergency_object.modelObject.getuid(), 200
-    
-    def delete_emergency(self) -> str:
-        """delete an emergency from the emergency persistence
-
-        """
-        jsondata = request.get_json(force=True)
-        jsonobj = JsonController().serialize_emergency_delete(jsondata)
-        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
-        APIPipe.put(emergency_object)
-        self.make_request("DeleteEmergency", {"model_object": emergency_object.modelObject})
-        return 'success', 200
-
-app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET", "DELETE"])
-app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
+ManageEmergency.decorators.append(auth.login_required)
+#app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
 
 APPLICATION_PROTOCOL = "xml"
 API_REQUEST_TIMEOUT = 5000
