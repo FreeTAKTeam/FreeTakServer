@@ -91,9 +91,13 @@ class ReceiveConnections:
         sock.listen(ReceiveConnectionsConstants().LISTEN_COUNT)
 
         try:
-            # Accept a client connection
-            client, address = sock.accept()
 
+            try:
+                # Accept a client connection
+                client, address = sock.accept()
+            except socket.timeout:
+                logger.debug("tcp sock threw timeout error")
+                return -1
             # Receive data from the client
             try:
                 events = self.receive_connection_data(client=client)
