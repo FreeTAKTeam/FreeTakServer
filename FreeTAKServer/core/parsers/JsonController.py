@@ -1,3 +1,6 @@
+from geopy import Nominatim
+import uuid
+
 from FreeTAKServer.model.RestMessages.EmergencyPost import EmergencyPost
 from FreeTAKServer.model.RestMessages.EmergencyDelete import EmergencyDelete
 from FreeTAKServer.model.RestMessages.PresencePost import PresencePost
@@ -13,16 +16,75 @@ class JsonController:
     def __init__(self):
         pass
 
-    def serialize_emergency_post(self, json):
+    def resolve_address(self, json: dict, address_attrib: str="address"):
+        if address_attrib in json:
+            locator = Nominatim(user_agent=str(uuid.uuid4()))
+            location = locator.geocode(json.get(address_attrib))
+            return location.latitude, location.longitude
+        else:
+            return json.get("latitude", 0), json.get("longitude", 0)
+        
+    def serialize_emergency_post(self, json: dict):
+        """expand the passed emergency_post values into a complete json description
+        of the object
+        
+        json (dict): the json sent by the client
         """
-        :arg json: the json to be serialized to an emergency
-        """
-        obj = EmergencyPost()
-        return self.serialize_json_to_object(obj, json)
+        lat, lon = self.resolve_address(json)
+        full_json = {
+            "event": {
+                "@uid": str(uuid.uuid4()),
+                "@type": "b-a-o-tbl",
+                "@how": "h-e",
+                "@time": None,   # these will be automatically created during object serialization
+                "@start": None,  
+                "@stale": None,
+                "point": {
+                    "@lat": lat,
+                    "@lon": lon,
+                    "@hae": "9999999",
+                    "@ce": "9999999",
+                    "@le": "9999999"
+                },
+                "detail": {
+                    "remarks": {
+                        "#text": str(json.get("remarks", ""))
+                    },
+                    "emergency": {
+                        "@type": str(json.get("emergencyType")),
+                        "#text": str(json.get("name"))
+                    }
+                }
+            }
+        }
+        return full_json
 
     def serialize_emergency_delete(self, json):
-        object = EmergencyDelete()
-        return self.serialize_json_to_object(object, json)
+        full_json = {
+            "event": {
+                "@how": "h-e",
+                "@time": None,   # these will be automatically created during object serialization
+                "@start": None,  
+                "@stale": None,
+                "@type": "b-a-o-can",
+                "@uid": json.get("uid"),
+                "@version": "2.0",
+                "detail": {
+                    "emergency": {
+                    "@cancel": "true"
+                    }
+                },
+                "point": {
+                    "@ce": "9999999",
+                    "@hae": "9999999",
+                    "@lat": "0",
+                    "@le": "9999999",
+                    "@lon": "0"
+                }
+            }
+        }
+
+        return full_json
 
     def serialize_geoobject_post(self, json):
         object = GeoObjectPost()

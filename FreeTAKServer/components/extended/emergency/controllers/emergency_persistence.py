@@ -31,6 +31,7 @@ class EmergencyPersistence(Controller):
             self._persistence = json.load(f)
             self.emergencies = self._persistence["emergencies"]
 
+        super().__init__(request, response, action_mapper, configuration)
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
         return self.response
