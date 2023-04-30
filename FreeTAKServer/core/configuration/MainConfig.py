@@ -9,14 +9,12 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.15 Alpha"
-API_VERSION = "1.9.6"
-# TODO Need to find a better way to determine python version at runtime
-PYTHON_VERSION = "python3.8"
+FTS_VERSION = "FreeTAKServer-2.0.21"
+API_VERSION = "3.0"
 ROOTPATH = "/"
+MAINPATH = Path(__file__).parent.parent.parent
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
-MAINPATH = rf"{USERPATH}{PYTHON_VERSION}/dist-packages/FreeTAKServer"
-PERSISTENCE_PATH = r'/opt/fts/'
+PERSISTENCE_PATH = r'C:\Users\Natha Paquette\work\FreeTakServer\persistence'
 
 class MainConfig:
     """
@@ -56,6 +54,7 @@ class MainConfig:
         "OptimizeAPI": {"default": True, "type": bool},
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},
+        "LogLevel": {"default": "info", "type": str},
         "UserPersistencePath": {
             "default": Path("/opt/user_persistence.txt"),
             "type": str,
@@ -255,7 +254,8 @@ class MainConfig:
         "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
         # radius of emergency within-which users will receive it
         "FTS_EMERGENCY_RADIUS": "EmergencyRadius",
-        "FTS_PERSISTENCE_PATH": "persistencePath"
+        "FTS_PERSISTENCE_PATH": "persistencePath",
+        "FTS_LOG_LEVEL": "LogLevel"
     }
 
     # This is a simple representation of the YAML config schema with
@@ -323,6 +323,7 @@ class MainConfig:
             "FTS_INTERNAL_COMPONENTS_IMPORT_ROOT": "InternalComponentsImportRoot",
             "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
             "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT": "ExternalComponentsImportRoot",
+            "FTS_LOG_LEVEL": "LogLevel"
         },
         "Certs": {
             "FTS_SERVER_KEYDIR": "keyDir",
@@ -489,4 +490,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y')
+    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y') and not  os.path.exists(os.path.dirname(os.path.realpath(__file__))+os.sep+"installation.json")

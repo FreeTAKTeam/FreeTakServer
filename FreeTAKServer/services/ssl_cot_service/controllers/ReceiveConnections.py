@@ -79,6 +79,10 @@ class ReceiveConnections:
             # logger.debug('receive connection started')
             try:
                 client, address = sock.accept()
+            except socket.timeout:
+                logger.debug("ssl sock threw timeout error")
+                return -1
+            try:    
                 ssl_client = SSLSocketController().wrap_client_socket(client)
             except ssl.SSLError as ex:
                 print(ex)
@@ -123,7 +127,7 @@ class ReceiveConnections:
                 return -1
 
         except Exception as ex:
-            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR)
+            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR + ": " + str(ex))
             try:
                 self.disconnect_socket(client, ssl_client)
             except Exception as ex:

@@ -62,7 +62,7 @@ class XmlSerializer(SerializerAbstract):
                 fts_obj = getter()
                 setter(self.from_format_to_fts_object(etree.tostring(subelem), fts_obj))
             except AttributeError:
-                logger.info("the following tag is missing from the FTS model, missing cot "+str(etree.tostring(element)) + " missing tag name: "+str(subelem.tag))
+                logger.debug("the following tag is missing from the FTS model, missing cot "+str(etree.tostring(element)) + " missing tag name: "+str(subelem.tag))
 
     def from_fts_object_to_format(self, FTSObject: Event, root: Element = None) -> Element:
         """ serialize a FTS_object to an etree Element

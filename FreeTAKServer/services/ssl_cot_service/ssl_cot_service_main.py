@@ -1036,7 +1036,7 @@ class SSLCoTServiceMain(DigitalPyService):
                     if CoTOutput == 1:
                         continue
                     
-                    self.logger.info(f"CoT serialized {CoTOutput.modelObject.uid}")
+                    self.logger.debug(f"CoT serialized {CoTOutput.modelObject.uid}")
 
                     # Check if the CoT data is valid and can be sent
                     if self.checkOutput(CoTOutput):

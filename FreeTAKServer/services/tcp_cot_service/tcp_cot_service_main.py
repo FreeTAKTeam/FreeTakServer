@@ -1066,7 +1066,7 @@ class TCPCoTServiceMain(DigitalPyService):
 
                     # Process the raw CoT data and serialize it
                     CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
-                    self.logger.info(f"CoT serialized {CoTOutput.modelObject.uid}")
+                    self.logger.debug(f"CoT serialized {CoTOutput.modelObject.uid}")
 
                     # Skip this iteration if the CoT data is invalid
                     if CoTOutput == 1:
@@ -1095,7 +1095,7 @@ class TCPCoTServiceMain(DigitalPyService):
                         # The CoT data is invalid, raise an exception
                         raise Exception("Error in general data processing")
                 except Exception as e:
-                    self.logger.info(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
+                    self.logger.error(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
         except Exception as e:
             self.logger.info(f"Error iterating client data output {e}")
             return -1

@@ -44,7 +44,7 @@ class SendCoTAbstractController(ABC):
             logger.warning(
                 'there has been an exception in the creation of a database instance of this object ' + str(e))
             raise Exception(e)
-        logger.info("serialized CoT "+str(RawCoT.xmlString)+" to type "+str(self))
+        logger.debug("serialized CoT "+str(RawCoT.xmlString)+" to type "+str(self))
         self.setObject(object)
 
     def create_model_object(self, tempObject, xmlString):

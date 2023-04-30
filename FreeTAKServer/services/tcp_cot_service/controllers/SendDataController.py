@@ -117,7 +117,7 @@ class SendDataController:
                                 sock = client[0]
                                 try:
                                     sock.send(processedCoT.xmlString)
-                                    logger.info(
+                                    logger.debug(
                                         str(processedCoT.xmlString)
                                         + " sent to client "
                                         + client_id
@@ -168,7 +168,7 @@ class SendDataController:
                             sock.send(processedCoT.xmlString)
                         except TypeError:
                             sock.send(processedCoT.xmlString.encode())
-                        logger.info(
+                        logger.debug(
                             str(processedCoT.xmlString) + " sent to client " + client_id
                         )
                     else:
@@ -176,7 +176,7 @@ class SendDataController:
                             sock.send(processedCoT.idData)
                         except TypeError:
                             sock.send(processedCoT.idData.encode())
-                        logger.info(
+                        logger.debug(
                             str(processedCoT.idData) + " sent to client " + client_id
                         )
                 except Exception as e:
@@ -239,7 +239,7 @@ class SendDataController:
                             + str(e)
                         )
                         return -1
-                logger.info("CoT sent " + str(processedCoT.modelObject.uid))
+                logger.debug("CoT sent " + str(processedCoT.modelObject.uid))
                 if shareDataPipe != None:
                     processedCoT.clientInformation = None
                     if hasattr(self, "messages_to_core_count"):

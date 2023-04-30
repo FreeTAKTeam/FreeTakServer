@@ -56,7 +56,8 @@ def assert_saved(persistency_save_method: callable, value):
 
 # patch the persistency output
 @patch('pickle.load')
-def test_connection_direct(mock_load):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.open')
+def test_connection_direct(mock_open, mock_load):
     """test the connection action in the cot manager
     """
     # instnatiate request and response objects
