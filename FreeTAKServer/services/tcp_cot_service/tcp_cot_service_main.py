@@ -1066,7 +1066,7 @@ class TCPCoTServiceMain(DigitalPyService):
 
                     # Process the raw CoT data and serialize it
                     CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
-                    self.logger.info(f"CoT serialized {CoTOutput.modelObject.uid}")
+                    self.logger.debug(f"CoT serialized {CoTOutput.modelObject.uid}")
 
                     # Skip this iteration if the CoT data is invalid
                     if CoTOutput == 1:

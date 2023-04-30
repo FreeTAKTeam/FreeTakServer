@@ -1,8 +1,11 @@
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from logging.handlers import RotatingFileHandler
 import logging
 import os
 import sys
+
+config = MainConfig.instance()
 
 loggingConstants = LoggingConstants()
 class CreateLoggerController:
@@ -10,10 +13,19 @@ class CreateLoggerController:
         self.logger = logging.getLogger(loggername)
         self.logger.propagate = True
         log_format = logging.Formatter(logging_constants.LOGFORMAT)
-        self.logger.setLevel(logging.DEBUG)
-        self.logger.addHandler(self.newHandler(logging_constants.DEBUGLOG, logging.DEBUG, log_format, logging_constants))
-        self.logger.addHandler(self.newHandler(logging_constants.ERRORLOG, logging.ERROR, log_format, logging_constants))
-        self.logger.addHandler(self.newHandler(logging_constants.INFOLOG, logging.INFO, log_format, logging_constants))
+
+        if config.LogLevel.lower() == "info":
+            log_level = logging.INFO
+            self.logger.addHandler(self.newHandler(logging_constants.INFOLOG, log_level, log_format, logging_constants))
+        elif config.LogLevel.lower() == "error":
+            log_level = logging.ERROR
+            self.logger.addHandler(self.newHandler(logging_constants.ERRORLOG, log_level, log_format, logging_constants))
+        elif config.LogLevel.lower() == "debug":
+            log_level = logging.DEBUG
+            self.logger.addHandler(self.newHandler(logging_constants.DEBUGLOG, log_level, log_format, logging_constants))
+            
+
+        self.logger.setLevel(log_level)
         self.logger.addHandler(logging.StreamHandler(sys.stdout))
         """console = logging.StreamHandler(sys.stdout)
         console.setFormatter(log_format)
