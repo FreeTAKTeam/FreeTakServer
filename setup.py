@@ -29,7 +29,7 @@ setup(
         "defusedxml==0.7.1",
         "dnspython==2.2.1",
         "eventlet==0.33.1",
-        "Flask==1.1.2",
+        "Flask==2.3.2",
         "Flask-Cors==3.0.9",
         "Flask-HTTPAuth==4.2.0",
         "Flask-Login==0.5.0",
