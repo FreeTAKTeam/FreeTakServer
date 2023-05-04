@@ -3,12 +3,11 @@
 
 ![the Parrot is not dead](https://user-images.githubusercontent.com/60719165/226138056-a2b1076c-fd4c-4488-b330-55e57f9ecc78.png)
 
-Welcome to the FreeTakServer (FTS) git repository.
+Ласкаво просимо до репозиторію git FreeTakServer (FTS).
 
-FTS is a Python3 implementation of a TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), [WinTAK](https://1drv.ms/u/s!AtMVrrXVTu4YgSanKtSHIslxfRu5?e=ftVio7 ), and ITAK, it is cross-platform and runs from a multi node installation on AWS down to the Android edition. 
-It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/).
+FTS — це реалізація TAK-сервера на Python3 для таких пристроїв, як ATAK, WinTAK і ITAK, вона є кросплатформною та працює від інсталяції на кількох вузлах на AWS до версії Android. Він безкоштовний із відкритим вихідним кодом (випущений згідно з публічною ліцензією Eclipse.
 
-## User Documentation
+## Документація користувача
 ![FTS UI 1.8](https://user-images.githubusercontent.com/60719165/118400921-0731e180-b63a-11eb-976e-c38ee052a013.png)
 
 For documentation on installation and usage visit our [FreeTAKServer Documentation page](https://freetakteam.github.io/FreeTAKServer-User-Docs/)
@@ -29,7 +28,7 @@ It intends to support all the major use cases of the original TAK server.
 
 ![some use cases](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
 
-## Project Status
+## Статус проекту
 This code is currently in *Production Stage*.
 Check out our roadmap [@FreeTakServer#25](https://github.com/FreeTAKTeam/FreeTakServer/issues/25) to see what is planned
 Also subscribe to this feed to be automatically informed about PIP new versions:
@@ -54,7 +53,7 @@ TAKFreeServer uses a MVC pattern, the concept of a COT (Cursor On Target) is des
 ## Documentation
 See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for various information including an UML model of the Domain classes involved in a COT event.
 
-## Requirements
+## Вимоги
 - Python 3.8 
 - Dependencies:
   - `flask`
@@ -65,7 +64,7 @@ See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for vari
   - `setuptools` 
   - `Flask-SQLAlchemy`
 
-## Installing and using FreeTakServer
+## Встановлення та використання FreeTakServer
 For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Linux/1_Install/).
 
 ##  Project Structure
@@ -75,28 +74,27 @@ For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs
   - **Views**:   contains the access to FTS
 
 
-## Community 
+## Спільнота 
 If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as FreeTAKServer is in continuous development.
 To discuss with the developer team you may use:
 - The [subreddit](https://www.reddit.com/r/ATAK/)
 - The [public ATAK Discord Server](https://discordapp.com/invite/XEPyhHA)
 
-## Donate
-The FTS team is working  daily on the development of an open and free solution. We plan to do more than simply replicate the functionalities of the legacy TAK server, our road map includes integration with open source systems like LORA's Meshtastic, porting it to Android, having an open API, and much more.
+## Пожертвуйте
+Команда FTS щодня працює над розробкою відкритого та безкоштовного рішення. Ми плануємо зробити більше, ніж просто відтворити функції застарілого сервера TAK, наша дорожня карта включає інтеграцію з системами з відкритим кодом, як-от Meshtastic від LORA, перенесення його на Android, наявність відкритого API та багато іншого.
 
-We are doing it for free because we believe that donating personal time to a cause is an endeavour that is worthy per-se, However, we are also spending our own time and money to:
-- Maintain a Public server and a test server
-- Invest in different technologies for R&D
+Ми робимо це безкоштовно, тому що вважаємо, що пожертвування особистого часу на справу є справою, яка сама по собі гідна. Однак ми також витрачаємо свій час і гроші на:
+- Підтримувати публічний сервер і тестовий сервер
+- Інвестуйте в різні технології для досліджень і розробок
 
-If you feel that FTS is useful to you and you can donate in those challenging times please consider contributing here:
-[DONATE](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=brothercorvo%40gmail.com&item_name=FreeTAKServer+R%26D&currency_code=CAD&source=url)
+Якщо ви вважаєте, що FTS корисний для вас і можете зробити пожертву в ці складні часи, зробіть внесок тут:
+[Пожертвуйте](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=brothercorvo%40gmail.com&item_name=FreeTAKServer+R%26D&currency_code=CAD&source=url)
 
 You can also support the project by buying one of our [t-shirts](http://tee.pub/lic/elARpZYCmaw).
 
-***NOTE***:
-> Not a big fan of Paypal, but that is the easiest way I found for an initial attempt. We may go to some more ethical system in future.
-Finally you can help the project by spamming FTS information, starring our repositories in github and Pip and upvoting us.
-
+***ПРИМІТКА***:
+>Я не великий шанувальник Paypal, але це найпростіший спосіб, який я знайшов для першої спроби. У майбутньому ми можемо перейти до більш етичної системи.
+Нарешті, ви можете допомогти проекту, розсилаючи спам із інформацією FTS, показуючи наші репозиторії на github і Pip і голосуючи за нас.
 ![star-history-2023123](https://user-images.githubusercontent.com/60719165/214117639-8bd41fd2-adea-4d41-a3b5-c75dca57b369.png)
 
 
