@@ -68,6 +68,8 @@ class ClientReceptionHandler:
                     sock.settimeout(0.001)
                     try:
                         xmlstring = self.recv_until(sock).decode()
+                        logger.debug("received " + str(xmlstring))
+                        print("received "+str(xmlstring))
                         if xmlstring == b'' or xmlstring == '' or xmlstring is None: 
                             self.returnReceivedData(client, b'', queue)
                             logger.debug("empty string sent, standard disconnect")
@@ -76,29 +78,33 @@ class ClientReceptionHandler:
                         xmlstring = re.sub(r'(?s)\<\?xml(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
                         events = etree.fromstring(xmlstring)  # serialize to object
                         for event in events.findall('event'):
+                            
                             self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
-                    except socket.timeout as e:
+                    except socket.timeout as ex:
                         continue
-                    except BrokenPipeError as e:
+                    except BrokenPipeError as ex:
                         self.returnReceivedData(client, b'', queue)
                         continue
-                    except Exception as e:
+                    except ConnectionAbortedError as ex:
+                        self.returnReceivedData(client, b'', queue)
+                        continue
+                    except Exception as ex:
                         import traceback
-                        if hasattr(e, "errno") and e.errno == errno.EWOULDBLOCK:  # this prevents errno 11 from spontanieously disconnecting clients due to the socket blocking set to 0
-                            logger.debug("EWOULDBLOCK error passed " + str(e))
+                        if hasattr(ex, "errno") and ex.errno == errno.EWOULDBLOCK:  # this prevents errno 11 from spontanieously disconnecting clients due to the socket blocking set to 0
+                            logger.debug("EWOULDBLOCK error passed " + str(ex))
                             continue
                         logger.error(
-                            "Exception other than broken pipe in monitor for data function " + str(e) + ''.join(traceback.format_exception(None, e, e.__traceback__)))
+                            "Exception other than broken pipe in monitor for data function " + str(ex) + ''.join(traceback.format_exception(None, ex, ex.__traceback__)))
                         self.returnReceivedData(client, b'', queue)
                         continue
 
-                except Exception as e:
-                    logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(e))
+                except Exception as ex:
+                    logger.error(loggingConstants.CLIENTRECEPTIONHANDLERMONITORFORDATAERRORD + str(ex))
                     self.returnReceivedData(client, b'', queue)
                     # return -1 commented out so entire run isn't stopped because of one disconnect
             return 1
-        except Exception as e:
-            logger.error('exception in monitor for data ' + str(e))
+        except Exception as ex:
+            logger.error('exception in monitor for data ' + str(ex))
             return -1
 
     def returnReceivedData(self, clientInformation, data, queue):

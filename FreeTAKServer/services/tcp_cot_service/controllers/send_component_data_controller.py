@@ -40,6 +40,7 @@ class SendComponentDataController(Controller):
         for oid in recipients:
             connection = connections.get(oid)
             if connection != None:
+                print("sending " + str(message) + " to "+str(connection))
                 connection.sock.send(message)
 
     def send_message_to_all(self, connections:Dict[str, TCPCoTConnection], message: bytes):
@@ -50,4 +51,5 @@ class SendComponentDataController(Controller):
             message (bytes): the message to be sent to some clients
         """
         for connection in connections.values():
+            print("sending to "+str(connection))
             connection.sock.send(message)
