@@ -6,6 +6,9 @@ from FreeTAKServer.components.core.domain.configuration.domain_constants import 
     INTERNAL_ACTION_MAPPING_PATH,
     MANIFEST_PATH,
 )
+
+from .controllers.dict_to_node_controller import DictToNodeController
+from .controllers.domain import Domain as DomainController
 from . import base
 
 config = MainConfig.instance()
@@ -18,7 +21,7 @@ class Domain(DefaultFacade):
 
     def __init__(
         self,
-        domain_action_mapper,
+        sync_action_mapper,
         request,
         response,
         configuration,
@@ -34,7 +37,7 @@ class Domain(DefaultFacade):
             # the package containing the base classes
             base=base,
             # the component specific action mapper (passed by constructor)
-            action_mapper=domain_action_mapper,
+            action_mapper=sync_action_mapper,
             # the request object (passed by constructor)
             request=request,
             # the response object (passed by constructor)
@@ -48,3 +51,35 @@ class Domain(DefaultFacade):
             # the path to the manifest file
             manifest_path=MANIFEST_PATH,
         )
+        self.dict_to_node_controller = DictToNodeController(request, response, sync_action_mapper, configuration)
+        self.domain_controller = DomainController(request, response, sync_action_mapper, configuration)
+
+    def initialize(self, request, response):
+        super().initialize(request, response)
+        self.dict_to_node_controller.initialize(request, response)
+        self.domain_controller.initialize(request, response)
+
+    def execute(self, method):
+        try:
+            if hasattr(self, method):
+                getattr(self, method)(**self.request.get_values())
+            else:
+                self.request.set_value("logger", self.logger)
+                self.request.set_value("config_loader", self.config_loader)
+                self.request.set_value("tracer", self.tracer)
+                response = self.execute_sub_action(self.request.get_action())
+                self.response.set_values(response.get_values())
+        except Exception as e:
+            self.logger.fatal(str(e))
+
+    @DefaultFacade.public
+    def convert_dict_to_node(self, *args, **kwargs):
+        self.dict_to_node_controller.convert_dict_to_node(*args,**kwargs)
+
+    @DefaultFacade.public
+    def create_node(self, *args, **kwargs):
+        self.domain_controller.create_node(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def get_node_parent(self, *args, **kwargs):
+        self.domain_controller.get_parent(*args, **kwargs)
