@@ -26,8 +26,8 @@ class marti(
 
     @CoTProperty
     def dest(self):
-        return self.cot_attributes["dest"]
+        return self.get_children_ex(children_type="dest")
 
     @dest.setter
     def dest(self, dest):
-        self.cot_attributes["dest"].append(dest)
+        self.add_child(dest)
