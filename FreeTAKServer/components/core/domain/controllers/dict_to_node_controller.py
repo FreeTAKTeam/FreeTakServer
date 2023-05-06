@@ -84,13 +84,10 @@ class DictToNodeController(Controller):
         """
         # this if case handles undefined nested objects
         if isinstance(value, dict):
-            try:
-                self.request.set_value("xml_dict", {key: value})
-                response = self.execute_sub_action("DictToXML")
-                elem = etree.fromstring(response.get_value("xml").encode())
-                node.xml.append(elem)
-            except Exception as ex:
-                print(ex)
+            self.request.set_value("xml_dict", {key: value})
+            response = self.execute_sub_action("DictToXML")
+            elem = etree.fromstring(response.get_value("xml").encode())
+            node.xml.append(elem)
         elif isinstance(value, list):
             for l_item in value:
                 self.add_value_to_node(key, l_item, node)
