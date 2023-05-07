@@ -133,17 +133,18 @@ class ClientDisconnectionController(Controller):
         self.logger.debug("Shutting down socket")
         try:
             sock.shutdown(socket.SHUT_RDWR)
-        except Exception as e:
-            self.logger.error(
+        except Exception as ex:
+            # this is a debug log as it will alway throw an error if the client has already closed the socket
+            self.logger.debug(
                 "Error shutting socket down in client disconnection "
-                + str(e)
+                + str(ex)
                 + "\n".join(traceback.format_stack())
             )
         try:
             sock.close()
-        except Exception as e:
+        except Exception as ex:
             self.logger.error(
                 "error closing socket in client disconnection "
-                + str(e)
+                + str(ex)
                 + "\n".join(traceback.format_stack())
             )
