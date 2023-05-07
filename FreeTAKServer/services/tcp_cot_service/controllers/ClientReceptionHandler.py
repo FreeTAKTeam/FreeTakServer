@@ -78,7 +78,8 @@ class ClientReceptionHandler:
                         xmlstring = re.sub(r'(?s)\<\?xml(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
                         events = etree.fromstring(xmlstring)  # serialize to object
                         for event in events.findall('event'):
-                            
+                            event_str = etree.tostring(event)
+                            logger.debug("received: %s", event_str)
                             self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
                     except socket.timeout as ex:
                         continue
@@ -86,6 +87,9 @@ class ClientReceptionHandler:
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except ConnectionAbortedError as ex:
+                        self.returnReceivedData(client, b'', queue)
+                        continue
+                    except ConnectionResetError as ex:
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except Exception as ex:
