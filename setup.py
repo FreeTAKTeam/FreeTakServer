@@ -19,7 +19,7 @@ setup(
     author_email="FreeTakTeam@gmail.com",
     url="https://github.com/FreeTAKTeam/FreeTakServer",
     download_url="https://github.com/FreeTAKTeam/FreeTakServer/releases",
-    keywords=["TAK", "OPENSOURCE"],
+    keywords=["TAK", "OPENSOURCE", "Situational Awareness"],
     include_package_data=True,
     install_requires=[
         "click==8.0.4",
