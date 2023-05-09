@@ -13,6 +13,17 @@ from digitalpy.core.main.controller import Controller
 class COTRecord:
     pass
 
+#  Placeholder Class to temporarily define DropPoint
+class DropPoint:
+    pass
+
+#  Placeholder Class to temporarily define MedevacRequest
+class MedevacRequest:
+    pass
+
+def send_medevac_request(medevac_request):
+    pass  # TODO: Implement this function
+
 class COTManagementGeneralController(Controller):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
