@@ -9,7 +9,7 @@
 #######################################################
 from digitalpy.core.main.controller import Controller
 
-\\  Placeholder Class to temporarily define COTRecord
+#  Placeholder Class to temporarily define COTRecord
 class COTRecord:
     pass
 
