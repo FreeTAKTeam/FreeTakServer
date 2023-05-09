@@ -95,12 +95,9 @@ Certs:
     FTS_CRLDIR: '/fts/certs/crl'
 """
 
-    @mock.patch('os.access',
-                return_value=True)
-    @mock.patch('builtins.open',
-                create=True,
-                new=mock.mock_open(read_data=yaml_config))
-    def test_yaml_config(self, mock_access, mock_file):
+    @mock.patch('os.access', return_value=True)
+    @mock.patch('builtins.open', create=True, new=mock.mock_open(read_data=yaml_config))
+    def test_yaml_config(self, mock_file, mock_access):
         config = MainConfig.instance(config_file='/dev/null')
 
         expected = yaml.load(Test_MainConfig.yaml_config, Loader=yaml.SafeLoader)
@@ -108,7 +105,7 @@ Certs:
         for sect in MainConfig._yaml_keys:
             for var in MainConfig._yaml_keys[sect]:
                 if var in expected[sect]:
-                    assert(config.get(MainConfig._yaml_keys[sect][var]) == expected[sect][var])
+                    assert (config.get(MainConfig._yaml_keys[sect][var]) == expected[sect][var])
 
 
     @mock.patch('builtins.open',
