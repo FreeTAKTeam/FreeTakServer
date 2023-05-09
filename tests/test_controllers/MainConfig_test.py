@@ -100,7 +100,7 @@ Certs:
     @mock.patch('builtins.open',
                 create=True,
                 new=mock.mock_open(read_data=yaml_config))
-    def test_yaml_config(self):
+    def test_yaml_config(self, mock_file, mock_access):
         config = MainConfig.instance(config_file='/dev/null')
 
         expected = yaml.load(Test_MainConfig.yaml_config, Loader=yaml.SafeLoader)
