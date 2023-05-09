@@ -98,6 +98,10 @@ Certs:
     @mock.patch('os.access', return_value=True)
     @mock.patch('builtins.open', create=True, new=mock.mock_open(read_data=yaml_config))
     def test_yaml_config(self, mock_file, mock_access):
+        #  These print statements are for debugging the mock decorators
+        print(f"mock_file: {mock_file}")
+        print(f"mock_access: {mock_access}")
+
         config = MainConfig.instance(config_file='/dev/null')
 
         expected = yaml.load(Test_MainConfig.yaml_config, Loader=yaml.SafeLoader)
