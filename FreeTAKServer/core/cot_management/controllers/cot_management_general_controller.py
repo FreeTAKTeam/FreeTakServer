@@ -9,17 +9,26 @@
 #######################################################
 from digitalpy.core.main.controller import Controller
 
+#  Placeholder Class to temporarily define COTDatabase
+class COTDatabase:
+    pass  # TODO: Implement this class
+
 #  Placeholder Class to temporarily define COTRecord
 class COTRecord:
-    pass
+    pass  # TODO: Implement this class
 
 #  Placeholder Class to temporarily define DropPoint
 class DropPoint:
-    pass
+    pass  # TODO: Implement this class
+
+
+class InvalidInputError(Exception):
+    pass  # TODO: Implement this exception
+
 
 #  Placeholder Class to temporarily define MedevacRequest
 class MedevacRequest:
-    pass
+    pass  # TODO: Implement this class
 
 def send_medevac_request(medevac_request):
     pass  # TODO: Implement this function
