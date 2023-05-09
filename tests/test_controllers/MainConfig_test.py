@@ -95,6 +95,8 @@ Certs:
     FTS_CRLDIR: '/fts/certs/crl'
 """
 
+    @mock.patch('os.access',
+                return_value=True)
     @mock.patch('builtins.open',
                 create=True,
                 new=mock.mock_open(read_data=yaml_config))
