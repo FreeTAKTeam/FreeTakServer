@@ -145,7 +145,7 @@ class TCPCoTServiceMain(DigitalPyService):
         RestAPIPipe,
         clientDataRecvPipe,
         factory,
-        tracing_provider_instance,
+        tracing_provider_instance
     ):
         try:
             # configure the object factory with the passed factory instance
@@ -188,7 +188,7 @@ class TCPCoTServiceMain(DigitalPyService):
                 RestAPIPipe,
             )
         except Exception as ex:
-            return ex
+            raise ex
 
     @property
     def connection_type(self):
