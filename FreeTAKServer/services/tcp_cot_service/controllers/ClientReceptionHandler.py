@@ -70,9 +70,9 @@ class ClientReceptionHandler:
                         xmlstring = self.recv_until(sock).decode()
                         logger.debug("received " + str(xmlstring))
                         if xmlstring == b'' or xmlstring == '' or xmlstring is None: 
-                            self.returnReceivedData(client, b'', queue)
-                            logger.debug("empty string sent, standard disconnect")
-                            continue
+                            xmlstring = self.validate_client_disconnect(queue, sock, client)
+                            if xmlstring is None:
+                                continue
                         xmlstring = "<multiEvent>" + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
                         xmlstring = re.sub(r'(?s)\<\?xml(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
                         events = etree.fromstring(xmlstring)  # serialize to object
@@ -83,12 +83,15 @@ class ClientReceptionHandler:
                     except socket.timeout as ex:
                         continue
                     except BrokenPipeError as ex:
+                        logger.debug("disconnecting client %s due to broken pipe", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except ConnectionAbortedError as ex:
+                        logger.debug("disconnecting client %s due to broken pipe", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except ConnectionResetError as ex:
+                        logger.debug("disconnecting client %s due to broken pipe", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except Exception as ex:
@@ -110,6 +113,25 @@ class ClientReceptionHandler:
             logger.error('exception in monitor for data ' + str(ex))
             return -1
 
+    def validate_client_disconnect(self, queue, sock, client):
+        """ensure that the client is correctly disconnected
+
+        Args:
+            queue (_type_): _description_
+            sock (_type_): _description_
+            client (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        for _ in range(10):
+            xmlstring = self.recv_until(sock).decode()
+            if xmlstring != b'' or xmlstring != '' or xmlstring is not None:
+                return xmlstring
+        logger.debug("empty string sent from %s, standard disconnect", client)
+        self.returnReceivedData(client, b'', queue)
+        return None
+    
     def returnReceivedData(self, clientInformation, data, queue):
         try:
             from FreeTAKServer.model.RawCoT import RawCoT
