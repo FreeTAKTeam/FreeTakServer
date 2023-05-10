@@ -1,5 +1,4 @@
 from flask import request, views
-
 from typing import Dict, List
 from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.zmanager.request import Request
@@ -9,21 +8,17 @@ from digitalpy.core.main.controller import Controller
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 
-loggingConstants = LoggingConstants(log_name="FTS-ManageEmergencyView")
-logger = CreateLoggerController("FTS-ManageEmergencyView", logging_constants=loggingConstants).getLogger()
+loggingConstants = LoggingConstants(log_name="FTS-ManageEmergencyViewController")
+logger = CreateLoggerController("FTS-ManageEmergencyViewController", logging_constants=loggingConstants).getLogger()
 
 APPLICATION_PROTOCOL = "xml"
 # API Request timeout in ms
 API_REQUEST_TIMEOUT = 5000
 
-class BaseView(views.View):
+class BaseViewController(Controller):
     """base class meant to provide the base functionality for
     an FTS API views
     """
-
-    def __init__(self, endpoints) -> None:
-        super().__init__()
-        self.set_endpoints(endpoints=endpoints)
 
     def set_endpoints(self, endpoints: dict):
         """set a new endpoint mapping, this should be called by an API controller at instantiation

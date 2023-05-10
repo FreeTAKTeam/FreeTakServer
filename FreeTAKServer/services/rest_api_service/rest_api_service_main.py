@@ -470,7 +470,6 @@ def addSystemUser(jsondata):
                                                 token=systemuser["Token"], password=systemuser["Password"],
                                                 uid=user_id,
                                                 certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
-                import datetime as dt
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
                 now = timer.utcnow()
@@ -1847,7 +1846,7 @@ class ManageGeoObjects(BaseView):
     """
     decorators = [auth.login_required]
     
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         endpoints: Dict[str, callable] = {
             "GetRepeatedMessages": self.get_repeated_messages,
             "postGeoObject": self.post_geo_object,
@@ -1903,45 +1902,44 @@ class ManageGeoObjects(BaseView):
                 jsonobj.setlongitude(end_point.longitude)
 
             simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
+            # make request to create a geoobject node
+            response = self.make_request("CreateGeoObject", {"id": jsonobj.getuid()})
+            # apply the given values to the model object
+            model_object = response.get_value("model_object")
+            model_object.uid = jsonobj.getuid()
+            COTTYPE = jsonobj.getgeoObject()
+            if "-.-" in COTTYPE:
+                ID = jsonobj.getattitude()
+                COTTYPE = COTTYPE.replace('-.-', ID)
+            else:
+                pass
+            model_object.type = COTTYPE
+            model_object.how = jsonobj.gethow()
+            
+            model_object.start = None # set to default val
+            model_object.time = None  # set to default val
+            if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
+                DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                timer = dt.datetime
+                now = timer.utcnow()
+                add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+                stale = now+add
+                model_object.stale = stale.strftime(DATETIME_FMT)
+            else:
+                model_object.stale = None # set to default val
+            #    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+            #    timer = dt.datetime
+            #    now = timer.utcnow()
+            #    zulu = now.strftime(DATETIME_FMT)
+            #    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+            #    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+            #model_object.stale = stale_part
+            model_object.point.lat = jsonobj.getlatitude()
+            model_object.point.lon = jsonobj.getlongitude()
+            model_object.detail.contact.callsign = jsonobj.getname()
 
             # if the message should be repeated then make a request to repeat it
             if jsonobj.getrepeat():
-                # make request to create a geoobject node
-                response = self.make_request("CreateGeoObject", {"id": jsonobj.getuid()})
-                
-                # apply the given values to the model object
-                model_object = response.get_value("model_object")
-                model_object.uid = jsonobj.getuid()
-                COTTYPE = jsonobj.getgeoObject()
-                if "-.-" in COTTYPE:
-                    ID = jsonobj.getattitude()
-                    COTTYPE = COTTYPE.replace('-.-', ID)
-                else:
-                    pass
-                model_object.type = COTTYPE
-                model_object.how = jsonobj.gethow()
-                
-                model_object.start = None # set to default val
-                model_object.time = None  # set to default val
-                if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
-                    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-                    timer = dt.datetime
-                    now = timer.utcnow()
-                    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
-                    stale = now+add
-                    model_object.stale = stale.strftime(DATETIME_FMT)
-                else:
-                    model_object.stale = None # set to default val
-                #    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-                #    timer = dt.datetime
-                #    now = timer.utcnow()
-                #    zulu = now.strftime(DATETIME_FMT)
-                #    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
-                #    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-                #model_object.stale = stale_part
-                model_object.point.lat = jsonobj.getlatitude()
-                model_object.point.lon = jsonobj.getlongitude()
-                model_object.detail.contact.callsign = jsonobj.getname()
                
                 # make request to persist the model object to be re-sent
                 response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})
@@ -1989,7 +1987,7 @@ class ManageGeoObjects(BaseView):
 # this will require changing it from using the API Pipe to use the ZManager instead
 
 ManageEmergency.decorators.append(auth.login_required)
-#app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
+app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
 
 APPLICATION_PROTOCOL = "xml"
 API_REQUEST_TIMEOUT = 5000
