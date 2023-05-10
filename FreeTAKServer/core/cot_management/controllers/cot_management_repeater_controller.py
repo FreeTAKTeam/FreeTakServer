@@ -47,6 +47,7 @@ class CotManagementRepeaterController(Controller):
         # convert the list to a dictionary
         for node in message.values():
             nodes.append(node)
+            print(message)
 
         # set the response value of the messages for the validate users call
         self.response.set_value("message", nodes)
@@ -60,6 +61,7 @@ class CotManagementRepeaterController(Controller):
         # copy request values to response
         for key, value in self.request.get_values().items():
             self.response.set_value(key, value)
+            print(response.values)
 
     def get_repeated_messages(self, **kwargs):
         """get all the repeated messages

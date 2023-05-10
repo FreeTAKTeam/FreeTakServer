@@ -106,8 +106,6 @@ def test_connection_execute(mock_load):
     # instantiate request and response objects
     request, response = instantiate_request_response("connection")
 
-    print(response.values)
-
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
 
