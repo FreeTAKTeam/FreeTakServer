@@ -69,7 +69,6 @@ class ClientReceptionHandler:
                     try:
                         xmlstring = self.recv_until(sock).decode()
                         logger.debug("received " + str(xmlstring))
-                        print("received "+str(xmlstring))
                         if xmlstring == b'' or xmlstring == '' or xmlstring is None: 
                             self.returnReceivedData(client, b'', queue)
                             logger.debug("empty string sent, standard disconnect")
