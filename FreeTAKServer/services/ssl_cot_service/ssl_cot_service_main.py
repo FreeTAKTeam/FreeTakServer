@@ -271,40 +271,17 @@ class SSLCoTServiceMain(DigitalPyService):
                 span.set_status(Status(StatusCode.ERROR))
                 span.record_exception(ex)
 
-    def dataReceived(self, raw_cot: RawCoT):
-        """this will be executed in the event that the use case for the CoT isn't specified in the orchestrator
-
-        :param raw_cot: the CoT to be processed and shared
-        """
-        try:
-            # this will check if the CoT is applicable to any specific controllers
-            raw_cot = self.XMLCoTController.determineCoTType(raw_cot)
-
-            # the following calls whatever controller was specified by the above function
-            module = importlib.import_module(
-                "FreeTAKServer.core.SpecificCoTControllers." + raw_cot.CoTType
-            )
-            CoTSerializer = getattr(module, raw_cot.CoTType)
-            # TODO: improve way in which the dbController is passed to CoTSerializer
-            raw_cot.dbController = self.dbController
-            processedCoT = CoTSerializer(raw_cot).getObject()
-
-            # this statement checks if the data type is a user update and if so it will be saved to the associated client object
-            if raw_cot.CoTType == "SendUserUpdateController":
-                # find entry with this uid
-                self.update_client_information(clientInformation=processedCoT)
-            return processedCoT
-        except Exception as e:
-            self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
-            return -1
-
-    def component_handler(self, cot):
+    def component_handler(self, xml_cot):
         """this method is responsible for handling cases where the cot sent should
         be handled (parsed and manipulated) by a specific component it is
         responsible for calling the routing (via the async action mapper)
-        of the CoT data"""
-        if not hasattr(cot, "xmlString"):
-            raise ValueError("cot missing required attribute 'xmlString'")
+        of the CoT data
+
+        Args:
+            xml_cot (str): xml representation of CoT
+        """
+
+        dict_cot = self.convert_xml_to_dict(xml_cot)
 
         request = ObjectFactory.get_new_instance("request")
         # must get a new instance of the async action mapper for each request
@@ -411,9 +388,12 @@ class SSLCoTServiceMain(DigitalPyService):
                 self.logger.error(
                     f"There was an exception sending a single response:\n"
                     f"Sender: {sender}\n"
-                    f"Model object: {model_object}\n"
                     f"Context: {response.get_context()}\n"
                     f"Action: {response.get_action()}\n"
+                    f"Exception: {str(e)}"
+                )
+                self.logger.debug(
+                    "single response exception traceback: %s", traceback.format_exc()
                 )
 
     def send_component_message(self, request, message):
@@ -422,45 +402,60 @@ class SSLCoTServiceMain(DigitalPyService):
         )
 
     def send_message(self, sender, message, use_share_pipe=True):
-        if not use_share_pipe:
-            cot_share_pipe = None
-        else: 
-            cot_share_pipe = self.CoTSharePipe
         return SendDataController().sendDataInQueue(
-                    sender,
-                    message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
-                    self.client_information_queue,
-                    cot_share_pipe,
-                )
+            sender,
+            message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
+            self.client_information_queue,
+            self.CoTSharePipe,
+        )
 
-    def monitor_raw_cot(self, data: RawCoT) -> object:
-        """
-        This method takes as input a sent CoT and calls its associated function. This method supports three handlers defined
-        in XMLCoTController which handle connect, disconnect, and misc messages respectively.
+    def convert_xml_to_dict(self, data) -> dict:
+        """convert the xml format to a dict containing the same data via the xml_serializer
+        component.
 
         Args:
-            data (RawCoT): The raw CoT data to be processed.
+            data (str): an xml string containing the data from a given client
 
         Returns:
-            object: The output of the handler function called on the CoT data.
+            dict: dictionary representation of the cot data
         """
-        try:
-            if isinstance(data, int):
-                return None
-            else:
-                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data, self.client_information_queue)
-                handler_name, handler_data = cot
-                handler = getattr(self, handler_name, None)
-                if handler is None:
-                    self.logger.error(f"No handler found for {handler_name}")
-                    return -1
-                output = handler(handler_data)
-                if output != 1:  # when the process is a disconnect the output is 1
-                    output.clientInformation = self.client_information_queue[data.clientInformation][1]
-                return output
-        except Exception as e:
-            self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
-            return -1
+        request = ObjectFactory.get_new_instance("request")
+        request.set_action("XMLToDict")
+        request.set_value("message", data)
+
+        actionmapper = ObjectFactory.get_instance("syncactionMapper")
+        response = ObjectFactory.get_new_instance("response")
+        actionmapper.process_action(request, response)
+
+        # dictionary representation of the xml
+        data_dict = response.get_value("dict")
+        return data_dict
+
+    def get_human_readable_type(self, dict_cot: dict) -> str:
+        """parse the cot type and send request to the type component to
+        convert it to a human readable type
+
+        Args:
+            dict_cot (dict): cot message in dictionary format
+
+        Returns:
+            str: the human readable
+        """
+        # this convert the machine readable type to a human readable type
+        request = ObjectFactory.get_new_instance("request")
+        request.set_format("pickled")
+        request.set_action("ConvertMachineReadableToHumanReadable")
+        request.set_context("MEMORY")
+        request.set_value("machine_readable_type", dict_cot["event"]["@type"])
+        request.set_value("default", dict_cot["event"]["@type"])
+
+        # must get a new instance of the async action mapper for each request
+        # to prevent run conditions and to prevent responses going to the wrong
+        # callers
+        actionmapper = ObjectFactory.get_instance("syncactionMapper")
+        response = ObjectFactory.get_new_instance("response")
+        actionmapper.process_action(request, response)
+        return response.get_value("human_readable_type")
 
     # TODO Remove or replace
     def checkOutput(self, output):
