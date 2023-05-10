@@ -40,7 +40,6 @@ from .controllers.SendDataController import SendDataController
 from FreeTAKServer.core.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
-from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 
 from FreeTAKServer.model.RawCoT import RawCoT
@@ -65,7 +64,6 @@ from .controllers.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
-# TODO: the application protocol should be COT not SSL COT
 APPLICATION_PROTOCOL = "XML"
 # MAJOR TODO: Make explicit exception classes!!!
 
@@ -113,7 +111,6 @@ class SSLCoTServiceMain(DigitalPyService):
         self.ClientInformationController = ClientInformationController()
         self.ReceiveConnections = ReceiveConnections()
         self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
-        self.XMLCoTController = XMLCoTController()
         self.dbController: DatabaseController
         self.send_component_data_controller = SendComponentDataController(self.logger)
         self.client_connection_controller = ClientConnectionController(
@@ -384,13 +381,13 @@ class SSLCoTServiceMain(DigitalPyService):
                         self.send_component_message(response, model_object)
                 else:
                     self.send_component_message(response, response.get_value("message"))
-            except Exception as e:
+            except Exception as ex:
                 self.logger.error(
                     f"There was an exception sending a single response:\n"
                     f"Sender: {sender}\n"
                     f"Context: {response.get_context()}\n"
                     f"Action: {response.get_action()}\n"
-                    f"Exception: {str(e)}"
+                    f"Exception: {str(ex)}"
                 )
                 self.logger.debug(
                     "single response exception traceback: %s", traceback.format_exc()
