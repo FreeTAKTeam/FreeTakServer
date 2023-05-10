@@ -43,41 +43,37 @@ class ClientConnectionController(Controller):
         :param raw_connection_information: RawCoT object containing client connection information
         :return: ClientInformation object for the newly connected client, or -1 if there was an error
         """
-        try:
-            from FreeTAKServer.core.persistence.EventTableController import EventTableController
+        from FreeTAKServer.core.persistence.EventTableController import EventTableController        
 
-            self.logger.info(loggingConstants.CLIENTCONNECTED)
+        # Instantiate the client object
+        clientInformation = self.client_information_controller.intstantiateClientInformationModelFromConnection(
+            raw_connection_information, None
+        )
+        self.logger.info(loggingConstants.CLIENTCONNECTED+": %s",clientInformation.modelObject.uid)
+        if clientInformation == -1:
+            self.logger.info("Client had invalid connection information and has been disconnected")
+            return -1
 
-            # Instantiate the client object
-            clientInformation = self.client_information_controller.intstantiateClientInformationModelFromConnection(
-                raw_connection_information, None
-            )
-            if clientInformation == -1:
-                self.logger.info("Client had invalid connection information and has been disconnected")
-                return -1
+        # Add client to database
+        self.save_client_to_db(clientInformation, db_controller)
 
-            # Add client to database
-            self.save_client_to_db(clientInformation, db_controller)
+        # Add client info to queue
+        self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation]
+        
+        # instantiate an object_id with a value of the client uid
+        object_id = ObjectFactory.get_new_instance("ObjectId", dynamic_configuration={"id": clientInformation.modelObject.uid, "type": "connection"})
+        
+        # TODO the instantiation of the connection object and the connection action
+        # call should be moved out of the tcp_cot_service main and into the connection
+        # controller
 
-            # Add client info to queue
-            self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation]
-            
-            # instantiate an object_id with a value of the client uid
-            object_id = ObjectFactory.get_new_instance("ObjectId", dynamic_configuration={"id": clientInformation.modelObject.uid, "type": "connection"})
-            
-            # TODO the instantiation of the connection object and the connection action
-            # call should be moved out of the tcp_cot_service main and into the connection
-            # controller
+        # instantiate a new TCPCoTConnection with an object_id of the client uid
+        connection = TCPCoTConnection(object_id)
+        connection.model_object = clientInformation.modelObject
+        connection.sock = clientInformation.socket
+        self.connections[str(connection.get_oid())] = connection
 
-            # instantiate a new TCPCoTConnection with an object_id of the client uid
-            connection = TCPCoTConnection(object_id)
-            connection.model_object = clientInformation.modelObject
-            connection.sock = clientInformation.socket
-            self.connections[str(connection.get_oid())] = connection
-
-            return connection, clientInformation
-        except Exception as ex:
-            self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR + str(ex))
+        return connection, clientInformation
 
     def save_client_to_db(self, clientInformation, db_controller):
         try:
@@ -94,10 +90,8 @@ class ClientConnectionController(Controller):
                     CN=cn,
                 )
         except Exception as ex:
-            with self.tracer.start_as_current_span("clientConnected") as span:
-                span.set_status(Status(StatusCode.ERROR))
-                span.record_exception(ex)
-
+            self.logger.debug("exception thrown adding client to db %s", ex)
+            
     def create_iam_request(self, connection: TCPConnection):
         """register the client with the IAM component
 

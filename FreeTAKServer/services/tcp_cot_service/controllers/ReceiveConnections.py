@@ -9,7 +9,6 @@
 #######################################################
 import asyncio
 import socket
-import logging
 import logging.handlers
 import re
 from lxml import etree
@@ -116,12 +115,11 @@ class ReceiveConnections:
             # Set the socket to non-blocking
             client.settimeout(0)
 
-            # Log that a client was accepted
-            logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
-
             # Instantiate a client object with the received data
             raw_connection_information = self.instantiate_client_object(address, client, events)
-            logger.info("Client accepted")
+
+            # Log that a client was accepted
+            logger.info(loggingConstants.RECEIVECONNECTIONSLISTENINFO)
 
             # Return the client object if it is valid, or -1 if it is not
             try:
@@ -131,17 +129,17 @@ class ReceiveConnections:
                     logger.warning("Final socket entry is invalid")
                     client.close()
                     return -1
-            except Exception as e:
+            except Exception as ex:
                 client.close()
-                logger.warning('Exception in returning data ' + str(e))
+                logger.warning('Exception in returning data ' + str(ex))
                 return -1
                 
-        except Exception as e:
-            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR + ": " + str(e))
+        except Exception as ex:
+            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR + ": %s", str(ex))
             try:
                 client.close()
-            except Exception as e:
-                pass
+            except Exception as ex_sub:
+                logger.error("unhandled exception %s", str(ex_sub))
             finally:
                 return -1
 
@@ -165,9 +163,11 @@ class ReceiveConnections:
         """        
         message = b""
         start_receive_time = time.time()
+        received_count = 0
         client.settimeout(4)
-        while delimiter not in message and time.time() - start_receive_time <= ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT:
+        while delimiter not in message and time.time() - start_receive_time <= ReceiveConnectionsConstants().RECEIVECONNECTIONDATATIMEOUT and received_count <= ReceiveConnectionsConstants().MAX_RECEPTION_ITERATIONS:
             try:
+                received_count += 1
                 message = message + client.recv(ReceiveConnectionsConstants().CONNECTION_DATA_BUFFER)
             except:
                 return message

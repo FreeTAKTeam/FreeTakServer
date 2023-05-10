@@ -5,9 +5,11 @@ from ..configuration.tcp_cot_service_constants import MessageTypes
 
 from digitalpy.core.main.controller import Controller
 
+import logging
+
 class SendComponentDataController(Controller):
-    def __init__(self, request, response, action_mapper, configuration) -> None:
-        super().__init__(request, response, action_mapper, configuration)
+    def __init__(self, logger) -> None:
+        self.logger = logger
 
     def send_message(self, connections, message, recipients, **kwargs):
         message_type = self.determine_message_type(recipients)
@@ -40,9 +42,15 @@ class SendComponentDataController(Controller):
         for oid in recipients:
             connection = connections.get(oid)
             if connection != None:
-                print("sending " + str(message) + " to "+str(connection))
-                connection.sock.send(message)
-
+                self.logger.debug("sending: %s, to: %s", str(message), str(connection))
+                try:
+                    connection.sock.send(message)
+                except TimeoutError:
+                    self.logger.debug("failed to send message to %s with timeout error", str(connection.get_oid()))
+                except BrokenPipeError:
+                    self.logger.warning("failed to send message to %s with broken pipe error", str(connection.get_oid()))
+                except OSError as os_err:
+                    self.logger.warning("failed to send message to %s with os error %s", str(connection.get_oid()), str(os_err))
     def send_message_to_all(self, connections:Dict[str, TCPCoTConnection], message: bytes):
         """send a message to all connections
 
@@ -50,6 +58,13 @@ class SendComponentDataController(Controller):
             connections (dict[str, TCPCoTConnection]): a dictionary of connections indexed by their OIDs
             message (bytes): the message to be sent to some clients
         """
+        self.logger.debug("sending %s to %s", message, connections)
         for connection in connections.values():
-            print("sending to "+str(connection))
-            connection.sock.send(message)
+            try:
+                connection.sock.send(message)
+            except TimeoutError:
+                self.logger.debug("failed to send message to %s with timeout error", str(connection.get_oid()))
+            except BrokenPipeError:
+                self.logger.warning("failed to send message to %s with broken pipe error", str(connection.get_oid()))
+            except OSError as os_err:
+                self.logger.warning("failed to send message to %s with os error %s", str(connection.get_oid()), str(os_err))

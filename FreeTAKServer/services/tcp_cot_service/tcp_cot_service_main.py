@@ -13,6 +13,8 @@ from FreeTAKServer.services.tcp_cot_service.controllers.send_component_data_cont
     SendComponentDataController,
 )
 
+import traceback
+
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.domain.node import Node
 from digitalpy.core.main.object_factory import ObjectFactory
@@ -117,7 +119,7 @@ class TCPCoTServiceMain(DigitalPyService):
         self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
         self.XMLCoTController = XMLCoTController()
         self.dbController: DatabaseController
-        self.send_component_data_controller = SendComponentDataController
+        self.send_component_data_controller = SendComponentDataController(self.logger)
         self.client_connection_controller = ClientConnectionController(
             self.logger,
             self.client_information_queue,
@@ -264,23 +266,6 @@ class TCPCoTServiceMain(DigitalPyService):
                         self.client_information_queue[client_id][1] = user_dict[
                             client_id
                         ]
-
-                    # if the entry isn't present in FTS core than the client will be disconnected
-                    # and deleted to maintain single source of truth
-                    elif client_id not in user_dict.keys():
-                        self.logger.debug(
-                            f"disconnection client {str(client_id)} because client was not in FTS core user_dict"
-                        )
-                        self.disconnect_socket(
-                            self.client_information_queue[client_id][0]
-                        )
-                        del self.client_information_queue[client_id]
-
-                    # TODO this case will never happen
-                    else:
-                        self.logger.error(
-                            "the data for this client is invalid " + str(client_id)
-                        )
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
@@ -409,14 +394,12 @@ class TCPCoTServiceMain(DigitalPyService):
                     f"Action: {response.get_action()}\n"
                     f"Exception: {str(e)}"
                 )
+                self.logger.debug(
+                    "single response exception traceback: %s", traceback.format_exc()
+                )
 
     def send_component_message(self, request, message):
-        response = ObjectFactory.get_instance("response")
-        send_component_data_controller_inst = self.send_component_data_controller(
-            None, None, None, None
-        )
-        send_component_data_controller_inst.initialize(request, response)
-        send_component_data_controller_inst.send_message(
+        self.send_component_data_controller.send_message(
             self.connections, message, request.get_value("recipients")
         )
 
@@ -745,8 +728,9 @@ class TCPCoTServiceMain(DigitalPyService):
 
                 except Exception as ex:
                     self.logger.error(
-                        f"Exception in client data processing within main run function {ex} data is {data_object.xmlString}"
+                        f"Exception in client data processing within main run function {ex} data is {data_object.xmlString} trace is {traceback.format_exc()}"
                     )
+                    continue
         except Exception as ex:
             self.logger.info(f"Error iterating client data output {ex}")
             return -1
@@ -797,14 +781,16 @@ class TCPCoTServiceMain(DigitalPyService):
 
             self.client_connection_controller.send_user_connection_geo_chat(client_information)
 
-            self.handle_regular_data(receive_connection_output)
+            self.handle_regular_data([receive_connection_output])
 
         except Exception as e:
             self.logger.error(
                 "exception in receive connection data processing within main run function "
                 + str(e)
             )
-            return -1
+            self.logger.debug(
+                "with traceback: %s", traceback.format_exc()
+            )
         return 1
 
     def stop(self):
