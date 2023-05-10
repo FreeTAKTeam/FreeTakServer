@@ -61,7 +61,7 @@ class CotManagementRepeaterController(Controller):
         # copy request values to response
         for key, value in self.request.get_values().items():
             self.response.set_value(key, value)
-            print(response)
+            #  print(response)
 
     def get_repeated_messages(self, **kwargs):
         """get all the repeated messages
