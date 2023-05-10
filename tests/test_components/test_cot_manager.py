@@ -100,7 +100,7 @@ def test_connection_execute(mock_load):
     # instantiate request and response objects
     request, response = instantiate_request_response("connection")
 
-    print(response)
+    print(response.values)
 
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
@@ -128,6 +128,8 @@ def test_connection_execute(mock_load):
 
     # assert that the next action is publish
     assert response.get_action() == "publish"
+    #  Debug response.values list
+    print(response.values)
     # assert the message value is correct
     assert_response_val('message', list, [mock_node], response)
 
