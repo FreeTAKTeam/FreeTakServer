@@ -68,7 +68,7 @@ class ReceiveConnections:
         events = etree.fromstring(xmlstring)
         return events
 
-    def listen(self, sock: socket.socket) -> Union[RawConnectionInformation, int]:
+    def listen(self, sock: socket.socket) -> Union[sat, int]:
         """
         Listen for incoming client connections and process them.
 
@@ -84,7 +84,7 @@ class ReceiveConnections:
 
         Returns
         -------
-        Union[RawConnectionInformation, int]
+        Union[sat, int]
             The instantiated client object, or -1 if any errors occurred.
         """
 
