@@ -66,6 +66,15 @@ class ClientDisconnectionController(Controller):
 
     def get_socks(self, client_information) -> Tuple[socket.socket, socket.socket]:
         """get the wrapped and unwrapped sockets from the client information (this is necessary due to data inconsistency)
+
+        Args:
+            client_information (_type_): _description_
+
+        Raises:
+            ValueError: if the client information is neither a str n'or a RawCoT
+
+        Returns:
+            Tuple[socket.socket, socket.socket]: a tuple containing the wrapped ssl socket in the first position and the unwrapped socket in the second position
         """
         if isinstance(client_information, str):
             return self.client_information_queue[client_information][0], self.client_information_queue[client_information][2]
