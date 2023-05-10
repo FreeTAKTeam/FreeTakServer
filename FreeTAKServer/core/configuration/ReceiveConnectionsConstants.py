@@ -9,3 +9,4 @@ class ReceiveConnectionsConstants:
         self.LISTEN_COUNT = 2000
         # ssl socket timeout
         self.SSL_SOCK_TIMEOUT = 60
+        self.MAX_RECEPTION_ITERATIONS = 4
