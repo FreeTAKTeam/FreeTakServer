@@ -22,8 +22,8 @@ from defusedxml import ElementTree as etree
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
 
-loggingConstants = LoggingConstants(log_name="FTS_ClientReceptionHandler")
-logger = CreateLoggerController("FTS_ClientReceptionHandler", logging_constants=loggingConstants).getLogger()
+loggingConstants = LoggingConstants(log_name="FTS_SSLClientReceptionHandler")
+logger = CreateLoggerController("FTS_SSLClientReceptionHandler", logging_constants=loggingConstants).getLogger()
 from FreeTAKServer.core.configuration.ClientReceptionLoggingConstants import ClientReceptionLoggingConstants
 
 loggingConstants = ClientReceptionLoggingConstants()
@@ -83,12 +83,15 @@ class ClientReceptionHandler:
                     except socket.timeout as ex:
                         continue
                     except BrokenPipeError as ex:
+                        logger.debug("disconnecting client %s due to broken pipe", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except ConnectionAbortedError as ex:
+                        logger.debug("disconnecting client %s due to broken pipe", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except ConnectionResetError as ex:
+                        logger.debug("disconnecting client %s due to broken pipe", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except Exception as ex:
