@@ -41,7 +41,7 @@ class CotManagementRepeaterController(Controller):
         """
         # retrieve all repeated messages
         message = self.persistency_controller._load_repeated_messages()
-       
+        print(message)
         nodes = []
 
         # convert the list to a dictionary
