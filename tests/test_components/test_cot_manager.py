@@ -22,9 +22,15 @@ def get_mock_oid(oid_str = str(uuid.uuid1())):
     return 
 
 def get_mock_node(oid = get_mock_oid()):
-    mock_node = Mock()
+    mock_node = log_Mock()
     mock_node.get_oid.return_value = oid
     return mock_node
+
+def log_Mock():
+    mock_log = Mock()
+    print(mock_log)
+    return mock_log
+
 
 def get_mock_event(mock_node = get_mock_node(), uid = '', type = ''):
     mock_node.uid = uid
