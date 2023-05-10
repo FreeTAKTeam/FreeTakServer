@@ -95,6 +95,71 @@ class SSLCoTServiceMain(DigitalPyService):
         self.dbController: DatabaseController
         self.send_component_data_controller = SendComponentDataController
 
+    def start(
+        self,
+        IP,
+        CoTPort,
+        Event,
+        clientDataPipe,
+        ReceiveConnectionKillSwitch,
+        RestAPIPipe,
+        clientDataRecvPipe,
+        factory,
+        tracing_provider_instance
+    ):
+        try:
+             # configure the object factory with the passed factory instance
+            ObjectFactory.configure(factory)
+
+            # instantiate the tracer instance for this service
+            self.tracer: Tracer = tracing_provider_instance.create_tracer(
+                SERVICE_NAME
+            )
+            
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            # subscribe to responses originating from this controller
+            actionmapper.add_topic(
+                f"/routing/response/{self.__class__.__name__.lower()}"
+            )
+
+            self.dbController = DatabaseController()
+            print("ssl cot service starting")
+            os.chdir("../../")
+            # create socket controller
+            self.SSLSocketController = SSLSocketController()
+            self.SSLSocketController.changeIP(IP)
+            self.SSLSocketController.changePort(CoTPort)
+            sock = self.SSLSocketController.createSocket()
+            # threadpool is used as it allows the transfer of SSL socket unlike processes
+            pool = ThreadPool(processes=2)
+            self.pool = pool
+            self.clientDataRecvPipe = clientDataRecvPipe
+            clientData = pool.apply_async(
+                ClientReceptionHandler().startup, (self.client_information_queue,)
+            )
+            self.initialize_connections(APPLICATION_PROTOCOL)
+
+            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+            # instantiate domain model and save process as object
+            self.mainRunFunction(
+                clientData,
+                receiveConnection,
+                sock,
+                pool,
+                Event,
+                clientDataPipe,
+                ReceiveConnectionKillSwitch,
+                RestAPIPipe,
+                True,
+            )
+        except Exception as e:
+            print(e)
+            logger.error(
+                "there has been an exception thrown in"
+                " the starting of the ssl service " + str(e)
+            )
+            return e
+
     @property
     def connection_type(self):
         return ConnectionTypes.SSL
@@ -1062,7 +1127,7 @@ class SSLCoTServiceMain(DigitalPyService):
                         raise Exception("Error in general data processing")
                     
                 except Exception as e:
-                    self.logger.info(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
+                    self.logger.error(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
         except Exception as e:
             self.logger.info(f"Error iterating client data output {e}")
             return -1
@@ -1099,71 +1164,6 @@ class SSLCoTServiceMain(DigitalPyService):
             )
             return -1
         return 1
-
-    def start(
-        self,
-        IP,
-        CoTPort,
-        Event,
-        clientDataPipe,
-        ReceiveConnectionKillSwitch,
-        RestAPIPipe,
-        clientDataRecvPipe,
-        factory,
-        tracing_provider_instance
-    ):
-        try:
-             # configure the object factory with the passed factory instance
-            ObjectFactory.configure(factory)
-
-            # instantiate the tracer instance for this service
-            self.tracer: Tracer = tracing_provider_instance.create_tracer(
-                SERVICE_NAME
-            )
-            
-            actionmapper = ObjectFactory.get_instance("actionMapper")
-            # subscribe to responses originating from this controller
-            actionmapper.add_topic(
-                f"/routing/response/{self.__class__.__name__.lower()}"
-            )
-
-            self.dbController = DatabaseController()
-            print("ssl cot service starting")
-            os.chdir("../../")
-            # create socket controller
-            self.SSLSocketController = SSLSocketController()
-            self.SSLSocketController.changeIP(IP)
-            self.SSLSocketController.changePort(CoTPort)
-            sock = self.SSLSocketController.createSocket()
-            # threadpool is used as it allows the transfer of SSL socket unlike processes
-            pool = ThreadPool(processes=2)
-            self.clientDataRecvPipe = clientDataRecvPipe
-            self.pool = pool
-            clientData = pool.apply_async(
-                ClientReceptionHandler().startup, (self.client_information_queue,)
-            )
-            self.initialize_connections(APPLICATION_PROTOCOL)
-
-            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-            # instantiate domain model and save process as object
-            self.mainRunFunction(
-                clientData,
-                receiveConnection,
-                sock,
-                pool,
-                Event,
-                clientDataPipe,
-                ReceiveConnectionKillSwitch,
-                RestAPIPipe,
-                True,
-            )
-        except Exception as e:
-            print(e)
-            logger.error(
-                "there has been an exception thrown in"
-                " the starting of the ssl service " + str(e)
-            )
-            return e
 
     def stop(self):
         self.clientDataPipe.close()
