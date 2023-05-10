@@ -1037,7 +1037,7 @@ class SSLCoTServiceMain(DigitalPyService):
                         continue
                     
                     self.logger.debug(f"CoT serialized {CoTOutput.modelObject.uid}")
-
+                    
                     # Check if the CoT data is valid and can be sent
                     if self.checkOutput(CoTOutput):
                         # Get client information and send the message
@@ -1060,6 +1060,7 @@ class SSLCoTServiceMain(DigitalPyService):
                     else:
                         # The CoT data is invalid, raise an exception
                         raise Exception("Error in general data processing")
+                    
                 except Exception as e:
                     self.logger.info(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
         except Exception as e:

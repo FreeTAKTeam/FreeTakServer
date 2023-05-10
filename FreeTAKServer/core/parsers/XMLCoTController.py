@@ -60,6 +60,48 @@ class XMLCoTController:
             # this handeles a client dissconection CoT
             return ("clientDisconnected", data)
 
+        else:
+            # serialize the XML to an etree object
+            event = etree.fromstring(data.xmlString)
+            request = ObjectFactory.get_new_instance("request")
+            request.set_action("XMLToDict")
+            request.set_value("message", data.xmlString)
+
+            actionmapper = ObjectFactory.get_instance("syncactionMapper")
+            response = ObjectFactory.get_new_instance("response")
+            actionmapper.process_action(request, response)
+
+            # dictionary representation of the xml
+            data_dict = response.get_value("dict")
+
+            # this convert the machine readable type to a human readable type
+            request = ObjectFactory.get_new_instance("request")
+            request.set_format("pickled")
+            request.set_action("ConvertMachineReadableToHumanReadable")
+            request.set_context("MEMORY")
+            request.set_value("machine_readable_type", data_dict["event"]["@type"])
+            request.set_value("default", data_dict["event"]["@type"])
+
+            # must get a new instance of the async action mapper for each request
+            # to prevent run conditions and to prevent responses going to the wrong
+            # callers
+            actionmapper = ObjectFactory.get_instance("syncactionMapper")
+            response = ObjectFactory.get_new_instance("response")
+            actionmapper.process_action(request, response)
+
+            # handle the case where the human readable type is not registered and there is no specific
+            # component meant to handle the cot type
+            if response.get_value("human_readable_type") == data_dict["event"]["@type"]:
+                # return to call the legacy handler method
+                return ("dataReceived", data)
+            # handle the case where there is a specific component meant to handle the cot type
+            else:
+                # assign the human readable type to prevent the duplication of work
+                data_dict["event"]["@type"] = response.get_value("human_readable_type")
+                data.xmlString = response.get_value("message")
+                data.data_dict = data_dict
+                return ("component_handler", data)
+
     def convert_model_to_row(self, modelObject, rowObject):
         for attribName, attribValue in modelObject.__dict__.items():
             if hasattr(attribValue, "__dict__"):
