@@ -68,9 +68,29 @@ APPLICATION_PROTOCOL = "XML"
 # MAJOR TODO: Make explicit exception classes!!!
 
 class SSLCoTServiceMain(DigitalPyService):
-     # TODO: fix repeat attempts to add user
-    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
-        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+    # TODO: fix repeat attempts to add user
+    # TODO: prevent repeat add user
+    def __init__(
+        self,
+        service_id,
+        subject_address,
+        subject_port,
+        subject_protocol,
+        integration_manager_address,
+        integration_manager_port,
+        integration_manager_protocol,
+        formatter: Formatter,
+    ):
+        super().__init__(
+            service_id,
+            subject_address,
+            subject_port,
+            subject_protocol,
+            integration_manager_address,
+            integration_manager_port,
+            integration_manager_protocol,
+            formatter
+        )
         self.logger = logger
 
         # Server info
@@ -164,41 +184,6 @@ class SSLCoTServiceMain(DigitalPyService):
     def connection_type(self):
         return ConnectionTypes.SSL
 
-    def remove_service_user(self, clientInformation: ClientInformation):
-        """Generates the presence object from the
-        clientInformation parameter and sends it as a remove message
-        to the client data pipe
-
-        Args:
-            clientInformation: Client information
-
-        Returns: None
-        """
-        try:
-            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
-            if not self.clientDataPipe.full():
-
-                # Process removal of client in clientDataPipe
-                # TODO add blocking
-                self.clientDataPipe.put(
-                    [
-                        "remove",
-                        clientInformation,
-                        self.openSockets,
-                        self.connection_type,
-                    ]
-                )
-                self.logger.debug(
-                    f"Client removal has been sent through queue {str(clientInformation)}"
-                )
-            else:
-                self.logger.critical("Client data pipe is full!")
-        except Exception as ex:
-            with self.tracer.start_as_current_span("remove_service_user") as span:
-                span.set_status(Status(StatusCode.ERROR))
-                span.record_exception(ex)
-            raise ex
-
     def update_client_information(self, clientInformation: ClientInformation):
         """Generates a Presence object from the clientInformation parameter and
         sends it as an update message to the client data pipe.
@@ -236,46 +221,6 @@ class SSLCoTServiceMain(DigitalPyService):
                 span.record_exception(ex)
             raise ex
 
-    def add_service_user(self, clientInformation: ClientInformation):
-        """this method generates the presence and connection objects from the
-        clientInformation parameter and sends it to the clientDataPipe for processing
-
-        :param clientInformation: this is the information of the client to be added
-        """
-        try:
-            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
-            if not self.clientDataPipe.full():
-                presence_object = Presence()
-                presence_object.setModelObject(clientInformation.modelObject)
-
-                # TODO why is this not xmlString?
-                presence_object.setXmlString(clientInformation.idData)
-                # is this duplicate of modelobject ?
-                presence_object.setClientInformation(clientInformation.modelObject)
-
-                connection_object = SSLConnection()
-                # TODO: add certificate name derived from socket
-                connection_object.certificate_name = None
-                connection_object.sock = None
-                connection_object.user_id = clientInformation.modelObject.uid
-
-                # Updating clientDataPipe
-                # TODO add blocking...
-                self.clientDataPipe.put(
-                    ["add", presence_object, self.openSockets, connection_object]
-                )
-                self.logger.debug(
-                    "client addition has been sent through queue "
-                    + str(clientInformation)
-                )
-            else:
-                self.logger.critical("client data pipe is Full !")
-        except Exception as ex:
-            with self.tracer.start_as_current_span("add_service_user") as span:
-                span.set_status(Status(StatusCode.ERROR))
-                span.record_exception(ex)
-            raise ex
-
     def get_client_information(self):
         """this method gets client information from the client information pipe and returns it as a dict merged
         with the current client information list and updates the self variable
@@ -308,191 +253,15 @@ class SSLCoTServiceMain(DigitalPyService):
                         client_id in user_dict.keys()
                         and len(self.client_information_queue[client_id]) == 3
                     ):
-                        self.client_information_queue[client_id][1] = user_dict[client_id]
-
-                    # if the entry isn't present in FTS core than the client will be disconnected
-                    # and deleted to maintain single source of truth
-                    elif client_id not in user_dict.keys():
-                        self.logger.debug(
-                            f"disconnection client {str(client_id)} because client was not in FTS core user_dict"
-                        )
-                        self.disconnect_socket(
-                            self.client_information_queue[client_id][0]
-                        )
-                        del self.client_information_queue[client_id]
-
-                    # TODO this case will never happen
-                    else:
-                        self.logger.error(
-                            "the data for this client is invalid " + str(client_id)
-                        )
+                        self.client_information_queue[client_id][1] = user_dict[
+                            client_id
+                        ]
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
             with self.tracer.start_as_current_span("get_client_information") as span:
                 span.set_status(Status(StatusCode.ERROR))
                 span.record_exception(ex)
-
-    # TODO make raise an exception
-    def send_user_connection_geo_chat(self, clientInformation):
-        """function to create and send pm to newly connected user
-
-        :param clientInformation: the object containing information about the user to which the msg is sent
-        :return:
-        """
-        # TODO: refactor as it has a proper implementation of a PM to a user generated by the server
-        from FreeTAKServer.core.SpecificCoTControllers.SendGeoChatController import (
-            SendGeoChatController,
-        )
-        from FreeTAKServer.model.RawCoT import RawCoT
-        from FreeTAKServer.model.FTSModel.Dest import Dest
-        import uuid
-
-        if OrchestratorConstants().DEFAULTCONNECTIONGEOCHATOBJ != None:
-            ChatObj = RawCoT()
-            ChatObj.xmlString = f"<event><point/><detail><remarks>{OrchestratorConstants().DEFAULTCONNECTIONGEOCHATOBJ}</remarks><marti><dest/></marti></detail></event>"
-
-            classobj = SendGeoChatController(ChatObj, AddToDB=False)
-            instobj = classobj.getObject()
-            instobj.modelObject.detail._chat.chatgrp.setuid1(
-                clientInformation.modelObject.uid
-            )
-            dest = Dest()
-            dest.setcallsign(clientInformation.modelObject.detail.contact.callsign)
-            instobj.modelObject.detail.marti.setdest(dest)
-            instobj.modelObject.detail._chat.setchatroom(
-                clientInformation.modelObject.detail.contact.callsign
-            )
-            instobj.modelObject.detail._chat.setparent("RootContactGroup")
-            instobj.modelObject.detail._chat.setid(clientInformation.modelObject.uid)
-            instobj.modelObject.detail._chat.setgroupOwner("True")
-            instobj.modelObject.detail.remarks.setto(clientInformation.modelObject.uid)
-            instobj.modelObject.setuid(
-                "GeoChat."
-                + "SERVER-UID."
-                + clientInformation.modelObject.detail.contact.callsign
-                + "."
-                + str(uuid.uuid1())
-            )
-            instobj.modelObject.detail._chat.chatgrp.setid(
-                clientInformation.modelObject.uid
-            )
-            classobj.reloadXmlString()
-            # self.get_client_information()
-            self.sent_message_count += 1
-            self.send_message(None, instobj, use_share_pipe=False)
-            return 1
-        else:
-            return 1
-
-    def clientConnected(self, raw_connection_information: RawSSLConnectionInformation):
-        """Controls the client connection sequence, calling methods which perform the following:
-            1. Instantiate the client object
-            2. Share the client with core
-            3. Add the client to the database
-            4. Send the connection message
-
-        :param raw_connection_information:
-        :return:
-        """
-        try:
-            from FreeTAKServer.core.persistence.EventTableController import (
-                EventTableController,
-            )
-
-            clientPipe = None
-
-            self.logger.info(loggingConstants.CLIENTCONNECTED)
-
-            # Instantiate the client object
-            clientInformation = self.ClientInformationController.intstantiateClientInformationModelFromConnection(
-                raw_connection_information, None
-            )
-
-            # TODO remove
-            if clientInformation == -1:
-                self.logger.info(
-                    "client had invalid connection information and has been disconnected"
-                )
-                return -1
-
-            # TODO remove or handle better
-            if not self.checkOutput(clientInformation):
-                raise Exception("Error in the creation of client information")
-            self.openSockets += 1
-            # breaks ssl
-            try:
-                if hasattr(clientInformation.socket, "getpeercert"):
-                    cn = "placeholder"
-                else:
-                    cn = None
-                CoT_row = EventTableController().convert_model_to_row(clientInformation.modelObject)
-                self.dbController.create_user(
-                    uid=clientInformation.modelObject.uid,
-                    callsign=clientInformation.modelObject.detail.contact.callsign,
-                    IP=clientInformation.IP,
-                    CoT=CoT_row,
-                    CN=cn,
-                )
-            except Exception as ex:
-                with self.tracer.start_as_current_span("clientConnected") as span:
-                    span.set_status(Status(StatusCode.ERROR))
-                    span.record_exception(ex)
-
-            self.logger.debug("Adding client...")
-            self.add_service_user(clientInformation=clientInformation)
-
-            # Add client info to queue
-            self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation, raw_connection_information.unwrapped_sock]
-            
-            # instantiate an object_id with a value of the client uid
-            object_id = ObjectFactory.get_new_instance("ObjectId", dynamic_configuration={"id": clientInformation.modelObject.uid, "type": "connection"})
-            
-            # TODO the instantiation of the connection object and the connection action
-            # call should be moved out of the tcp_cot_service main and into the connection
-            # controller
-            
-            # instantiate a new SSLCoTConnection with an object_id of the client uid
-            connection = SSLCoTConnection(object_id)
-            connection.model_object = clientInformation.modelObject
-            connection.sock = clientInformation.socket
-            self.connections[str(connection.get_oid())] = connection
-
-            # Update the iam component with the new client information
-            request = ObjectFactory.get_new_instance("request")
-            request.set_action("connection")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_value("connection", connection)
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            self.logger.debug("Client saved")
-
-            # Broadcast user in geochat
-            self.send_user_connection_geo_chat(clientInformation)
-
-            # Send emergency information to newly connected client
-            request = ObjectFactory.get_new_instance("request")
-            request.set_action("SendEmergenciesToClient")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_value("user", connection)
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-
-            
-            # Send repeated messages to newly connected clients
-            request = ObjectFactory.get_new_instance("request")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_action("connection")
-            request.set_context("Repeater")
-            request.set_value("connection", connection)
-            request.set_value("recipients", [str(connection.get_oid())])
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-
-            return clientInformation
-        except Exception as e:
-            self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR)
-
 
     def dataReceived(self, raw_cot: RawCoT):
         """this will be executed in the event that the use case for the CoT isn't specified in the orchestrator
