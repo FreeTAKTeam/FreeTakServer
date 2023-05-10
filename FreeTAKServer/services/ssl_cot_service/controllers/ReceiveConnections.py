@@ -68,9 +68,29 @@ class ReceiveConnections:
         events = etree.fromstring(xmlstring)
         return events
 
-    def listen(self, sock):
+    def listen(self, sock: socket.socket) -> Union[RawConnectionInformation, int]:
+        """
+        Listen for incoming client connections and process them.
+
+        This method listens for incoming client connections, receives data from the
+        client, and then instantiates a client object with the received data. If
+        any errors occur during this process, the method returns -1. Otherwise, it
+        returns the instantiated client object.
+
+        Parameters
+        ----------
+        sock : socket.socket
+            The socket to listen for incoming connections on.
+
+        Returns
+        -------
+        Union[RawConnectionInformation, int]
+            The instantiated client object, or -1 if any errors occurred.
+        """
+
         # logger = CreateLoggerController("ReceiveConnections").getLogger()
-        # listen for client connections
+
+        # Listen for client connections
         sock.listen(ReceiveConnectionsConstants().LISTEN_COUNT)
         try:
             # establish the socket variables
@@ -85,7 +105,6 @@ class ReceiveConnections:
             try:    
                 ssl_client = SSLSocketController().wrap_client_socket(client)
             except ssl.SSLError as ex:
-                print(ex)
                 self.disconnect_socket(client, ssl_client)
                 logger.warning('ssl error thrown in connection attempt ' + str(ex))
                 return -1
