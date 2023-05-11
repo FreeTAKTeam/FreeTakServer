@@ -42,6 +42,7 @@ class ClientReceptionHandler:
             logger.propagate = True'''
             output = self.monitorForData(self.dataPipe)
             if output == 1:
+                if len(self.dataPipe)>0: logger.debug("returning data array %s", str(self.dataPipe))
                 return self.dataPipe
             else:
                 return -1
@@ -68,7 +69,6 @@ class ClientReceptionHandler:
                     sock.settimeout(0.001)
                     try:
                         xmlstring = self.recv_until(sock).decode()
-                        logger.debug("returning data array %s", str(self.dataPipe))
                         if xmlstring == b'' or xmlstring == '' or xmlstring is None:
                             xmlstring = self.validate_client_disconnect(queue, sock, client)
                             if xmlstring is None:
