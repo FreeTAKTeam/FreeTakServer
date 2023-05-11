@@ -717,6 +717,7 @@ class TCPCoTServiceMain(DigitalPyService):
         try:
             for data_object in clientDataOutput:
                 try:
+                    self.logger.debug(f"begginning processing {data_object.xmlString}")
                     # Skip this iteration if the data is invalid
                     if data_object == -1:
                         continue
@@ -725,7 +726,7 @@ class TCPCoTServiceMain(DigitalPyService):
                         continue
                     # Process the raw CoT data and serialize it
                     self.component_handler(data_object.xmlString)
-                    self.logger.debug(f"CoT serialized {data_object.xmlString}")
+                    self.logger.debug(f"finished processing {data_object.xmlString}")
 
                 except Exception as ex:
                     self.logger.error(
