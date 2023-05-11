@@ -302,6 +302,7 @@ class SSLCoTServiceMain(DigitalPyService):
         # final request for the actual cot but listener is not returned because
         # it should be handled by the main loop which listens for all responses
         # with a request source of Orchestrator
+        self.logger.debug("sending request to subject %s", str(request.get_values()))
         self.subject_send_request(request, APPLICATION_PROTOCOL)
 
     def convert_to_xml(self, model_object: Node) -> str:
