@@ -78,7 +78,7 @@ class ClientReceptionHandler:
                         events = etree.fromstring(xmlstring)  # serialize to object
                         for event in events.findall('event'):
                             event_str = etree.tostring(event)
-                            logger.debug("received: %s", event_str)
+                            logger.debug("received: %s from %s", event_str, client)
                             self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
                     except socket.timeout as ex:
                         continue
@@ -87,11 +87,11 @@ class ClientReceptionHandler:
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except ConnectionAbortedError as ex:
-                        logger.debug("disconnecting client %s due to broken pipe", client)
+                        logger.debug("disconnecting client %s due to connection aborted", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except ConnectionResetError as ex:
-                        logger.debug("disconnecting client %s due to broken pipe", client)
+                        logger.debug("disconnecting client %s due to connection reset", client)
                         self.returnReceivedData(client, b'', queue)
                         continue
                     except Exception as ex:
