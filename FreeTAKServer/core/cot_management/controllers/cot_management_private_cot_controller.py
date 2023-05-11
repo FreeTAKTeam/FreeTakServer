@@ -32,11 +32,11 @@ class CoTManagementPrivateCoTController(Controller):
         """
         recipients = []
         # validate the Marti tag exists
-        if not hasattr(model_object, "Marti"):
+        if not hasattr(model_object.detail, "marti") or len(model_object.detail.marti.dest)<1 or model_object.detail.marti.dest[0].callsign == None:
             return "*"
         
         sub_response = self.execute_sub_action("GetAllConnections")
-        for dest in model_object.Marti.dest:
+        for dest in model_object.marti.dest:
             for con in sub_response.get_value("connections"):
                 if dest == con.model_object.detail.contact.name:
                     recipients.append(str(con.get_oid()))
