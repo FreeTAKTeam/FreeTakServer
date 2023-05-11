@@ -55,9 +55,9 @@ from FreeTAKServer.model.ClientInformation import ClientInformation
 from .configuration.ssl_cot_service_constants import SERVICE_NAME
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
-loggingConstants = LoggingConstants(log_name="FTS-SSL_CoT_Service")
+loggingConstants = LoggingConstants(log_name="SSLCoTService")
 logger = CreateLoggerController(
-    "FTS-SSL_CoT_Service", logging_constants=loggingConstants
+    "SSLCoTService", logging_constants=loggingConstants
 ).getLogger()
 
 from .controllers.ClientReceptionHandler import ClientReceptionHandler
@@ -777,7 +777,7 @@ class SSLCoTServiceMain(DigitalPyService):
 
             self.client_connection_controller.send_user_connection_geo_chat(client_information)
 
-            self.handle_regular_data([receive_connection_output])
+            # self.handle_regular_data([receive_connection_output])
 
         except Exception as e:
             self.logger.error(

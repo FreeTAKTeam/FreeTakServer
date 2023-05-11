@@ -57,9 +57,9 @@ from FreeTAKServer.core.configuration.CreateLoggerController import (
 )
 
 loggingConstants = LoggingConstants()
-loggingConstants = LoggingConstants(log_name="FTS-TCP_CoT_Service")
+loggingConstants = LoggingConstants(log_name="TCPCoTService")
 logger = CreateLoggerController(
-    "FTS-TCP_CoT_Service", logging_constants=loggingConstants
+    "TCPCoTService", logging_constants=loggingConstants
 ).getLogger()
 
 from .controllers.ClientReceptionHandler import ClientReceptionHandler
@@ -387,13 +387,13 @@ class TCPCoTServiceMain(DigitalPyService):
                         self.send_component_message(response, model_object)
                 else:
                     self.send_component_message(response, response.get_value("message"))
-            except Exception as e:
+            except Exception as ex:
                 self.logger.error(
                     f"There was an exception sending a single response:\n"
                     f"Sender: {sender}\n"
                     f"Context: {response.get_context()}\n"
                     f"Action: {response.get_action()}\n"
-                    f"Exception: {str(e)}"
+                    f"Exception: {str(ex)}"
                 )
                 self.logger.debug(
                     "single response exception traceback: %s", traceback.format_exc()
@@ -782,7 +782,7 @@ class TCPCoTServiceMain(DigitalPyService):
 
             self.client_connection_controller.send_user_connection_geo_chat(client_information)
 
-            self.handle_regular_data([receive_connection_output])
+            # self.handle_regular_data([receive_connection_output])
 
         except Exception as e:
             self.logger.error(
