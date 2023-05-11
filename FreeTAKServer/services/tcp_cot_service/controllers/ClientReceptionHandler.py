@@ -42,6 +42,7 @@ class ClientReceptionHandler:
             logger.propagate = True'''
             output = self.monitorForData(self.dataPipe)
             if output == 1:
+                logger.debug("returning data array %s", str(self.dataPipe))
                 return self.dataPipe
             else:
                 return -1

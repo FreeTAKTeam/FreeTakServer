@@ -68,8 +68,8 @@ class ClientReceptionHandler:
                     sock.settimeout(0.001)
                     try:
                         xmlstring = self.recv_until(sock).decode()
-                        logger.debug("received " + str(xmlstring))
-                        if xmlstring == b'' or xmlstring == '' or xmlstring is None: 
+                        logger.debug("returning data array %s", str(self.dataPipe))
+                        if xmlstring == b'' or xmlstring == '' or xmlstring is None:
                             xmlstring = self.validate_client_disconnect(queue, sock, client)
                             if xmlstring is None:
                                 continue
