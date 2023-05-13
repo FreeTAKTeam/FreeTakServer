@@ -70,9 +70,11 @@ class ClientReceptionHandler:
                     try:
                         xmlstring = self.recv_until(sock).decode()
                         if xmlstring == b'' or xmlstring == '' or xmlstring is None:
-                            xmlstring = self.validate_client_disconnect(queue, sock, client)
-                            if xmlstring is None:
-                                continue
+                            #xmlstring = self.validate_client_disconnect(queue, sock, client)
+                            #if xmlstring is None:
+                            #    continue
+                            self.returnReceivedData(client, b'', queue)
+                            continue
                         xmlstring = "<multiEvent>" + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
                         xmlstring = re.sub(r'(?s)\<\?xml(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
                         events = etree.fromstring(xmlstring)  # serialize to object

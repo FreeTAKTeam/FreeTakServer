@@ -69,19 +69,22 @@ class ClientReceptionHandler:
                     sock.settimeout(0.001)
                     try:
                         xmlstring = self.recv_until(sock).decode()
-                        logger.debug("received " + str(xmlstring))
+                        logger.debug("received raw data %s", str(xmlstring))
                         if xmlstring == b'' or xmlstring == '' or xmlstring is None: 
-                            xmlstring = self.validate_client_disconnect(queue, sock, client)
-                            if xmlstring is None:
-                                continue
+                            #xmlstring = self.validate_client_disconnect(queue, sock, client)
+                            #if xmlstring is None:
+                            #    continue
+                            self.returnReceivedData(client, b'', queue)
+                            continue
                         xmlstring = "<multiEvent>" + xmlstring + "</multiEvent>"  # convert to xmlstring wrapped by multiEvent tags
-                        xmlstring = re.sub(r'(?s)\<\?xml(.*)\?\>', '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
+                        xmlstring = re.sub(r"<\?xml.*?\?>", '', xmlstring)  # replace xml definition tag with empty string as it breaks serilization
+                        logger.debug("data after xmltag substitution: %s", xmlstring)
                         events = etree.fromstring(xmlstring)  # serialize to object
                         for event in events.findall('event'):
                             event_str = etree.tostring(event)
                             logger.debug("received: %s from %s", event_str, client)
                             self.returnReceivedData(client, etree.tostring(event), queue)  # send each instance of event to the core
-                    except socket.timeout as ex:
+                    except socket.timeout:
                         continue
                     except BrokenPipeError as ex:
                         logger.debug("disconnecting client %s due to broken pipe", client)
