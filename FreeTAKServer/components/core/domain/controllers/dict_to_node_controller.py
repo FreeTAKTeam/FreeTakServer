@@ -54,7 +54,10 @@ class DictToNodeController(Controller):
 
     def add_value_to_node(self, key, value, node):
         """add a value to a node object"""
-        if not hasattr(node, key.strip("@")):
+        if key == "#text":
+            setattr(node, "INTAG", value)
+
+        elif not hasattr(node, key.strip("@")):
             self.handle_missing_attribute(key, value, node)
 
         # this and ensures that the value is absoloutly a Node type instead of an expected list with only value, ex. a pm to one user would be a single object in the dict representation
