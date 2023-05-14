@@ -8,22 +8,27 @@ from digitalpy.core.digipy_configuration.configuration import Configuration
 from .xml_serializer import XmlSerializer
 from .xml_element import ExtendedElement
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
-
+from ...domain import Domain
 
 class XMLSerializationOrchestrator(Controller):
     def __init__(
         self,
         request: Request,
         response: Response,
-        action_mapper: ActionMapper,
+        sync_action_mapper: ActionMapper,
         configuration: Configuration,
     ):
         super().__init__(
             request=request,
             response=response,
-            action_mapper=action_mapper,
+            action_mapper=sync_action_mapper,
             configuration=configuration,
         )
+        self.domain_controller = Domain(request, response, sync_action_mapper, configuration)
+
+    def initialize(self, request, response):
+        super().initialize(request, response)
+        self.domain_controller.initialize(request, response)
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -49,11 +54,7 @@ class XMLSerializationOrchestrator(Controller):
         self.response.set_value("model_object", model_object)
 
     def _get_parent(self, node, type=""):
-        self.request.set_value("node", node)
-        self.request.set_context(type)
-        sub_response = self.execute_sub_action("GetNodeParent")
-        return sub_response.get_value("parent")
-
+        return self.domain_controller.get_parent(node)
 
 class TargetXMLToModel_object:
     def __init__(self, model_object, parent_getter):

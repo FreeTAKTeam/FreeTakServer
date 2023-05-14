@@ -20,12 +20,12 @@ class CotManagementRepeaterController(Controller):
         self,
         request: Request,
         response: Response,
-        cot_management_action_mapper: ActionMapper,
+        sync_action_mapper: ActionMapper,
         configuration: Configuration,
     ) -> None:
-        super().__init__(request, response, cot_management_action_mapper, configuration)
-        self.persistency_controller = CotManagementRepeaterPersistence(request, response, cot_management_action_mapper, configuration)
-        self.geo_object_cotroller = CotManagementGeoObjectController(request, response, cot_management_action_mapper, configuration)
+        super().__init__(request, response, sync_action_mapper, configuration)
+        self.persistency_controller = CotManagementRepeaterPersistence(request, response, sync_action_mapper, configuration)
+        self.geo_object_cotroller = CotManagementGeoObjectController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         self.geo_object_cotroller.initialize(request, response)

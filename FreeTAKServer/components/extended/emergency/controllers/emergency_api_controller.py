@@ -3,7 +3,7 @@ from flask import request
 from flask_httpauth import HTTPTokenAuth
 from digitalpy.core.main.object_factory import ObjectFactory
 
-from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
+from FreeTAKServer.services.rest_api_service.views.base_view_controller import BaseViewController
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.parsers.JsonController import JsonController
@@ -15,7 +15,7 @@ from .emergency_persistence import EmergencyPersistence
 loggingConstants = LoggingConstants(log_name="FTS-ManageEmergencyView")
 logger = CreateLoggerController("FTS-ManageEmergencyView", logging_constants=loggingConstants).getLogger()
 
-class ManageEmergency(BaseView):
+class ManageEmergency(BaseViewController):
     
     def __init__(self, request, response, action_mapper, configuration) -> None:
         endpoints = {

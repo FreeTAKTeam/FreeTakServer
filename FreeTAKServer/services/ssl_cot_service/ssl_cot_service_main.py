@@ -9,6 +9,8 @@ import importlib
 import socket
 from opentelemetry.trace import Status, StatusCode
 from typing import List, Union, Dict
+from FreeTAKServer.services.ssl_cot_service.controllers.client_connection_controller import ClientConnectionController
+from FreeTAKServer.services.ssl_cot_service.controllers.client_disconnection_controller import ClientDisconnectionController
 from FreeTAKServer.services.ssl_cot_service.controllers.send_component_data_controller import SendComponentDataController
 from FreeTAKServer.services.ssl_cot_service.model.raw_ssl_connection_information import RawSSLConnectionInformation
 from FreeTAKServer.services.ssl_cot_service.model.ssl_cot_connection import SSLCoTConnection
@@ -38,7 +40,6 @@ from .controllers.SendDataController import SendDataController
 from FreeTAKServer.core.SpecificCoTControllers.SendDisconnectController import (
     SendDisconnectController,
 )
-from FreeTAKServer.core.parsers.XMLCoTController import XMLCoTController
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 
 from FreeTAKServer.model.RawCoT import RawCoT
@@ -54,23 +55,42 @@ from FreeTAKServer.model.ClientInformation import ClientInformation
 from .configuration.ssl_cot_service_constants import SERVICE_NAME
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 loggingConstants = LoggingConstants()
-loggingConstants = LoggingConstants(log_name="FTS-SSL_CoT_Service")
+loggingConstants = LoggingConstants(log_name="SSLCoTService")
 logger = CreateLoggerController(
-    "FTS-SSL_CoT_Service", logging_constants=loggingConstants
+    "SSLCoTService", logging_constants=loggingConstants
 ).getLogger()
 
 from .controllers.ClientReceptionHandler import ClientReceptionHandler
 
 NODE_TO_XML = "NodeToXML"
 GET_MACHINE_READABLE_TYPE = "ConvertHumanReadableToMachineReadable"
-# TODO: the application protocol should be COT not SSL COT
 APPLICATION_PROTOCOL = "XML"
 # MAJOR TODO: Make explicit exception classes!!!
 
 class SSLCoTServiceMain(DigitalPyService):
-     # TODO: fix repeat attempts to add user
-    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
-        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+    # TODO: fix repeat attempts to add user
+    # TODO: prevent repeat add user
+    def __init__(
+        self,
+        service_id,
+        subject_address,
+        subject_port,
+        subject_protocol,
+        integration_manager_address,
+        integration_manager_port,
+        integration_manager_protocol,
+        formatter: Formatter,
+    ):
+        super().__init__(
+            service_id,
+            subject_address,
+            subject_port,
+            subject_protocol,
+            integration_manager_address,
+            integration_manager_port,
+            integration_manager_protocol,
+            formatter
+        )
         self.logger = logger
 
         # Server info
@@ -91,48 +111,83 @@ class SSLCoTServiceMain(DigitalPyService):
         self.ClientInformationController = ClientInformationController()
         self.ReceiveConnections = ReceiveConnections()
         self.ReceiveConnectionsProcessController = ReceiveConnectionsProcessController()
-        self.XMLCoTController = XMLCoTController()
         self.dbController: DatabaseController
-        self.send_component_data_controller = SendComponentDataController
+        self.send_component_data_controller = SendComponentDataController(self.logger)
+        self.client_connection_controller = ClientConnectionController(
+            self.logger,
+            self.client_information_queue,
+            self.connections,
+            self.openSockets
+        )
+        self.client_disconnection_controller = ClientDisconnectionController(
+            self.logger,
+            self.client_information_queue,
+            self.ActiveThreadsController,
+            self.connections,
+            self.openSockets,
+            self.connection_type,
+        )
+
+    def start(
+        self,
+        IP,
+        CoTPort,
+        Event,
+        clientDataPipe,
+        ReceiveConnectionKillSwitch,
+        RestAPIPipe,
+        clientDataRecvPipe,
+        factory,
+        tracing_provider_instance
+    ):
+        try:
+             # configure the object factory with the passed factory instance
+            ObjectFactory.configure(factory)
+
+            # instantiate the tracer instance for this service
+            self.tracer: Tracer = tracing_provider_instance.create_tracer(SERVICE_NAME)
+
+            actionmapper = ObjectFactory.get_instance("actionMapper")
+            # subscribe to responses originating from this controller
+            actionmapper.add_topic(
+                f"/routing/response/{self.__class__.__name__.lower()}"
+            )
+
+            self.dbController = DatabaseController()
+            # self.clear_user_table()
+            os.chdir("../../../")
+            # create socket controller
+            self.SSLSocketController = SSLSocketController()
+            self.SSLSocketController.changeIP(IP)
+            self.SSLSocketController.changePort(CoTPort)
+            sock = self.SSLSocketController.createSocket()
+            # threadpool is used as it allows the transfer of SSL socket unlike processes
+            pool = ThreadPool(processes=2)
+            self.pool = pool
+            self.clientDataRecvPipe = clientDataRecvPipe
+            clientData = pool.apply_async(
+                ClientReceptionHandler().startup, (self.client_information_queue,)
+            )
+            self.initialize_connections(APPLICATION_PROTOCOL)
+            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
+            # instantiate domain model and save process as object
+            self.mainRunFunction(
+                clientData,
+                receiveConnection,
+                sock,
+                pool,
+                Event,
+                clientDataPipe,
+                ReceiveConnectionKillSwitch,
+                RestAPIPipe,
+                True,
+            )
+        except Exception as ex:
+            raise ex
 
     @property
     def connection_type(self):
         return ConnectionTypes.SSL
-
-    def remove_service_user(self, clientInformation: ClientInformation):
-        """Generates the presence object from the
-        clientInformation parameter and sends it as a remove message
-        to the client data pipe
-
-        Args:
-            clientInformation: Client information
-
-        Returns: None
-        """
-        try:
-            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
-            if not self.clientDataPipe.full():
-
-                # Process removal of client in clientDataPipe
-                # TODO add blocking
-                self.clientDataPipe.put(
-                    [
-                        "remove",
-                        clientInformation,
-                        self.openSockets,
-                        self.connection_type,
-                    ]
-                )
-                self.logger.debug(
-                    f"Client removal has been sent through queue {str(clientInformation)}"
-                )
-            else:
-                self.logger.critical("Client data pipe is full!")
-        except Exception as ex:
-            with self.tracer.start_as_current_span("remove_service_user") as span:
-                span.set_status(Status(StatusCode.ERROR))
-                span.record_exception(ex)
-            raise ex
 
     def update_client_information(self, clientInformation: ClientInformation):
         """Generates a Presence object from the clientInformation parameter and
@@ -171,46 +226,6 @@ class SSLCoTServiceMain(DigitalPyService):
                 span.record_exception(ex)
             raise ex
 
-    def add_service_user(self, clientInformation: ClientInformation):
-        """this method generates the presence and connection objects from the
-        clientInformation parameter and sends it to the clientDataPipe for processing
-
-        :param clientInformation: this is the information of the client to be added
-        """
-        try:
-            # TODO this doesnt guarantee that put call will succeed, need to implement blocking...
-            if not self.clientDataPipe.full():
-                presence_object = Presence()
-                presence_object.setModelObject(clientInformation.modelObject)
-
-                # TODO why is this not xmlString?
-                presence_object.setXmlString(clientInformation.idData)
-                # is this duplicate of modelobject ?
-                presence_object.setClientInformation(clientInformation.modelObject)
-
-                connection_object = SSLConnection()
-                # TODO: add certificate name derived from socket
-                connection_object.certificate_name = None
-                connection_object.sock = None
-                connection_object.user_id = clientInformation.modelObject.uid
-
-                # Updating clientDataPipe
-                # TODO add blocking...
-                self.clientDataPipe.put(
-                    ["add", presence_object, self.openSockets, connection_object]
-                )
-                self.logger.debug(
-                    "client addition has been sent through queue "
-                    + str(clientInformation)
-                )
-            else:
-                self.logger.critical("client data pipe is Full !")
-        except Exception as ex:
-            with self.tracer.start_as_current_span("add_service_user") as span:
-                span.set_status(Status(StatusCode.ERROR))
-                span.record_exception(ex)
-            raise ex
-
     def get_client_information(self):
         """this method gets client information from the client information pipe and returns it as a dict merged
         with the current client information list and updates the self variable
@@ -243,24 +258,9 @@ class SSLCoTServiceMain(DigitalPyService):
                         client_id in user_dict.keys()
                         and len(self.client_information_queue[client_id]) == 3
                     ):
-                        self.client_information_queue[client_id][1] = user_dict[client_id]
-
-                    # if the entry isn't present in FTS core than the client will be disconnected
-                    # and deleted to maintain single source of truth
-                    elif client_id not in user_dict.keys():
-                        self.logger.debug(
-                            f"disconnection client {str(client_id)} because client was not in FTS core user_dict"
-                        )
-                        self.disconnect_socket(
-                            self.client_information_queue[client_id][0]
-                        )
-                        del self.client_information_queue[client_id]
-
-                    # TODO this case will never happen
-                    else:
-                        self.logger.error(
-                            "the data for this client is invalid " + str(client_id)
-                        )
+                        self.client_information_queue[client_id][1] = user_dict[
+                            client_id
+                        ]
             else:
                 self.logger.critical("client data pipe is Full !")
         except Exception as ex:
@@ -268,361 +268,32 @@ class SSLCoTServiceMain(DigitalPyService):
                 span.set_status(Status(StatusCode.ERROR))
                 span.record_exception(ex)
 
-    # TODO make raise an exception
-    def send_user_connection_geo_chat(self, clientInformation):
-        """function to create and send pm to newly connected user
-
-        :param clientInformation: the object containing information about the user to which the msg is sent
-        :return:
-        """
-        # TODO: refactor as it has a proper implementation of a PM to a user generated by the server
-        from FreeTAKServer.core.SpecificCoTControllers.SendGeoChatController import (
-            SendGeoChatController,
-        )
-        from FreeTAKServer.model.RawCoT import RawCoT
-        from FreeTAKServer.model.FTSModel.Dest import Dest
-        import uuid
-
-        if OrchestratorConstants().DEFAULTCONNECTIONGEOCHATOBJ != None:
-            ChatObj = RawCoT()
-            ChatObj.xmlString = f"<event><point/><detail><remarks>{OrchestratorConstants().DEFAULTCONNECTIONGEOCHATOBJ}</remarks><marti><dest/></marti></detail></event>"
-
-            classobj = SendGeoChatController(ChatObj, AddToDB=False)
-            instobj = classobj.getObject()
-            instobj.modelObject.detail._chat.chatgrp.setuid1(
-                clientInformation.modelObject.uid
-            )
-            dest = Dest()
-            dest.setcallsign(clientInformation.modelObject.detail.contact.callsign)
-            instobj.modelObject.detail.marti.setdest(dest)
-            instobj.modelObject.detail._chat.setchatroom(
-                clientInformation.modelObject.detail.contact.callsign
-            )
-            instobj.modelObject.detail._chat.setparent("RootContactGroup")
-            instobj.modelObject.detail._chat.setid(clientInformation.modelObject.uid)
-            instobj.modelObject.detail._chat.setgroupOwner("True")
-            instobj.modelObject.detail.remarks.setto(clientInformation.modelObject.uid)
-            instobj.modelObject.setuid(
-                "GeoChat."
-                + "SERVER-UID."
-                + clientInformation.modelObject.detail.contact.callsign
-                + "."
-                + str(uuid.uuid1())
-            )
-            instobj.modelObject.detail._chat.chatgrp.setid(
-                clientInformation.modelObject.uid
-            )
-            classobj.reloadXmlString()
-            # self.get_client_information()
-            self.sent_message_count += 1
-            self.send_message(None, instobj, use_share_pipe=False)
-            return 1
-        else:
-            return 1
-
-    def clientConnected(self, raw_connection_information: RawSSLConnectionInformation):
-        """Controls the client connection sequence, calling methods which perform the following:
-            1. Instantiate the client object
-            2. Share the client with core
-            3. Add the client to the database
-            4. Send the connection message
-
-        :param raw_connection_information:
-        :return:
-        """
-        try:
-            from FreeTAKServer.core.persistence.EventTableController import (
-                EventTableController,
-            )
-
-            clientPipe = None
-
-            self.logger.info(loggingConstants.CLIENTCONNECTED)
-
-            # Instantiate the client object
-            clientInformation = self.ClientInformationController.intstantiateClientInformationModelFromConnection(
-                raw_connection_information, None
-            )
-
-            # TODO remove
-            if clientInformation == -1:
-                self.logger.info(
-                    "client had invalid connection information and has been disconnected"
-                )
-                return -1
-
-            # TODO remove or handle better
-            if not self.checkOutput(clientInformation):
-                raise Exception("Error in the creation of client information")
-            self.openSockets += 1
-            # breaks ssl
-            try:
-                if hasattr(clientInformation.socket, "getpeercert"):
-                    cn = "placeholder"
-                else:
-                    cn = None
-                CoT_row = EventTableController().convert_model_to_row(clientInformation.modelObject)
-                self.dbController.create_user(
-                    uid=clientInformation.modelObject.uid,
-                    callsign=clientInformation.modelObject.detail.contact.callsign,
-                    IP=clientInformation.IP,
-                    CoT=CoT_row,
-                    CN=cn,
-                )
-            except Exception as ex:
-                with self.tracer.start_as_current_span("clientConnected") as span:
-                    span.set_status(Status(StatusCode.ERROR))
-                    span.record_exception(ex)
-
-            self.logger.debug("Adding client...")
-            self.add_service_user(clientInformation=clientInformation)
-
-            # Add client info to queue
-            self.client_information_queue[clientInformation.modelObject.uid] = [clientInformation.socket, clientInformation, raw_connection_information.unwrapped_sock]
-            
-            # instantiate an object_id with a value of the client uid
-            object_id = ObjectFactory.get_new_instance("ObjectId", dynamic_configuration={"id": clientInformation.modelObject.uid, "type": "connection"})
-            
-            # TODO the instantiation of the connection object and the connection action
-            # call should be moved out of the tcp_cot_service main and into the connection
-            # controller
-            
-            # instantiate a new SSLCoTConnection with an object_id of the client uid
-            connection = SSLCoTConnection(object_id)
-            connection.model_object = clientInformation.modelObject
-            connection.sock = clientInformation.socket
-            self.connections[str(connection.get_oid())] = connection
-
-            # Update the iam component with the new client information
-            request = ObjectFactory.get_new_instance("request")
-            request.set_action("connection")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_value("connection", connection)
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-            self.logger.debug("Client saved")
-
-            # Broadcast user in geochat
-            self.send_user_connection_geo_chat(clientInformation)
-
-            # Send emergency information to newly connected client
-            request = ObjectFactory.get_new_instance("request")
-            request.set_action("SendEmergenciesToClient")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_value("user", connection)
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-
-            
-            # Send repeated messages to newly connected clients
-            request = ObjectFactory.get_new_instance("request")
-            request.set_sender(self.__class__.__name__.lower())
-            request.set_action("connection")
-            request.set_context("Repeater")
-            request.set_value("connection", connection)
-            request.set_value("recipients", [str(connection.get_oid())])
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-
-            return clientInformation
-        except Exception as e:
-            self.logger.warning(loggingConstants.CLIENTCONNECTEDERROR)
-
-
-    def dataReceived(self, raw_cot: RawCoT):
-        """this will be executed in the event that the use case for the CoT isn't specified in the orchestrator
-
-        :param raw_cot: the CoT to be processed and shared
-        """
-        try:
-            # this will check if the CoT is applicable to any specific controllers
-            raw_cot = self.XMLCoTController.determineCoTType(raw_cot)
-
-            # the following calls whatever controller was specified by the above function
-            module = importlib.import_module(
-                "FreeTAKServer.core.SpecificCoTControllers." + raw_cot.CoTType
-            )
-            CoTSerializer = getattr(module, raw_cot.CoTType)
-            # TODO: improve way in which the dbController is passed to CoTSerializer
-            raw_cot.dbController = self.dbController
-            processedCoT = CoTSerializer(raw_cot).getObject()
-
-            # this statement checks if the data type is a user update and if so it will be saved to the associated client object
-            if raw_cot.CoTType == "SendUserUpdateController":
-                # find entry with this uid
-                self.update_client_information(clientInformation=processedCoT)
-            return processedCoT
-        except Exception as e:
-            self.logger.error(loggingConstants.DATARECEIVEDERROR + str(e))
-            return -1
-
-    def clientDisconnected(self, clientInformation: User):
-        """Handles the disconnection of clients
-
-        :param clientInformation:
-        :return:
-        """
-        import traceback
-
-        self.logger.debug("Disconnecting client")
-
-        # TODO add proper exception handling
-        # Get socket info from client object
-        try:
-            if isinstance(clientInformation, str):
-                clientInformation = self.client_information_queue[clientInformation][1]
-            elif isinstance(clientInformation, RawCoT):
-                clientInformation = self.client_information_queue[
-                    clientInformation.clientInformation
-                ][1]
-            sock = self.client_information_queue[clientInformation.user_id][0]
-            unwrapped_sock = self.client_information_queue[clientInformation.user_id][2]
-        except Exception as e:
-            self.logger.critical(
-                "getting sock from client information queue failed " + str(e)
-            )
-
-        try:
-            self.logger.debug(
-                "client "
-                + clientInformation.m_presence.modelObject.uid
-                + " disconnected "
-                + "\n".join(traceback.format_stack())
-            )
-        except Exception as e:
-            self.logger.critical(
-                "there was an error logging disconnection information " + str(e)
-            )
-
-        # Removes the user id from client info queue
-        try:
-            del self.client_information_queue[clientInformation.user_id]
-            # Update the iam component with the new client information
-            request = ObjectFactory.get_new_instance("request")
-            request.set_action("disconnection")
-            request.set_sender(self.__class__.__name__.lower())
-            if hasattr(clientInformation, "modelObject"):
-                uid = clientInformation.modelObject.uid
-            elif hasattr(clientInformation, "m_presence"):
-                uid = clientInformation.m_presence.modelObject.uid
-            conn_id = str(ObjectFactory.get_instance("ObjectId", {"id": uid, "type": "connection"}))
-            del self.connections[conn_id]
-            request.set_value("connection_id", conn_id)
-            request.set_format("pickled")
-            self.subject_send_request(request, APPLICATION_PROTOCOL)
-        except Exception as e:
-            self.logger.critical("client removal failed " + str(e))
-
-        # Remove the active thread and database connection
-        try:
-            self.ActiveThreadsController.removeClientThread(clientInformation)
-            self.dbController.remove_user(query=f'uid = "{clientInformation.user_id}"')
-        except Exception as e:
-            self.logger.critical(
-                f"There has been an error in a clients disconnection while adding information to the database {str(e)}"
-            )
-
-        try:
-            self.remove_service_user(clientInformation=clientInformation)
-            self.disconnect_socket(sock, unwrapped_sock)
-
-            self.logger.info(loggingConstants.CLIENTDISCONNECTSTART)
-
-            # TODO: remove string
-            self.send_disconnect_cot(clientInformation)
-            self.logger.info(
-                loggingConstants.CLIENTDISCONNECTEND
-                + str(clientInformation.m_presence.modelObject.uid)
-            )
-            return 1
-        except Exception as e:
-            import traceback
-            import sys, linecache
-
-            exc_type, exc_obj, tb = sys.exc_info()
-            f = tb.tb_frame
-            lineno = tb.tb_lineno
-            filename = f.f_code.co_filename
-            linecache.checkcache(filename)
-            line = linecache.getline(filename, lineno, f.f_globals)
-            self.logger.error(
-                loggingConstants.CLIENTCONNECTEDERROR
-                + " "
-                + str(e)
-                + " on line: "
-                + line
-            )
-
-    def send_disconnect_cot(self, clientInformation):
-        """send the disconnection information for a specific client to all connected clients
-        Args:
-            clientInformation: client to be displayed as
-                disconnected by all connected devices
-        """
-        # TODO: remove string
-        tempXml = RawCoT()
-        tempXml.xmlString = '<event><detail><link uid="{0}"/></detail></event>'.format(
-            clientInformation.user_id
-        ).encode()
-        disconnect = SendDisconnectController(tempXml)
-        self.get_client_information()
-        self.sent_message_count += 1
-        self.messages_to_core_count += 1
-        self.send_message(disconnect.getObject().clientInformation, disconnect.getObject())
-
-    def disconnect_socket(self, sock: socket.socket, unwrapped_socket: socket.socket) -> None:
-        """this method is responsible for disconnecting all socket objects
-
-        :param sock: socket object to be disconnected
-        """
-        self.logger.debug("Shutting down socket")
-        try:
-            sock.shutdown(socket.SHUT_RDWR)
-        except Exception as e:
-            self.logger.error(
-                "Error shutting socket down in client disconnection "
-                + str(e)
-                + "\n".join(traceback.format_stack())
-            )
-        try:
-            sock.close()
-        except Exception as e:
-            self.logger.error(
-                "error closing socket in client disconnection "
-                + str(e)
-                + "\n".join(traceback.format_stack())
-            )
-        try:
-            unwrapped_socket.close()
-        except Exception as e:
-            self.logger.error(
-                "error closing unwrapped socket in client disconnection "
-                + str(e)
-                + "\n".join(traceback.format_stack())
-            )
-
-    def component_handler(self, cot):
+    def component_handler(self, xml_cot):
         """this method is responsible for handling cases where the cot sent should
         be handled (parsed and manipulated) by a specific component it is
         responsible for calling the routing (via the async action mapper)
-        of the CoT data"""
-        if not hasattr(cot, "xmlString"):
-            raise ValueError("cot missing required attribute 'xmlString'")
+        of the CoT data
+
+        Args:
+            xml_cot (str): xml representation of CoT
+        """
+
+        dict_cot = self.convert_xml_to_dict(xml_cot)
 
         request = ObjectFactory.get_new_instance("request")
         # must get a new instance of the async action mapper for each request
         # to prevent run conditions and to prevent responses going to the wrong
         # callers
-        actionmapper = ObjectFactory.get_instance("actionMapper")
         response = ObjectFactory.get_new_instance("response")
 
         # instantiate and define the request
         request = ObjectFactory.get_new_instance("request")
         request.set_format("pickled")
-        request.set_action(cot.data_dict["event"]["@type"])
-        request.set_context("XML")
+        human_readable_type = self.get_human_readable_type(dict_cot)
+        request.set_action(human_readable_type)
+        request.set_context("XMLCoT")
         request.set_sender(self.__class__.__name__.lower())
-        request.set_value("dictionary", cot.data_dict)
+        request.set_value("dictionary", dict_cot)
 
         # instantiate and define the response
         response = ObjectFactory.get_new_instance("response")
@@ -631,11 +302,8 @@ class SSLCoTServiceMain(DigitalPyService):
         # final request for the actual cot but listener is not returned because
         # it should be handled by the main loop which listens for all responses
         # with a request source of Orchestrator
+        self.logger.debug("sending request to subject %s", str(request.get_values()))
         self.subject_send_request(request, APPLICATION_PROTOCOL)
-        
-        # one is returned so that the message is ignored and can be processed later once the
-        # response is received by the component receiver
-        return 1
 
     def convert_to_xml(self, model_object: Node) -> str:
         """call the domain component to convert the model object to xml
@@ -714,61 +382,78 @@ class SSLCoTServiceMain(DigitalPyService):
                         self.send_component_message(response, model_object)
                 else:
                     self.send_component_message(response, response.get_value("message"))
-            except Exception as e:
+            except Exception as ex:
                 self.logger.error(
                     f"There was an exception sending a single response:\n"
                     f"Sender: {sender}\n"
-                    f"Model object: {model_object}\n"
                     f"Context: {response.get_context()}\n"
                     f"Action: {response.get_action()}\n"
+                    f"Exception: {str(ex)}"
+                )
+                self.logger.debug(
+                    "single response exception traceback: %s", traceback.format_exc()
                 )
 
     def send_component_message(self, request, message):
-        response = ObjectFactory.get_instance("response")
-        send_component_data_controller_inst = self.send_component_data_controller(None, None, None, None)
-        send_component_data_controller_inst.initialize(request, response)
-        send_component_data_controller_inst.send_message(self.connections, message, request.get_value("recipients"))
+        self.send_component_data_controller.send_message(
+            self.connections, message, request.get_value("recipients")
+        )
 
     def send_message(self, sender, message, use_share_pipe=True):
-        if not use_share_pipe:
-            cot_share_pipe = None
-        else: 
-            cot_share_pipe = self.CoTSharePipe
         return SendDataController().sendDataInQueue(
-                    sender,
-                    message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
-                    self.client_information_queue,
-                    cot_share_pipe,
-                )
+            sender,
+            message,  # pylint: disable=no-member; isinstance checks that CoTOutput is of proper type
+            self.client_information_queue,
+            self.CoTSharePipe,
+        )
 
-    def monitor_raw_cot(self, data: RawCoT) -> object:
-        """
-        This method takes as input a sent CoT and calls its associated function. This method supports three handlers defined
-        in XMLCoTController which handle connect, disconnect, and misc messages respectively.
+    def convert_xml_to_dict(self, data) -> dict:
+        """convert the xml format to a dict containing the same data via the xml_serializer
+        component.
 
         Args:
-            data (RawCoT): The raw CoT data to be processed.
+            data (str): an xml string containing the data from a given client
 
         Returns:
-            object: The output of the handler function called on the CoT data.
+            dict: dictionary representation of the cot data
         """
-        try:
-            if isinstance(data, int):
-                return None
-            else:
-                cot = XMLCoTController(logger=self.logger).determineCoTGeneral(data, self.client_information_queue)
-                handler_name, handler_data = cot
-                handler = getattr(self, handler_name, None)
-                if handler is None:
-                    self.logger.error(f"No handler found for {handler_name}")
-                    return -1
-                output = handler(handler_data)
-                if output != 1:  # when the process is a disconnect the output is 1
-                    output.clientInformation = self.client_information_queue[data.clientInformation][1]
-                return output
-        except Exception as e:
-            self.logger.error(loggingConstants.MONITORRAWCOTERRORB + str(e))
-            return -1
+        request = ObjectFactory.get_new_instance("request")
+        request.set_action("XMLToDict")
+        request.set_value("message", data)
+
+        actionmapper = ObjectFactory.get_instance("syncactionMapper")
+        response = ObjectFactory.get_new_instance("response")
+        actionmapper.process_action(request, response)
+
+        # dictionary representation of the xml
+        data_dict = response.get_value("dict")
+        return data_dict
+
+    def get_human_readable_type(self, dict_cot: dict) -> str:
+        """parse the cot type and send request to the type component to
+        convert it to a human readable type
+
+        Args:
+            dict_cot (dict): cot message in dictionary format
+
+        Returns:
+            str: the human readable
+        """
+        # this convert the machine readable type to a human readable type
+        request = ObjectFactory.get_new_instance("request")
+        request.set_format("pickled")
+        request.set_action("ConvertMachineReadableToHumanReadable")
+        request.set_context("MEMORY")
+        request.set_value("machine_readable_type", dict_cot["event"]["@type"])
+        request.set_value("default", dict_cot["event"]["@type"])
+
+        # must get a new instance of the async action mapper for each request
+        # to prevent run conditions and to prevent responses going to the wrong
+        # callers
+        actionmapper = ObjectFactory.get_instance("syncactionMapper")
+        response = ObjectFactory.get_new_instance("response")
+        actionmapper.process_action(request, response)
+        return response.get_value("human_readable_type")
 
     # TODO Remove or replace
     def checkOutput(self, output):
@@ -852,13 +537,11 @@ class SSLCoTServiceMain(DigitalPyService):
                             print(self.connection_received)
                             receiveConnection = pool.apply_async(
                                 ReceiveConnections().listen,
-                                (
-                                    sock,
-                                ),
+                                (sock,),
                             )
                             receiveconntimeoutcount = datetime.datetime.now()
                             lastprint = datetime.datetime.now()
-                            CoTOutput = self.handle_connection_data(
+                            CoTOutput = self.handle_connection(
                                 receiveConnectionOutput
                             )
 
@@ -907,7 +590,7 @@ class SSLCoTServiceMain(DigitalPyService):
                             self.received_message_count += len(
                                 clientDataOutput
                             )  # add the length of this list to the number of received messages
-                            CoTOutput = self.handle_regular_data(clientDataOutput)
+                            self.handle_regular_data(clientDataOutput)
                         else:
                             clientData = pool.apply_async(
                                 ClientReceptionHandler().startup,
@@ -966,8 +649,8 @@ class SSLCoTServiceMain(DigitalPyService):
                         # self.logger.debug('clientDataPipe is full ' + str(clientDataPipe.full()))
                         if "recent_client_data_output" in locals():
                             self.logger.debug(
-                                "most recent client data "
-                                + str(recent_client_data_output)
+                                "most recent client data %s",
+                                str(recent_client_data_output),
                             )
                             self.logger.debug(
                                 "time since last valid data "
@@ -989,7 +672,6 @@ class SSLCoTServiceMain(DigitalPyService):
                     "there has been an uncaught error thrown in mainRunFunction"
                     + str(e)
                 )
-                pass
         self.stop()
 
     def handle_shared_data(self, modelData):
@@ -1003,13 +685,15 @@ class SSLCoTServiceMain(DigitalPyService):
             self.messages_from_core_count += 1
             if hasattr(modelData, "clientInformation"):
                 self.sent_message_count += 1
-                self.send_message(modelData.clientInformation, modelData, use_share_pipe=False)
+                self.send_message(
+                    modelData.clientInformation, modelData, use_share_pipe=False
+                )
             else:
                 self.sent_message_count += 1
                 self.send_message(None, modelData, use_share_pipe=False)
-        except Exception as e:
-            self.logger.error("data base connection error " + str(e))
-    
+        except Exception as ex:
+            self.logger.error("data base connection error " + str(ex))
+
     def handle_regular_data(self, clientDataOutput: List[RawCoT]):
         """
         Handle "regular" data being sent by clients. Regular data is data that is neither a new connection nor a disconnection.
@@ -1024,51 +708,50 @@ class SSLCoTServiceMain(DigitalPyService):
         """
         # Iterate through each piece of client data
         try:
-            for clientDataOutputSingle in clientDataOutput:
+            for data_object in clientDataOutput:
                 try:
                     # Skip this iteration if the data is invalid
-                    if clientDataOutputSingle == -1:
+                    if data_object == -1:
                         continue
-
+                    elif data_object.xmlString == b"":
+                        self.handle_disconnection(data_object.clientInformation)
+                        continue
                     # Process the raw CoT data and serialize it
-                    CoTOutput = self.monitor_raw_cot(clientDataOutputSingle)
-                    # Skip this iteration if the CoT data is invalid
-                    if CoTOutput == 1:
-                        continue
-                    
-                    self.logger.debug(f"CoT serialized {CoTOutput.modelObject.uid}")
+                    self.component_handler(data_object.xmlString)
+                    self.logger.debug(f"CoT serialized {data_object.xmlString}")
 
-                    # Check if the CoT data is valid and can be sent
-                    if self.checkOutput(CoTOutput):
-                        # Get client information and send the message
-                        self.get_client_information()
-                        self.sent_message_count += 1
-                        self.messages_to_core_count += 1
-                        output = self.send_message(CoTOutput.clientInformation, CoTOutput)
-
-                        # Check if the message was sent successfully
-                        if self.checkOutput(output) and not isinstance(output, tuple):
-                            # Message was sent successfully
-                            pass
-                        elif isinstance(output, tuple):
-                            # There was an issue sending the message, so disconnect the client
-                            self.logger.error("Issue sending data to client, now disconnecting")
-                            self.clientDisconnected(output[1])
-                        else:
-                            # There was an issue sending the message
-                            self.logger.error(f"Send data failed with data {CoTOutput.xmlString} from client {CoTOutput.clientInformation.modelObject.detail.contact.callsign}")
-                    else:
-                        # The CoT data is invalid, raise an exception
-                        raise Exception("Error in general data processing")
-                except Exception as e:
-                    self.logger.info(f"Exception in client data processing within main run function {e} data is {CoTOutput}")
-        except Exception as e:
-            self.logger.info(f"Error iterating client data output {e}")
+                except Exception as ex:
+                    self.logger.error(
+                        f"Exception in client data processing within main run function {ex} data is {data_object.xmlString} trace is {traceback.format_exc()}"
+                    )
+                    continue
+        except Exception as ex:
+            self.logger.info(f"Error iterating client data output {ex}")
             return -1
         return 1
 
+    def handle_disconnection(self, client_information):
+        """handle a client disconnection from the service by disconnecting the socket and informing clients of the disconnection
 
-    def handle_connection_data(self, receive_connection_output: RawCoT) -> None:
+        Args:
+            client_information (_type_): _description_
+        """
+        ssl_sock, unwrapped_sock = self.client_disconnection_controller.get_socks(client_information)
+        
+        self.client_disconnection_controller.delete_client_connection(client_information)
+
+        self.client_disconnection_controller.disconnect_socket(unwrapped_sock)
+
+        self.client_disconnection_controller.disconnect_socket(ssl_sock)
+
+        connection_id = self.client_disconnection_controller.get_connection_id(client_information)
+
+        iam_disconnect_request = self.client_disconnection_controller.create_iam_disconnect_request(connection_id)
+        self.subject_send_request(iam_disconnect_request, APPLICATION_PROTOCOL)
+
+        self.client_disconnection_controller.send_disconnect_cot(client_information)
+
+    def handle_connection(self, receive_connection_output: RawCoT) -> None:
         """this method should be called to initiate the process for receiving new connection data
         :rtype: None
         :param receive_connection_output: a RawCoT object from a newly connected client
@@ -1078,91 +761,33 @@ class SSLCoTServiceMain(DigitalPyService):
             if receive_connection_output == -1:
                 return None
 
-            CoTOutput = self.monitor_raw_cot(receive_connection_output)
-            if CoTOutput != -1 and CoTOutput != None and CoTOutput != 1:
-                self.sent_message_count += 1
-                output = self.send_message(CoTOutput, CoTOutput)
+            client_connection, client_information = self.client_connection_controller.create_client_connection(
+                receive_connection_output, self.dbController
+            )
+            self.client_connection_controller.save_client_to_db(client_information, self.dbController)
+            
+            iam_request = self.client_connection_controller.create_iam_request(client_connection)
+            self.subject_send_request(iam_request, APPLICATION_PROTOCOL)
+            
+            repeated_messages_request = self.client_connection_controller.create_send_repeated_messages_request(client_connection)
+            self.subject_send_request(repeated_messages_request, APPLICATION_PROTOCOL)
+            
+            send_emergencies_request = self.client_connection_controller.create_send_emergencies_request(client_connection)
+            self.subject_send_request(send_emergencies_request, APPLICATION_PROTOCOL)
 
-                if self.checkOutput(output):
-                    self.logger.debug(
-                        f"Connection data from client {CoTOutput.modelObject.detail.contact.callsign} successfully processed."
-                    )
-                else:
-                    raise Exception("error in sending data")
+            self.client_connection_controller.send_user_connection_geo_chat(client_information)
+
+            # self.handle_regular_data([receive_connection_output])
+
         except Exception as e:
             self.logger.error(
                 "exception in receive connection data processing within main run function "
                 + str(e)
-                + " data is "
-                + str(CoTOutput)
             )
-            return -1
+            self.logger.debug(
+                "with traceback: %s", traceback.format_exc()
+            )
         return 1
-
-    def start(
-        self,
-        IP,
-        CoTPort,
-        Event,
-        clientDataPipe,
-        ReceiveConnectionKillSwitch,
-        RestAPIPipe,
-        clientDataRecvPipe,
-        factory,
-        tracing_provider_instance
-    ):
-        try:
-             # configure the object factory with the passed factory instance
-            ObjectFactory.configure(factory)
-
-            # instantiate the tracer instance for this service
-            self.tracer: Tracer = tracing_provider_instance.create_tracer(
-                SERVICE_NAME
-            )
-            
-            actionmapper = ObjectFactory.get_instance("actionMapper")
-            # subscribe to responses originating from this controller
-            actionmapper.add_topic(
-                f"/routing/response/{self.__class__.__name__.lower()}"
-            )
-
-            self.dbController = DatabaseController()
-            print("ssl cot service starting")
-            os.chdir("../../")
-            # create socket controller
-            self.SSLSocketController = SSLSocketController()
-            self.SSLSocketController.changeIP(IP)
-            self.SSLSocketController.changePort(CoTPort)
-            sock = self.SSLSocketController.createSocket()
-            # threadpool is used as it allows the transfer of SSL socket unlike processes
-            pool = ThreadPool(processes=2)
-            self.clientDataRecvPipe = clientDataRecvPipe
-            self.pool = pool
-            clientData = pool.apply_async(
-                ClientReceptionHandler().startup, (self.client_information_queue,)
-            )
-            self.initialize_connections(APPLICATION_PROTOCOL)
-
-            receiveConnection = pool.apply_async(ReceiveConnections().listen, (sock,))
-            # instantiate domain model and save process as object
-            self.mainRunFunction(
-                clientData,
-                receiveConnection,
-                sock,
-                pool,
-                Event,
-                clientDataPipe,
-                ReceiveConnectionKillSwitch,
-                RestAPIPipe,
-                True,
-            )
-        except Exception as e:
-            print(e)
-            logger.error(
-                "there has been an exception thrown in"
-                " the starting of the ssl service " + str(e)
-            )
-            return e
 
     def stop(self):
         self.clientDataPipe.close()
@@ -1198,7 +823,7 @@ class SSLCoTServiceMain(DigitalPyService):
                     f"messages shared with core in {logging_interval} seconds: {self.messages_from_core_count}"
                 )
                 self.logger.debug(
-                    f"number of connected client: {str(len(self.client_information_queue.keys()))}"
+                    f"number of connected client: {str(len(self.connections.keys()))}"
                 )
                 self.sent_message_count = 0
                 self.received_message_count = 0

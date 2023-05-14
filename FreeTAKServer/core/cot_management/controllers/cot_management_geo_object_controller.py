@@ -20,10 +20,10 @@ class CotManagementGeoObjectController(Controller):
         self,
         request: Request,
         response: Response,
-        cot_management_action_mapper: ActionMapper,
+        sync_action_mapper: ActionMapper,
         configuration: Configuration,
     ) -> None:
-        super().__init__(request, response, cot_management_action_mapper, configuration)
+        super().__init__(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         self.request = request

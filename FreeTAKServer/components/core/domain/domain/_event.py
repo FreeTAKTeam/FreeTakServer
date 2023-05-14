@@ -5,6 +5,7 @@ from datetime import datetime as dt
 import datetime
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
+from lxml import etree
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 DEFAULT_STALE_TIME = 60
@@ -27,6 +28,9 @@ class Event(CoTNode):
     def __init__(self, configuration: Configuration, model, oid=None):
 
         super().__init__(self.__class__.__name__, configuration, model, oid)
+        # modify the xml object to be event instead of Event
+        self.xml = etree.Element(self.__class__.__name__.lower())
+
         self.cot_attributes["version"] = None
         self.cot_attributes["uid"] = None
         self.cot_attributes["type"] = None
