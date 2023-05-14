@@ -67,7 +67,7 @@ class DictToNodeController(Controller):
                 self.add_value_to_node(key, l_item, node)
 
         elif isinstance(getattr(node, key, None), list):
-            self.add_value_to_node(key, value, getattr(node, key)[0])
+            self.serialize(value, getattr(node, key)[0])
 
         else:
             setattr(node, key.strip("@"), value)

@@ -26,7 +26,7 @@ class SendComponentDataController(Controller):
         Returns:
             MessageTypes: _description_
         """
-        if recipients == None or recipients == []:
+        if recipients is None or recipients == []:
             return MessageTypes.SEND_TO_ALL
         else:
             return MessageTypes.SEND_TO_SOME
@@ -51,6 +51,7 @@ class SendComponentDataController(Controller):
                     self.logger.warning("failed to send message to %s with broken pipe error", str(connection.get_oid()))
                 except OSError as os_err:
                     self.logger.warning("failed to send message to %s with os error %s", str(connection.get_oid()), str(os_err))
+
     def send_message_to_all(self, connections:Dict[str, TCPCoTConnection], message: bytes):
         """send a message to all connections
 
