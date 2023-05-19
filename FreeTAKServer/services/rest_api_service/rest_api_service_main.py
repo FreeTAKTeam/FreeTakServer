@@ -1987,6 +1987,7 @@ class ManageGeoObjects(BaseView):
 # this will require changing it from using the API Pipe to use the ZManager instead
 
 ManageEmergency.decorators.append(auth.login_required)
+app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET","DELETE"])
 app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
 
 APPLICATION_PROTOCOL = "xml"

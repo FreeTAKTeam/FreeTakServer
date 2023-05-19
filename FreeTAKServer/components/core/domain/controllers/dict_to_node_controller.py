@@ -64,7 +64,7 @@ class DictToNodeController(Controller):
     def add_value_to_node(self, key, value, node):
         """add a value to a node object"""
         if key == "#text":
-            setattr(node, "INTAG", value)
+            setattr(node, "text", value)
 
         elif not hasattr(node, key.strip("@")):
             self.handle_missing_attribute(key, value, node)
