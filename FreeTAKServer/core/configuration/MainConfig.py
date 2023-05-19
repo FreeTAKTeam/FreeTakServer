@@ -9,7 +9,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.65"
+FTS_VERSION = "FreeTAKServer-2.0.67"
 API_VERSION = "3.0"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent

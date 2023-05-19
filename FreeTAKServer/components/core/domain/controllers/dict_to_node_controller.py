@@ -4,7 +4,9 @@ from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.parsing.load_configuration import Configuration as LoadConf
 from digitalpy.core.domain.node import Node
+from .domain import Domain
 from lxml import etree
 
 class DictToNodeController(Controller):
@@ -16,6 +18,11 @@ class DictToNodeController(Controller):
         configuration: Configuration,
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
+        self.domain_controller = Domain(request, response, sync_action_mapper, configuration)
+
+    def initialize(self, request, response):
+        super().initialize(request, response)
+        self.domain_controller.initialize(request, response)
 
     def execute(self, method=None):
         return getattr(self, method)(**self.request.get_values())
@@ -48,10 +55,12 @@ class DictToNodeController(Controller):
     def serialize(self, dictionary, node):
         """recursively serialize a single layer of the given dictionary
         to a node object until a nested dictionary is found"""
-        for key, value in dictionary.items():
-            self.add_value_to_node(key, value, node)
-        return node
-
+        try:
+            for key, value in dictionary.items():
+                self.add_value_to_node(key, value, node)
+            return node
+        except Exception as ex:
+            print(ex)
     def add_value_to_node(self, key, value, node):
         """add a value to a node object"""
         if key == "#text":
@@ -66,8 +75,11 @@ class DictToNodeController(Controller):
             self.serialize(value, getattr(node, key))
 
         elif isinstance(value, list) and isinstance(getattr(node, key, None), list):
-            for l_item in value:
-                self.add_value_to_node(key, l_item, node)
+            self.serialize(value[0], getattr(node, key)[0])
+
+            for i in range(1,len(value)):
+                new_node = self.domain_controller.create_node(LoadConf(), key)
+                self.serialize(value[i], new_node)
 
         elif isinstance(getattr(node, key, None), list):
             self.serialize(value, getattr(node, key)[0])
