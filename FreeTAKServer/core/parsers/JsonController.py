@@ -34,7 +34,7 @@ class JsonController:
         full_json = {
             "event": {
                 "@uid": str(uuid.uuid4()),
-                "@type": "b-a-o-tbl",
+                "@type": "EmergencyAlert",
                 "@how": "h-e",
                 "@time": None,   # these will be automatically created during object serialization
                 "@start": None,  
@@ -66,7 +66,7 @@ class JsonController:
                 "@time": None,   # these will be automatically created during object serialization
                 "@start": None,  
                 "@stale": None,
-                "@type": "b-a-o-can",
+                "@type": "EmergencyCancelled",
                 "@uid": json.get("uid"),
                 "@version": "2.0",
                 "detail": {

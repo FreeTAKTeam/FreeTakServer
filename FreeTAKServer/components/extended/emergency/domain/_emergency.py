@@ -23,7 +23,7 @@ class emergency(CoTNode):
         self.cot_attributes["alert"] = None
         # if true the Emergency beacon is canceled
         self.cot_attributes["cancel"] = None
-        self.cot_attributes["INTAG"] = None
+        self.cot_attributes["text"] = None
 
     @CoTProperty
     def type(self):
@@ -50,9 +50,9 @@ class emergency(CoTNode):
         self.cot_attributes["cancel"] = cancel
 
     @CoTProperty
-    def INTAG(self):
-        return self.cot_attributes.get("INTAG", None)
+    def text(self):
+        return self.cot_attributes.get("text", None)
 
-    @INTAG.setter
-    def INTAG(self, INTAG=None):
-        self.cot_attributes["INTAG"] = INTAG
+    @text.setter
+    def text(self, text=None):
+        self.cot_attributes["text"] = text

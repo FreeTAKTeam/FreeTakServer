@@ -291,6 +291,7 @@ class SSLCoTServiceMain(DigitalPyService):
         request.set_format("pickled")
         human_readable_type = self.get_human_readable_type(dict_cot)
         request.set_action(human_readable_type)
+        dict_cot["event"]["@type"] = human_readable_type
         request.set_context("XMLCoT")
         request.set_sender(self.__class__.__name__.lower())
         request.set_value("dictionary", dict_cot)

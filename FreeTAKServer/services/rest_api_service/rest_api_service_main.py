@@ -55,6 +55,7 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
+from .views.connections_view_controller import ManageConnections
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -154,24 +155,7 @@ def authenticate(token):
 @socketio.on('users')
 @socket_auth(session=session)
 def show_users(empty=None):
-    output = dbController.query_user()
-    for i in range(0, len(output)):
-        try:
-            original = output[i]
-            output[i] = output[i].__dict__
-            print(output[i])
-            try:
-                output[i]['callsign'] = original.CoT.detail.contact.callsign
-                output[i]['team'] = original.CoT.detail._group.name
-            except:
-                output[i]['callsign'] = "undefined"
-                output[i]['team'] = "undefined"
-            del (output[i]['_sa_instance_state'])
-            del (output[i]['CoT_id'])
-            del (output[i]['CoT'])
-        except Exception as e:
-            logger.error(str(e))
-    socketio.emit('userUpdate', json.dumps({"Users": output}))
+    socketio.emit('userUpdate', json.dumps({"Users": ManageConnections().get_users()}))
 
 
 @socketio.on('logs')
@@ -1987,6 +1971,7 @@ class ManageGeoObjects(BaseView):
 # this will require changing it from using the API Pipe to use the ZManager instead
 
 ManageEmergency.decorators.append(auth.login_required)
+app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET","DELETE"])
 app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
 
 APPLICATION_PROTOCOL = "xml"

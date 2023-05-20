@@ -33,11 +33,14 @@ class ManageEmergency(BaseView):
         output = {"json_list": []}
         for emergency in emergencies:
             try:
+                name = emergency.detail.contact.callsign
+                if emergency.detail.contact.callsign is None:
+                    name = emergency.detail.emergency.text
                 serialized_emergency = {
                     "lat": emergency.point.lat,
                     "lon": emergency.point.lon,
                     "type": emergency.detail.emergency.type,
-                    "name": emergency.detail.contact.callsign,
+                    "name": name,
                     "uid": emergency.uid
                 }
                 output["json_list"].append(serialized_emergency)
@@ -48,18 +51,16 @@ class ManageEmergency(BaseView):
     def post_emergency(self):
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_emergency_post(jsondata)
-        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
-        self.make_request("SaveEmergency", {"model_object": emergency_object.modelObject})
-        APIPipe.put(emergency_object)
-        return emergency_object.modelObject.getuid(), 200
-    
+        self.make_request("EmergencyAlert", {"dictionary": jsonobj}, False, "tcp_cot_service") # send the request output to the tcp cot service
+        self.make_request("EmergencyAlert", {"dictionary": jsonobj}, False, "ssl_cot_service") # send the request output to the ssl cot service
+        return jsonobj.get("event").get("@uid"), 200 
+       
     def delete_emergency(self) -> str:
         """delete an emergency from the emergency persistence
 
         """
         jsondata = request.get_json(force=True)
         jsonobj = JsonController().serialize_emergency_delete(jsondata)
-        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
-        APIPipe.put(emergency_object)
-        self.make_request("DeleteEmergency", {"model_object": emergency_object.modelObject})
-        return 'success', 200
+        self.make_request("EmergencyCancelled", {"dictionary": jsonobj}, False, "tcp_cot_service") # send the request output to the tcp cot service
+        self.make_request("EmergencyCancelled", {"dictionary": jsonobj}, False, "ssl_cot_service") # send the request output to the ssl cot service
+        return jsonobj.get("@uid"), 200
