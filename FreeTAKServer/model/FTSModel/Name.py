@@ -1,6 +1,10 @@
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.NameVariables import NameVariables as vars
 class Name(FTSProtocolObject):
+
+    def __init__(self):
+        pass
+
     @staticmethod
     def ExcheckUpdate(INTAG = vars.ExcheckUpdate().INTAG):
         name = Name()

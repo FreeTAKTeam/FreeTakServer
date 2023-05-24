@@ -272,7 +272,7 @@ def specificPackage():
             data = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(obj[0].data.filename))))
             data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find(
                 'checklistTasks').find("checklistTask").find("checklistUid").text
-            output = etree.tostring(data)
+            output = etree.tostring(data.getroot())
             return output
 
 
@@ -348,10 +348,6 @@ def request_subscription():
     except Exception as e:
         print('exception in request_subscription' + str(e))
 
-@app.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
-def exchecktemplates():
-    return ExCheckController().exchecktemplates()
-
 @app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
     return ExCheckController().exchecktemplates()
@@ -381,16 +377,6 @@ def accesschecklist(checklistid):
 @app.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
     return ExCheckController().updatetemplate(checklistid, taskid, PIPE)
-
-# TODO remove ?
-@app.route('/Marti/sync/content')
-def sync():
-    # this endpoint was triggered on attempting to create new template from existing template
-    # likely the hash of the excheck
-    y = request
-    request.args.get('hash')
-    uid = request.args.get('uid')
-    return '', 200
 
 @app.route('/Marti/api/excheck/checklist/active', methods=["GET"])
 def activechecklists():
