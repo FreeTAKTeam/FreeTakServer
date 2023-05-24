@@ -152,3 +152,10 @@ certs/
 FreeTAKServerDataPackageFolder/
 logs/
 FreeTAKServer/services/ssl_cot_service/ignore_me
+FreeTAKServer/ExCheck/checklist/5022d8b7-bf03-46ea-9cc2-d3eaca2fd0e5.xml
+FreeTAKServer/ExCheck/checklist/a4eb077e-5263-459b-be7b-bc6b27233baf.xml
+FreeTAKServer/ExCheck/checklist/edae9438-b118-4340-8b69-656838d42490.xml
+FreeTAKServer/ExCheck/template/0f696575-9b64-472b-9df6-f486afcbf99a.xml
+FreeTAKServer/ExCheck/template/5d82cc89-2c55-4925-aa03-ec92e9a5ab99.xml
+FreeTAKServer/core/configuration/installation.json
+FreeTAKServer/components/extended/emergency/persistence/emergencies.json
