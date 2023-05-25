@@ -2,7 +2,7 @@ from FreeTAKServer.core.enterprise_sync.controllers.enterprise_sync_general_cont
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 
 
-from .configuration.excheck_constants import (
+from .configuration.enterprise_sync_constants import (
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
