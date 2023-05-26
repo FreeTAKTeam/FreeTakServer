@@ -10,13 +10,18 @@ import traceback
 import defusedxml.ElementTree as ET
 from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
+
+from digitalpy.core.main.object_factory import ObjectFactory
+
 from FreeTAKServer.core.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.core.configuration.SQLcommands import SQLcommands
 from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 from FreeTAKServer.core.persistence.DatabaseController import DatabaseController
 from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
+
 from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
+
 import eventlet
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
@@ -322,6 +327,12 @@ def home():
     @app.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
 """
 
+@app.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
+def excheck_template_task(templateUid, taskUid):
+    if request.method == "GET":
+        return ExCheckController().get_excheck_template_task(templateUid, taskUid, request.data)
+    elif request.method == "POST":
+        return ExCheckController().create_excheck_template_task(templateUid, taskUid, request.data)
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
@@ -350,7 +361,19 @@ def request_subscription():
 
 @app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
-    return ExCheckController().exchecktemplates()
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.get_all_templates(), 200
+
+@app.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
+def ExCheckTemplatesAlt():
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.get_all_templates(), 200
 
 @app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
 def missionupdate(templateuid):
@@ -360,7 +383,13 @@ def missionupdate(templateuid):
 
 @app.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
-    return ExCheckController().template(PIPE)
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    excheck_facade.create_template(request.data)
+    return 'template created successfully', 200
+    # return ExCheckController().template(PIPE)
 
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
@@ -381,6 +410,8 @@ def updatetemplate(checklistid, taskid):
 @app.route('/Marti/api/excheck/checklist/active', methods=["GET"])
 def activechecklists():
     return ExCheckController().activechecklists()
+
+
 
 # TODO remove?
 def sanitize_path_input(user_input: str) -> bool:
