@@ -336,6 +336,7 @@ class FTS(DigitalPy):
                     FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP,
                     FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort,
                     self.tcp_data_package_service_pipe,
+                    ObjectFactory.get_instance("factory")
                 ),
             )
             print("starting now")
@@ -396,6 +397,7 @@ class FTS(DigitalPy):
                     FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceIP,
                     FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort,
                     self.ssl_data_package_service,
+                    ObjectFactory.get_instance("factory")
                 ),
             )
             print("starting SSL now")
