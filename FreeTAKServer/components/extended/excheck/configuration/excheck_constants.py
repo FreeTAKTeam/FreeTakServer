@@ -2,6 +2,8 @@ import pathlib
 from string import Template
 from FreeTAKServer.core.configuration import MainConfig
 
+TEMPLATE_CONTENT = "template_content"
+
 COMPONENT_NAME = "ExCheck"
 
 CONFIGURATION_FORMAT = "json"
@@ -53,4 +55,4 @@ MANIFEST_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/manifest.ini")
 )
 
-BASE_OBJECT_NAME = "Event"
+BASE_OBJECT_NAME = "TemplateContent"

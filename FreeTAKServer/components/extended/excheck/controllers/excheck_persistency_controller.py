@@ -25,7 +25,7 @@ class ExCheckPersistencyController(Controller):
         configuration: Configuration,
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
-
+        self.ses = self.create_db_session()
     def create_db_session(self) -> Session:
         """open a new session in the database
 
@@ -47,12 +47,11 @@ class ExCheckPersistencyController(Controller):
         Args:
             templateuid (str): the uid of the template
         """
-        ses = self.create_db_session()
+        
         template = ExCheckTemplate()
         template.PrimaryKey = templateuid
-        ses.add(template)
-        ses.commit()
-        ses.close()
+        self.ses.add(template)
+        self.ses.commit()
 
     def get_template(self, template_uid: str, *args, **kwargs) -> ExCheckTemplate:
         """
@@ -64,14 +63,10 @@ class ExCheckPersistencyController(Controller):
         Returns:
             ExCheckTemplate: The ExCheckTemplate object retrieved from the database.
 
-        """
-        ses = self.create_db_session()
-        
+        """        
         # Query the ExCheckTemplate object based on the template UID
-        template = ses.query(ExCheckTemplate).filter(ExCheckTemplate.PrimaryKey == template_uid).first()
-        
-        ses.close()
-        
+        template = self.ses.query(ExCheckTemplate).filter(ExCheckTemplate.PrimaryKey == template_uid).first()
+                
         return template
     
     def get_all_templates(self, *args, **kwargs)->List[ExCheckTemplate]:
@@ -82,13 +77,10 @@ class ExCheckPersistencyController(Controller):
             ExCheckTemplate: The ExCheckTemplate object retrieved from the database.
 
         """
-        ses = self.create_db_session()
         
         # Query the ExCheckTemplate object based on the template UID
-        templates = ses.query(ExCheckTemplate).all()
-        
-        ses.close()
-        
+        templates = self.ses.query(ExCheckTemplate).all()
+                
         return templates
 
     def create_template_task(self, templateuid: str, taskuid: str, *args, **kwargs):
@@ -98,10 +90,9 @@ class ExCheckPersistencyController(Controller):
             templateuid (str): the uid of the parent template of the task
             taskuid (str): the uid of the task itself
         """
-        ses = self.create_db_session()
         template_task = ExCheckTemplateTask()
         template_task.PrimaryKey = taskuid
         template_task.template_uid = templateuid
-        ses.add(template_task)
-        ses.commit()
-        ses.close()
+        self.ses.add(template_task)
+        self.ses.commit()
+        self.ses.close()
