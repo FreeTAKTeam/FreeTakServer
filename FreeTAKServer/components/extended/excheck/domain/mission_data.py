@@ -17,6 +17,7 @@ class MissionData(CoTNode):
         self.cot_attributes["expiration"] = None
         self.cot_attributes["uids"] = None
         self.cot_attributes["passwordProtected"] = None
+        self.cot_attributes["contents"] = []
 
     @CoTProperty
     def name(self):
@@ -121,3 +122,11 @@ class MissionData(CoTNode):
     @passwordProtected.setter
     def passwordProtected(self, passwordProtected=None):
         self.cot_attributes["passwordProtected"] = passwordProtected
+
+    @CoTProperty
+    def contents(self):
+        return self.get_children_ex(children_type="TemplateMetaData")
+
+    @contents.setter
+    def contents(self, contents):
+        self.add_child(contents)

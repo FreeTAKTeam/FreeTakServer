@@ -3,21 +3,31 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 
 class TemplateMetaData(CoTNode):
     def __init__(self, configuration, model, oid=None):
+        super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["timestamp"] = None
         self.cot_attributes["creatorUid"] = None
+        self.cot_attributes["data"] = None
 
     @CoTProperty
     def timestamp(self):
-        return self.get_children_ex(children_type="timestamp")
-
+        return self.cot_attributes.get("timestamp", None)
+    
     @timestamp.setter
-    def timestamp(self, timestamp):
-        self.add_child(timestamp)
+    def timestamp(self, timestamp=None):
+        self.cot_attributes["timestamp"] = timestamp
 
     @CoTProperty
     def creatorUid(self):
-        return self.get_children_ex(children_type="creatorUid")
-
+        return self.cot_attributes.get("creatorUid", None)
+    
     @creatorUid.setter
-    def creatorUid(self, creatorUid):
-        self.add_child(creatorUid)
+    def creatorUid(self, creatorUid=None):
+        self.cot_attributes["creatorUid"] = creatorUid
+
+    @CoTProperty
+    def data(self):
+        return self.cot_attributes.get("TemplateContent")
+    
+    @data.setter
+    def data(self, data=None):
+        self.cot_attributes["TemplateContent"] = data

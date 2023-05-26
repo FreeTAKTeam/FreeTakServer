@@ -7,6 +7,7 @@ class MissionInfo(CoTNode):
         self.cot_attributes["version"] = None
         self.cot_attributes["type"] = None
         self.cot_attributes["nodeId"] = None
+        self.cot_attributes["data"] = []
 
     @CoTProperty
     def version(self):
@@ -31,3 +32,11 @@ class MissionInfo(CoTNode):
     @nodeId.setter
     def nodeId(self, nodeId=None):
         self.cot_attributes["nodeId"] = nodeId
+
+    @CoTProperty
+    def data(self):
+        return self.get_children_ex(children_type="MissionData")
+
+    @data.setter
+    def data(self, data):
+        self.add_child(data)

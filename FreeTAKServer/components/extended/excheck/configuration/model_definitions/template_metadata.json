@@ -1,0 +1,38 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://iec.ch/TC57/emergency_alert#",
+	"type": "object",
+	"properties":
+	{
+		"emergency_alert":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/TemplateMetaData" },
+				{ "$ref": "#/definitions/TemplateContent" }
+			]
+		}
+	},
+	"definitions":
+	{
+		"TemplateMetaData" : 
+		{
+			"type": "object",
+			"description" : "This is a Cursor On Target Class representing communications parameters for contacting a friendly element for human-to-human communications. The objective of this Class is to carry the essential information needed to contact this entity by a variety of means.   Multiple ways of establishing contact can be specified;\nnoThe attributes  callsign, phone, and email should be self-explanatory.  particular mode of contact is required. Other attributes, freq, dsn, modulation, and hostname, are also available. \n",
+			"properties":
+			{
+				"contents":
+				{
+					"type" : "array",
+					"items" : { "$ref":"#/definitions/TemplateContent" }
+				}
+			}
+		},
+		"TemplateContent":{
+			"type": "object",
+			"description": "",
+			"properties": {}
+		}
+	}
+}
