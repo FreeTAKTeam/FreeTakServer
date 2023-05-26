@@ -14,7 +14,7 @@ API_VERSION = "3"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
-PERSISTENCE_PATH = r'C:\Users\Natha Paquette\work\FreeTakServer\persistence'
+PERSISTENCE_PATH = r'/opt/fts'
 
 class MainConfig:
     """
