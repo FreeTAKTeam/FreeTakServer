@@ -53,6 +53,20 @@ class EnterpriseSync(DefaultFacade):
         super().initialize(request, response)
         self.general_controller.initialize(request, response)
 
+    def execute(self, method):
+        try:
+            if hasattr(self, method):
+                getattr(self, method)(**self.request.get_values())
+            else:
+                self.request.set_value("logger", self.logger)
+                self.request.set_value("config_loader", self.config_loader)
+                self.request.set_value("tracer", self.tracer)
+                response = self.execute_sub_action(self.request.get_action())
+                self.response.set_values(response.get_values())
+        except Exception as e:
+            self.logger.fatal(str(e))
+            
+
     @DefaultFacade.public
     def save_enterprise_sync_data(self, *args, **kwargs):
         self.general_controller.save_enterprise_sync_data(*args, **kwargs)

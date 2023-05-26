@@ -101,10 +101,10 @@ class EnterpriseSyncGeneralController(Controller):
         """Uploads one file to the server via HTTPS."""
         pass
 
-    def save_enterprise_sync_data(self, filetype: str, objectuid: str, objectdata: str, *args, **kwargs):
+    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, *args, **kwargs):
         """save enterprise sync data to the db and the file system"""
-        self.filesystem_controller.save_file(filetype, objectuid, objectdata)
-        self.persistence_controller.create_enterprise_sync_data_object(filetype, objectuid)
+        self.filesystem_controller.save_file(synctype, objectuid, objectdata)
+        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid)
 
     def get_enterprise_sync_data(self, objectuid: str, *args, **kwargs):
         """get the object data from an enterprise sync object"""

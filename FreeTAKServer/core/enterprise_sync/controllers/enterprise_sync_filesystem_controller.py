@@ -34,10 +34,16 @@ class EnterpriseSyncFilesystemController(Controller):
             *args: Additional positional arguments (not used).
             **kwargs: Additional keyword arguments (not used).
         """
-        root_path = config.enterpriseSyncPath
+        root_path = config.EnterpriseSyncPath
         file_path = os.path.join(root_path, filetype, objectuid + '.txt')
         
-        with open(file_path, 'w') as file:
+        if not os.path.exists(root_path):
+            os.mkdir(root_path)
+
+        if not os.path.exists(os.path.join(root_path, filetype)):
+            os.mkdir(os.path.join(root_path, filetype))
+
+        with open(file_path, 'wb+') as file:
             file.write(objectdata)
         
     def get_file(self, file_type: str, object_uid: str, *args, **kwargs):
@@ -53,8 +59,8 @@ class EnterpriseSyncFilesystemController(Controller):
         Returns:
             str: The contents of the retrieved file.
         """
-        root_path = config.enterpriseSyncPath
-        complete_file_path = os.path.join(root_path, file_type, object_uid)
+        root_path = config.EnterpriseSyncPath
+        complete_file_path = os.path.join(root_path, file_type, object_uid+'.txt')
 
         with open(complete_file_path, 'r') as file:
             file_contents = file.read()
