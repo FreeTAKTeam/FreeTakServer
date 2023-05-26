@@ -10,7 +10,7 @@ setup(
     packages=find_packages(
         include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini", "*.conf"]
     ),
-    version="2.0.69.1",
+    version="2.0.69.2",
     license="EPL-2.0",
     description="An open source server for the TAK family of applications.",
     long_description=long_description,
@@ -64,7 +64,7 @@ setup(
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
-        "digitalpy>=0.3.13",
+        "digitalpy>=0.3.13.1",
         "opentelemetry-sdk",
     ],
     extras_require={
