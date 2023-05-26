@@ -50,7 +50,7 @@ class Domain(Controller):
         """
 
         # allow the domain to be extended
-        self.domain = self._extend_domain(self.domain, getattr(kwargs, 'extended_domain', {}))
+        self.domain = self._extend_domain(self.domain, kwargs.get('extended_domain', {}))
         # retrieve the original object class
         object_class = getattr(self.domain, object_class_name)
         # instantiate an oid for the instance
