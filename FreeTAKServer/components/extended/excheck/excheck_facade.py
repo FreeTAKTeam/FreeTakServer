@@ -1,3 +1,4 @@
+from FreeTAKServer.components.extended.excheck.controllers.excheck_checklist_controller import ExCheckChecklistController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 
@@ -61,11 +62,13 @@ class Excheck(DefaultFacade):
             manifest_path=MANIFEST_PATH,
         )
         self.template_controller = ExCheckTemplateController(request, response, sync_action_mapper, configuration)
-    
+        self.checklist_controller = ExCheckChecklistController(request, response, sync_action_mapper, configuration)
+
     def initialize(self, request, response):
         super().initialize(request, response)
         self.template_controller.initialize(request, response)
-
+        self.checklist_controller.initialize(request, response)
+        
     def execute(self, method):
         try:
             if hasattr(self, method):
@@ -81,8 +84,24 @@ class Excheck(DefaultFacade):
             
     @DefaultFacade.public
     def create_template(self, *args, **kwargs):
-        self.template_controller.create_template(*args, **kwargs)
+        return self.template_controller.create_template(*args, **kwargs)
 
     @DefaultFacade.public
     def get_all_templates(self, *args, **kwargs):
         return self.template_controller.get_all_templates(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def start_checklist(self, *args, **kwargs):
+        return self.checklist_controller.start_checklist(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def update_checklist_task(self, *args, **kwargs):
+        return self.checklist_controller.update_checklist_task(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def get_checklist(self, *args, **kwargs):
+        return self.checklist_controller.get_checklist(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_checklists(self, *args, **kwargs):
+        return self.checklist_controller.get_all_checklists(*args, **kwargs)

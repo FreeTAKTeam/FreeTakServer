@@ -106,6 +106,10 @@ class EnterpriseSyncGeneralController(Controller):
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
         self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid)
 
+    def update_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, *args, **kwargs):
+        self.filesystem_controller.save_file(synctype, objectuid, objectdata)
+        self.persistence_controller.update_enterprise_sync_data_object(synctype, objectuid)
+
     def get_enterprise_sync_data(self, objectuid: str, *args, **kwargs):
         """get the object data from an enterprise sync object"""
         data_obj = self.persistence_controller.get_enterprise_sync_data_object(objectuid)

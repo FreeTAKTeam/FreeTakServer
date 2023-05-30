@@ -1,5 +1,6 @@
 from typing import List
 import uuid
+from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -11,6 +12,7 @@ from defusedxml import ElementTree
 import hashlib
 
 from lxml.etree import Element
+from lxml import etree
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
@@ -30,7 +32,7 @@ from ..configuration.excheck_constants import (
 
 config = MainConfig.instance()
 
-class ExCheckTemplateController(Controller):
+class ExCheckChecklistController(Controller):
     """manage template operations"""
     def __init__(
         self,
@@ -41,58 +43,105 @@ class ExCheckTemplateController(Controller):
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
         self.persistency_controller = ExCheckPersistencyController(request, response, sync_action_mapper, configuration)
-
+        self.template_controller = ExCheckTemplateController(request, response, sync_action_mapper, configuration)
+    
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
+        self.template_controller.initialize(request, response)
         self.persistency_controller.initialize(request, response)
 
-    def create_template(self, templatedata: str, *args, **kwargs):
-        """record a new template in the component
+    def start_checklist(self, templateuid: str, checklistname: str, checklist_description: str, config_loader, *args, **kwargs):
+        """record a new checklist in the component
 
         Args:
-            templateuid (str): the uid of the new template
-            templatedata (str): the content of the template
+            checklistuid (str): the uid of the new checklist
+            checklistdata (str): the content of the checklist
+            checklist_description (str): the checklist description
+            templateuid (str): the uid of the template from which the template is created
         """
-        parsed_template = ElementTree.fromstring(templatedata)
-        
-        template_uid = parsed_template.find("checklistDetails").find("uid").text
+        checklist_uuid = str(uuid.uuid4())
+
+        template = self.template_controller.get_template(templateuid, config_loader)
+
+        parsed_checklist = ElementTree.fromstring(template)
+
+        # parsed_checklist.remove(parsed_checklist.find("checklistColumns"))
+
+        parsed_checklist.find("checklistDetails").find("uid").text = checklist_uuid
+
+        parsed_checklist.find("checklistDetails").find("name").text = checklistname
+
+        parsed_checklist.find("checklistDetails").find("description").text = checklist_description
+
         try:
-            self.persistency_controller.create_template(template_uid)
+            self.persistency_controller.create_checklist(checklist_uuid)
         except Exception:
             pass
-        self._save_tasks_in_template(parsed_template)
 
-        self.request.set_value("synctype", "ExCheckTemplate")
-        self.request.set_value("objectdata", ElementTree.tostring(parsed_template))
-        self.request.set_value("objectuid", template_uid)
+        checklist_task_list = self._save_tasks_in_checklist(parsed_checklist)
+
+        self.request.set_value("synctype", "ExCheckChecklist")
+        self.request.set_value("objectdata", ElementTree.tostring(parsed_checklist))
+        self.request.set_value("objectuid", checklist_uuid)
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
-    def _save_tasks_in_template(self, template: Element):
+        checklist_tasks = parsed_checklist.find("checklistTasks")
+
+        #for checklist_task in checklist_task_list:
+        #    checklist_tasks.append(checklist_task)
+
+        return ElementTree.tostring(parsed_checklist)
+
+    def _save_tasks_in_checklist(self, checklist: Element):
         """
-        Retrieve tasks from a template and create corresponding template tasks.
+        Retrieve tasks from a checklist and create corresponding checklist tasks.
 
         Args:
-            template (Element): The XML element representing the template.
+            checklist (Element): The XML element representing the checklist.
         """
-        # Extract the UID of the template
-        template_uid = template.find("checklistDetails").find("uid").text
+        # Extract the UID of the checklist
+        checklist_uid = checklist.find("checklistDetails").find("uid").text
         
-        # Retrieve the template tasks
-        template_tasks = template.find("checklistTasks")
-        template_task_list = template_tasks.findall("checklistTask")
+        # Retrieve the checklist tasks
+        checklist_tasks = checklist.find("checklistTasks")
+        checklist_task_list = checklist_tasks.findall("checklistTask")
         
-        # Iterate over each task in the template task list
-        for task in template_task_list:
-            # Create a template task using the template UID, task UID, and the XML representation of the task
-            self.create_template_task(template_uid, task.find("uid").text, ElementTree.tostring(task))
+        # Iterate over each task in the checklist task list
+        for task in checklist_task_list:
+            # Create a checklist task using the checklist UID, task UID, and the XML representation of the task
+            self.create_checklist_task(checklist_uid, task.find("uid").text, task)
+
+        return checklist_task_list
+
+    def update_checklist_task(self, checklistuid, checklisttaskuid, checklisttaskdata, *args, **kwargs):
         
-        # Remove the tasks from the template
-        for task in template_task_list:
-            template_tasks.remove(task)
+        self.request.set_value("synctype", "ExCheckChecklistTask")
+        self.request.set_value("objectdata", checklisttaskdata)
+        self.request.set_value("objectuid", checklisttaskuid)
+        self.execute_sub_action("UpdateEnterpriseSyncData")
+
+        self.request.set_value("objectuid", checklistuid)
+        sub_response = self.execute_sub_action("GetEnterpriseSyncData")
+        checklist_data = sub_response.get_value("objectdata")
+
+        tasks = ElementTree.fromstring(checklist_data).find("checklistTasks").findall("checklistTask")
+
+        for task in tasks:
+            if task.find("uid").text == checklisttaskuid:
+                task = ElementTree.fromstring(checklisttaskdata)
+                break
+
+        self.request.set_value("synctype", "ExCheckChecklist")
+        self.request.set_value("objectdata", checklist_data)
+        self.request.set_value("objectuid", checklistuid)
+        self.execute_sub_action("UpdateEnterpriseSyncData")
+
+
+        return "done"
 
     def get_mission_info_object(self, config_loader):
-       
+
         self.request.set_value("object_class_name", BASE_OBJECT_NAME)
 
         configuration = config_loader.find_configuration(TEMPLATE_CONTENT)
@@ -129,74 +178,68 @@ class ExCheckTemplateController(Controller):
 
         return response.get_value("model_object")
 
-    def get_template(self, templateuid: str, config_loader, *args, **kwargs) -> str:
-        """get the contents of a template based on its UID
+    def get_checklist(self, checklistuid: str, config_loader, *args, **kwargs) -> str:
+        """get the contents of a checklist based on its UID
 
         Args:
-            templateuid (str): the uid of the template to be returned
+            checklistuid (str): the uid of the checklist to be returned
 
         Returns:
-            str: the content of the template
+            str: the content of the checklist
         """
 
-        self.request.set_value("objectuid", templateuid)
+        self.request.set_value("objectuid", checklistuid)
 
         sub_response = self.execute_sub_action("GetEnterpriseSyncData")
 
-        template_content = sub_response.get_value("objectdata")
+        checklist_content = sub_response.get_value("objectdata")
 
-        template_db = self.persistency_controller.get_template(templateuid)
+        checklist_db = self.persistency_controller.get_checklist(checklistuid)
 
-        task_uids = []
-        for task in template_db.tasks:
-            task_uids.append(task.PrimaryKey)
+        # task_uids = []
+        # for task in checklist_db.tasks:
+        #     task_uids.append(task.PrimaryKey)
         
-        self.request.set_value("objectuids", task_uids)
+        # self.request.set_value("objectuids", task_uids)
+
+        # sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
+
+        # task_files = sub_response.get_value("objectdata")
+
+        # checklist_with_tasks = self._add_tasks_to_checklist(checklist_content, task_files)
+
+        return ElementTree.tostring(checklist_content)
+
+    def get_all_checklists(self, config_loader, *args, **kwargs):
+
+        checklists = self.persistency_controller.get_all_checklists()
+
+        checklist_uids = [checklist.PrimaryKey for checklist in checklists]
+
+        self.request.set_value("objectuids", checklist_uids)
 
         sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
 
-        task_files = sub_response.get_value("objectdata")
+        checklist_contents = sub_response.get_value("objectdata")
 
-        template_with_tasks = self._add_tasks_to_template(template_content, task_files)
+        complete_checklists = Element("checklists")
 
-        return ElementTree.tostring(template_with_tasks)
+        for checklist, checklist_content in zip(checklists, checklist_contents):
+            # task_uids = []
+            # for task in checklist.tasks:
+            #    task_uids.append(task.PrimaryKey)
 
-    def get_all_templates(self, config_loader, *args, **kwargs):
+            # self.request.set_value("objectuids", task_uids)
 
-        templates = self.persistency_controller.get_all_templates()
+            # sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
 
-        template_uids = [template.PrimaryKey for template in templates]
+            # task_files = sub_response.get_value("objectdata")
 
-        self.request.set_value("objectuids", template_uids)
+            # checklist_with_tasks = self._add_tasks_to_checklist(checklist_content, task_files)
 
-        sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
+            complete_checklists.append(etree.fromstring(checklist_content))
 
-        template_contents = sub_response.get_value("objectdata")
-
-        complete_templates = []
-
-        for template, template_content in zip(templates, template_contents):
-            task_uids = []
-            for task in template.tasks:
-                task_uids.append(task.PrimaryKey)
-
-            self.request.set_value("objectuids", task_uids)
-
-            sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
-
-            task_files = sub_response.get_value("objectdata")
-
-            template_with_tasks = self._add_tasks_to_template(template_content, task_files)
-
-            complete_templates.append(template_with_tasks)
-
-        mission_info = self.get_mission_info_object(config_loader)
-
-        self._serialize_to_mission_info(mission_info, complete_templates, config_loader)
-
-        final_message = self._serialize_to_json(mission_info)
-
-        return final_message[0]
+        return b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+ElementTree.tostring(complete_checklists)
 
     def _serialize_to_json(self, message):
         self.request.set_value("protocol", "json")
@@ -259,7 +302,7 @@ class ExCheckTemplateController(Controller):
         template_content.tool = "ExCheck"
         template_content.uid = template_details.find("uid").text
 
-    def _add_tasks_to_template(self, template: str, tasks: List[str]) -> Element:
+    def _add_tasks_to_checklist(self, checklist: str, tasks: List[str]) -> Element:
         """
         Add tasks to a template XML.
 
@@ -268,26 +311,28 @@ class ExCheckTemplateController(Controller):
             tasks (List[str]): A list of task XML strings to be added to the template.
         """
 
-        template_elem = ElementTree.fromstring(template)
+        template_elem = etree.fromstring(checklist)
         template_tasks = template_elem.find("checklistTasks")
 
         for task in tasks:
-            task_elem = ElementTree.fromstring(task)
+            task_elem = etree.fromstring(task)
             template_tasks.append(task_elem)
 
         return template_elem
     
-    def create_template_task(self, templateuid, taskuid, taskdata, *args, **kwargs):
+    def create_checklist_task(self, checklistuid, taskuid, taskdata: Element, *args, **kwargs):
         """create a new template task in the db and the file system"""
         
         # in atak template tasks have no uid so one must be created artificially
         if taskuid is None:
             taskuid = str(uuid.uuid4())
+
+        taskdata.find("uid").text = taskuid
         
-        self.request.set_value("synctype", "ExCheckTemplateTask")
-        self.request.set_value("objectdata", taskdata)
+        self.request.set_value("synctype", "ExCheckChecklistTask")
+        self.request.set_value("objectdata", ElementTree.tostring(taskdata))
         self.request.set_value("objectuid", taskuid)
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
-        self.persistency_controller.create_template_task(templateuid, taskuid)
+        self.persistency_controller.create_checklist_task(checklistuid, taskuid)

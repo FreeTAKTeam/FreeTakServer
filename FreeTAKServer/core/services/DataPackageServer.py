@@ -234,53 +234,6 @@ def retrieveData():
     app.logger.info(f"Data packages in the database: {packages}")
     return str(packages)
 
-
-@app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
-def specificPackage():
-    from defusedxml import ElementTree as etree
-    from os import listdir
-    if request.method == 'GET' and request.args.get('uid') != None:
-        data = request.data
-        taskuid = request.args.get('uid')
-        for file in listdir(config.ExCheckChecklistFilePath):
-            try:
-                xml = etree.parse(str(PurePath(Path(config.ExCheckChecklistFilePath), Path(file)))).getroot()
-            except Exception as e:
-                logger.error(e)
-            tasks = xml.find('checklistTasks')
-            for task in tasks:
-                uid = task.find('uid')
-                if str(uid.text) == str(taskuid):
-                    return etree.tostring(task)
-                else:
-                    pass
-        for file in listdir(config.ExCheckFilePath):
-            try:
-                xml = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(file)))).getroot()
-                if xml.find("checklistDetails").find('uid').text == str(taskuid):
-                    return etree.tostring(xml)
-            except Exception as e:
-                logger.error(str(e))
-    else:
-        file_hash = sanitize_hash(request.args.get('hash'))
-
-        if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
-            logger.info('marti sync content triggerd')
-            app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
-            file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
-            app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
-            path = PurePath(dp_directory, str(file_hash), file_list[0])
-            app.logger.debug(str(path))
-            return send_file(str(path))
-        else:
-            obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{file_hash}"')
-            data = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(obj[0].data.filename))))
-            data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find(
-                'checklistTasks').find("checklistTask").find("checklistUid").text
-            output = etree.tostring(data.getroot())
-            return output
-
-
 @app.route('/Marti/api/version', methods=[const.GET])
 def returnVersion():
     logger.info('api version triggered')
@@ -375,6 +328,15 @@ def ExCheckTemplatesAlt():
     excheck_facade.initialize(dp_request, dp_response)
     return excheck_facade.get_all_templates(), 200
 
+@app.route('/Marti/api/missions/<data_obj_uid>', methods=["GET"])
+def get_mission_data(data_obj_uid):
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
+        enterprisesync_facade.initialize(dp_request, dp_response)
+        enterprisesync_facade.get_enterprise_sync_data(objectuid = data_obj_uid)
+        return dp_response.get_value("objectdata"), 200
+
 @app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
 def missionupdate(templateuid):
     from flask import request
@@ -393,7 +355,41 @@ def template():
 
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
-    return ExCheckController().startList(subscription)
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.start_checklist(templateuid=subscription, checklistname=request.args.get("name"), checklist_description=request.args.get("description")), 200
+
+@app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
+def specificPackage():
+    from defusedxml import ElementTree as etree
+    from os import listdir
+    if request.method == 'GET' and request.args.get('uid') != None:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
+        enterprisesync_facade.initialize(dp_request, dp_response)
+        enterprisesync_facade.get_enterprise_sync_data(objectuid = request.args.get('uid'))
+        return dp_response.get_value("objectdata"), 200
+    else:
+        file_hash = sanitize_hash(request.args.get('hash'))
+
+        if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
+            logger.info('marti sync content triggerd')
+            app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
+            file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
+            app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
+            path = PurePath(dp_directory, str(file_hash), file_list[0])
+            app.logger.debug(str(path))
+            return send_file(str(path))
+        else:
+            obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{file_hash}"')
+            data = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(obj[0].data.filename))))
+            data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find(
+                'checklistTasks').find("checklistTask").find("checklistUid").text
+            output = etree.tostring(data.getroot())
+            return output
 
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
@@ -401,17 +397,27 @@ def update_checklist():
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>')
 def accesschecklist(checklistid):
-    return ExCheckController().accesschecklist(checklistid)
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.get_checklist(checklistuid=checklistid), 200
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
-    return ExCheckController().updatetemplate(checklistid, taskid, PIPE)
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.update_checklist_task(checklistuid=checklistid, checklisttaskuid=taskid, checklisttaskdata=request.data), 200
 
 @app.route('/Marti/api/excheck/checklist/active', methods=["GET"])
 def activechecklists():
-    return ExCheckController().activechecklists()
-
-
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.get_checklists(), 200
 
 # TODO remove?
 def sanitize_path_input(user_input: str) -> bool:

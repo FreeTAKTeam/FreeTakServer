@@ -22,6 +22,13 @@ class EnterpriseSyncDatabaseController(Controller):
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
     
+    def update_enterprise_sync_data_object(self, filetype: str, objectuid: str, *args, **kwargs):
+        db_controller = DatabaseController()
+        data_obj = db_controller.session.query(EnterpriseSyncDataObject.PrimaryKey==objectuid).first()
+        data_obj.file_type = filetype
+        db_controller.session.commit()
+        db_controller.session.close()
+
     def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, *args, **kwargs):
         """create an enterprise sync data object instance and save it to the database
         with sqlalachemy
