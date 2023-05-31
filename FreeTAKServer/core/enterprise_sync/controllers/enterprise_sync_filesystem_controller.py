@@ -35,6 +35,9 @@ class EnterpriseSyncFilesystemController(Controller):
             **kwargs: Additional keyword arguments (not used).
         """
         root_path = config.EnterpriseSyncPath
+        if isinstance(objectdata, str):
+            objectdata = objectdata.encode()
+
         file_path = os.path.join(root_path, filetype, objectuid + '.txt')
         
         if not os.path.exists(root_path):

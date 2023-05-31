@@ -24,10 +24,9 @@ class EnterpriseSyncDatabaseController(Controller):
     
     def update_enterprise_sync_data_object(self, filetype: str, objectuid: str, *args, **kwargs):
         db_controller = DatabaseController()
-        data_obj = db_controller.session.query(EnterpriseSyncDataObject.PrimaryKey==objectuid).first()
+        data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey==objectuid).first()
         data_obj.file_type = filetype
         db_controller.session.commit()
-        db_controller.session.close()
 
     def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, *args, **kwargs):
         """create an enterprise sync data object instance and save it to the database
@@ -43,7 +42,6 @@ class EnterpriseSyncDatabaseController(Controller):
         data_obj.PrimaryKey = objectuid
         db_controller.session.add(data_obj)
         db_controller.session.commit()
-        db_controller.session.close()
 
     def get_enterprise_sync_data_object(self, object_uid: str) -> EnterpriseSyncDataObject:
         """retrieve an enterprise sync record based on the object uid
