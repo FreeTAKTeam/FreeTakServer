@@ -63,6 +63,7 @@ class ExCheckTemplateController(Controller):
         self._save_tasks_in_template(parsed_template)
 
         self.request.set_value("synctype", "ExCheckTemplate")
+        self.request.set_value("objecthash", str(hashlib.sha256(templatedata).hexdigest()))
         self.request.set_value("objectdata", ElementTree.tostring(parsed_template))
         self.request.set_value("objectuid", template_uid)
 
@@ -161,13 +162,17 @@ class ExCheckTemplateController(Controller):
 
         return ElementTree.tostring(template_with_tasks)
 
-    def get_all_templates(self, config_loader, *args, **kwargs):
+    def get_all_templates(self, config_loader, logger, *args, **kwargs):
 
         templates = self.persistency_controller.get_all_templates()
 
         template_uids = [template.PrimaryKey for template in templates]
 
         self.request.set_value("objectuids", template_uids)
+
+        sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncMetaData")
+
+        template_metadata = sub_response.get_value("objectmetadata")
 
         sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
 
@@ -176,23 +181,26 @@ class ExCheckTemplateController(Controller):
         complete_templates = []
 
         for template, template_content in zip(templates, template_contents):
-            task_uids = []
-            for task in template.tasks:
-                task_uids.append(task.PrimaryKey)
+            try:
+                task_uids = []
+                for task in template.tasks:
+                    task_uids.append(task.PrimaryKey)
 
-            self.request.set_value("objectuids", task_uids)
+                self.request.set_value("objectuids", task_uids)
 
-            sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
+                sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
 
-            task_files = sub_response.get_value("objectdata")
+                task_files = sub_response.get_value("objectdata")
 
-            template_with_tasks = self._add_tasks_to_template(template_content, task_files)
+                template_with_tasks = self._add_tasks_to_template(template_content, task_files)
 
-            complete_templates.append(template_with_tasks)
-
+                complete_templates.append(template_with_tasks)
+            except Exception as ex:
+                logger.error("error adding template \n template: %s exception: %s", template, ex)
+        
         mission_info = self.get_mission_info_object(config_loader)
 
-        self._serialize_to_mission_info(mission_info, complete_templates, config_loader)
+        self._serialize_to_mission_info(mission_info, complete_templates, template_metadata, config_loader)
 
         final_message = self._serialize_to_json(mission_info)
 
@@ -204,16 +212,16 @@ class ExCheckTemplateController(Controller):
         response = self.execute_sub_action("serialize")
         return response.get_value("message")
 
-    def _serialize_to_mission_info(self, mission_info: MissionInfo, templates: List[Element], config_loader):
+    def _serialize_to_mission_info(self, mission_info: MissionInfo, templates: List[Element], template_metadata: List, config_loader):
         #TODO: modify this to access from the configuration
         mission_info.nodeId = config.nodeID
         #mission_info.nodeId = "b9a1620a93ec43378f42a32103f53d8d"
         mission_info.version = config.APIVersion
         mission_info.type = "Mission"
         mission_data: List[MissionData] = mission_info.data[0] # the only mission data object should be the excheck object
-        self._serialize_to_mission_data(mission_data, templates, config_loader)
+        self._serialize_to_mission_data(mission_data, templates, template_metadata, config_loader)
 
-    def _serialize_to_mission_data(self, mission_data, templates, config_loader):
+    def _serialize_to_mission_data(self, mission_data, templates, template_metadata_objs, config_loader):
         mission_data.name = "exchecktemplates"
         mission_data.tool = "ExCheck"
         mission_data.keywords = []
@@ -230,20 +238,20 @@ class ExCheckTemplateController(Controller):
         mission_data.passwordProtected = False
         template_metadata_list: List[TemplateMetaData]= mission_data.contents
         if len(template_metadata_list)>0 and len(templates)>0:
-            self._serialize_template_metadata(template_metadata_list[0], templates[0])
+            self._serialize_template_metadata(template_metadata_list[0], templates[0], template_metadata_objs[0])
             for index in range(1, len(templates)):
                 template_metadata: TemplateMetaData = self.get_template_metadata_object(config_loader)
                 mission_data.contents = template_metadata
-                self._serialize_template_metadata(template_metadata, templates[index])
+                self._serialize_template_metadata(template_metadata, templates[index], template_metadata_objs[index])
 
-    def _serialize_template_metadata(self, template_metadata, template):
+    def _serialize_template_metadata(self, template_metadata, template, template_metadata_obj):
         template_str = ElementTree.tostring(template)
         template_metadata.creatorUid = "ANDROID-860046038899730"
         template_metadata.timestamp = "2023-02-23T18:46:46.554Z"
 
-        self._serialize_template_content(template, template_str, template_metadata)
+        self._serialize_template_content(template, template_str, template_metadata, template_metadata_obj)
 
-    def _serialize_template_content(self, template, template_str, template_metadata):
+    def _serialize_template_content(self, template, template_str, template_metadata, template_metadata_obj):
         template_content: TemplateContent = template_metadata.data
         template_details = template.find("checklistDetails")
 
@@ -254,7 +262,7 @@ class ExCheckTemplateController(Controller):
         template_content.submissionTime = template_details.find("startTime").text
         template_content.submitter = "TODO"
         template_content.name = template_details.find("uid").text
-        template_content.hash = str(hashlib.sha256(template_str).hexdigest())
+        template_content.hash = template_metadata_obj.hash
         template_content.size = len(template_str)
         template_content.tool = "ExCheck"
         template_content.uid = template_details.find("uid").text

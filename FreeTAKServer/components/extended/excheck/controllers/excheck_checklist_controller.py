@@ -119,6 +119,7 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("synctype", "ExCheckChecklistTask")
         self.request.set_value("objectdata", checklisttaskdata)
         self.request.set_value("objectuid", checklisttaskuid)
+        self.request.set_value("objecthash", str(hashlib.sha256(checklisttaskdata).hexdigest()))
         self.execute_sub_action("UpdateEnterpriseSyncData")
 
         self.request.set_value("objectuid", checklistuid)
@@ -136,7 +137,6 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("objectdata", checklist_data)
         self.request.set_value("objectuid", checklistuid)
         self.execute_sub_action("UpdateEnterpriseSyncData")
-
 
         return "done"
 
@@ -210,7 +210,7 @@ class ExCheckChecklistController(Controller):
 
         return ElementTree.tostring(checklist_content)
 
-    def get_all_checklists(self, config_loader, *args, **kwargs):
+    def get_all_checklists(self, config_loader, logger, *args, **kwargs):
 
         checklists = self.persistency_controller.get_all_checklists()
 
@@ -225,21 +225,11 @@ class ExCheckChecklistController(Controller):
         complete_checklists = Element("checklists")
 
         for checklist, checklist_content in zip(checklists, checklist_contents):
-            # task_uids = []
-            # for task in checklist.tasks:
-            #    task_uids.append(task.PrimaryKey)
-
-            # self.request.set_value("objectuids", task_uids)
-
-            # sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
-
-            # task_files = sub_response.get_value("objectdata")
-
-            # checklist_with_tasks = self._add_tasks_to_checklist(checklist_content, task_files)
-
-            complete_checklists.append(etree.fromstring(checklist_content))
-
-        return b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+ElementTree.tostring(complete_checklists)
+            try:
+                complete_checklists.append(etree.fromstring(checklist_content))
+            except Exception as ex:
+                logger.error("error adding checklist to checklist content: %s", ex)
+        return ElementTree.tostring(complete_checklists).replace(b"\n", b"")
 
     def _serialize_to_json(self, message):
         self.request.set_value("protocol", "json")
@@ -316,6 +306,7 @@ class ExCheckChecklistController(Controller):
 
         for task in tasks:
             task_elem = etree.fromstring(task)
+            task_elem.find("status").text = task_elem.find("status").text.upper()
             template_tasks.append(task_elem)
 
         return template_elem
@@ -326,7 +317,7 @@ class ExCheckChecklistController(Controller):
         # in atak template tasks have no uid so one must be created artificially
         if taskuid is None:
             taskuid = str(uuid.uuid4())
-
+        taskdata.find("status").text = taskdata.find("status").text.upper()
         taskdata.find("uid").text = taskuid
         
         self.request.set_value("synctype", "ExCheckChecklistTask")

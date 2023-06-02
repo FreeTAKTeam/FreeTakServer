@@ -27,7 +27,7 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
 
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, send_file, escape
+from flask import Flask, request, send_file, escape, make_response
 from flask.logging import default_handler
 from werkzeug.utils import secure_filename
 
@@ -314,29 +314,41 @@ def request_subscription():
 
 @app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.get_all_templates(), 200
+    try:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        return excheck_facade.get_all_templates(), 200
+    except Exception as ex:
+        print(ex)
+        return '', 500
 
 @app.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
 def ExCheckTemplatesAlt():
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.get_all_templates(), 200
-
+    try:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        return excheck_facade.get_all_templates(), 200
+    except Exception as ex:
+        print(ex)
+        return '', 500
+    
 @app.route('/Marti/api/missions/<data_obj_uid>', methods=["GET"])
 def get_mission_data(data_obj_uid):
+    try:
         dp_request = ObjectFactory.get_instance("request")
         dp_response = ObjectFactory.get_instance("response")
         enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
         enterprisesync_facade.initialize(dp_request, dp_response)
         enterprisesync_facade.get_enterprise_sync_data(objectuid = data_obj_uid)
         return dp_response.get_value("objectdata"), 200
-
+    except Exception as ex:
+        print(ex)
+        return '', 500
+    
 @app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
 def missionupdate(templateuid):
     from flask import request
@@ -345,80 +357,106 @@ def missionupdate(templateuid):
 
 @app.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    excheck_facade.create_template(request.data)
-    return 'template created successfully', 200
-    # return ExCheckController().template(PIPE)
-
+    try:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        excheck_facade.create_template(request.data)
+        return 'template created successfully', 200
+        # return ExCheckController().template(PIPE)
+    except Exception as ex:
+        print(ex)
+        return '', 500
+    
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.start_checklist(templateuid=subscription, checklistname=request.args.get("name"), checklist_description=request.args.get("description")), 200
+    try:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        return excheck_facade.start_checklist(templateuid=subscription, checklistname=request.args.get("name"), checklist_description=request.args.get("description")), 200
+    except Exception as ex:
+        print(ex)
+        return '', 500
 
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
     from defusedxml import ElementTree as etree
     from os import listdir
-    if request.method == 'GET' and request.args.get('uid') != None:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-        enterprisesync_facade.initialize(dp_request, dp_response)
-        enterprisesync_facade.get_enterprise_sync_data(objectuid = request.args.get('uid'))
-        return dp_response.get_value("objectdata"), 200
-    else:
-        file_hash = sanitize_hash(request.args.get('hash'))
-
-        if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
-            logger.info('marti sync content triggerd')
-            app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
-            file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
-            app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
-            path = PurePath(dp_directory, str(file_hash), file_list[0])
-            app.logger.debug(str(path))
-            return send_file(str(path))
+    try:
+        if request.method == 'GET' and request.args.get('uid') != None:
+            dp_request = ObjectFactory.get_instance("request")
+            dp_response = ObjectFactory.get_instance("response")
+            enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
+            enterprisesync_facade.initialize(dp_request, dp_response)
+            enterprisesync_facade.get_enterprise_sync_data(objectuid = request.args.get('uid'))
+            return dp_response.get_value("objectdata"), 200
         else:
-            obj = dbController.query_ExCheck(verbose=True, query=f'hash = "{file_hash}"')
-            data = etree.parse(str(PurePath(Path(config.ExCheckFilePath), Path(obj[0].data.filename))))
-            data.getroot().find('checklistTasks').find("checklistTask").find("uid").text = data.getroot().find(
-                'checklistTasks').find("checklistTask").find("checklistUid").text
-            output = etree.tostring(data.getroot())
-            return output
+            file_hash = sanitize_hash(request.args.get('hash'))
 
+            if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
+                logger.info('marti sync content triggerd')
+                app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
+                file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
+                app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
+                path = PurePath(dp_directory, str(file_hash), file_list[0])
+                app.logger.debug(str(path))
+                return send_file(str(path))
+            else:
+                dp_request = ObjectFactory.get_instance("request")
+                dp_response = ObjectFactory.get_instance("response")
+                enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
+                enterprisesync_facade.initialize(dp_request, dp_response)
+                enterprisesync_facade.get_enterprise_sync_data(objecthash = request.args.get('hash'))
+                return dp_response.get_value("objectdata"), 200
+    except Exception as ex:
+        print(ex)
+        return '', 500
+    
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
     return ExCheckController().update_checklist()
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>')
 def accesschecklist(checklistid):
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.get_checklist(checklistuid=checklistid), 200
+    try:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        return excheck_facade.get_checklist(checklistuid=checklistid), 200
+    except Exception as ex:
+        print(ex)
+        return '',500
 
 @app.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.update_checklist_task(checklistuid=checklistid, checklisttaskuid=taskid, checklisttaskdata=request.data), 200
-
+    try:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        return excheck_facade.update_checklist_task(checklistuid=checklistid, checklisttaskuid=taskid, checklisttaskdata=request.data), 200
+    except Exception as ex:
+        print(ex)
+        return '', 500
+    
 @app.route('/Marti/api/excheck/checklist/active', methods=["GET"])
 def activechecklists():
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.get_checklists(), 200
-
+    try:
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        resp = make_response(excheck_facade.get_checklists(),200)
+        resp.headers['Content-Type'] = "application/xml"
+        return resp
+    except Exception as ex:
+        print(ex)
+        return '', 500
+    
 # TODO remove?
 def sanitize_path_input(user_input: str) -> bool:
     """ this function takes a file hash and validates it's

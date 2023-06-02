@@ -1617,7 +1617,11 @@ def mission_table():
 @app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
 @auth.login_required()
 def excheck_table():
-    return ExCheckController().excheck_table(request, APIPipe)
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.get_all_templates(), 200
 
 
 @app.route('/checkStatus', methods=[restMethods.GET])

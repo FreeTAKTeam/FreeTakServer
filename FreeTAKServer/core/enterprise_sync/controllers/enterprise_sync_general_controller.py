@@ -7,6 +7,7 @@
 # Original author: Giu Platania
 # 
 #######################################################
+import hashlib
 from typing import List
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -101,22 +102,23 @@ class EnterpriseSyncGeneralController(Controller):
         """Uploads one file to the server via HTTPS."""
         pass
 
-    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, *args, **kwargs):
+    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, logger, *args, **kwargs):
         """save enterprise sync data to the db and the file system"""
+        obj_hash = str(hashlib.sha256(objectdata).hexdigest())
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid)
+        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, obj_hash, logger)
 
-    def update_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, *args, **kwargs):
+    def update_enterprise_sync_data(self, synctype: str, objecthash: str, objectuid: str, objectdata: str, logger, *args, **kwargs):
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        self.persistence_controller.update_enterprise_sync_data_object(synctype, objectuid)
+        self.persistence_controller.update_enterprise_sync_data_object(synctype, objectuid, objecthash, logger)
 
-    def get_enterprise_sync_data(self, objectuid: str, *args, **kwargs):
+    def get_enterprise_sync_data(self, logger, objecthash: str = None, objectuid: str = None, *args, **kwargs):
         """get the object data from an enterprise sync object"""
-        data_obj = self.persistence_controller.get_enterprise_sync_data_object(objectuid)
+        data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, objectuid, objecthash)
         object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
         self.response.set_value("objectdata", object_data)
 
-    def get_multiple_enterprise_sync_data(self, objectuids: List[str], *args, **kwargs):
+    def get_multiple_enterprise_sync_data(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, *args, **kwargs):
         """
         Get the object data from multiple enterprise sync objects.
 
@@ -127,9 +129,35 @@ class EnterpriseSyncGeneralController(Controller):
             None
         """
         object_data_list = []
-        for uid in objectuids:
-            data_obj = self.persistence_controller.get_enterprise_sync_data_object(uid)
-            object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
-            object_data_list.append(object_data)
-        
+        if objectuids != None:
+            for uid in objectuids:
+                data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, uid, None, )
+                object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
+                object_data_list.append(object_data)
+        elif objecthashs != None:
+            for objhash in objecthashs:
+                data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
+                object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
+                object_data_list.append(object_data)
         self.response.set_value("objectdata", object_data_list)
+
+    def get_multiple_enterprise_sync_metadata(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, *args, **kwargs):
+        """
+        Get the object data from multiple enterprise sync objects.
+
+        Args:
+            objectuids (List[str]): A list of object UIDs to retrieve the data for.
+
+        Returns:
+            None
+        """
+        object_metadata_list = []
+        if objectuids != None:
+            for uid in objectuids:
+                data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, uid, None, )
+                object_metadata_list.append(data_obj)
+        elif objecthashs != None:
+            for objhash in objecthashs:
+                data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
+                object_metadata_list.append(data_obj)
+        self.response.set_value("objectmetadata", object_metadata_list)

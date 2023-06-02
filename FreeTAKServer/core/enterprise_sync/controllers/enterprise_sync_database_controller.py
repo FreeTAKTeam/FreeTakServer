@@ -22,13 +22,18 @@ class EnterpriseSyncDatabaseController(Controller):
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
     
-    def update_enterprise_sync_data_object(self, filetype: str, objectuid: str, *args, **kwargs):
-        db_controller = DatabaseController()
-        data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey==objectuid).first()
-        data_obj.file_type = filetype
-        db_controller.session.commit()
+    def update_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash: str, logger, *args, **kwargs):
+        try:
+            db_controller = DatabaseController()
+            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey==objectuid).first()
+            data_obj.file_type = filetype
+            data_obj.hash = objecthash
+            db_controller.session.commit()
+        except Exception as ex:
+            logger.error("error thrown updating enterprise sync obj: %s err: %s", objectuid, ex)
+            db_controller.session.rollback()
 
-    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, *args, **kwargs):
+    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash, logger, *args, **kwargs):
         """create an enterprise sync data object instance and save it to the database
         with sqlalachemy
 
@@ -36,19 +41,31 @@ class EnterpriseSyncDatabaseController(Controller):
             filetype (str): the type of the enterprise sync object
             objectuid (str): the uid of the enterprise sync object
         """
-        db_controller = DatabaseController()
-        data_obj = EnterpriseSyncDataObject()
-        data_obj.file_type = filetype
-        data_obj.PrimaryKey = objectuid
-        db_controller.session.add(data_obj)
-        db_controller.session.commit()
-
-    def get_enterprise_sync_data_object(self, object_uid: str) -> EnterpriseSyncDataObject:
+        try:
+            db_controller = DatabaseController()
+            data_obj = EnterpriseSyncDataObject()
+            data_obj.file_type = filetype
+            data_obj.PrimaryKey = objectuid
+            data_obj.hash = objecthash
+            db_controller.session.add(data_obj)
+            db_controller.session.commit()
+        except Exception as ex:
+            logger.error("error thrown creating enterprise sync obj: %s err: %s", objectuid, ex)
+            db_controller.session.rollback()
+            
+    def get_enterprise_sync_data_object(self, logger, object_uid: str=None, object_hash: str=None, *args, **kwargs) -> EnterpriseSyncDataObject:
         """retrieve an enterprise sync record based on the object uid
 
         Args:
             object_uid (str): object uid to be queried
         """
-        db_controller = DatabaseController()
-        data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == object_uid).first()
-        return data_obj
+        try:
+            db_controller = DatabaseController()
+            if object_uid != None:
+                data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == object_uid).first()
+            elif object_hash != None:
+                data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == object_hash).first()
+            return data_obj
+        except Exception as ex:
+            logger.error("error thrown getting enterprise sync obj: %s err: %s", object_uid, ex)
+            db_controller.session.rollback()

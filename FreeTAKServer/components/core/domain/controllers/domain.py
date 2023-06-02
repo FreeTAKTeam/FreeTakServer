@@ -40,7 +40,7 @@ class Domain(Controller):
         """
         return node.add_child(child)
 
-    def create_node(self, configuration: Configuration, object_class_name: str, id:str=str(uuid.uuid1()), **kwargs) -> Node:
+    def create_node(self, configuration: Configuration, object_class_name: str, id:str=None, **kwargs) -> Node:
         """this method creates a new node object
 
         Args:
@@ -48,7 +48,8 @@ class Domain(Controller):
             object_class_name (str): _description_
             id (str): the id of the created node
         """
-
+        if id is None:
+            id = str(uuid.uuid1())
         # allow the domain to be extended
         self.domain = self._extend_domain(self.domain, kwargs.get('extended_domain', {}))
         # retrieve the original object class

@@ -9,3 +9,4 @@ class EnterpriseSyncDataObject(Base):
     __tablename__ = "EnterpriseSyncDataObject"
     PrimaryKey = Column(String(100), primary_key=True)
     file_type = Column(String(20))
+    hash = Column(String(150))
