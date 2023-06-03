@@ -60,7 +60,6 @@ class ExCheckTemplateController(Controller):
             self.persistency_controller.create_template(template_uid)
         except Exception:
             pass
-        self._save_tasks_in_template(parsed_template)
 
         self.request.set_value("synctype", "ExCheckTemplate")
         self.request.set_value("objecthash", str(hashlib.sha256(templatedata).hexdigest()))
@@ -68,29 +67,6 @@ class ExCheckTemplateController(Controller):
         self.request.set_value("objectuid", template_uid)
 
         self.execute_sub_action("SaveEnterpriseSyncData")
-
-    def _save_tasks_in_template(self, template: Element):
-        """
-        Retrieve tasks from a template and create corresponding template tasks.
-
-        Args:
-            template (Element): The XML element representing the template.
-        """
-        # Extract the UID of the template
-        template_uid = template.find("checklistDetails").find("uid").text
-        
-        # Retrieve the template tasks
-        template_tasks = template.find("checklistTasks")
-        template_task_list = template_tasks.findall("checklistTask")
-        
-        # Iterate over each task in the template task list
-        for task in template_task_list:
-            # Create a template task using the template UID, task UID, and the XML representation of the task
-            self.create_template_task(template_uid, task.find("uid").text, ElementTree.tostring(task))
-        
-        # Remove the tasks from the template
-        for task in template_task_list:
-            template_tasks.remove(task)
 
     def get_mission_info_object(self, config_loader):
        
@@ -146,21 +122,7 @@ class ExCheckTemplateController(Controller):
 
         template_content = sub_response.get_value("objectdata")
 
-        template_db = self.persistency_controller.get_template(templateuid)
-
-        task_uids = []
-        for task in template_db.tasks:
-            task_uids.append(task.PrimaryKey)
-        
-        self.request.set_value("objectuids", task_uids)
-
-        sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
-
-        task_files = sub_response.get_value("objectdata")
-
-        template_with_tasks = self._add_tasks_to_template(template_content, task_files)
-
-        return ElementTree.tostring(template_with_tasks)
+        return template_content
 
     def get_all_templates(self, config_loader, logger, *args, **kwargs):
 
@@ -182,19 +144,7 @@ class ExCheckTemplateController(Controller):
 
         for template, template_content in zip(templates, template_contents):
             try:
-                task_uids = []
-                for task in template.tasks:
-                    task_uids.append(task.PrimaryKey)
-
-                self.request.set_value("objectuids", task_uids)
-
-                sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
-
-                task_files = sub_response.get_value("objectdata")
-
-                template_with_tasks = self._add_tasks_to_template(template_content, task_files)
-
-                complete_templates.append(template_with_tasks)
+                complete_templates.append(ElementTree.fromstring(template_content))
             except Exception as ex:
                 logger.error("error adding template \n template: %s exception: %s", template, ex)
         
@@ -266,36 +216,3 @@ class ExCheckTemplateController(Controller):
         template_content.size = len(template_str)
         template_content.tool = "ExCheck"
         template_content.uid = template_details.find("uid").text
-
-    def _add_tasks_to_template(self, template: str, tasks: List[str]) -> Element:
-        """
-        Add tasks to a template XML.
-
-        Args:
-            template (str): The template XML as a string.
-            tasks (List[str]): A list of task XML strings to be added to the template.
-        """
-
-        template_elem = ElementTree.fromstring(template)
-        template_tasks = template_elem.find("checklistTasks")
-
-        for task in tasks:
-            task_elem = ElementTree.fromstring(task)
-            template_tasks.append(task_elem)
-
-        return template_elem
-    
-    def create_template_task(self, templateuid, taskuid, taskdata, *args, **kwargs):
-        """create a new template task in the db and the file system"""
-        
-        # in atak template tasks have no uid so one must be created artificially
-        if taskuid is None:
-            taskuid = str(uuid.uuid4())
-        
-        self.request.set_value("synctype", "ExCheckTemplateTask")
-        self.request.set_value("objectdata", taskdata)
-        self.request.set_value("objectuid", taskuid)
-
-        self.execute_sub_action("SaveEnterpriseSyncData")
-
-        self.persistency_controller.create_template_task(templateuid, taskuid)

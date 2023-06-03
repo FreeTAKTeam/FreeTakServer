@@ -91,7 +91,7 @@ class ExCheckChecklistController(Controller):
         #for checklist_task in checklist_task_list:
         #    checklist_tasks.append(checklist_task)
 
-        return ElementTree.tostring(parsed_checklist)
+        return ElementTree.tostring(parsed_checklist, )
 
     def _save_tasks_in_checklist(self, checklist: Element):
         """
@@ -208,7 +208,7 @@ class ExCheckChecklistController(Controller):
 
         # checklist_with_tasks = self._add_tasks_to_checklist(checklist_content, task_files)
 
-        return ElementTree.tostring(checklist_content)
+        return checklist_content
 
     def get_all_checklists(self, config_loader, logger, *args, **kwargs):
 
@@ -317,7 +317,9 @@ class ExCheckChecklistController(Controller):
         # in atak template tasks have no uid so one must be created artificially
         if taskuid is None:
             taskuid = str(uuid.uuid4())
+
         taskdata.find("status").text = taskdata.find("status").text.upper()
+        taskdata.find("checklistUid").text = checklistuid
         taskdata.find("uid").text = taskuid
         
         self.request.set_value("synctype", "ExCheckChecklistTask")

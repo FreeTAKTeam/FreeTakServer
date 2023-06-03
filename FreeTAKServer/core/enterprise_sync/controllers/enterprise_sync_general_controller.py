@@ -131,14 +131,20 @@ class EnterpriseSyncGeneralController(Controller):
         object_data_list = []
         if objectuids != None:
             for uid in objectuids:
-                data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, uid, None, )
-                object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
-                object_data_list.append(object_data)
+                try:
+                    data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, uid, None, )
+                    object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
+                    object_data_list.append(object_data)
+                except Exception as ex:
+                    logger.error("exception thrown getting enterprise sync object by uid %s", ex)
         elif objecthashs != None:
             for objhash in objecthashs:
-                data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
-                object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
-                object_data_list.append(object_data)
+                try:
+                    data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
+                    object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
+                    object_data_list.append(object_data)
+                except Exception as ex:
+                    logger.error("exception thrown getting enterprise sync object by hash %s", ex)
         self.response.set_value("objectdata", object_data_list)
 
     def get_multiple_enterprise_sync_metadata(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, *args, **kwargs):
