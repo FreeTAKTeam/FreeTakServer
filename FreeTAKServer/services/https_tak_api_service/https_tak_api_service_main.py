@@ -7,11 +7,15 @@ import os
 import random
 import string
 import traceback
+from typing import Dict
 import defusedxml.ElementTree as ET
 from logging.handlers import RotatingFileHandler
 from pathlib import Path, PurePath
 
+from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.main.object_factory import ObjectFactory
+from digitalpy.core.zmanager.response import Response
+from digitalpy.core.parsing.formatter import Formatter
 
 from FreeTAKServer.core.configuration.DataPackageServerConstants import DataPackageServerConstants
 from FreeTAKServer.core.configuration.SQLcommands import SQLcommands
@@ -311,30 +315,6 @@ def request_subscription():
         return ('', 200)
     except Exception as e:
         print('exception in request_subscription' + str(e))
-
-@app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
-def ExCheckTemplates():
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.get_all_templates(), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
-
-@app.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
-def ExCheckTemplatesAlt():
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.get_all_templates(), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
     
 @app.route('/Marti/api/missions/<data_obj_uid>', methods=["GET"])
 def get_mission_data(data_obj_uid):
@@ -354,32 +334,6 @@ def missionupdate(templateuid):
     from flask import request
     uid = request.args.get('uid')
     return '', 200
-
-@app.route('/Marti/api/excheck/template', methods=['POST'])
-def template():
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        excheck_facade.create_template(request.data)
-        return 'template created successfully', 200
-        # return ExCheckController().template(PIPE)
-    except Exception as ex:
-        print(ex)
-        return '', 500
-    
-@app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
-def startList(subscription):
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.start_checklist(templateuid=subscription, checklistname=request.args.get("name"), checklist_description=request.args.get("description")), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
 
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
@@ -419,44 +373,6 @@ def specificPackage():
 def update_checklist():
     return ExCheckController().update_checklist()
 
-@app.route('/Marti/api/excheck/checklist/<checklistid>')
-def accesschecklist(checklistid):
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.get_checklist(checklistuid=checklistid), 200
-    except Exception as ex:
-        print("exception in /Marti/api/excheck/checklist/ is "+str(ex))
-        return '',500
-
-@app.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
-def updatetemplate(checklistid, taskid):
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.update_checklist_task(checklistuid=checklistid, checklisttaskuid=taskid, checklisttaskdata=request.data), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
-    
-@app.route('/Marti/api/excheck/checklist/active', methods=["GET"])
-def activechecklists():
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        resp = make_response(excheck_facade.get_checklists(),200)
-        resp.headers['Content-Type'] = "application/xml"
-        return resp
-    except Exception as ex:
-        print(ex)
-        return '', 500
-    
 # TODO remove?
 def sanitize_path_input(user_input: str) -> bool:
     """ this function takes a file hash and validates it's
@@ -478,6 +394,139 @@ def sanitize_hash(hash: str) -> str:
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+APPLICATION_PROTOCOL = "xml"
+API_REQUEST_TIMEOUT = 5000
+
+from eventlet import listen, wrap_ssl, wsgi
+import ssl
+import time
+
+from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
+from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
+
+from .blueprints import excheck_blueprint
+
+class HTTPSTakAPI(DigitalPyService):
+     # a dictionary containing the request_id and response objects for all received requests
+    # to prevent confusion between endpoints
+    responses: Dict[str, Response] = {}
+
+    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
+        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+
+    def get_response_in_responses(self, id):
+        # check if the response has already been received
+        if self.responses.get(id) != None:
+            # pop item so dictionary doesn't fill up
+            response = self.responses.pop(id)
+            return response
+        
+    def retrieve_response(self, id: str):
+        """wait to retrieve a response from the broker this is mainly
+        to prevent cases where multiple requests are being processed 
+        simultaneously causing a possible mismatch of responses between
+        requests, instead we pass the id to this method which then checks
+        in the responses dict if the response has been received by another
+        thread, if not then it goes on receiving the next response
+        Args:
+            id (str): the id of the response being waited for
+        """
+        # check if the response has already been received
+        existing_response = self.get_response_in_responses(id)
+        if existing_response is not None:
+            return existing_response
+
+        start_time = time.time()
+
+        # Start the loop
+        while (time.time() - start_time) < API_REQUEST_TIMEOUT:
+            # the poller is only registered to the zmq_subscriber socket
+            # so if there are available messages it should only be coming
+            # from the zmq_subscriber socket.
+            self.subscriber_socket.RCVTIMEO = 1000
+
+            responses = super().broker_receive(blocking=True)
+            for response in responses:
+                if response.get_id() != id:
+                    # use shared memory of responses dictionary
+                    self.responses[response.get_id()] = response
+                else:
+                    return response
+                    
+                # check if the response has already been received
+                existing_response = self.get_response_in_responses(id)
+                if existing_response is not None:
+                    return existing_response
+
+        # check if the response has already been received
+        existing_response = self.get_response_in_responses(id)
+        if existing_response is not None:
+            return existing_response
+        else:
+            raise TimeoutError("zmanager failed to return a response")
+
+    def start(self, ip, port, factory):
+        try:
+            global IP, HTTPPORT
+            init_config()
+            self.MainSocket = SSLServerSocket()
+            IP = ip
+            HTTPPORT = port
+            self.initialize_connections(APPLICATION_PROTOCOL)
+            ObjectFactory.configure(factory)
+            # Make sure the data package directory exists
+            # Create the relevant database tables
+            print(const.IP)
+            print(HTTPPORT)
+            self.setIP(IP)
+            self.setHTTPPORT(HTTPPORT)
+            #wsgi.server(eventlet.listen(('', 14533)), app)  keyfile=config.keyDir,
+            self.SSLSocketController = SSLSocketController()
+            self.SSLSocketController.changeIP(IP)
+            self.SSLSocketController.changePort(HTTPPORT)
+            self.setSSL(True)
+            self.register_blueprints(app)
+            wsgi.server(sock=wrap_ssl(listen((DataPackageServerConstants().IP, int(HTTPPORT))), keyfile=config.unencryptedKey,
+                                      certfile=config.pemDir,
+                                      server_side=True, ca_certs=config.CA, cert_reqs=ssl.CERT_REQUIRED), site=app)
+        except Exception as e:
+            logger.error('there has been an exception in Data Package service startup ' + str(e))
+            return -1
+
+
+    def register_blueprints(self, app):
+        app.register_blueprint(excheck_blueprint.page)
+    
+    def setIP(self, IP_to_be_set):
+        global IP
+        IP = IP_to_be_set
+
+    def getIP(self):
+        global IP
+        return IP
+
+    def setHTTPPORT(self, HTTPPORTToBeSet):
+        global HTTPPORT
+        HTTPPORT = HTTPPORTToBeSet
+
+    def getHTTPPort(self):
+        global HTTPPORT
+        return HTTPPORT
+
+    def setSSL(self, SSL: bool):
+        global USINGSSL
+        USINGSSL = SSL
+
+    def getSSL(self):
+        global USINGSSL
+        return USINGSSL
+
+    def stop(self):
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
 
 class FlaskFunctions:
 
@@ -515,29 +564,6 @@ class FlaskFunctions:
                 "Size": i.Size
             })
         return package_dict
-
-    def startup(self, ip, port, pipe):
-        try:
-            from eventlet import wsgi
-
-
-            init_config()
-            global IP, HTTPPORT
-            IP = ip
-            HTTPPORT = port
-            # Make sure the data package directory exists
-            if not Path(dp_directory).exists():
-                app.logger.info(f"Creating directory at {str(dp_directory)}")
-                os.makedirs(str(dp_directory))
-            # Create the relevant database tables
-            print(const.IP)
-            print(HTTPPORT)
-            # app.run(host='0.0.0.0', port=8080)
-            wsgi.server(eventlet.listen((DataPackageServerConstants().IP, int(HTTPPORT))), app)
-
-        except Exception as e:
-            logger.error('there has been an exception in Data Package service startup ' + str(e))
-            return -1
 
     def stop(self):
         func = request.environ.get('werkzeug.server.shutdown')

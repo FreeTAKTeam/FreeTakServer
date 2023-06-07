@@ -3,10 +3,9 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.UidVariables import UidVariables as vars
 
-class Uid(CoTNode):
+class uid(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
-        self.cot_attributes["text"] = None
         self.cot_attributes["Droid"] = None
 
     @property
@@ -19,7 +18,7 @@ class Uid(CoTNode):
 
     @CoTProperty
     def Droid(self):
-        return self.cot_attributes.get("text", None)
+        return self.cot_attributes.get("Droid", None)
 
     @Droid.setter
     def Droid(self, Droid = None):

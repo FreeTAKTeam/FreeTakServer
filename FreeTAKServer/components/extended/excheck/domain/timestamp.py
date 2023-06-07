@@ -1,7 +1,7 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 import datetime as dt
 
-class Timestamp(CoTNode):
+class timestamp(CoTNode):
     DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
     def __init__(self, configuration, model, oid=None):

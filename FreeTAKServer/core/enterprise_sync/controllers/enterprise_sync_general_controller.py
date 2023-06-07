@@ -167,3 +167,20 @@ class EnterpriseSyncGeneralController(Controller):
                 data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
                 object_metadata_list.append(data_obj)
         self.response.set_value("objectmetadata", object_metadata_list)
+    
+    def get_enterprise_sync_metadata(self, logger, objectuid: str=None, objecthash: str=None, *args, **kwargs):
+        """
+        Get the object data from multiple enterprise sync objects.
+
+        Args:
+            objectuids (List[str]): A list of object UIDs to retrieve the data for.
+
+        Returns:
+            None
+        """
+        object_metadata = None
+        if objectuid != None:
+            object_metadata = self.persistence_controller.get_enterprise_sync_data_object(logger, objectuid, None, )
+        elif objecthash != None:
+            object_metadata = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objecthash)
+        self.response.set_value("objectmetadata", object_metadata)

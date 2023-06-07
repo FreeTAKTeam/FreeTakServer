@@ -28,6 +28,7 @@ class ExCheckPersistencyController(Controller):
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
         self.ses = self.create_db_session()
+        
     def create_db_session(self) -> Session:
         """open a new session in the database
 
@@ -49,11 +50,14 @@ class ExCheckPersistencyController(Controller):
         Args:
             templateuid (str): the uid of the template
         """
-        
-        template = ExCheckTemplate()
-        template.PrimaryKey = templateuid
-        self.ses.add(template)
-        self.ses.commit()
+        try:
+            template = ExCheckTemplate()
+            template.PrimaryKey = templateuid
+            self.ses.add(template)
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
 
     def create_checklist(self, checklistuid: str, *args, **kwargs):
         """create a checklist db record
@@ -61,11 +65,14 @@ class ExCheckPersistencyController(Controller):
         Args:
             checklistuid (str): the uid of the checklist
         """
-
-        checklist = ExCheckChecklist()
-        checklist.PrimaryKey = checklistuid
-        self.ses.add(checklist)
-        self.ses.commit()
+        try:
+            checklist = ExCheckChecklist()
+            checklist.PrimaryKey = checklistuid
+            self.ses.add(checklist)
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
 
     def get_template(self, template_uid: str, *args, **kwargs) -> ExCheckTemplate:
         """
@@ -99,6 +106,10 @@ class ExCheckPersistencyController(Controller):
         checklist = self.ses.query(ExCheckTemplate).filter(ExCheckTemplate.PrimaryKey == checklist_uid).first()
 
         return checklist
+
+    def get_checklist_task(self, checklist_task_uid, *args, **kwargs)->ExCheckChecklistTask:
+        checklist_task = self.ses.query(ExCheckChecklistTask).filter(ExCheckChecklistTask.PrimaryKey == checklist_task_uid).first()
+        return checklist_task
 
     def get_all_templates(self, *args, **kwargs)->List[ExCheckTemplate]:
         """
@@ -134,12 +145,15 @@ class ExCheckPersistencyController(Controller):
             templateuid (str): the uid of the parent template of the task
             taskuid (str): the uid of the task itself
         """
-        template_task = ExCheckTemplateTask()
-        template_task.PrimaryKey = taskuid
-        template_task.template_uid = templateuid
-        self.ses.add(template_task)
-        self.ses.commit()
-        self.ses.close()
+        try:
+            template_task = ExCheckTemplateTask()
+            template_task.PrimaryKey = taskuid
+            template_task.template_uid = templateuid
+            self.ses.add(template_task)
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
 
     def create_checklist_task(self, checklistuid: str, taskuid: str, *args, **kwargs):
         """create a checklist task db record
@@ -148,9 +162,12 @@ class ExCheckPersistencyController(Controller):
             checklistuid (str): the uid of the parent checklist of the task
             taskuid (str): the uid of the task itself
         """
-        checklist_task = ExCheckChecklistTask()
-        checklist_task.PrimaryKey = taskuid
-        checklist_task.checklist_uid = checklistuid
-        self.ses.add(checklist_task)
-        self.ses.commit()
-        self.ses.close()
+        try:
+            checklist_task = ExCheckChecklistTask()
+            checklist_task.PrimaryKey = taskuid
+            checklist_task.checklist_uid = checklistuid
+            self.ses.add(checklist_task)
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex

@@ -1,6 +1,6 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 
-class MimeType(CoTNode):
+class mimeType(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["text"] = None

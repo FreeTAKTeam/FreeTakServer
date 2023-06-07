@@ -6,6 +6,8 @@ TEMPLATE_CONTENT = "template_content"
 
 TEMPLATE_METADATA = "template_metadata"
 
+CHECKLIST_UPDATE = "checklist_update"
+
 COMPONENT_NAME = "ExCheck"
 
 CONFIGURATION_FORMAT = "json"
@@ -58,3 +60,5 @@ MANIFEST_PATH = str(
 )
 
 BASE_OBJECT_NAME = "MissionInfo"
+
+EVENT = "Event"

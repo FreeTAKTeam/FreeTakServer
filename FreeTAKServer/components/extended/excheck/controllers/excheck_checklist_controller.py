@@ -1,6 +1,7 @@
 from typing import List
 import uuid
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
+from FreeTAKServer.components.extended.excheck.controllers.excheck_wintak_adapter import ExCheckWintakAdapter
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -44,13 +45,15 @@ class ExCheckChecklistController(Controller):
         super().__init__(request, response, sync_action_mapper, configuration)
         self.persistency_controller = ExCheckPersistencyController(request, response, sync_action_mapper, configuration)
         self.template_controller = ExCheckTemplateController(request, response, sync_action_mapper, configuration)
-    
+        self.wintak_adapter = ExCheckWintakAdapter(request, response, sync_action_mapper, configuration)
+
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.template_controller.initialize(request, response)
         self.persistency_controller.initialize(request, response)
+        self.wintak_adapter.initialize(request, response)
 
-    def start_checklist(self, templateuid: str, checklistname: str, checklist_description: str, config_loader, *args, **kwargs):
+    def start_checklist(self, templateuid: str, checklistname: str, checklist_description: str,  config_loader, checklist_content: bytes=b"", *args, **kwargs):
         """record a new checklist in the component
 
         Args:
@@ -59,19 +62,24 @@ class ExCheckChecklistController(Controller):
             checklist_description (str): the checklist description
             templateuid (str): the uid of the template from which the template is created
         """
-        checklist_uuid = str(uuid.uuid4())
+        if checklist_content == b'':
+            checklist_uuid = str(uuid.uuid4())
 
-        template = self.template_controller.get_template(templateuid, config_loader)
+            template = self.template_controller.get_template(templateuid, config_loader)
 
-        parsed_checklist = ElementTree.fromstring(template)
+            parsed_checklist = ElementTree.fromstring(template)
 
-        # parsed_checklist.remove(parsed_checklist.find("checklistColumns"))
+            # parsed_checklist.remove(parsed_checklist.find("checklistColumns"))
 
-        parsed_checklist.find("checklistDetails").find("uid").text = checklist_uuid
+            parsed_checklist.find("checklistDetails").find("uid").text = checklist_uuid
 
-        parsed_checklist.find("checklistDetails").find("name").text = checklistname
+            parsed_checklist.find("checklistDetails").find("name").text = checklistname
 
-        parsed_checklist.find("checklistDetails").find("description").text = checklist_description
+            parsed_checklist.find("checklistDetails").find("description").text = checklist_description
+        else:
+            parsed_checklist = ElementTree.fromstring(checklist_content)
+
+            checklist_uuid = checklist_content.find("checklistDetails").find("uid").text
 
         try:
             self.persistency_controller.create_checklist(checklist_uuid)
@@ -90,8 +98,9 @@ class ExCheckChecklistController(Controller):
 
         #for checklist_task in checklist_task_list:
         #    checklist_tasks.append(checklist_task)
-
-        return ElementTree.tostring(parsed_checklist, )
+        checklist_string = ElementTree.tostring(parsed_checklist)
+        self.response.set_value("checklist", checklist_string)
+        return checklist_string
 
     def _save_tasks_in_checklist(self, checklist: Element):
         """
@@ -116,6 +125,8 @@ class ExCheckChecklistController(Controller):
 
     def update_checklist_task(self, checklistuid, checklisttaskuid, checklisttaskdata, *args, **kwargs):
         
+        checklisttaskdata = self.wintak_adapter.standardize_task(checklisttaskdata)
+
         self.request.set_value("synctype", "ExCheckChecklistTask")
         self.request.set_value("objectdata", checklisttaskdata)
         self.request.set_value("objectuid", checklisttaskuid)
@@ -126,15 +137,19 @@ class ExCheckChecklistController(Controller):
         sub_response = self.execute_sub_action("GetEnterpriseSyncData")
         checklist_data = sub_response.get_value("objectdata")
 
-        tasks = ElementTree.fromstring(checklist_data).find("checklistTasks").findall("checklistTask")
+        checklist_data_elem = ElementTree.fromstring(checklist_data)
+        checklist_tasks = checklist_data_elem.find("checklistTasks")
+
+        tasks = checklist_tasks.findall("checklistTask")
 
         for task in tasks:
             if task.find("uid").text == checklisttaskuid:
-                task = ElementTree.fromstring(checklisttaskdata)
+                checklist_tasks.remove(task)
+                checklist_tasks.append(ElementTree.fromstring(checklisttaskdata))
                 break
 
         self.request.set_value("synctype", "ExCheckChecklist")
-        self.request.set_value("objectdata", checklist_data)
+        self.request.set_value("objectdata", ElementTree.tostring(checklist_data_elem))
         self.request.set_value("objectuid", checklistuid)
         self.execute_sub_action("UpdateEnterpriseSyncData")
 
@@ -192,7 +207,7 @@ class ExCheckChecklistController(Controller):
 
         sub_response = self.execute_sub_action("GetEnterpriseSyncData")
 
-        checklist_content = sub_response.get_value("objectdata")
+        checklist_content = ElementTree.fromstring(sub_response.get_value("objectdata"))
 
         checklist_db = self.persistency_controller.get_checklist(checklistuid)
 
@@ -207,8 +222,16 @@ class ExCheckChecklistController(Controller):
         # task_files = sub_response.get_value("objectdata")
 
         # checklist_with_tasks = self._add_tasks_to_checklist(checklist_content, task_files)
+        # for task in checklist_content.find("checklistTasks"):
+        #     check_uid = task.find("checklistUid")
+        #     if check_uid is not None:
+        #         task.remove(check_uid)
+        
+        checklist_string = ElementTree.tostring(checklist_content)
 
-        return checklist_content
+        self.response.set_value("checklist_data", checklist_string)
+
+        return checklist_string
 
     def get_all_checklists(self, config_loader, logger, *args, **kwargs):
 
@@ -226,10 +249,17 @@ class ExCheckChecklistController(Controller):
 
         for checklist, checklist_content in zip(checklists, checklist_contents):
             try:
-                complete_checklists.append(etree.fromstring(checklist_content))
+                checklist_obj = etree.fromstring(checklist_content)
+                checklist_obj.remove(checklist_obj.find("checklistTasks"))
+                checklist_obj.remove(checklist_obj.find("checklistColumns"))
+                checklist_obj.append(Element("checklistTasks"))
+                checklist_obj.append(Element("checklistColumns"))
+                complete_checklists.append(checklist_obj)
             except Exception as ex:
                 logger.error("error adding checklist to checklist content: %s", ex)
-        return ElementTree.tostring(complete_checklists).replace(b"\n", b"")
+        checklists = ElementTree.tostring(complete_checklists).replace(b"\n", b"")
+        self.response.set_value("checklists", checklists)
+        return checklists
 
     def _serialize_to_json(self, message):
         self.request.set_value("protocol", "json")
@@ -306,7 +336,6 @@ class ExCheckChecklistController(Controller):
 
         for task in tasks:
             task_elem = etree.fromstring(task)
-            task_elem.find("status").text = task_elem.find("status").text.upper()
             template_tasks.append(task_elem)
 
         return template_elem
@@ -317,9 +346,11 @@ class ExCheckChecklistController(Controller):
         # in atak template tasks have no uid so one must be created artificially
         if taskuid is None:
             taskuid = str(uuid.uuid4())
+        
+        checklistuid_obj = taskdata.find("checklistUid")
+        if checklistuid_obj is not None:
+            checklistuid_obj.text = checklistuid
 
-        taskdata.find("status").text = taskdata.find("status").text.upper()
-        taskdata.find("checklistUid").text = checklistuid
         taskdata.find("uid").text = taskuid
         
         self.request.set_value("synctype", "ExCheckChecklistTask")

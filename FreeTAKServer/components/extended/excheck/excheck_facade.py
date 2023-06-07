@@ -1,5 +1,6 @@
 from FreeTAKServer.components.extended.excheck.controllers.excheck_checklist_controller import ExCheckChecklistController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
+from FreeTAKServer.components.extended.excheck.controllers.excheck_notification_controller import ExCheckNotificationController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 
 
@@ -63,11 +64,13 @@ class Excheck(DefaultFacade):
         )
         self.template_controller = ExCheckTemplateController(request, response, sync_action_mapper, configuration)
         self.checklist_controller = ExCheckChecklistController(request, response, sync_action_mapper, configuration)
+        self.notification_controller = ExCheckNotificationController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
         self.template_controller.initialize(request, response)
         self.checklist_controller.initialize(request, response)
+        self.notification_controller.initialize(request, response)
         
     def execute(self, method):
         try:
@@ -98,6 +101,10 @@ class Excheck(DefaultFacade):
     def update_checklist_task(self, *args, **kwargs):
         return self.checklist_controller.update_checklist_task(*args, **kwargs)
     
+    @DefaultFacade.public
+    def checklist_update_notification(self, *args, **kwargs):
+        return self.notification_controller.send_task_update_notification(*args, **kwargs)
+
     @DefaultFacade.public
     def get_checklist(self, *args, **kwargs):
         return self.checklist_controller.get_checklist(*args, **kwargs)

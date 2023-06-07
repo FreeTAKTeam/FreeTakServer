@@ -60,3 +60,13 @@ class MissionChange(CoTNode):
     def type(self, type):
         self.cot_attributes["type"] = type
 
+    @CoTProperty
+    def content(self):
+        data = self.cot_attributes.get("content", None)
+        if data is None:
+            raise AttributeError("attribute 'content' doesnt exist")
+        return data
+
+    @content.setter
+    def content(self, content):
+        self.cot_attributes["content"] = content

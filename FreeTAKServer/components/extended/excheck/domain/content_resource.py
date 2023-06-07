@@ -1,10 +1,10 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
-class ContentResource(CoTNode):
+class contentResource(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
-
+        
     @CoTProperty
     def filename(self):
         data = self.cot_attributes.get("filename", None)

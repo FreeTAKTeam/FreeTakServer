@@ -11,7 +11,7 @@ loggingConstants = LoggingConstants(log_name="FTS-TCP_DataPackage_Service")
 logger = CreateLoggerController("FTS-TCP_DataPackage_Service", logging_constants=loggingConstants).getLogger()
 
 class TCPDataPackageService(FlaskFunctions):
-    def startup(self, ip, port, pipe, factory):
+    def start(self, ip, port, pipe, factory):
         try:
             from eventlet import wsgi
             global IP, HTTPPORT, PIPE
@@ -27,8 +27,7 @@ class TCPDataPackageService(FlaskFunctions):
             super().setIP(IP)
             super().setPIPE(PIPE)
             wsgi.server(eventlet.listen((DataPackageServerConstants().IP, HTTPPORT)), app)
-
-
+            
         except Exception as e:
             logger.error('there has been an exception in Data Package service startup ' + str(e))
             return -1

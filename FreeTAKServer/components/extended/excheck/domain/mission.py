@@ -2,13 +2,21 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 from digitalpy.core.parsing.load_configuration import Configuration
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 
-class Mission(CoTNode):
+class mission(CoTNode):
     def __init__(self, configuration: Configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["type"] = None
         self.cot_attributes["tool"] = None
         self.cot_attributes["name"] = None
         self.cot_attributes["authorUid"] = None
+
+    @CoTProperty
+    def MissionChanges(self):
+        return self.cot_attributes["MissionChanges"]
+    
+    @MissionChanges.setter
+    def MissionChanges(self, missionchanges):
+        self.cot_attributes["MissionChanges"] = missionchanges
 
     @CoTProperty
     def type(self):

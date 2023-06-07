@@ -154,6 +154,8 @@ class ExCheckTemplateController(Controller):
 
         final_message = self._serialize_to_json(mission_info)
 
+        self.response.set_value("template_info", final_message[0])
+
         return final_message[0]
 
     def _serialize_to_json(self, message):
