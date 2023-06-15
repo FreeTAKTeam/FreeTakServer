@@ -405,7 +405,7 @@ import time
 from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
 from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 
-from .blueprints import excheck_blueprint
+from .blueprints import excheck_blueprint, citrap_blueprint, misc_blueprint, mission_blueprint
 
 class HTTPSTakAPI(DigitalPyService):
      # a dictionary containing the request_id and response objects for all received requests
@@ -497,7 +497,10 @@ class HTTPSTakAPI(DigitalPyService):
 
     def register_blueprints(self, app):
         app.register_blueprint(excheck_blueprint.page)
-    
+        app.register_blueprint(citrap_blueprint.page)
+        app.register_blueprint(misc_blueprint.page)
+        app.register_blueprint(mission_blueprint.page)
+
     def setIP(self, IP_to_be_set):
         global IP
         IP = IP_to_be_set

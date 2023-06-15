@@ -8,9 +8,9 @@ page = Blueprint('Marti/api', __name__)
 def updatetemplate(checklistid, taskid):
     try:
         HTTPTakApiCommunicationController().make_request("UpdateChecklistTask", "excheck", {"checklistuid": checklistid, "checklisttaskuid": taskid, "checklisttaskdata": request.data})
-        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "changeme"}, False, "tcp_cot_service")
-        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "changeme"}, False, "ssl_cot_service")
-        return taskid, 200
+        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, False, "tcp_cot_service")
+        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, False, "ssl_cot_service")
+        return '', 200
         #dp_request = ObjectFactory.get_instance("request")
         #dp_response = ObjectFactory.get_instance("response")
         #excheck_facade = ObjectFactory.get_instance("ExCheck")
