@@ -12,6 +12,8 @@ from defusedxml import ElementTree
 
 import hashlib
 
+from datetime import datetime as dt
+
 from lxml.etree import Element
 from lxml import etree
 
@@ -30,6 +32,8 @@ from ..configuration.excheck_constants import (
     TEMPLATE_CONTENT,
     TEMPLATE_METADATA
 )
+
+DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 config = MainConfig.instance()
 
@@ -76,6 +80,12 @@ class ExCheckChecklistController(Controller):
             parsed_checklist.find("checklistDetails").find("name").text = checklistname
 
             parsed_checklist.find("checklistDetails").find("description").text = checklist_description
+
+            timer = dt
+            now = timer.utcnow()
+            zulu = now.strftime(DATETIME_FMT)
+
+            parsed_checklist.find("checklistDetails").find("startTime").text = zulu
         else:
             parsed_checklist = ElementTree.fromstring(checklist_content)
 
@@ -96,8 +106,8 @@ class ExCheckChecklistController(Controller):
 
         checklist_tasks = parsed_checklist.find("checklistTasks")
 
-        #for checklist_task in checklist_task_list:
-        #    checklist_tasks.append(checklist_task)
+        # for checklist_task in checklist_task_list:
+        #     checklist_tasks.append(checklist_task)
         checklist_string = ElementTree.tostring(parsed_checklist)
         self.response.set_value("checklist", checklist_string)
         return checklist_string

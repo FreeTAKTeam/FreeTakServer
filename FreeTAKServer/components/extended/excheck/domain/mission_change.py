@@ -17,6 +17,28 @@ class MissionChange(CoTNode):
         self.cot_attributes["contentResource"] = contentResource
 
     @CoTProperty
+    def isFederatedChange(self):
+        data = self.cot_attributes.get("isFederatedChange", None)
+        if data is None:
+            raise AttributeError("attribute 'isFederatedChange' doesnt exist")
+        return data
+
+    @isFederatedChange.setter
+    def isFederatedChange(self, isFederatedChange):
+        self.cot_attributes["isFederatedChange"] = isFederatedChange
+    
+    @CoTProperty
+    def groupVector(self):
+        data = self.cot_attributes.get("groupVector", None)
+        if data is None:
+            raise AttributeError("attribute 'groupVector' doesnt exist")
+        return data
+
+    @groupVector.setter
+    def groupVector(self, groupVector):
+        self.cot_attributes["groupVector"] = groupVector
+
+    @CoTProperty
     def creatorUid(self):
         data = self.cot_attributes.get("creatorUid", None)
         if data is None:

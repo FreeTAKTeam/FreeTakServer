@@ -47,21 +47,34 @@ class ExCheckWintakAdapter(Controller):
     def standardize_task(self, task: str):
         task_elem = ElementTree.fromstring(task)
         
-        prev_status = task_elem.find("Status")
-        if prev_status != None:
-            task_elem.remove(prev_status)
-            updated_status = Element("status")
-            updated_status.text = prev_status.text
-            task_elem.append(updated_status)
+        self.modify_status(task_elem)
         
-        due_relative_time = task_elem.find("dueRelativeTime")
-        if due_relative_time != None:
-            task_elem.remove(due_relative_time)
+        #self.remove_duedtg(task_elem)
 
-        checklist_uid = task_elem.find("checklistUid")
-        if checklist_uid != None:
-            task_elem.remove(checklist_uid)
+        self.remove_checklistuid(task_elem)
         
+        #self.remove_completeDtg(task_elem)
+
+        self.rename_completeDtg(task_elem)
+        
+        self.remove_customstatus(task_elem)
+        
+        return ElementTree.tostring(task_elem)
+
+    def remove_customstatus(self, task_elem):
+        customStatus = task_elem.find("customStatus")
+        if customStatus != None:
+            task_elem.remove(customStatus)
+
+    def remove_completeDtg(self, task_elem):
+        completeDTG = task_elem.find("CompleteDTG")
+        if completeDTG != None:
+            task_elem.remove(completeDTG)
+        alt_completeDTG = task_elem.find("completeDTG")
+        if alt_completeDTG != None:
+            task_elem.rremove(alt_completeDTG)
+
+    def rename_completeDtg(self, task_elem):
         completeDTG = task_elem.find("CompleteDTG")
         if completeDTG != None:
             task_elem.remove(completeDTG)
@@ -72,9 +85,21 @@ class ExCheckWintakAdapter(Controller):
                 correct_dtg = Element("completeDTG")
                 correct_dtg.text = completeDTG.text
                 task_elem.append(correct_dtg)
-        
-        customStatus = task_elem.find("customStatus")
-        if customStatus != None:
-            task_elem.remove(customStatus)
-        
-        return ElementTree.tostring(task_elem)
+
+    def remove_checklistuid(self, task_elem):
+        checklist_uid = task_elem.find("checklistUid")
+        if checklist_uid != None:
+            task_elem.remove(checklist_uid)
+
+    def remove_duedtg(self, task_elem):
+        due_relative_time = task_elem.find("dueRelativeTime")
+        if due_relative_time != None:
+            task_elem.remove(due_relative_time)
+
+    def modify_status(self, task_elem):
+        prev_status = task_elem.find("Status")
+        if prev_status != None:
+            task_elem.remove(prev_status)
+            updated_status = Element("status")
+            updated_status.text = prev_status.text
+            task_elem.append(updated_status)

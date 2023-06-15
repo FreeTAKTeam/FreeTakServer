@@ -114,3 +114,14 @@ class contentResource(CoTNode):
     @uid.setter
     def uid(self, uid):
         self.cot_attributes["uid"] = uid
+
+    @CoTProperty
+    def expiration(self):
+        data = self.cot_attributes.get("expiration", None)
+        if data is None:
+            raise AttributeError("attribute 'expiration' doesnt exist")
+        return data
+
+    @expiration.setter
+    def expiration(self, expiration):
+        self.cot_attributes["expiration"] = expiration
