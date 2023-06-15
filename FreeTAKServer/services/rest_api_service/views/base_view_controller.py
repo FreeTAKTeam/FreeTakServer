@@ -45,7 +45,7 @@ class BaseViewController(Controller):
             return error_msg, 500
             
 
-    def make_request(self, action: str, values: Dict = {}, synchronous:bool=True, service_id:str=None) -> Response:
+    def make_request(self, action: str, context: str="", values: Dict = {}, synchronous:bool=True, service_id:str=None) -> Response:
         """make a request to the zmanager
 
         Args:
@@ -68,6 +68,7 @@ class BaseViewController(Controller):
         # request to get repeated messages
         request: Request = ObjectFactory.get_new_instance("request")
         request.set_action(action)
+        request.set_context(context)
         request.set_sender(rest_api_service.__class__.__name__.lower())
         request.set_format("pickled")
         request.set_values(values)
