@@ -1,0 +1,58 @@
+# This workflow will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: Upload Dev Python Package
+
+on:
+  release:
+    types: [created]
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+    - name: Build and publish
+      continue-on-error: true
+      env:
+        TWINE_USERNAME: ${{ secrets.DEV_PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload --repository-url http://${{ secrets.DEV_PYPI_ADDRESS }}:8080 dist/*
+    - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
+      uses: GuillaumeFalourd/clone-github-repo-action@v2
+      with:
+        owner: 'FreeTAKTeam'
+        repository: 'FreeTAKHub-Installation'
+
+    - name: Run Ansible playbook
+      # You may pin to the exact commit or the version.
+      # uses: dawidd6/action-ansible-playbook@671974ed60e946e11964cb0c26e69caaa4b1f559
+      uses: dawidd6/action-ansible-playbook@v2.5.0
+      with:
+        # Ansible playbook filepath
+        playbook: FreeTAKHub-Installation/install_all.yml
+        # SSH private key used to connect to the host
+        key: ${{secrets.DEV_SERVER_SSH_KEY}}
+        # Custom content to write into hosts
+        inventory: |
+          [all]
+          ${{secrets.DEV_SERVER_ADDRESS}}    ansible_sudo_pass=${{secrets.DEV_SERVER_PASSWORD}}     ansible_connection=ssh    ansible_user=${{secrets.DEV_SERVER_USERNAME}}
+        # Extra options that should be passed to ansible-playbook command
+        options: |
+          --verbose
+        # Set to "true" if root is required for running your playbook
+        sudo: true
