@@ -18,6 +18,7 @@ from digitalpy.core.digipy_configuration.configuration import Configuration
 from FreeTAKServer.core.enterprise_sync.controllers.enterprise_sync_database_controller import EnterpriseSyncDatabaseController
 
 from .enterprise_sync_filesystem_controller import EnterpriseSyncFilesystemController
+from .enterprise_sync_format_synchronization_controller import EnterpriseSyncFormatSynchronizationController
 
 class EnterpriseSyncGeneralController(Controller):
     """general enterprise sync operations"""
@@ -32,11 +33,13 @@ class EnterpriseSyncGeneralController(Controller):
         super().__init__(request, response, sync_action_mapper, configuration)
         self.filesystem_controller = EnterpriseSyncFilesystemController(request, response, sync_action_mapper, configuration)
         self.persistence_controller = EnterpriseSyncDatabaseController(request, response, sync_action_mapper, configuration)
+        self.format_sync_controller = EnterpriseSyncFormatSynchronizationController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.filesystem_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
+        self.format_sync_controller.initialize(request, response)
 
     def broadcast(self):
         """Broadcasts a specific data package to all users in the system."""
@@ -102,13 +105,16 @@ class EnterpriseSyncGeneralController(Controller):
         """Uploads one file to the server via HTTPS."""
         pass
 
-    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, logger, *args, **kwargs):
+    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, objstarttime: str, logger, *args, **kwargs):
         """save enterprise sync data to the db and the file system"""
+        objectdata = self.format_sync_controller.convert_newlines(objectdata)
         obj_hash = str(hashlib.sha256(objectdata).hexdigest())
+        obj_length = len(objectdata)
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, obj_hash, logger)
+        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, obj_hash, obj_length, objkeywords, objstarttime, logger)
 
     def update_enterprise_sync_data(self, synctype: str, objecthash: str, objectuid: str, objectdata: str, logger, *args, **kwargs):
+        objectdata = self.format_sync_controller.convert_newlines(objectdata)
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
         self.persistence_controller.update_enterprise_sync_data_object(synctype, objectuid, objecthash, logger)
 
@@ -116,9 +122,10 @@ class EnterpriseSyncGeneralController(Controller):
         """get the object data from an enterprise sync object"""
         data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, objectuid, objecthash)
         object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
+        object_data = self.format_sync_controller.convert_newlines(object_data)
         self.response.set_value("objectdata", object_data)
 
-    def get_multiple_enterprise_sync_data(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, *args, **kwargs):
+    def get_multiple_enterprise_sync_data(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, use_bytes=False, *args, **kwargs):
         """
         Get the object data from multiple enterprise sync objects.
 
@@ -133,7 +140,8 @@ class EnterpriseSyncGeneralController(Controller):
             for uid in objectuids:
                 try:
                     data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, uid, None, )
-                    object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
+                    object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey, use_bytes)
+                    object_data = self.format_sync_controller.convert_newlines(object_data)
                     object_data_list.append(object_data)
                 except Exception as ex:
                     logger.error("exception thrown getting enterprise sync object by uid %s", ex)
@@ -141,7 +149,8 @@ class EnterpriseSyncGeneralController(Controller):
             for objhash in objecthashs:
                 try:
                     data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
-                    object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey)
+                    object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey, use_bytes)
+                    object_data = self.format_sync_controller.convert_newlines(object_data)
                     object_data_list.append(object_data)
                 except Exception as ex:
                     logger.error("exception thrown getting enterprise sync object by hash %s", ex)

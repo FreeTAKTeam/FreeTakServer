@@ -22,8 +22,9 @@ class EnterpriseSyncFilesystemController(Controller):
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
+        
 
-    def save_file(self, filetype: str, objectuid: str, objectdata: str, *args, **kwargs):
+    def save_file(self, filetype: str, objectuid: str, objectdata: str, use_bytes=False, encoding="utf-8", *args, **kwargs):
         """
         Save an enterprise sync file to the file system.
 
@@ -49,7 +50,7 @@ class EnterpriseSyncFilesystemController(Controller):
         with open(file_path, 'wb+') as file:
             file.write(objectdata)
         
-    def get_file(self, file_type: str, object_uid: str, *args, **kwargs):
+    def get_file(self, file_type: str, object_uid: str, use_bytes=False, encoding="utf-8", *args, **kwargs):
         """
         Retrieve an enterprise sync file from the file system.
 
@@ -62,10 +63,16 @@ class EnterpriseSyncFilesystemController(Controller):
         Returns:
             str: The contents of the retrieved file.
         """
+        if use_bytes:
+            read_type = 'rb'
+            encoding = None
+        else:
+            read_type = 'r'
+
         root_path = config.EnterpriseSyncPath
         complete_file_path = os.path.join(root_path, file_type, object_uid+'.txt')
 
-        with open(complete_file_path, 'r') as file:
+        with open(complete_file_path, read_type, encoding=encoding) as file:
             file_contents = file.read()
 
         return file_contents

@@ -1,7 +1,7 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
-class TemplateContent(CoTNode):
+class MissionItem(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["filename"] = None
@@ -14,6 +14,7 @@ class TemplateContent(CoTNode):
         self.cot_attributes["hash"] = None
         self.cot_attributes["size"] = None
         self.cot_attributes["tool"] = None
+        self.cot_attributes["expiration"] = None
 
     @CoTProperty
     def filename(self):
@@ -95,3 +96,10 @@ class TemplateContent(CoTNode):
     def tool(self, tool=None):
         self.cot_attributes["tool"] = tool
 
+    @CoTProperty
+    def expiration(self):
+        return self.cot_attributes.get("expiration", None)
+    
+    @expiration.setter
+    def expiration(self, expiration=None):
+        self.cot_attributes["expiration"] = expiration

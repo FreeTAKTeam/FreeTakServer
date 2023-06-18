@@ -9,7 +9,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.69.7"
+FTS_VERSION = "FreeTAKServer-2.0.70"
 API_VERSION = "3"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent
@@ -67,6 +67,8 @@ class MainConfig:
         # this is the port to which clients will connect
         "CoTServicePort": {"default": 8087, "type": int},
         "SSLCoTServicePort": {"default": 8089, "type": int},
+        "HTTPSTakAPIPort": {"default": 8443, "type": int},
+        "HTTPTakAPIPort": {"default": 8080, "type": int},
         # this needs to be changed for private data packages to work
         "DataPackageServiceDefaultIP": {"default": _ip, "type": str},
         # User Connection package IP needs to be set to the IP which is

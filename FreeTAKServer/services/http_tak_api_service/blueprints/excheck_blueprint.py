@@ -19,6 +19,10 @@ def updatetemplate(checklistid, taskid):
     except Exception as ex:
         print(ex)
         return '', 500
+    
+@page.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['GET'])
+def get_checklist_task(checklistid, taskid):
+    return HTTPTakApiCommunicationController().make_request("GetChecklistTask", "excheck", {"checklistuid": checklistid, "checklisttaskuid": taskid}, None, True).get_value("checklist_task_data"), 200
 
 @page.route('/Marti/api/excheck/checklist/active', methods=["GET"])
 def activechecklists():
@@ -86,3 +90,24 @@ def ExCheckTemplates():
     except Exception as ex:
         print(ex)
         return '', 500
+
+    
+@page.route('/Marti/api/excheck/template/<templateUid>', methods=['GET'])
+def get_template(templateUid):
+    try:
+        template_data = HTTPTakApiCommunicationController().make_request("GetTemplate", "excheck", {"templateuid": templateUid}, None, True).get_value("template_data")
+        return template_data, 200
+        dp_request = ObjectFactory.get_instance("request")
+        dp_response = ObjectFactory.get_instance("response")
+        excheck_facade = ObjectFactory.get_instance("ExCheck")
+        excheck_facade.initialize(dp_request, dp_response)
+        excheck_facade.create_template(request.data)
+        return 'template created successfully', 200
+        # return ExCheckController().template(PIPE)
+    except Exception as ex:
+        print(ex)
+        return '', 500
+
+@page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
+def get_checklist_mission(mission_id):
+    return HTTPTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}).get_value("mission_info")

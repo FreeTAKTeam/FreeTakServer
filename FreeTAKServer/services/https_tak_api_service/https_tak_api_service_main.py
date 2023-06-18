@@ -175,13 +175,6 @@ def versionConfig():
     logger.info('sending client version json')
     return const.VERSIONJSON
 
-
-@app.route('/Marti/api/clientEndPoints', methods=[const.GET])
-def clientEndPoint():
-    logger.info('sending client version info')
-    return const.versionInfo
-
-
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
     from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
@@ -315,19 +308,6 @@ def request_subscription():
         return ('', 200)
     except Exception as e:
         print('exception in request_subscription' + str(e))
-    
-@app.route('/Marti/api/missions/<data_obj_uid>', methods=["GET"])
-def get_mission_data(data_obj_uid):
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-        enterprisesync_facade.initialize(dp_request, dp_response)
-        enterprisesync_facade.get_enterprise_sync_data(objectuid = data_obj_uid)
-        return dp_response.get_value("objectdata"), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
     
 @app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
 def missionupdate(templateuid):

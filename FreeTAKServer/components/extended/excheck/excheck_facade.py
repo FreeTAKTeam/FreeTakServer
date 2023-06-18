@@ -94,6 +94,10 @@ class Excheck(DefaultFacade):
         return self.template_controller.get_all_templates(*args, **kwargs)
     
     @DefaultFacade.public
+    def get_template(self, *args, **kwargs):
+        return self.template_controller.get_template(*args, **kwargs)
+
+    @DefaultFacade.public
     def start_checklist(self, *args, **kwargs):
         return self.checklist_controller.start_checklist(*args, **kwargs)
     
@@ -112,3 +116,11 @@ class Excheck(DefaultFacade):
     @DefaultFacade.public
     def get_checklists(self, *args, **kwargs):
         return self.checklist_controller.get_all_checklists(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def get_checklist_task(self, *args, **kwargs):
+        return self.checklist_controller.get_checklist_task(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_checklist_mission(self, *args, **kwargs):
+        return self.checklist_controller.get_checklist_mission(*args, **kwargs)

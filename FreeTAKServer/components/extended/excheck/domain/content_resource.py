@@ -125,3 +125,14 @@ class contentResource(CoTNode):
     @expiration.setter
     def expiration(self, expiration):
         self.cot_attributes["expiration"] = expiration
+
+    @CoTProperty
+    def groupVector(self):
+        data = self.cot_attributes.get("groupVector", None)
+        if data is None:
+            raise AttributeError("attribute 'groupVector' doesnt exist")
+        return data
+
+    @groupVector.setter
+    def groupVector(self, groupVector):
+        self.cot_attributes["groupVector"] = groupVector

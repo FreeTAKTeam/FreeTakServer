@@ -176,12 +176,6 @@ def versionConfig():
     return const.VERSIONJSON
 
 
-@app.route('/Marti/api/clientEndPoints', methods=[const.GET])
-def clientEndPoint():
-    logger.info('sending client version info')
-    return const.versionInfo
-
-
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
     from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
@@ -304,17 +298,7 @@ def check_changes():
     except Exception as e:
         print('exception in check changes' + str(e))
 
-# TODO remove?
-@app.route('/Marti/api/missions/exchecktemplates/subscription', methods=['PUT'])
-def request_subscription():
-    try:
-        # this endpoint allows for the client to request a new subscription
-        # possibly the uid of the client db also contains create_time and mission_id
-        print(request.args.get('uid'))
 
-        return ('', 200)
-    except Exception as e:
-        print('exception in request_subscription' + str(e))
 
 @app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
@@ -336,19 +320,6 @@ def ExCheckTemplatesAlt():
         excheck_facade = ObjectFactory.get_instance("ExCheck")
         excheck_facade.initialize(dp_request, dp_response)
         return excheck_facade.get_all_templates(), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
-    
-@app.route('/Marti/api/missions/<data_obj_uid>', methods=["GET"])
-def get_mission_data(data_obj_uid):
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-        enterprisesync_facade.initialize(dp_request, dp_response)
-        enterprisesync_facade.get_enterprise_sync_data(objectuid = data_obj_uid)
-        return dp_response.get_value("objectdata"), 200
     except Exception as ex:
         print(ex)
         return '', 500

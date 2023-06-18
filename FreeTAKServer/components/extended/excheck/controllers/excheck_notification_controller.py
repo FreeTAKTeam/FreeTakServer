@@ -1,5 +1,7 @@
 from typing import List
 import uuid
+
+from bitarray import bitarray
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
 from FreeTAKServer.components.extended.excheck.domain.content import content
 from FreeTAKServer.components.extended.excheck.domain.expiration import expiration
@@ -40,6 +42,7 @@ from ..domain.name import name
 from ..domain.keywords import keywords
 from ..domain.size import size
 from ..domain.submission_time import submissionTime
+from ..domain.group_vector import groupVector
 
 from ..configuration.excheck_constants import (
     BASE_OBJECT,
@@ -68,6 +71,21 @@ class ExCheckNotificationController(Controller):
         self.excheck_checklist_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
 
+    def generate_group_vector(self):
+        length = 32768
+
+        # Create an empty bitarray of the specified length
+        bitstring = bitarray(length)
+
+        # Set all bits to 0
+        bitstring.setall(False)
+
+        # Set third bit to 1 indicating anonymous group
+        bitstring[-3] = True
+
+        # Convert the bitarray to a string representation
+        return bitstring.to01()
+
     def send_task_update_notification(self, task_uid, changer_uid, config_loader, *args, **kwargs):
         checklist_task_obj = self.persistence_controller.get_checklist_task(task_uid)
 
@@ -92,37 +110,43 @@ class ExCheckNotificationController(Controller):
         
         url = config.DataPackageServiceDefaultIP+":"+str(config.HTTPSTakAPIPort)
 
-        notification_string = self.sample_notification(checklist_task_metadata.hash, update_task_model_object.stale, update_task_model_object.start, len(checklist_data), checklist_task_obj.checklist_uid, checklist_element.find("checklistDetails").find("name").text, url)
+        #notification_string = self.sample_notification(checklist_task_metadata.hash, update_task_model_object.stale, task_uid, update_task_model_object.start, len(checklist_task), checklist_task_obj.checklist_uid, checklist_element.find("checklistDetails").find("name").text, url, checklist_task)
 
         # Serializer called by service manager requires the message value
         self.response.set_value('message', [update_task_model_object])
-        # self.response.set_value('message', [notification_string.encode()])
+        #self.response.set_value('message', [notification_string.encode()])
+        
         self.response.set_value('recipients', "*")
         self.response.set_action("publish")
 
-    def sample_notification(self, hash, stale_time, current_time, task_size, checklist_uid, checklist_name, url):
+    def sample_notification(self, hash, stale_time, task_uid, current_time, task_size, checklist_uid, checklist_name, url, checklist_task):
+        from datetime import datetime as dt
+        import datetime
         uid_msg = str(uuid.uuid4())
-        return f"""<event version="2.0"
-       uid="ce7893b5-b522-4be1-a100-0a02e145a082"
-       type="t-x-m-c-m"
-       time={current_time}
-       start={current_time}
-       stale={stale_time}
-       how="h-g-i-g-o">
-	<point lat="0"
-	       lon="0"
-	       hae="0"
-	       ce="9999999"
-	       le="9999999"/>
-	<detail>
-		<mission type="CHANGE"
-		         tool="ExCheck"
-		         name="6c312d5e-9020-4380-a618-9c62e081a03a"
-		         authorUid="e7f71100-dbbe-4d93-b5b8-1037935f6ee6"/>
-	</detail>
-</event>
-"""
+        DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+        timer = dt
+        now = timer.utcnow()
+        zulu = now.strftime(DATETIME_FMT)
+        time_stamp = dt.strptime(zulu, DATETIME_FMT)
+        time_str = time_stamp.strftime(DATETIME_FMT)
+        add = datetime.timedelta(seconds=20)
+        stale_part = dt.strptime(zulu, DATETIME_FMT) + add
+        stale = stale_part.strftime(DATETIME_FMT)
+        from jinja2 import Environment, FileSystemLoader
 
+        # Create a Jinja environment with the specified template directory
+        env = Environment(loader=FileSystemLoader(r"C:\Users\Natha Paquette\work\FreeTakServer\FreeTAKServer\components\extended\excheck\configuration"))
+        
+        # Load the template file
+        template = env.get_template('notification_template.jinja')
+        
+        # Render the template to a string
+        rendered_template = template.render(uid_msg=uid_msg, stale=stale, time_str=time_str, hash=hash, stale_time=stale_time, task_uid=task_uid, current_time=current_time, task_size=task_size+55, checklist_uid=checklist_uid, checklist_name=checklist_name, checklist_task=checklist_task)
+        
+        print(rendered_template)
+
+        return rendered_template
+    
     def get_update_task_model_object(self, config_loader):
         self.request.set_value("object_class_name", EVENT)
 
@@ -135,7 +159,8 @@ class ExCheckNotificationController(Controller):
                                                    "submitter": submitter, "missionName": missionName, "timestamp": timestamp,
                                                    "uid": uid, "tool": tool, "filename": filename, "hash": hash, "keywords": keywords,
                                                    "mimeType": mimeType, "name": name, "size": size, "submissionTime": submissionTime,
-                                                   "content": content, "isFederatedChange": isFederatedChange, "expiration": expiration})
+                                                   "content": content, "isFederatedChange": isFederatedChange, "expiration": expiration,
+                                                   "groupVector": groupVector})
         self.request.set_value(
             "source_format", self.request.get_value("source_format")
         )
@@ -150,6 +175,7 @@ class ExCheckNotificationController(Controller):
         update_task_model_object.version = "2.0"
         update_task_model_object.how = "h-g-i-g-o"
         update_task_model_object.uid = str(uuid.uuid4())
+        update_task_model_object.point.hae = "0"
         update_task_model_object.detail.mission.type = "CHANGE"
         update_task_model_object.detail.mission.tool = "ExCheck"
         update_task_model_object.detail.mission.name = checklist_uid
@@ -167,10 +193,12 @@ class ExCheckNotificationController(Controller):
         update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.name.text = task_uid
         update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.size.text = task_size
         update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.submissionTime.text = update_task_model_object.start
-        update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.submitter.text = changer_uid
+        update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.submitter.text = "anonymous"
         update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.tool.text = "ExCheck"
         update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.uid.text = task_uid
         update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.expiration.text = "-1"
+        update_task_model_object.detail.mission.MissionChanges.MissionChange[0].contentResource.groupVector.text = self.generate_group_vector()
+
         # TODO: change this value
         update_task_model_object.detail.mission.MissionChanges.MissionChange[0].content.text = task_data
         

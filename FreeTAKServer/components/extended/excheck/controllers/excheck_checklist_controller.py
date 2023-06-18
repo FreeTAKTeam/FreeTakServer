@@ -7,6 +7,7 @@ from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
+from bitarray import bitarray
 
 from defusedxml import ElementTree
 
@@ -14,17 +15,15 @@ import hashlib
 
 from datetime import datetime as dt
 
+from xml.etree.ElementTree import Element as etElement
+
 from lxml.etree import Element
 from lxml import etree
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
-from ..domain.mission_info import MissionInfo
-from ..domain.mission_data import MissionData
-from ..domain.template_content import TemplateContent
-from ..domain.template_metadata import TemplateMetaData
-
 from .excheck_persistency_controller import ExCheckPersistencyController
+from .excheck_mission_controller import ExCheckMissionController
 
 from ..configuration.excheck_constants import (
     BASE_OBJECT,
@@ -50,12 +49,14 @@ class ExCheckChecklistController(Controller):
         self.persistency_controller = ExCheckPersistencyController(request, response, sync_action_mapper, configuration)
         self.template_controller = ExCheckTemplateController(request, response, sync_action_mapper, configuration)
         self.wintak_adapter = ExCheckWintakAdapter(request, response, sync_action_mapper, configuration)
+        self.mission_controller = ExCheckMissionController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.template_controller.initialize(request, response)
         self.persistency_controller.initialize(request, response)
         self.wintak_adapter.initialize(request, response)
+        self.mission_controller.initialize(request, response)
 
     def start_checklist(self, templateuid: str, checklistname: str, checklist_description: str,  config_loader, checklist_content: bytes=b"", *args, **kwargs):
         """record a new checklist in the component
@@ -67,11 +68,13 @@ class ExCheckChecklistController(Controller):
             templateuid (str): the uid of the template from which the template is created
         """
         if checklist_content == b'':
+            start_time = self.get_time()
+            
             checklist_uuid = str(uuid.uuid4())
 
             template = self.template_controller.get_template(templateuid, config_loader)
 
-            parsed_checklist = ElementTree.fromstring(template)
+            parsed_checklist = etree.fromstring(template)
 
             # parsed_checklist.remove(parsed_checklist.find("checklistColumns"))
 
@@ -81,15 +84,23 @@ class ExCheckChecklistController(Controller):
 
             parsed_checklist.find("checklistDetails").find("description").text = checklist_description
 
-            timer = dt
-            now = timer.utcnow()
-            zulu = now.strftime(DATETIME_FMT)
+            parsed_checklist.find("checklistDetails").find("startTime").text = start_time
 
-            parsed_checklist.find("checklistDetails").find("startTime").text = zulu
         else:
-            parsed_checklist = ElementTree.fromstring(checklist_content)
+            parsed_checklist = etree.fromstring(checklist_content)
 
             checklist_uuid = checklist_content.find("checklistDetails").find("uid").text
+
+        for checklist_task in parsed_checklist.find("checklistTasks").findall("checklistTask"):
+            parsed_checklist.find("checklistTasks").remove(checklist_task)
+            parsed_checklist.find("checklistTasks").append(etree.fromstring(self.wintak_adapter.standardize_task(etree.tostring(checklist_task))))
+        
+        number = 0
+        for checklist_task in parsed_checklist.find("checklistTasks").findall("checklistTask"):
+            num = Element("number")
+            checklist_task.append(num)
+            num.text = str(number)
+            number += 1
 
         try:
             self.persistency_controller.create_checklist(checklist_uuid)
@@ -99,8 +110,10 @@ class ExCheckChecklistController(Controller):
         checklist_task_list = self._save_tasks_in_checklist(parsed_checklist)
 
         self.request.set_value("synctype", "ExCheckChecklist")
-        self.request.set_value("objectdata", ElementTree.tostring(parsed_checklist))
+        self.request.set_value("objectdata", etree.tostring(parsed_checklist, xml_declaration=True, encoding='UTF-8'))
         self.request.set_value("objectuid", checklist_uuid)
+        self.request.set_value("objkeywords", ["Template"])
+        self.request.set_value("objstarttime", start_time)
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
@@ -108,9 +121,14 @@ class ExCheckChecklistController(Controller):
 
         # for checklist_task in checklist_task_list:
         #     checklist_tasks.append(checklist_task)
-        checklist_string = ElementTree.tostring(parsed_checklist)
+        checklist_string = etree.tostring(parsed_checklist, xml_declaration=True, encoding='UTF-8')
         self.response.set_value("checklist", checklist_string)
         return checklist_string
+    
+    def get_time(self):
+        timer = dt
+        now = timer.utcnow()
+        return now.strftime(DATETIME_FMT)
 
     def _save_tasks_in_checklist(self, checklist: Element):
         """
@@ -164,45 +182,7 @@ class ExCheckChecklistController(Controller):
         self.execute_sub_action("UpdateEnterpriseSyncData")
 
         return "done"
-
-    def get_mission_info_object(self, config_loader):
-
-        self.request.set_value("object_class_name", BASE_OBJECT_NAME)
-
-        configuration = config_loader.find_configuration(TEMPLATE_CONTENT)
-
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionInfo": MissionInfo, "TemplateMetaData": TemplateMetaData, "TemplateContent": TemplateContent})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
-
-    def get_template_metadata_object(self, config_loader):
-
-        self.request.set_value("object_class_name", "TemplateMetaData")
-
-        configuration = config_loader.find_configuration(TEMPLATE_METADATA)
-
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"TemplateMetaData": TemplateMetaData, "TemplateContent": TemplateContent})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
-
+    
     def get_checklist(self, checklistuid: str, config_loader, *args, **kwargs) -> str:
         """get the contents of a checklist based on its UID
 
@@ -218,8 +198,6 @@ class ExCheckChecklistController(Controller):
         sub_response = self.execute_sub_action("GetEnterpriseSyncData")
 
         checklist_content = ElementTree.fromstring(sub_response.get_value("objectdata"))
-
-        checklist_db = self.persistency_controller.get_checklist(checklistuid)
 
         # task_uids = []
         # for task in checklist_db.tasks:
@@ -242,6 +220,26 @@ class ExCheckChecklistController(Controller):
         self.response.set_value("checklist_data", checklist_string)
 
         return checklist_string
+    
+    def get_checklist_task(self, checklistuid, checklisttaskuid, *args, **kwargs):
+        """get the contents of a checklist task on its UID
+
+        Args:
+            checklistuid (str): the uid of the checklist to be returned
+
+        Returns:
+            str: the content of the checklist
+        """
+
+        self.request.set_value("objectuid", checklisttaskuid)
+
+        sub_response = self.execute_sub_action("GetEnterpriseSyncData")
+
+        checklist_task_content = sub_response.get_value("objectdata")
+        
+        self.response.set_value("checklist_task_data", checklist_task_content)
+
+        return checklist_task_content
 
     def get_all_checklists(self, config_loader, logger, *args, **kwargs):
 
@@ -250,6 +248,8 @@ class ExCheckChecklistController(Controller):
         checklist_uids = [checklist.PrimaryKey for checklist in checklists]
 
         self.request.set_value("objectuids", checklist_uids)
+
+        self.request.set_value("use_bytes", True)
 
         sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
 
@@ -262,75 +262,14 @@ class ExCheckChecklistController(Controller):
                 checklist_obj = etree.fromstring(checklist_content)
                 checklist_obj.remove(checklist_obj.find("checklistTasks"))
                 checklist_obj.remove(checklist_obj.find("checklistColumns"))
-                checklist_obj.append(Element("checklistTasks"))
                 checklist_obj.append(Element("checklistColumns"))
+                checklist_obj.append(Element("checklistTasks"))
                 complete_checklists.append(checklist_obj)
             except Exception as ex:
                 logger.error("error adding checklist to checklist content: %s", ex)
-        checklists = ElementTree.tostring(complete_checklists).replace(b"\n", b"")
+        checklists = etree.tostring(complete_checklists, encoding='UTF-8', method='xml', standalone="yes").replace(b"\n", b"")
         self.response.set_value("checklists", checklists)
         return checklists
-
-    def _serialize_to_json(self, message):
-        self.request.set_value("protocol", "json")
-        self.request.set_value("message", [message])
-        response = self.execute_sub_action("serialize")
-        return response.get_value("message")
-
-    def _serialize_to_mission_info(self, mission_info: MissionInfo, templates: List[Element], config_loader):
-        #TODO: modify this to access from the configuration
-        mission_info.nodeId = config.nodeID
-        #mission_info.nodeId = "b9a1620a93ec43378f42a32103f53d8d"
-        mission_info.version = config.APIVersion
-        mission_info.type = "Mission"
-        mission_data: List[MissionData] = mission_info.data[0] # the only mission data object should be the excheck object
-        self._serialize_to_mission_data(mission_data, templates, config_loader)
-
-    def _serialize_to_mission_data(self, mission_data, templates, config_loader):
-        mission_data.name = "exchecktemplates"
-        mission_data.tool = "ExCheck"
-        mission_data.keywords = []
-        mission_data.creatorUid = "ExCheck"
-        # TODO: get time dynamically
-        mission_data.createTime = "2023-02-22T16:06:26.979Z"
-        mission_data.groups = []
-        mission_data.externalData = []
-        mission_data.feeds = []
-        mission_data.mapLayers = []
-        mission_data.inviteOnly = False
-        mission_data.expiration = -1
-        mission_data.uids = []
-        mission_data.passwordProtected = False
-        template_metadata_list: List[TemplateMetaData]= mission_data.contents
-        if len(template_metadata_list)>0 and len(templates)>0:
-            self._serialize_template_metadata(template_metadata_list[0], templates[0])
-            for index in range(1, len(templates)):
-                template_metadata: TemplateMetaData = self.get_template_metadata_object(config_loader)
-                mission_data.contents = template_metadata
-                self._serialize_template_metadata(template_metadata, templates[index])
-
-    def _serialize_template_metadata(self, template_metadata, template):
-        template_str = ElementTree.tostring(template)
-        template_metadata.creatorUid = "ANDROID-860046038899730"
-        template_metadata.timestamp = "2023-02-23T18:46:46.554Z"
-
-        self._serialize_template_content(template, template_str, template_metadata)
-
-    def _serialize_template_content(self, template, template_str, template_metadata):
-        template_content: TemplateContent = template_metadata.data
-        template_details = template.find("checklistDetails")
-
-        template_content.filename = template_details.find("uid").text+".xml"
-        template_content.keywords = [template_details.find("name").text, template_details.find("description").text, "TODO"]
-        template_content.mimeType = "application/xml"
-        template_content.name = template_details.find("uid").text
-        template_content.submissionTime = template_details.find("startTime").text
-        template_content.submitter = "TODO"
-        template_content.name = template_details.find("uid").text
-        template_content.hash = str(hashlib.sha256(template_str).hexdigest())
-        template_content.size = len(template_str)
-        template_content.tool = "ExCheck"
-        template_content.uid = template_details.find("uid").text
 
     def _add_tasks_to_checklist(self, checklist: str, tasks: List[str]) -> Element:
         """
@@ -366,7 +305,28 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("synctype", "ExCheckChecklistTask")
         self.request.set_value("objectdata", ElementTree.tostring(taskdata))
         self.request.set_value("objectuid", taskuid)
+        self.request.set_value("objkeywords", ["Task"])
+        self.request.set_value("objstarttime", self.get_time())
+
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
         self.persistency_controller.create_checklist_task(checklistuid, taskuid)
+
+    def get_checklist_mission(self, checklist_id, config_loader, *args, **kwargss):
+        mission_info = self.mission_controller.get_mission_info_object(config_loader)
+        checklist_db_obj = self.persistency_controller.get_checklist(checklist_id)
+        
+        mission_uids = [checklist_task.PrimaryKey for checklist_task in checklist_db_obj.tasks]
+        self.request.set_value("objectuids", mission_uids)
+        sub_resp = self.execute_sub_action("GetMultipleEnterpriseSyncMetaData")
+
+        mission_elements_metadata = sub_resp.get_value("objectmetadata")
+
+        self.mission_controller.complete_mission_info(mission_info, mission_elements_metadata, checklist_id, config_loader)
+
+        final_message = self.mission_controller.serialize_to_json(mission_info)
+        
+        self.response.set_value("mission_info", final_message[0])
+        
+        return final_message[0]

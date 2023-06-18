@@ -16,8 +16,8 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 from ..domain.mission_info import MissionInfo
 from ..domain.mission_data import MissionData
-from ..domain.template_content import TemplateContent
-from ..domain.template_metadata import TemplateMetaData
+from ..domain.mission_item import MissionItem
+from ..domain.mission_item_metadata import MissionItemMetaData
 
 from .excheck_persistency_controller import ExCheckPersistencyController
 
@@ -47,7 +47,7 @@ class ExCheckWintakAdapter(Controller):
     def standardize_task(self, task: str):
         task_elem = ElementTree.fromstring(task)
         
-        self.modify_status(task_elem)
+        self.remove_Status(task_elem)
         
         #self.remove_duedtg(task_elem)
 
@@ -57,7 +57,7 @@ class ExCheckWintakAdapter(Controller):
 
         self.rename_completeDtg(task_elem)
         
-        self.remove_customstatus(task_elem)
+        #self.remove_customstatus(task_elem)
         
         return ElementTree.tostring(task_elem)
 
@@ -96,10 +96,7 @@ class ExCheckWintakAdapter(Controller):
         if due_relative_time != None:
             task_elem.remove(due_relative_time)
 
-    def modify_status(self, task_elem):
+    def remove_Status(self, task_elem):
         prev_status = task_elem.find("Status")
         if prev_status != None:
             task_elem.remove(prev_status)
-            updated_status = Element("status")
-            updated_status.text = prev_status.text
-            task_elem.append(updated_status)

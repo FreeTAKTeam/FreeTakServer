@@ -10,7 +10,7 @@ setup(
     packages=find_packages(
         include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini", "*.conf"]
     ),
-    version="2.0.69.7",
+    version="2.0.70",
     license="EPL-2.0",
     description="An open source server for the TAK family of applications.",
     long_description=long_description,
@@ -22,6 +22,7 @@ setup(
     keywords=["TAK", "OPENSOURCE"],
     include_package_data=True,
     install_requires=[
+        "bitarray",
         "click==8.0.4",
         "colorama==0.4.4",
         "cryptography==36.0.2",

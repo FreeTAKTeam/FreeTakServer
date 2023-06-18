@@ -10,14 +10,18 @@ from defusedxml import ElementTree
 
 import hashlib
 
+from lxml import etree
+
 from lxml.etree import Element
+
+from datetime import datetime as dt
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 from ..domain.mission_info import MissionInfo
 from ..domain.mission_data import MissionData
-from ..domain.template_content import TemplateContent
-from ..domain.template_metadata import TemplateMetaData
+from ..domain.mission_item import MissionItem
+from ..domain.mission_item_metadata import MissionItemMetaData
 
 from .excheck_persistency_controller import ExCheckPersistencyController
 
@@ -27,6 +31,8 @@ from ..configuration.excheck_constants import (
     TEMPLATE_CONTENT,
     TEMPLATE_METADATA
 )
+
+DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 config = MainConfig.instance()
 
@@ -61,10 +67,19 @@ class ExCheckTemplateController(Controller):
         except Exception:
             pass
 
+        for checklist_task in parsed_template.find("checklistTasks").findall("checklistTask"):
+            if checklist_task.find("number") == None:
+                checklist_task.append(Element("number")).text = 0
+
         self.request.set_value("synctype", "ExCheckTemplate")
         self.request.set_value("objecthash", str(hashlib.sha256(templatedata).hexdigest()))
         self.request.set_value("objectdata", ElementTree.tostring(parsed_template))
         self.request.set_value("objectuid", template_uid)
+        self.request.set_value("objkeywords", [parsed_template.find("checklistDetails").find("name").text,
+                                                parsed_template.find("checklistDetails").find("description").text,
+                                                parsed_template.find("checklistDetails").find("creatorCallsign").text])
+        
+        self.request.set_value("objstarttime", self.get_time())
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
@@ -76,7 +91,7 @@ class ExCheckTemplateController(Controller):
 
         self.request.set_value("configuration", configuration)
 
-        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionInfo": MissionInfo, "TemplateMetaData": TemplateMetaData, "TemplateContent": TemplateContent})
+        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionInfo": MissionInfo, "MissionItemMetaData": MissionItemMetaData, "MissionItem": MissionItem})
 
         self.request.set_value(
             "source_format", self.request.get_value("source_format")
@@ -89,13 +104,13 @@ class ExCheckTemplateController(Controller):
 
     def get_template_metadata_object(self, config_loader):
 
-        self.request.set_value("object_class_name", "TemplateMetaData")
+        self.request.set_value("object_class_name", "MissionItemMetaData")
 
         configuration = config_loader.find_configuration(TEMPLATE_METADATA)
 
         self.request.set_value("configuration", configuration)
 
-        self.request.set_value("extended_domain", {"TemplateMetaData": TemplateMetaData, "TemplateContent": TemplateContent})
+        self.request.set_value("extended_domain", {"MissionItemMetaData": MissionItemMetaData, "MissionItem": MissionItem})
 
         self.request.set_value(
             "source_format", self.request.get_value("source_format")
@@ -121,6 +136,8 @@ class ExCheckTemplateController(Controller):
         sub_response = self.execute_sub_action("GetEnterpriseSyncData")
 
         template_content = sub_response.get_value("objectdata")
+        
+        self.response.set_value("template_data", template_content)
 
         return template_content
 
@@ -136,27 +153,38 @@ class ExCheckTemplateController(Controller):
 
         template_metadata = sub_response.get_value("objectmetadata")
 
+        self.request.set_value("use_bytes", True)
+
         sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
 
         template_contents = sub_response.get_value("objectdata")
 
         complete_templates = []
 
+        template_lengths = []
+
         for template, template_content in zip(templates, template_contents):
             try:
-                complete_templates.append(ElementTree.fromstring(template_content))
+                complete_templates.append(etree.fromstring(template_content))
+                template_lengths.append(len(template_content))
             except Exception as ex:
                 logger.error("error adding template \n template: %s exception: %s", template, ex)
         
         mission_info = self.get_mission_info_object(config_loader)
 
-        self._serialize_to_mission_info(mission_info, complete_templates, template_metadata, config_loader)
+        self._serialize_to_mission_info(mission_info, complete_templates, template_metadata, config_loader, template_lengths)
 
         final_message = self._serialize_to_json(mission_info)
 
         self.response.set_value("template_info", final_message[0])
 
         return final_message[0]
+    
+    def get_time(self):
+        timer = dt
+        now = timer.utcnow()
+        return now.strftime(DATETIME_FMT)
+
 
     def _serialize_to_json(self, message):
         self.request.set_value("protocol", "json")
@@ -164,16 +192,16 @@ class ExCheckTemplateController(Controller):
         response = self.execute_sub_action("serialize")
         return response.get_value("message")
 
-    def _serialize_to_mission_info(self, mission_info: MissionInfo, templates: List[Element], template_metadata: List, config_loader):
+    def _serialize_to_mission_info(self, mission_info: MissionInfo, templates: List[Element], template_metadata: List, config_loader, template_lengths):
         #TODO: modify this to access from the configuration
         mission_info.nodeId = config.nodeID
         #mission_info.nodeId = "b9a1620a93ec43378f42a32103f53d8d"
         mission_info.version = config.APIVersion
         mission_info.type = "Mission"
         mission_data: List[MissionData] = mission_info.data[0] # the only mission data object should be the excheck object
-        self._serialize_to_mission_data(mission_data, templates, template_metadata, config_loader)
+        self._serialize_to_mission_data(mission_data, templates, template_metadata, config_loader, template_lengths)
 
-    def _serialize_to_mission_data(self, mission_data, templates, template_metadata_objs, config_loader):
+    def _serialize_to_mission_data(self, mission_data, templates, template_metadata_objs, config_loader, template_lengths):
         mission_data.name = "exchecktemplates"
         mission_data.tool = "ExCheck"
         mission_data.keywords = []
@@ -188,23 +216,23 @@ class ExCheckTemplateController(Controller):
         mission_data.expiration = -1
         mission_data.uids = []
         mission_data.passwordProtected = False
-        template_metadata_list: List[TemplateMetaData]= mission_data.contents
+        template_metadata_list: List[MissionItemMetaData]= mission_data.contents
         if len(template_metadata_list)>0 and len(templates)>0:
-            self._serialize_template_metadata(template_metadata_list[0], templates[0], template_metadata_objs[0])
+            self._serialize_template_metadata(template_metadata_list[0], templates[0], template_metadata_objs[0], template_lengths[0])
             for index in range(1, len(templates)):
-                template_metadata: TemplateMetaData = self.get_template_metadata_object(config_loader)
+                template_metadata: MissionItemMetaData = self.get_template_metadata_object(config_loader)
                 mission_data.contents = template_metadata
-                self._serialize_template_metadata(template_metadata, templates[index], template_metadata_objs[index])
+                self._serialize_template_metadata(template_metadata, templates[index], template_metadata_objs[index], template_lengths[index])
 
-    def _serialize_template_metadata(self, template_metadata, template, template_metadata_obj):
-        template_str = ElementTree.tostring(template)
+    def _serialize_template_metadata(self, template_metadata, template, template_metadata_obj, template_len):
+        template_str = etree.tostring(template, encoding='UTF-8', method='xml', standalone="yes")
         template_metadata.creatorUid = "ANDROID-860046038899730"
         template_metadata.timestamp = "2023-02-23T18:46:46.554Z"
 
-        self._serialize_template_content(template, template_str, template_metadata, template_metadata_obj)
+        self._serialize_template_content(template, template_str, template_metadata, template_metadata_obj, template_len)
 
-    def _serialize_template_content(self, template, template_str, template_metadata, template_metadata_obj):
-        template_content: TemplateContent = template_metadata.data
+    def _serialize_template_content(self, template, template_str, template_metadata, template_metadata_obj, template_len):
+        template_content: MissionItem = template_metadata.data
         template_details = template.find("checklistDetails")
 
         template_content.filename = template_details.find("uid").text+".xml"
@@ -215,6 +243,7 @@ class ExCheckTemplateController(Controller):
         template_content.submitter = "TODO"
         template_content.name = template_details.find("uid").text
         template_content.hash = template_metadata_obj.hash
-        template_content.size = len(template_str)
+        template_content.size = template_len
         template_content.tool = "ExCheck"
         template_content.uid = template_details.find("uid").text
+        template_content.expiration = -1

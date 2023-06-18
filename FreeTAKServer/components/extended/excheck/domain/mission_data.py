@@ -5,6 +5,12 @@ class MissionData(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["name"] = None
+        self.cot_attributes["description"] = None
+        self.cot_attributes["chatRoom"] = None
+        self.cot_attributes["baseLayer"] = None
+        self.cot_attributes["bbox"] = None
+        self.cot_attributes["path"] = None
+        self.cot_attributes["classification"] = None
         self.cot_attributes["tool"] = None
         self.cot_attributes["keywords"] = None
         self.cot_attributes["creatorUid"] = None
@@ -15,6 +21,7 @@ class MissionData(CoTNode):
         self.cot_attributes["mapLayers"] = None
         self.cot_attributes["inviteOnly"] = None
         self.cot_attributes["expiration"] = None
+        self.cot_attributes["guid"] = None
         self.cot_attributes["uids"] = None
         self.cot_attributes["passwordProtected"] = None
         self.cot_attributes["contents"] = []
@@ -27,6 +34,55 @@ class MissionData(CoTNode):
     def name(self, name=None):
         self.cot_attributes["name"] = name
     
+    @CoTProperty
+    def description(self):
+        return self.cot_attributes.get("description", None)
+    
+    @description.setter
+    def description(self, description=None):
+        self.cot_attributes["description"] = description
+
+    @CoTProperty
+    def chatRoom(self):
+        return self.cot_attributes.get("chatRoom", None)
+    
+    @chatRoom.setter
+    def chatRoom(self, chatRoom=None):
+        self.cot_attributes["chatRoom"] = chatRoom
+
+    @CoTProperty
+    def baseLayer(self):
+        return self.cot_attributes.get("baseLayer", None)
+    
+    @baseLayer.setter
+    def baseLayer(self, baseLayer=None):
+        self.cot_attributes["baseLayer"] = baseLayer
+        
+    @CoTProperty
+    def bbox(self):
+        return self.cot_attributes.get("bbox", None)
+    
+    @bbox.setter
+    def bbox(self, bbox=None):
+        self.cot_attributes["bbox"] = bbox
+
+    @CoTProperty
+    def path(self):
+        return self.cot_attributes.get("path", None)
+    
+    @path.setter
+    def path(self, path=None):
+        self.cot_attributes["path"] = path
+
+    @CoTProperty
+    def classification(self):
+        return self.cot_attributes.get("classification", None)
+    
+    @classification.setter
+    def classification(self, classification=None):
+        self.cot_attributes["classification"] = classification
+
+
     @CoTProperty
     def tool(self):
         return self.cot_attributes.get("tool")
@@ -108,6 +164,14 @@ class MissionData(CoTNode):
         self.cot_attributes["expiration"] = expiration
 
     @CoTProperty
+    def guid(self):
+        return self.cot_attributes.get("guid")
+    
+    @guid.setter
+    def guid(self, guid=None):
+        self.cot_attributes["guid"] = guid
+
+    @CoTProperty
     def uids(self):
         return self.cot_attributes.get("uids")
     
@@ -125,7 +189,7 @@ class MissionData(CoTNode):
 
     @CoTProperty
     def contents(self):
-        return self.get_children_ex(children_type="TemplateMetaData")
+        return self.get_children_ex(children_type="MissionItemMetaData")
 
     @contents.setter
     def contents(self, contents):

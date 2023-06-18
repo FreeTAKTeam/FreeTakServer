@@ -90,7 +90,7 @@ class ExCheckPersistencyController(Controller):
 
         return template
 
-    def get_checklist(self, checklist_uid: str, *args, **kwargs) -> ExCheckTemplate:
+    def get_checklist(self, checklist_uid: str, *args, **kwargs) -> ExCheckChecklist:
         """
         Retrieve an ExCheckChecklist object from the database based on the template UID.
 
@@ -98,12 +98,12 @@ class ExCheckPersistencyController(Controller):
             checklist_uid (str): The UID of the template to retrieve.
 
         Returns:
-            ExCheckTemplate: The ExCheckTemplate object retrieved from the database.
+            ExCheckChecklist: The ExCheckChecklist object retrieved from the database.
 
         """
 
-        # Query the ExCheckTemplate object based on the template UID
-        checklist = self.ses.query(ExCheckTemplate).filter(ExCheckTemplate.PrimaryKey == checklist_uid).first()
+        # Query the ExCheckChecklist object based on the template UID
+        checklist = self.ses.query(ExCheckChecklist).filter(ExCheckChecklist.PrimaryKey == checklist_uid).first()
 
         return checklist
 
