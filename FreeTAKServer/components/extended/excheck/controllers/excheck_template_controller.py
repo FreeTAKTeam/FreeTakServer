@@ -59,7 +59,7 @@ class ExCheckTemplateController(Controller):
             templateuid (str): the uid of the new template
             templatedata (str): the content of the template
         """
-        parsed_template = ElementTree.fromstring(templatedata)
+        parsed_template = etree.fromstring(templatedata)
         
         template_uid = parsed_template.find("checklistDetails").find("uid").text
         try:
@@ -69,7 +69,9 @@ class ExCheckTemplateController(Controller):
 
         for checklist_task in parsed_template.find("checklistTasks").findall("checklistTask"):
             if checklist_task.find("number") == None:
-                checklist_task.append(Element("number")).text = 0
+                num_elem = Element("number")
+                num_elem.text = b'0'
+                checklist_task.append(num_elem)
 
         self.request.set_value("synctype", "ExCheckTemplate")
         self.request.set_value("objecthash", str(hashlib.sha256(templatedata).hexdigest()))
