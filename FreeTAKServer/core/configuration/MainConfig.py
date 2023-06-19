@@ -1,4 +1,6 @@
 import os
+import random
+import string
 import sys
 import re
 import yaml
@@ -51,7 +53,7 @@ class MainConfig:
         "APIVersion": {"default": API_VERSION, "type": str, "readonly": True},
         "SecretKey": {"default": "vnkdjnfjknfl1232#", "type": str},
         #"nodeID": {"default": f"FreeTAKServer-{_node_id}", "type": str},
-        "nodeID": {"default": f"b9a1620a93ec43378f42a32103f53d8d", "type": str},
+        "nodeID": {"default": ''.join(random.choices(string.ascii_lowercase + string.digits, k=32)), "type": str},
         "OptimizeAPI": {"default": True, "type": bool},
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},

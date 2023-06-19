@@ -134,7 +134,7 @@ def send_data_package(server: str, dp_name: str = "user.zip") -> bool:
             print("Something went wrong uploading DataPackage!")
             return False
 
-def generate_standard_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
+def generate_standard_zip(server_address: str = None, server_filename: str = "", user_filename: str = "Client.p12",
                  cert_password: str = config.password, ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
@@ -145,6 +145,9 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
     :param cert_password: The password for the certificate files
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
+    if server_filename == "":
+        server_filename = "FreeTAKServer_"+config.nodeID+".p12"
+
     pref_file_template = Template("""<?xml version='1.0' encoding='ASCII' standalone='yes'?>
     <preferences>
         <preference version="1" name="cot_streams">
@@ -207,7 +210,7 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
     os.remove('fts.pref')
     os.remove('manifest.xml')
 
-def generate_wintak_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
+def generate_wintak_zip(server_address: str = None, server_filename: str = "", user_filename: str = "Client.p12",
                  cert_password: str = config.password, ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
@@ -218,6 +221,8 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
     :param cert_password: The password for the certificate files
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
+    if server_filename == "":
+        server_filename = "FreeTAKServer_"+config.nodeID+".p12"
     pref_file_template = Template("""<?xml version='1.0' standalone='yes'?>
     <preferences>
         <preference version="1" name="cot_streams">
@@ -228,7 +233,7 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
         </preference>
         <preference version="1" name="com.atakmap.app_preferences">
             <entry key="displayServerConnectionWidget" class="class java.lang.Boolean">true</entry>
-            <entry key="caLocation" class="class java.lang.String">/storage/emulated/0/atak/cert/{{ server_filename }}</entry>
+            <entry key="caLocation" class="class java.lang.String">/storage/emulated/0/atak/cert/FreeTAKServer_{{ server }}.p12</entry>
             <entry key="caPassword" class="class java.lang.String">{{ cert_password }}</entry>
             <entry key="clientPassword" class="class java.lang.String">{{ cert_password }}</entry>
             <entry key="certificateLocation" class="class java.lang.String">/storage/emulated/0/atak/cert/{{ user_filename }}</entry>

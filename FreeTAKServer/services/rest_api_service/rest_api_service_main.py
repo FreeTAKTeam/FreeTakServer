@@ -424,9 +424,9 @@ def addSystemUser(jsondata):
                 # create certs
                 certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
                 if systemuser["DeviceType"].lower() == "wintak":
-                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
+                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12',  server_address=config.UserConnectionIP)
                 elif systemuser["DeviceType"].lower() == "mobile":
-                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
+                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12',  server_address=config.UserConnectionIP)
                 else:
                     raise Exception("invalid device type, must be either mobile or wintak")
                 # add DP
