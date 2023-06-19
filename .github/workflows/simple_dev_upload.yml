@@ -45,9 +45,9 @@ jobs:
         password: ${{secrets.DEV_SERVER_PASSWORD}}
         key: ${{ secrets.DEV_SERVER_SSH_KEY}}
         script: |
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip uninstall FreeTAKServer
+          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip uninstall FreeTAKServer -y
           echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo rm -r /usr/local/lib/python3.11/dist-packages/FreeTAKServer -y
           echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip install FreeTAKServer   
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip uninstall digitalpy
+          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip uninstall digitalpy -y
           echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo rm -r /usr/local/lib/python3.11/dist-packages/digitalpy -y
           echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip install digitalpy   
