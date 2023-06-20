@@ -146,7 +146,7 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "",
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
     if server_filename == "":
-        server_filename = "FreeTAKServer_"+config.nodeID+".p12"
+        server_filename = config.UserConnectionIP.replace(".", "-")+"_"+config.version.replace(".","-")+"_"+config.nodeID+".p12"
 
     pref_file_template = Template("""<?xml version='1.0' encoding='ASCII' standalone='yes'?>
     <preferences>
@@ -222,7 +222,7 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "", u
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
     if server_filename == "":
-        server_filename = "FreeTAKServer_"+config.nodeID+".p12"
+        server_filename = config.UserConnectionIP.replace(".", "-")+"_"+config.version.replace(".","-")+"_"+config.nodeID+".p12"
     pref_file_template = Template("""<?xml version='1.0' standalone='yes'?>
     <preferences>
         <preference version="1" name="cot_streams">
@@ -233,7 +233,7 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "", u
         </preference>
         <preference version="1" name="com.atakmap.app_preferences">
             <entry key="displayServerConnectionWidget" class="class java.lang.Boolean">true</entry>
-            <entry key="caLocation" class="class java.lang.String">/storage/emulated/0/atak/cert/FreeTAKServer_{{ server }}.p12</entry>
+            <entry key="caLocation" class="class java.lang.String">/storage/emulated/0/atak/cert/{{ server_filename }}</entry>
             <entry key="caPassword" class="class java.lang.String">{{ cert_password }}</entry>
             <entry key="clientPassword" class="class java.lang.String">{{ cert_password }}</entry>
             <entry key="certificateLocation" class="class java.lang.String">/storage/emulated/0/atak/cert/{{ user_filename }}</entry>
