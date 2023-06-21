@@ -99,6 +99,7 @@ Certs:
                 create=True,
                 new=mock.mock_open(read_data=yaml_config))
     @mock.patch('os.path.exists', mock.Mock(return_value=True))
+    @mock.patch('os.access', mock.Mock(return_value=True))
     def test_yaml_config(self):
         config = MainConfig.instance(config_file='/dev/null')
 
