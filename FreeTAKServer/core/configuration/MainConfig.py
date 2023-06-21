@@ -16,7 +16,7 @@ API_VERSION = "3"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
-PERSISTENCE_PATH = r'/opt/fts'
+PERSISTENCE_PATH = r'C:\Users\Natha Paquette\work\FreeTakServer\persistence'
 
 class MainConfig:
     """
@@ -431,6 +431,10 @@ class MainConfig:
                         self.set(var_name, value=value)
 
     def validate_and_sanitize_path(self, path):
+        # testing path
+        if path == "/dev/null":
+            return path
+
         # sanitize and validate any path specified in config
         sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
 
