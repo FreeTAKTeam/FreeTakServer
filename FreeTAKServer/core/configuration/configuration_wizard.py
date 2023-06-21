@@ -4,6 +4,9 @@ from typing import List
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from ruamel.yaml import YAML
 from pathlib import Path
+import random
+import string
+
 yaml = YAML()
 
 # TODO  This code may have problems with the rewrite of MainConfig
@@ -45,7 +48,7 @@ def get_yaml_config(yaml_path):
     # otherwise load the existing file
     else:
         with open(yaml_path, "r+") as fp:
-            return yaml.load(fp)
+            return yaml.load(fp) or {}
     
 
 def ask_user_for_config():
@@ -98,6 +101,9 @@ def ask_user_for_config():
         log_path = get_user_input(question="enter the preferred log file path", default=config.LogFilePath)
 
     add_to_config(path=["FileSystem", "FTS_LOGFILE_PATH"], data=log_path, source=yaml_config)
+
+    add_to_config(path=["System", "FTS_NODE_ID"], data=config.nodeID, source=yaml_config)
+
     config.yaml_path = yaml_path
     file = open(yaml_path, mode="w+")
     yaml.dump(yaml_config, file)
@@ -148,6 +154,7 @@ default_yaml_file = f"""
 System:
   #FTS_DATABASE_TYPE: SQLite
   FTS_CONNECTION_MESSAGE: Welcome to FreeTAKServer {config.version}. The Parrot is not dead. It’s just resting
+  FTS_NODE_ID: {config.nodeID}
   #FTS_OPTIMIZE_API: True
   #FTS_MAINLOOP_DELAY: 1
 Addresses:

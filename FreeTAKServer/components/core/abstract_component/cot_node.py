@@ -20,7 +20,7 @@ class CoTNode(Node, FTSProtocolObject):
             m[0]
             for m in methods
             if getattr(m[1], "is_cot", False)
-            and self.cot_attributes.get(m[0], None) != None
+            and getattr(self, m[0], None) != None
         ]
 
     def add_child(self, child):

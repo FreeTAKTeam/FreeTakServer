@@ -1,4 +1,6 @@
 import os
+import random
+import string
 import sys
 import re
 import yaml
@@ -9,8 +11,8 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.69"
-API_VERSION = "3.0"
+FTS_VERSION = "FreeTAKServer-2.0.70.5"
+API_VERSION = "3"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent
 USERPATH = rf"{ROOTPATH}usr/local/lib/"
@@ -50,7 +52,8 @@ class MainConfig:
         "version": {"default": FTS_VERSION, "type": str, "readonly": True},
         "APIVersion": {"default": API_VERSION, "type": str, "readonly": True},
         "SecretKey": {"default": "vnkdjnfjknfl1232#", "type": str},
-        "nodeID": {"default": f"FreeTAKServer-{_node_id}", "type": str},
+        #"nodeID": {"default": f"FreeTAKServer-{_node_id}", "type": str},
+        "nodeID": {"default": ''.join(random.choices(string.ascii_lowercase + string.digits, k=32)), "type": str},
         "OptimizeAPI": {"default": True, "type": bool},
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},
@@ -66,6 +69,8 @@ class MainConfig:
         # this is the port to which clients will connect
         "CoTServicePort": {"default": 8087, "type": int},
         "SSLCoTServicePort": {"default": 8089, "type": int},
+        "HTTPSTakAPIPort": {"default": 8443, "type": int},
+        "HTTPTakAPIPort": {"default": 8080, "type": int},
         # this needs to be changed for private data packages to work
         "DataPackageServiceDefaultIP": {"default": _ip, "type": str},
         # User Connection package IP needs to be set to the IP which is
@@ -86,6 +91,7 @@ class MainConfig:
         "DBFilePath": {"default": f"{PERSISTENCE_PATH}/FTSDataBase.db", "type": str},
         "MainPath": {"default": Path(MAINPATH), "type": str},
         "certsPath": {"default": Path(rf"{PERSISTENCE_PATH}/certs"), "type": str},
+        "EnterpriseSyncPath": {"default": Path(rf"{PERSISTENCE_PATH}/enterprise_sync"), "type": str},
         "ExCheckMainPath": {"default": Path(rf"{PERSISTENCE_PATH}/ExCheck"), "type": str},
         "ExCheckFilePath": {
             "default": Path(rf"{PERSISTENCE_PATH}/ExCheck/template"),
@@ -425,6 +431,7 @@ class MainConfig:
                         self.set(var_name, value=value)
 
     def validate_and_sanitize_path(self, path):
+
         # sanitize and validate any path specified in config
         sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
 

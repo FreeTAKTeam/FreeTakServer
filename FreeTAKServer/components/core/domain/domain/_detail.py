@@ -74,3 +74,14 @@ class detail(CoTNode):
     @remarks.setter
     def remarks(self, remarks):
         self.cot_attributes["remarks"] = remarks
+    
+    @CoTProperty
+    def mission(self):
+        data = self.cot_attributes.get("mission", None)
+        if data is None:
+            raise AttributeError("attribute 'mission' doesnt exist")
+        return data
+
+    @mission.setter
+    def mission(self, mission):
+        self.cot_attributes["mission"] = mission

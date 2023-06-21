@@ -424,9 +424,9 @@ def addSystemUser(jsondata):
                 # create certs
                 certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
                 if systemuser["DeviceType"].lower() == "wintak":
-                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
+                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12',  server_address=config.UserConnectionIP)
                 elif systemuser["DeviceType"].lower() == "mobile":
-                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
+                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12',  server_address=config.UserConnectionIP)
                 else:
                     raise Exception("invalid device type, must be either mobile or wintak")
                 # add DP
@@ -1617,7 +1617,11 @@ def mission_table():
 @app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
 @auth.login_required()
 def excheck_table():
-    return ExCheckController().excheck_table(request, APIPipe)
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.get_all_templates(), 200
 
 
 @app.route('/checkStatus', methods=[restMethods.GET])

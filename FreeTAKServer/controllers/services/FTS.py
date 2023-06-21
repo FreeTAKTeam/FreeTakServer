@@ -55,6 +55,10 @@ from FreeTAKServer.services.tcp_cot_service.tcp_cot_service_main import TCPCoTSe
 from FreeTAKServer.core.services.TCPDataPackageService import (
     TCPDataPackageService as TCPFlaskFunctions,
 )
+
+from FreeTAKServer.services.https_tak_api_service.https_tak_api_service_main import HTTPSTakAPI
+from FreeTAKServer.services.http_tak_api_service.http_tak_api_service_main import HTTPTakAPI
+
 from FreeTAKServer.model.Connection import Connection
 from FreeTAKServer.model.Enumerations.connectionTypes import ConnectionTypes
 from FreeTAKServer.model.Enumerations.serviceTypes import ServiceTypes
@@ -99,8 +103,6 @@ class FTS(DigitalPy):
         self.FTSServiceStartupConfigObject = FTSObj()
         self.dbController = DatabaseController()
         logger.propagate = True
-
-        
 
     def start_rest_api_service(self, FTSServiceStartupConfigObject):
         """this method starts the rest api service and instantiates ISC protocols
@@ -328,14 +330,58 @@ class FTS(DigitalPy):
         :return:
         """
         try:
+            self.configuration.set_value(
+                key="subject_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}",
+                section="HTTPTakAPIService",
+            )
+
+            self.configuration.set_value(
+                key="subject_port",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
+                section="HTTPTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="subject_protocol",
+                value=FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol,
+                section="HTTPTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_address",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
+                section="HTTPTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_port",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
+                section="HTTPTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_protocol",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherProtocol,
+                section="HTTPTakAPIService"
+            )
+
+
+            self.configuration.set_value(
+                key="service_id",
+                value="http_tak_api_service",
+                section="HTTPTakAPIService"
+            )
             self.tcp_data_package_service_pipe = Queue()
-            print("start 213")
+
+            http_tak_api_services = ObjectFactory.get_instance("HTTPTakAPIService")
             self.TCPDataPackageService = multiprocessing.Process(
-                target=TCPFlaskFunctions().startup,
+                target=http_tak_api_services.start,
                 args=(
                     FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServiceIP,
                     FTSServiceStartupConfigObject.TCPDataPackageService.TCPDataPackageServicePort,
                     self.tcp_data_package_service_pipe,
+                    ObjectFactory.get_instance("factory")
                 ),
             )
             print("starting now")
@@ -388,14 +434,58 @@ class FTS(DigitalPy):
         :return:
         """
         try:
-            print("start 213")
+            self.configuration.set_value(
+                key="subject_address",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}",
+                section="HTTPSTakAPIService",
+            )
+
+            self.configuration.set_value(
+                key="subject_port",
+                value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberPort}",
+                section="HTTPSTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="subject_protocol",
+                value=FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberProtocol,
+                section="HTTPSTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_address",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherAddress,
+                section="HTTPSTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_port",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherPort,
+                section="HTTPSTakAPIService"
+            )
+
+            self.configuration.set_value(
+                key="integration_manager_protocol",
+                value=FTSServiceStartupConfigObject.IntegrationManagerService.IntegrationManagerPublisherProtocol,
+                section="HTTPSTakAPIService"
+            )
+
+
+            self.configuration.set_value(
+                key="service_id",
+                value="https_tak_api_service",
+                section="HTTPSTakAPIService"
+            )
+
             self.ssl_data_package_service = Queue()
+
+            https_tak_api_services = ObjectFactory.get_instance("HTTPSTakAPIService")
             self.SSLDataPackageService = multiprocessing.Process(
-                target=SSLFlaskFunctions().startup,
+                target=https_tak_api_services.start,
                 args=(
                     FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServiceIP,
                     FTSServiceStartupConfigObject.SSLDataPackageService.SSLDataPackageServicePort,
-                    self.ssl_data_package_service,
+                    ObjectFactory.get_instance("factory")
                 ),
             )
             print("starting SSL now")

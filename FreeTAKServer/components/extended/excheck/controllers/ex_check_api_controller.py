@@ -1,10 +1,8 @@
 import connexion
 import six
 
-from swagger_server.models.checklist import Checklist  # noqa: E501
-from swagger_server.models.checklist_task import ChecklistTask  # noqa: E501
-from swagger_server import util
-
+from ..domain.checklist import Checklist  # noqa: E501
+from ..domain.checklist_task import ChecklistTask  # noqa: E501
 
 def add_edit_checklist_task(body, client_uid, checklist_uid, task_uid):  # noqa: E501
     """add_edit_checklist_task
