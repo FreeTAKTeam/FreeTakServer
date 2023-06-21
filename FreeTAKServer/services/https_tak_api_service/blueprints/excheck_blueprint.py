@@ -11,11 +11,6 @@ def updatetemplate(checklistid, taskid):
         HTTPSTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, False, "tcp_cot_service")
         HTTPSTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, False, "ssl_cot_service")
         return '', 200
-        #dp_request = ObjectFactory.get_instance("request")
-        #dp_response = ObjectFactory.get_instance("response")
-        #excheck_facade = ObjectFactory.get_instance("ExCheck")
-        #excheck_facade.initialize(dp_request, dp_response)
-        #return excheck_facade.update_checklist_task(checklistuid=checklistid, checklisttaskuid=taskid, checklisttaskdata=request.data), 200
     except Exception as ex:
         print(ex)
         return '', 500
@@ -39,11 +34,6 @@ def activechecklists():
 def accesschecklist(checklistid):
     try:
         return HTTPSTakApiCommunicationController().make_request("GetChecklist", "excheck", {"checklistuid": checklistid}).get_value("checklist_data")
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.get_checklist(checklistuid=checklistid), 200
     except Exception as ex:
         print("exception in /Marti/api/excheck/checklist/ is "+str(ex))
         return '',500
@@ -52,11 +42,6 @@ def accesschecklist(checklistid):
 def startList(subscription):
     try:
         return HTTPSTakApiCommunicationController().make_request("StartChecklist", "excheck", {"templateuid":subscription, "checklistname":request.args.get("name"), "checklist_description":request.args.get("description")}).get_value("checklist")
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.start_checklist(templateuid=subscription, checklistname=request.args.get("name"), checklist_description=request.args.get("description")), 200
     except Exception as ex:
         print(ex)
         return '', 500
@@ -66,13 +51,6 @@ def template():
     try:
         HTTPSTakApiCommunicationController().make_request("CreateTemplate", "excheck", {"templatedata": request.data}, None, False)
         return "done", 200
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        excheck_facade.create_template(request.data)
-        return 'template created successfully', 200
-        # return ExCheckController().template(PIPE)
     except Exception as ex:
         print(ex)
         return '', 500
@@ -81,13 +59,6 @@ def template():
 def get_template(templateUid):
     try:
         return HTTPSTakApiCommunicationController().make_request("GetTemplate", "excheck", {"templateuid": templateUid}, None, False).get_value("template_data")
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        excheck_facade.create_template(request.data)
-        return 'template created successfully', 200
-        # return ExCheckController().template(PIPE)
     except Exception as ex:
         print(ex)
         return '', 500
@@ -97,12 +68,6 @@ def get_template(templateUid):
 def ExCheckTemplates():
     try:
         return HTTPSTakApiCommunicationController().make_request("GetAllTemplates", "excheck", {}).get_value("template_info")
-
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        return excheck_facade.get_all_templates(), 200
     except Exception as ex:
         print(ex)
         return '', 500
