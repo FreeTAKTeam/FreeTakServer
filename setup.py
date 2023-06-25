@@ -40,7 +40,7 @@ setup(
         "greenlet==2.0.2",
         "itsdangerous==2.0.1",
         "testresources==2.0.1",
-        "Jinja2==2.11.2",
+        "Jinja2",
         "lxml",
         "MarkupSafe==2.0.1",
         "monotonic==1.6",
