@@ -1,5 +1,6 @@
 import os
 import zipfile
+
 from mock import patch
 from FreeTakServer.core.util.certificate_generation import generate_wintak_zip
 

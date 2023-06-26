@@ -1,6 +1,7 @@
 import os
 import shutil
 import zipfile
+
 from unittest import mock
 from jinja2 import Template
 from FreeTakServer.core.util.certificate_generation import generate_standard_zip
