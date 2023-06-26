@@ -6,8 +6,8 @@ from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 
 
 class dest(CoTNode):
-    def __init__(self, configuration: Configuration, model):
-        super().__init__(self.__class__.__name__, configuration, model)
+    def __init__(self, configuration: Configuration, model, oid=None):
+        super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["callsign"] = None
 
     @CoTProperty

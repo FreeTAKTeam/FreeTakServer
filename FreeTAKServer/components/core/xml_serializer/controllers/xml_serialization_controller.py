@@ -27,6 +27,14 @@ class XMLSerializationController(Controller):
         """
         self.response.set_value("dict", xmltodict.parse(message))
 
+    def convert_dict_to_xml(self, xml_dict: dict, **kwargs) -> str:
+        """converts the provided dictionary to an xml string
+
+        Args:
+            xml_dict (dict): a dictionary parsed by xmltodict
+        """
+        self.response.set_value("xml", xmltodict.unparse(xml_dict))
+    
     def convert_node_to_xml(self, node, **kwargs):
         """converts the provided node to an xml string
 
@@ -51,7 +59,7 @@ class XMLSerializationController(Controller):
             Union[str, Element]: the original call to this method returns a string representing the xml
                 the Element is only returned in the case of recursive calls
         """
-        xml = Element(tag_name)
+        xml = node.xml
         # handles text data within tag
         if hasattr(node, "text"):
             xml.text = node.text
@@ -61,7 +69,7 @@ class XMLSerializationController(Controller):
             value = getattr(node, attribName)
             if hasattr(value, "__dict__"):
                 tagElement = self._serialize_node(value, attribName, level=level + 1)
-                # TODO: modify so double underscores are handled differently
+                # T2ODO: modify so double underscores are handled differently
                 try:
                     if attribName[0] == "_":
                         tagElement.tag = "_" + tagElement.tag

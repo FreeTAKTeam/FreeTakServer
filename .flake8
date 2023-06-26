@@ -1,0 +1,9 @@
+[flake8]
+exclude = 
+    ./FreeTAKServer/components/extended/excheck/controllers/ExCheckCSVController.py,
+    ./FreeTAKServer/components/extended/excheck/controllers/ex_check_api_controller.py,
+    ./FreeTAKServer/components/extended/master_parrot/*,
+    ./FreeTAKServer/components/extended/mission/swagger_server/*,
+    ./FreeTAKServer/components/extended/report/*,
+    ./FreeTAKServer/components/extended/track_manager/*,
+    ./

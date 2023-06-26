@@ -40,7 +40,7 @@ class Domain(Controller):
         """
         return node.add_child(child)
 
-    def create_node(self, configuration: Configuration, object_class_name: str, id:str=str(uuid.uuid1()), **kwargs) -> None:
+    def create_node(self, configuration: Configuration, object_class_name: str, id:str=None, **kwargs) -> Node:
         """this method creates a new node object
 
         Args:
@@ -48,9 +48,10 @@ class Domain(Controller):
             object_class_name (str): _description_
             id (str): the id of the created node
         """
-
+        if id is None:
+            id = str(uuid.uuid1())
         # allow the domain to be extended
-        self.domain = self._extend_domain(self.domain, getattr(kwargs, 'extended_domain', {}))
+        self.domain = self._extend_domain(self.domain, kwargs.get('extended_domain', {}))
         # retrieve the original object class
         object_class = getattr(self.domain, object_class_name)
         # instantiate an oid for the instance
@@ -59,6 +60,7 @@ class Domain(Controller):
         object_class_instance = object_class(configuration, self.domain, oid=oid)
         # set the module object
         self.response.set_value("model_object", object_class_instance)
+        return object_class_instance
 
     def _extend_domain(self, domain: ModuleType, extended_domain: dict) -> ModuleType:
         """this method is responsible for adding domain extensions from a given component

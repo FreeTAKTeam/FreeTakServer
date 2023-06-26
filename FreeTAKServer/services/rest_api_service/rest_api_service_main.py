@@ -55,6 +55,7 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
+from .views.connections_view_controller import ManageConnections
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -154,24 +155,7 @@ def authenticate(token):
 @socketio.on('users')
 @socket_auth(session=session)
 def show_users(empty=None):
-    output = dbController.query_user()
-    for i in range(0, len(output)):
-        try:
-            original = output[i]
-            output[i] = output[i].__dict__
-            print(output[i])
-            try:
-                output[i]['callsign'] = original.CoT.detail.contact.callsign
-                output[i]['team'] = original.CoT.detail._group.name
-            except:
-                output[i]['callsign'] = "undefined"
-                output[i]['team'] = "undefined"
-            del (output[i]['_sa_instance_state'])
-            del (output[i]['CoT_id'])
-            del (output[i]['CoT'])
-        except Exception as e:
-            logger.error(str(e))
-    socketio.emit('userUpdate', json.dumps({"Users": output}))
+    socketio.emit('userUpdate', json.dumps({"Users": ManageConnections().get_users()}))
 
 
 @socketio.on('logs')
@@ -440,9 +424,9 @@ def addSystemUser(jsondata):
                 # create certs
                 certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
                 if systemuser["DeviceType"].lower() == "wintak":
-                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12')
+                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12',  server_address=config.UserConnectionIP)
                 elif systemuser["DeviceType"].lower() == "mobile":
-                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12')
+                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12',  server_address=config.UserConnectionIP)
                 else:
                     raise Exception("invalid device type, must be either mobile or wintak")
                 # add DP
@@ -470,7 +454,6 @@ def addSystemUser(jsondata):
                                                 token=systemuser["Token"], password=systemuser["Password"],
                                                 uid=user_id,
                                                 certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
-                import datetime as dt
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
                 now = timer.utcnow()
@@ -1634,7 +1617,11 @@ def mission_table():
 @app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
 @auth.login_required()
 def excheck_table():
-    return ExCheckController().excheck_table(request, APIPipe)
+    dp_request = ObjectFactory.get_instance("request")
+    dp_response = ObjectFactory.get_instance("response")
+    excheck_facade = ObjectFactory.get_instance("ExCheck")
+    excheck_facade.initialize(dp_request, dp_response)
+    return excheck_facade.get_all_templates(), 200
 
 
 @app.route('/checkStatus', methods=[restMethods.GET])
@@ -1785,6 +1772,44 @@ def emitUpdates(Updates):
     socketio.emit('up', json.dumps(returnValue), broadcast=True)
     return 1
 
+@app.route('/v2/<context>/<action>', methods=[restMethods.GET, restMethods.POST])
+@auth.login_required
+def api_routing(context, action):
+    """the main method for the routing based API which uses information fro
+    the route and the method to send the request to the internal router, 
+    returning the response
+
+    Args:
+        context (str): the context of the request, for use in the routing
+        action (str): the action of the request, for use in the routing
+
+    Raises:
+        ValueError: if the synchronous parameter is true and the service_idis 
+
+    Returns:
+        dict: the values of the response returned by the component
+    """
+    synchronous = request.args.get("synchronous", True) # all requests are by default synchronous
+    service_id = request.args.get("service_id")
+    values = request.get_json()
+    rest_api_service = ObjectFactory.get_instance("RestAPIService")
+    service_id_different = service_id is not None and rest_api_service.service_id != service_id
+    if synchronous == True and service_id_different:
+        raise ValueError("synchronous is true and service_id is neither None or rest api service id,\
+                            this will result in an undefined state where we are waiting for a response that will never come")
+
+    # request to get repeated messages
+    internal_request: Request = ObjectFactory.get_new_instance("request")
+    internal_request.set_action(action)
+    internal_request.set_context(context)
+    internal_request.set_sender(rest_api_service.__class__.__name__.lower())
+    internal_request.set_format("pickled")
+    internal_request.set_values(values or {})
+    rest_api_service.subject_send_request(internal_request, APPLICATION_PROTOCOL, service_id)
+    if synchronous == True:
+        response = rest_api_service.retrieve_response(internal_request.get_id())
+        return response.get_values()
+
 # TODO: move this out of the rest_api_service and into it's own file in views
 # this will require changing it from using the API Pipe to use the ZManager instead
 import json
@@ -1801,6 +1826,7 @@ from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import Se
 from FreeTAKServer.core.parsers.JsonController import JsonController
 
 from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
+from FreeTAKServer.services.rest_api_service.views.emergency_view import ManageEmergency
 
 class ManageGeoObjects(BaseView):
     """this class is responsible for creating the flask views required for managing
@@ -1808,7 +1834,7 @@ class ManageGeoObjects(BaseView):
     """
     decorators = [auth.login_required]
     
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         endpoints: Dict[str, callable] = {
             "GetRepeatedMessages": self.get_repeated_messages,
             "postGeoObject": self.post_geo_object,
@@ -1864,45 +1890,44 @@ class ManageGeoObjects(BaseView):
                 jsonobj.setlongitude(end_point.longitude)
 
             simpleCoTObject = SendSimpleCoTController(jsonobj).getCoTObject()
+            # make request to create a geoobject node
+            response = self.make_request("CreateGeoObject", {"id": jsonobj.getuid()})
+            # apply the given values to the model object
+            model_object = response.get_value("model_object")
+            model_object.uid = jsonobj.getuid()
+            COTTYPE = jsonobj.getgeoObject()
+            if "-.-" in COTTYPE:
+                ID = jsonobj.getattitude()
+                COTTYPE = COTTYPE.replace('-.-', ID)
+            else:
+                pass
+            model_object.type = COTTYPE
+            model_object.how = jsonobj.gethow()
+            
+            model_object.start = None # set to default val
+            model_object.time = None  # set to default val
+            if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
+                DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+                timer = dt.datetime
+                now = timer.utcnow()
+                add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+                stale = now+add
+                model_object.stale = stale.strftime(DATETIME_FMT)
+            else:
+                model_object.stale = None # set to default val
+            #    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
+            #    timer = dt.datetime
+            #    now = timer.utcnow()
+            #    zulu = now.strftime(DATETIME_FMT)
+            #    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
+            #    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
+            #model_object.stale = stale_part
+            model_object.point.lat = jsonobj.getlatitude()
+            model_object.point.lon = jsonobj.getlongitude()
+            model_object.detail.contact.callsign = jsonobj.getname()
 
             # if the message should be repeated then make a request to repeat it
             if jsonobj.getrepeat():
-                # make request to create a geoobject node
-                response = self.make_request("CreateGeoObject", {"id": jsonobj.getuid()})
-                
-                # apply the given values to the model object
-                model_object = response.get_value("model_object")
-                model_object.uid = jsonobj.getuid()
-                COTTYPE = jsonobj.getgeoObject()
-                if "-.-" in COTTYPE:
-                    ID = jsonobj.getattitude()
-                    COTTYPE = COTTYPE.replace('-.-', ID)
-                else:
-                    pass
-                model_object.type = COTTYPE
-                model_object.how = jsonobj.gethow()
-                
-                model_object.start = None # set to default val
-                model_object.time = None  # set to default val
-                if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
-                    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-                    timer = dt.datetime
-                    now = timer.utcnow()
-                    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
-                    stale = now+add
-                    model_object.stale = stale.strftime(DATETIME_FMT)
-                else:
-                    model_object.stale = None # set to default val
-                #    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
-                #    timer = dt.datetime
-                #    now = timer.utcnow()
-                #    zulu = now.strftime(DATETIME_FMT)
-                #    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
-                #    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-                #model_object.stale = stale_part
-                model_object.point.lat = jsonobj.getlatitude()
-                model_object.point.lon = jsonobj.getlongitude()
-                model_object.detail.contact.callsign = jsonobj.getname()
                
                 # make request to persist the model object to be re-sent
                 response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})
@@ -1949,72 +1974,8 @@ class ManageGeoObjects(BaseView):
 # TODO: move this out of the rest_api_service and into it's own file in views
 # this will require changing it from using the API Pipe to use the ZManager instead
 
-from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
-from typing import Dict
-from flask import request
-
-from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
-from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
-from FreeTAKServer.core.parsers.JsonController import JsonController
-from FreeTAKServer.core.RestMessageControllers.SendEmergencyController import SendEmergencyController
-
-loggingConstants = LoggingConstants(log_name="FTS-ManageEmergencyView")
-logger = CreateLoggerController("FTS-ManageEmergencyView", logging_constants=loggingConstants).getLogger()
-
-class ManageEmergency(BaseView):
-    decorators = [auth.login_required]
-    
-    def __init__(self) -> None:
-        endpoints = {
-            "getEmergency": self.get_emergency,
-            "postEmergency": self.post_emergency,
-            "deleteEmergency": self.delete_emergency,
-        }
-        super().__init__(endpoints)
-    
-    def get_emergency(self):
-        """method to retrieve all emergency's
-        Returns:
-            str: returns a json string containing dictionary of emergency's
-
-        """
-        response = self.make_request("GetAllEmergencies") # retrieve emergencies from the emergency component
-        emergencies = response.get_value("emergencies")
-        output = {"json_list": []}
-        for emergency in emergencies:
-            try:
-                serialized_emergency = {
-                    "lat": emergency.point.lat,
-                    "lon": emergency.point.lon,
-                    "type": emergency.detail.emergency.type,
-                    "name": emergency.detail.contact.callsign,
-                    "uid": emergency.uid
-                }
-                output["json_list"].append(serialized_emergency)
-            except AttributeError as ex:
-                logger.error("emergency model object missing attribute %s", ex)
-        return output
-    
-    def post_emergency(self):
-        jsondata = request.get_json(force=True)
-        jsonobj = JsonController().serialize_emergency_post(jsondata)
-        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
-        self.make_request("SaveEmergency", {"model_object": emergency_object.modelObject})
-        APIPipe.put(emergency_object)
-        return emergency_object.modelObject.getuid(), 200
-    
-    def delete_emergency(self) -> str:
-        """delete an emergency from the emergency persistence
-
-        """
-        jsondata = request.get_json(force=True)
-        jsonobj = JsonController().serialize_emergency_delete(jsondata)
-        emergency_object = SendEmergencyController(jsonobj).getCoTObject()
-        APIPipe.put(emergency_object)
-        self.make_request("DeleteEmergency", {"model_object": emergency_object.modelObject})
-        return 'success', 200
-
-app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET", "DELETE"])
+ManageEmergency.decorators.append(auth.login_required)
+app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET","DELETE"])
 app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
 
 APPLICATION_PROTOCOL = "xml"

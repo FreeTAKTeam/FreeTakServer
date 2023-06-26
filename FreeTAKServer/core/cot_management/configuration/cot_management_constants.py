@@ -11,6 +11,8 @@ GEO_OBJECT = "geoobject"
 
 DELETE_GEO_OBJECT = "deletegeoobject"
 
+BASE_OBJECT = "base_object"
+
 CONFIGURATION_PATH_TEMPLATE = Template(
     str(
         pathlib.PurePath(

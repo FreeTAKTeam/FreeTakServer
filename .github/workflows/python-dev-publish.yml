@@ -6,6 +6,9 @@ name: Upload Dev Python Package
 on:
   release:
     types: [created]
+  pull_request:
+    types:
+      - closed
 
   workflow_dispatch:
 
