@@ -2,6 +2,7 @@
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 name: Upload Dev Python Package No ZT
+
 on:
   release:
     types: [created]
@@ -37,17 +38,21 @@ jobs:
         owner: 'FreeTAKTeam'
         repository: 'FreeTAKHub-Installation'
 
-    - name: uninstall previous version and clean environment
-      uses: appleboy/ssh-action@v0.1.10
+    - name: Run Ansible playbook
+      # You may pin to the exact commit or the version.
+      # uses: dawidd6/action-ansible-playbook@671974ed60e946e11964cb0c26e69caaa4b1f559
+      uses: dawidd6/action-ansible-playbook@v2.5.0
       with:
-        host: ${{secrets.DEV_SERVER_ADDRESS}}
-        username: ${{secrets.DEV_SERVER_USERNAME}}
-        password: ${{secrets.DEV_SERVER_PASSWORD}}
-        key: ${{ secrets.DEV_SERVER_SSH_KEY}}
-        script: |
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip uninstall FreeTAKServer -y
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo rm -r /usr/local/lib/python3.11/dist-packages/FreeTAKServer
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip install FreeTAKServer   
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip uninstall digitalpy -y
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo rm -r /usr/local/lib/python3.11/dist-packages/digitalpy
-          echo ${{secrets.DEV_SERVER_PASSWORD}} | sudo python3 -m pip install digitalpy   
+        # Ansible playbook filepath
+        playbook: FreeTAKHub-Installation/install_all.yml
+        # SSH private key used to connect to the host
+        key: ${{secrets.DEV_SERVER_SSH_KEY}}
+        # Custom content to write into hosts
+        inventory: |
+          [all]
+          ${{secrets.DEV_SERVER_ADDRESS}}    ansible_sudo_pass=${{secrets.DEV_SERVER_PASSWORD}}     ansible_connection=ssh    ansible_user=${{secrets.DEV_SERVER_USERNAME}}
+        # Extra options that should be passed to ansible-playbook command
+        options: |
+          --verbose
+        # Set to "true" if root is required for running your playbook
+        sudo: true
