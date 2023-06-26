@@ -19,7 +19,7 @@ setup(
     author_email="FreeTakTeam@gmail.com",
     url="https://github.com/FreeTAKTeam/FreeTakServer",
     download_url="https://github.com/FreeTAKTeam/FreeTakServer/releases",
-    keywords=["TAK", "OPENSOURCE"],
+    keywords=["TAK", "OPENSOURCE", "Situational Awareness"],
     include_package_data=True,
     install_requires=[
         "bitarray",
@@ -41,7 +41,7 @@ setup(
         "greenlet==2.0.2",
         "itsdangerous==2.0.1",
         "testresources==2.0.1",
-        "Jinja2==2.11.2",
+        "Jinja2",
         "lxml",
         "MarkupSafe==2.0.1",
         "monotonic==1.6",
