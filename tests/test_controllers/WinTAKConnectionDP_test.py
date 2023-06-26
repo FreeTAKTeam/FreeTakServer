@@ -2,6 +2,7 @@ import os
 import zipfile
 
 from unittest import mock
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.util.certificate_generation import generate_wintak_zip
 
 def test_generate_wintak_zip(tmpdir):
