@@ -14,8 +14,8 @@ def test_generate_wintak_zip(tmpdir):
     tmpdir_path = str(tmpdir)
 
     # Mock the necessary functions for file operations
-    with mock.patch("FreeTAkServer.core.util.certificate_generation.os") as mock_os, \
-            mock.patch("FreeTAkServer.core.util.certificate_generation.copyfile") as mock_copyfile:
+    with mock.patch("FreeTAKServer.core.util.certificate_generation.os") as mock_os, \
+            mock.patch("FreeTAKServer.core.util.certificate_generation.copyfile") as mock_copyfile:
         # Mock the os.path.exists function to return True for the temporary directory
         mock_os.path.exists.return_value = True
 
