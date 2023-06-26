@@ -11,7 +11,7 @@ def test_generate_wintak_zip(tmpdir):
     user_filename = "Client.p12"
     cert_password = "5Tr0ngP@ssw0rd!"
     ssl_port = "8089"
-    server_address = "tak.countyfire.com"
+    server_address = "192.168.205.117"
     tmpdir_path = str(tmpdir)
 
     # Mock the necessary functions for file operations
