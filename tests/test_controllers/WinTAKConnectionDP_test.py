@@ -2,7 +2,7 @@ import os
 import zipfile
 
 from mock import patch
-from FreeTakServer.core.util.certificate_generation import generate_wintak_zip
+from FreeTAKServer.core.util.certificate_generation import generate_wintak_zip
 
 def test_generate_wintak_zip(tmpdir):
     # Set up test data and temporary directory

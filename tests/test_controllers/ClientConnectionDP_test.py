@@ -4,7 +4,7 @@ import zipfile
 
 from unittest import mock
 from jinja2 import Template
-from FreeTakServer.core.util.certificate_generation import generate_standard_zip
+from FreeTAKServer.core.util.certificate_generation import generate_standard_zip
 
 def test_generate_standard_zip(tmpdir):
     # Create a temporary directory for the test
