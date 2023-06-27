@@ -1,3 +1,5 @@
+import unittest
+import pytest
 import os
 import zipfile
 
@@ -13,6 +15,10 @@ def test_generate_wintak_zip(tmpdir):
     ssl_port = "8089"
     server_address = "192.168.205.117"
     tmpdir_path = str(tmpdir)
+
+
+    # Call MainConfig class instance method to initialize and populate the _values dictionary
+    MainConfig.instance()
 
     # Mock the necessary functions for file operations
     with mock.patch("FreeTAKServer.core.util.certificate_generation.os") as mock_os, \
