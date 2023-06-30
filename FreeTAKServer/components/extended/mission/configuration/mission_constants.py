@@ -1,12 +1,13 @@
 import json
 import pathlib
 from string import Template
+from FreeTAKServer.core.configuration import MainConfig
 
 COMPONENT_NAME = "mission"
 
 CONFIGURATION_FORMAT = "json"
 
-BASE_OBJECT_NAME = "Event"
+BASE_OBJECT_NAME = "MissionInfo"
 
 CURRENT_COMPONENT_PATH = pathlib.Path(__file__).parent.parent.absolute()
 
@@ -21,6 +22,18 @@ CONFIGURATION_PATH_TEMPLATE = Template(
 
 LOGGING_CONFIGURATION_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/logging.conf")
+)
+
+LOG_FILE_PATH = str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "logs")
+)
+
+DB_PATH = "sqlite:///"+str(
+    pathlib.PurePath(MainConfig.PERSISTENCE_PATH, "MissionRecords.db")
+)
+
+MANIFEST_PATH = str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/manifest.ini")
 )
 
 ACTION_MAPPING_PATH = str(
@@ -56,4 +69,8 @@ PERSISTENCE_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/mission.json")
 )
 
+MISSION_CONTENT = "mission_content"
 
+MISSION_ITEM = "mission_item"
+
+MISSION_SUBSCRIPTION = "mission_subscription"
