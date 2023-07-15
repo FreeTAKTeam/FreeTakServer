@@ -95,10 +95,11 @@ Certs:
     FTS_CRLDIR: '/fts/certs/crl'
 """
 
-    @mock.patch('builtins.open',
-                create=True,
-                new=mock.mock_open(read_data=yaml_config))
-    def test_yaml_config(self):
+
+    @mock.patch('os.access', return_value=True)
+    @mock.patch('builtins.open', create=True, new=mock.mock_open(read_data=yaml_config))
+
+    def test_yaml_config(self, mock_file):
         config = MainConfig.instance(config_file='/dev/null')
 
         expected = yaml.load(Test_MainConfig.yaml_config, Loader=yaml.SafeLoader)
@@ -106,16 +107,17 @@ Certs:
         for sect in MainConfig._yaml_keys:
             for var in MainConfig._yaml_keys[sect]:
                 if var in expected[sect]:
-                    assert(config.get(MainConfig._yaml_keys[sect][var]) == expected[sect][var])
+                    assert (config.get(MainConfig._yaml_keys[sect][var]) == expected[sect][var])
 
 
     @mock.patch('builtins.open',
                 create=True,
                 new=mock.mock_open(read_data=yaml_config))
+    @mock.patch('os.access', return_value=True)
     @mock.patch.dict(os.environ, {'FTS_SSLCOT_PORT': '10000'}) # int test
     @mock.patch.dict(os.environ, {'FTS_COT_TO_DB': '1'})            # bool test
     @mock.patch.dict(os.environ, {'FTS_PERSISTENCE_PATH': '/tmp/fts'})         # str test
-    def test_yaml_config_with_env_override(self):
+    def test_yaml_config_with_env_override(self, mock_file):
         config = MainConfig.instance(config_file='/dev/null')
 
         assert(config.SSLCoTServicePort== 10000)

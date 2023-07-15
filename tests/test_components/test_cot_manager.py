@@ -97,7 +97,7 @@ def test_connection_direct(mock_open, mock_load):
 def test_connection_execute(mock_load):
     """test the connection action in the cot manager
     """
-    # instnatiate request and response objects
+    # instantiate request and response objects
     request, response = instantiate_request_response("connection")
 
     # mock the execute sub action method in the controller class
@@ -156,6 +156,7 @@ def test_get_repeated_messages(mock_load):
     facade.get_repeated_messages(**request.get_values())
 
     # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
+    #  This is where "message" list is populated
     assert response.get_action() == "GetRepeatedMessages"
     # assert the message value is correct
     assert_response_val('message', list, [mock_node], response)

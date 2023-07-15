@@ -873,7 +873,7 @@ class Node(DefaultPersistentObject):
                 # resolve proxies if the relation is already initialized
                 if self.relation_states[cur_role] == self.RELATION_STATE_INITIALIZED:
                     proxies = self.get_value(cur_role)
-                    if (isinstance(proxies), list):
+                    if isinstance(proxies, list):
                         for cur_relative in proxies:
                             if isinstance(cur_relative, PersistentObjectProxy):
                                 # resolve proxies
