@@ -152,3 +152,4 @@ certs/
 FreeTAKServerDataPackageFolder/
 logs/
 FreeTAKServer/services/ssl_cot_service/ignore_me
+/FreeTAKServer/core/cot_management/persistence/repeated_messages.json
