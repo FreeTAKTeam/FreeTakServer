@@ -71,3 +71,19 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def put_mission(self, *args, **kwargs):
         self.general_controller.put_mission(*args, **kwargs)
+
+    @DefaultFacade.public
+    def create_mission_content(self, *args, **kwargs):
+        self.general_controller.create_mission_content(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_missions(self, *args, **kwargs):
+        self.general_controller.get_missions(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_mission(self, *args, **kwargs):
+        self.general_controller.get_mission(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_mission_logs(self, *args, **kwargs):
+        self.general_controller.get_mission_logs(*args, **kwargs)

@@ -1,4 +1,5 @@
 from typing import List
+from FreeTAKServer.components.extended.mission.persistence.mission import Mission
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -8,7 +9,7 @@ import jwt
 import time
 import uuid
 
-from .MissionPersistenceController import MissionPersistenceController
+from .mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 config = MainConfig.instance()
@@ -49,7 +50,7 @@ class MissionTokenController(Controller):
         self.response.set_value("token", token)
         return self.response
 
-    def get_token(self, mission_object, *args, **kwargs):
+    def get_token(self, mission_object: Mission, *args, **kwargs):
         """this method is used to generate a token and return it to the client in json format.
         """
         uid = str(uuid.uuid4())
@@ -62,11 +63,9 @@ class MissionTokenController(Controller):
             'MISSION_NAME': mission_object.name
         }
 
-        self.persistence_controller.create_subscription(uid, mission_object.uid)
-
-        token = jwt.encode(token_payload, self._load_certificate, algorithm="RS256")
+        token = jwt.encode(token_payload, self._load_certificate(), algorithm="RS256")
         self.response.set_value("token", token)
-        return self.response
+        return token
 
     def _get_epoch_time(self):
         """this method is used to get the current time in epoch format.

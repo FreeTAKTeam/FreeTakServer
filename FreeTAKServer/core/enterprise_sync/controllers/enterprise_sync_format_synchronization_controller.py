@@ -25,7 +25,7 @@ class EnterpriseSyncFormatSynchronizationController(Controller):
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
 
-    def convert_newlines(self, data: bytes, *args, **kwargs):
+    def convert_newlines(self, data: str | bytes, *args, **kwargs):
         if isinstance(data, str):
             data = data.encode()
             return_str = True

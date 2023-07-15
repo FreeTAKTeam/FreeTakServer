@@ -174,7 +174,7 @@ def insert_video_link():
 def versionConfig():
     logger.info('sending client version json')
     return const.VERSIONJSON
-
+"""
 @app.route('/Marti/sync/missionupload', methods=[const.POST])
 def upload():
     from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
@@ -202,7 +202,7 @@ def upload():
 
     else:
         return "https://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
-
+"""
 
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
@@ -314,7 +314,7 @@ def missionupdate(templateuid):
     from flask import request
     uid = request.args.get('uid')
     return '', 200
-
+"""
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():
     from defusedxml import ElementTree as etree
@@ -348,7 +348,8 @@ def specificPackage():
     except Exception as ex:
         print(ex)
         return '', 500
-    
+"""
+
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
     return ExCheckController().update_checklist()
@@ -385,7 +386,7 @@ import time
 from FreeTAKServer.model.sockets.SSLServerSocket import SSLServerSocket
 from FreeTAKServer.core.connection.SSLSocketController import SSLSocketController
 
-from .blueprints import excheck_blueprint, citrap_blueprint, misc_blueprint, mission_blueprint
+from .blueprints import excheck_blueprint, citrap_blueprint, misc_blueprint, mission_blueprint, enterprise_sync_blueprint
 
 class HTTPSTakAPI(DigitalPyService):
      # a dictionary containing the request_id and response objects for all received requests
@@ -480,7 +481,8 @@ class HTTPSTakAPI(DigitalPyService):
         app.register_blueprint(citrap_blueprint.page)
         app.register_blueprint(misc_blueprint.page)
         app.register_blueprint(mission_blueprint.page)
-
+        app.register_blueprint(enterprise_sync_blueprint.page)
+        
     def setIP(self, IP_to_be_set):
         global IP
         IP = IP_to_be_set

@@ -87,7 +87,10 @@ class EnterpriseSync(DefaultFacade):
     def get_multiple_enterprise_sync_metadata(self,*args, **kwargs):
         self.general_controller.get_multiple_enterprise_sync_metadata(*args, **kwargs)
 
-
+    @DefaultFacade.public
+    def update_enterprise_sync_metadata(self, *args, **kwargs):
+        self.general_controller.update_enterprise_sync_metadata(*args, **kwargs)
+        
     @DefaultFacade.public
     def update_enterprise_sync_data(self, *args, **kwargs):
         self.general_controller.update_enterprise_sync_data(*args, **kwargs)

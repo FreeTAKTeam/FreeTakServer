@@ -67,6 +67,7 @@ setup(
         "pyzmq",
         "digitalpy>=0.3.13.2",
         "opentelemetry-sdk",
+        "PyJWT"
     ],
     extras_require={
         "ui": ["FreeTAKServer_UI"],

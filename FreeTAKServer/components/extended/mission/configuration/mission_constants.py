@@ -74,3 +74,9 @@ MISSION_CONTENT = "mission_content"
 MISSION_ITEM = "mission_item"
 
 MISSION_SUBSCRIPTION = "mission_subscription"
+
+MISSION_NOTIFICATION = "new_mission_notification"
+
+MISSION_COLLECTION = "mission_collection"
+
+MISSION_RECORD = "mission_record"
