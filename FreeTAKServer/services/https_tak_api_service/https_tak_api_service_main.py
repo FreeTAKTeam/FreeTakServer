@@ -203,7 +203,7 @@ def upload():
     else:
         return "https://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
 """
-
+"""
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
     file_hash = sanitize_hash(hash)
@@ -221,7 +221,7 @@ def getDataPackageTool(hash):
     app.logger.info(f"Sending data package from {str(path)}")
     resp = send_file(str(path))
     return resp
-
+"""
 
 @app.route('/Marti/sync/search', methods=[const.GET])
 def retrieveData():
@@ -236,7 +236,7 @@ def returnVersion():
     logger.info('api version triggered')
     return const.versionInfo
 
-
+"""
 @app.route('/Marti/sync/missionquery', methods=const.HTTPMETHODS)
 def checkPresent():
     logger.info('synce missionquery triggered')
@@ -251,7 +251,7 @@ def checkPresent():
     else:
         app.logger.info(f"Data package with hash {file_hash} does not exist")
         return '404', 404
-
+"""
 
 @app.route('/')
 def home():
@@ -297,6 +297,7 @@ def check_changes():
     except Exception as e:
         print('exception in check changes' + str(e))
 
+"""
 # TODO remove?
 @app.route('/Marti/api/missions/exchecktemplates/subscription', methods=['PUT'])
 def request_subscription():
@@ -308,12 +309,14 @@ def request_subscription():
         return ('', 200)
     except Exception as e:
         print('exception in request_subscription' + str(e))
-    
+"""
+""" 
 @app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
 def missionupdate(templateuid):
     from flask import request
     uid = request.args.get('uid')
     return '', 200
+"""
 """
 @app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
 def specificPackage():

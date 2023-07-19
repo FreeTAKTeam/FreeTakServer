@@ -8,7 +8,7 @@ class MissionSubscription(CoTNode):
         self.cot_attributes["clientUid"] = None
         self.cot_attributes["username"] = None
         self.cot_attributes["createTime"] = None
-    
+        
     @CoTProperty
     def token(self):
         return self.cot_attributes.get("token", None)
@@ -40,3 +40,11 @@ class MissionSubscription(CoTNode):
     @createTime.setter
     def createTime(self, createTime=None):
         self.cot_attributes["createTime"] = createTime
+        
+    @CoTProperty
+    def role(self):
+        return self.cot_attributes.get("MissionRole", None)
+    
+    @role.setter
+    def role(self, role=None):
+        self.cot_attributes["MissionRole"] = role

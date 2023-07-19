@@ -106,13 +106,16 @@ class EnterpriseSyncGeneralController(Controller):
         """Uploads one file to the server via HTTPS."""
         pass
 
-    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, objstarttime: str, tool, mime_type, logger, file_name=None, *args, **kwargs):
+    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, objstarttime: str, tool, mime_type, logger, file_name=None, length=None, *args, **kwargs):
         """save enterprise sync data to the db and the file system"""
         if file_name==None:
             file_name = objectuid
         objectdata = self.format_sync_controller.convert_newlines(objectdata)
         obj_hash = str(hashlib.sha256(objectdata).hexdigest())
-        obj_length = len(objectdata)
+        if length == None:
+            obj_length = len(objectdata)
+        else:
+            obj_length = length
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
         self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, obj_hash, obj_length, objkeywords, objstarttime, mime_type, tool, file_name=file_name, logger=logger)
 
@@ -200,14 +203,18 @@ class EnterpriseSyncGeneralController(Controller):
             None
         """
         object_metadata_list = []
+        
         if objectuids != None:
             for uid in objectuids:
                 data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, uid, None, )
-                object_metadata_list.append(data_obj)
-        elif objecthashs != None:
+                if data_obj != None:
+                    object_metadata_list.append(data_obj)
+        
+        if objecthashs != None:
             for objhash in objecthashs:
                 data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
-                object_metadata_list.append(data_obj)
+                if data_obj != None:
+                    object_metadata_list.append(data_obj)
         self.response.set_value("objectmetadata", object_metadata_list)
     
     def get_enterprise_sync_metadata(self, logger, objectuid: str=None, objecthash: str=None, *args, **kwargs):
@@ -223,8 +230,8 @@ class EnterpriseSyncGeneralController(Controller):
         object_metadata: EnterpriseSyncDataObject
         if objectuid != None:
             object_metadata: EnterpriseSyncDataObject = self.persistence_controller.get_enterprise_sync_data_object(logger, objectuid, None, )
+        
         elif objecthash != None:
             object_metadata: EnterpriseSyncDataObject = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objecthash)
-        else:
-            object_metadata = None
+            
         self.response.set_value("objectmetadata", object_metadata)

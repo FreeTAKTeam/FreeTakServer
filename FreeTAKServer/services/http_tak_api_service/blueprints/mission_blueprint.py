@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.services.http_tak_api_service.controllers.http_tak_api_communication_controller import HTTPTakApiCommunicationController
 
@@ -7,7 +7,9 @@ config = MainConfig.instance()
 
 @page.route('/Marti/api/missions', methods=['GET'])
 def get_missions():
-    return HTTPTakApiCommunicationController().make_request("GetMissions", "mission", {}, None, True).get_value("missions"), 200
+    out_data =  HTTPTakApiCommunicationController().make_request("GetMissions", "mission", {}, None, True).get_value("missions"), 200
+    print(out_data)
+    return out_data
 
 @page.route('/Marti/api/missions/invitations')
 def get_invitations():
@@ -35,15 +37,20 @@ def get_groups():
         ],
         "nodeId": config.nodeID
     }
+    
 @page.route('/Marti/api/missions/<mission_id>', methods=['PUT'])
 def put_mission(mission_id):
     from flask import request
-    return HTTPTakApiCommunicationController().make_request("PutMission", "mission", {"mission_id": mission_id, "mission_data": request.data, "mission_data_args": request.args}, None, True).get_value("mission_subscription"), 200
+    out_data = HTTPTakApiCommunicationController().make_request("PutMission", "mission", {"mission_id": mission_id, "mission_data": request.data, "mission_data_args": request.args, "creatorUid": request.args.get("creatorUid")}, None, True).get_value("mission_subscription"), 200 # type: ignore
+    print(out_data)
+    return out_data
 
 @page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
 def get_mission(mission_id):
     from flask import request
-    return HTTPTakApiCommunicationController().make_request("GetMission", "mission", {"mission_id": mission_id}, None, True).get_value("mission"), 200
+    out_data = HTTPTakApiCommunicationController().make_request("GetMission", "mission", {"mission_id": mission_id}, None, True).get_value("mission"), 200
+    print(out_data)
+    return out_data
 
 @page.route('/Marti/api/missions/<mission_id>/cot', methods=['GET'])
 def get_mission_cots(mission_id):
@@ -55,4 +62,38 @@ def get_mission_cots(mission_id):
 @page.route('/Marti/api/missions/<mission_id>/log', methods=['GET'])
 def get_mission_log(mission_id):
     """get the mission log"""
-    return HTTPTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": mission_id}, None, True).get_value("mission_logs"), 200
+    out_data = HTTPTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": mission_id}, None, True).get_value("mission_logs"), 200
+    print(out_data)
+    return out_data
+
+@page.route('/Marti/api/missions/<mission_id>/changes', methods=['POST'])
+def get_mission_changes(mission_id):
+    return {
+        "version": "3",
+        "type": "MissionChange",
+        "data": [
+        ],
+        "nodeId": config.nodeID
+    }
+
+@page.route('/Marti/api/missions/<mission_id>/subscriptions/roles', methods=['GET'])
+def get_all_mission_subscriptions(mission_id):
+    """get all the subscriptions from a mission
+
+    Args:
+        mission_id (_type_): _description_
+    """
+    print("request made to get all mission subscriptions")
+    out_data = HTTPTakApiCommunicationController().make_request("GetMissionSubscriptions", "mission", {"mission_id": mission_id}, None, True).get_value("mission_subscriptions"), 200
+    print(out_data)
+    return out_data
+
+@page.route('/Marti/api/missions/<mission_id>/contents', methods=['PUT'])
+def add_mission_contents(mission_id: str):
+    """add contents to a mission
+
+    Args:
+        mission_id (str): the id of the mission to add contents to
+    """
+    request_json = request.get_json()
+    return HTTPTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": request_json["hashes"], "uids": request_json["uids"]}, None, True).get_value("mission"), 200

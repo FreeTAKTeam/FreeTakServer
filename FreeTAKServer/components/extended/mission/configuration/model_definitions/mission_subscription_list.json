@@ -4,11 +4,12 @@
 	"type": "object",
 	"properties":
 	{
-		"all_mission_subscriptions":
+		"mission_subscription_list":
 		{
 			"type": "object",
 			"anyOf":
 			[
+				{ "$ref": "#/definitions/MissionInfo" },
 				{ "$ref": "#/definitions/MissionSubscription" },
                 { "$ref": "#/definitions/MissionRole" }
 			]
@@ -16,6 +17,19 @@
 	},
 	"definitions":
 	{
+        "MissionInfo" : 
+        {
+            "type": "object",
+            "description" : "",
+            "properties":
+            {
+                "data":
+				{
+					"type" : "array",
+					"items" : { "$ref":"#/definitions/MissionSubscription" }
+				}
+            }
+        },
         "MissionSubscription": {
             "type" : "object",
             "description" : "",

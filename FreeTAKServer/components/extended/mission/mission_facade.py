@@ -1,3 +1,5 @@
+from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
+from FreeTAKServer.components.extended.mission.controllers.mission_subscription_controller import MissionSubscriptionController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 from .controllers.mission_general_controller import MissionGeneralController
 
@@ -50,10 +52,14 @@ class Mission(DefaultFacade):
             manifest_path=MANIFEST_PATH,
         )
         self.general_controller = MissionGeneralController(request, response, sync_action_mapper, configuration)
+        self.persistence_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
+        self.subscription_controller = MissionSubscriptionController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
         self.general_controller.initialize(request, response)
+        self.persistence_controller.initialize(request, response)
+        self.subscription_controller.initialize(request, response)
 
     def execute(self, method):
         try:
@@ -68,6 +74,11 @@ class Mission(DefaultFacade):
         except Exception as e:
             self.logger.fatal(str(e))
     
+    def register(self, *args, **kwargs):
+        super().register(*args, **kwargs)
+        self.persistence_controller.create_default_permissions()
+        self.persistence_controller.create_default_roles()
+        
     @DefaultFacade.public
     def put_mission(self, *args, **kwargs):
         self.general_controller.put_mission(*args, **kwargs)
@@ -87,3 +98,11 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def get_mission_logs(self, *args, **kwargs):
         self.general_controller.get_mission_logs(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_mission_subscriptions(self, *args, **kwargs):
+        self.subscription_controller.get_mission_subscriptions(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def add_mission_contents(self, *args, **kwargs):
+        self.general_controller.add_contents_to_mission(*args, **kwargs)

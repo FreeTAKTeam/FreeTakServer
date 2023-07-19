@@ -7,6 +7,7 @@ from FreeTAKServer.components.extended.mission.domain.external_data import Exter
 from FreeTAKServer.components.extended.mission.domain.mission_role import MissionRole
 from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
+from FreeTAKServer.core.domain.node import Node
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -51,7 +52,7 @@ class MissionGeneralController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
  
-    def put_mission(self, mission_id, mission_data: bytes, mission_data_args: Dict, config_loader, *args, **kwargs):
+    def put_mission(self, mission_id, mission_data: bytes, mission_data_args: Dict, creatorUid: str, config_loader, *args, **kwargs):
         """this method is used to create a new mission, save it to the database and return the mission information
         to the client in json format, it uses the mission persistence controller to access the database.
         """
@@ -61,6 +62,8 @@ class MissionGeneralController(Controller):
         # atak passes keyword arguments instead
         else:
             initial_mission_data = dict(mission_data_args)
+
+        default_mission_role = self.persistency_controller.get_role(initial_mission_data.get('defaultRole'))
 
         mission_db_obj = self.persistency_controller.create_mission(
             str(mission_id),
@@ -75,18 +78,25 @@ class MissionGeneralController(Controller):
             createTime=str(initial_mission_data.get('createTime')),
             passwordProtected=str(initial_mission_data.get('passwordProtected')),
             groups=str(initial_mission_data.get('groups')),
-            defaultRole=str(initial_mission_data.get('defaultRole')),
+            defaultRole=default_mission_role,
             serviceUri=str(initial_mission_data.get('serviceUri')),
-            classification=str(initial_mission_data.get('classification'))
+            classification=str(initial_mission_data.get('classification')),
+            clientUid = creatorUid
         )
         
         token = self.token_controller.get_token(mission_db_obj)
+        
         subscription_db_obj = self.persistency_controller.create_subscription(None, str(mission_id), token)    
+        
+        # set as owner because the default role for the creator of a mission should be owner
+        self.persistency_controller.update_subscription(subscription_db_obj.PrimaryKey, role = self.persistency_controller.get_role("MISSION_OWNER"))
+        
+        self.persistency_controller.update_subscription(subscription_db_obj.PrimaryKey, clientUid = creatorUid)
         
         mission_collection_obj = self.domain_controller.create_mission_collection(config_loader)
         
         mission_subscription_obj = self.domain_controller.create_mission_record_object(config_loader)
-        mission_subscription_obj = self.domain_controller.complete_mission_record_db(mission_subscription_obj, mission_db_obj, subscription_db_obj)
+        mission_subscription_obj = self.domain_controller.complete_mission_record_db(mission_subscription_obj, mission_db_obj, config_loader, subscription_db_obj)
 
         mission_collection_obj = self.domain_controller.add_mission_to_collection(mission_collection_obj, mission_subscription_obj)
 
@@ -100,10 +110,10 @@ class MissionGeneralController(Controller):
         
         self.response.set_value("message", serialized_mission_notification[0])
         # TODO: resolve these topics dynamically
-        #tcp_cot_topic = f"/tcp_cot_service/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}/"
-        #ssl_cot_topic = f"/ssl_cot_service/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}/"
-        #source_topic = f"/{self.request.get_sender()}/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}/"
-        #self.response.set_value("topics", [source_topic, tcp_cot_topic, ssl_cot_topic])
+        # tcp_cot_topic = f"/tcp_cot_service/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}//{self.response.}".encode()
+        # ssl_cot_topic = f"/ssl_cot_service/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}/".encode()
+        # source_topic = f"/{self.request.get_sender()}/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}/".encode()
+        # self.response.set_value("topics", [source_topic, tcp_cot_topic, ssl_cot_topic])
         return self.response
 
     def create_new_mission_notification(self, mission_id, creator_uid, config_loader, *args, **kwargs):
@@ -155,7 +165,7 @@ class MissionGeneralController(Controller):
         mission_logs_db = self.persistency_controller.get_all_mission_logs()
         mission_logs_domain = self.domain_controller.create_mission_logs(mission_logs_db)
         final_message = self.serialize_to_json(mission_logs_domain)
-        self.response.set_value("mission_subscription", final_message[0])
+        self.response.set_value("mission_logs", final_message[0])
         return  final_message[0]
     
     def create_mission_content(self, mission_id, hashes=[], uids=[], *args, **kwargs):
@@ -175,7 +185,7 @@ class MissionGeneralController(Controller):
         mission_collection = self.domain_controller.create_mission_collection(config_loader)
         for mission in missions:
             mission_record_domain = self.domain_controller.create_mission_record_object(config_loader)
-            self.domain_controller.complete_mission_record_db(mission_record_domain, mission)
+            self.domain_controller.complete_mission_record_db(mission_record_domain, mission, config_loader)
             self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
         serialized_mission_collection = self.serialize_to_json(mission_collection)[0]    
         self.response.set_value("missions", serialized_mission_collection)
@@ -187,21 +197,46 @@ class MissionGeneralController(Controller):
         mission_collection = self.domain_controller.create_mission_collection(config_loader)
         
         mission_record_domain = self.domain_controller.create_mission_record_object(config_loader)
-        self.domain_controller.complete_mission_record_db(mission_record_domain, mission)
+        self.domain_controller.complete_mission_record_db(mission_record_domain, mission, config_loader)
+        
         self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
         
         serialized_mission_collection = self.serialize_to_json(mission_collection)[0]    
         
         self.response.set_value("mission", serialized_mission_collection)
         return serialized_mission_collection
+    
+    def add_contents_to_mission(self, mission_id, config_loader, hashes=[], uids=[], *args, **kwargs):
+        """add contents to a mission"""
+        self.request.set_value("objecthashs", hashes)
+        self.request.set_value("objectuids", uids)
+        contents_metadata = self.execute_sub_action("GetMultipleEnterpriseSyncMetaData").get_value("objectmetadata")
+        for metadata in contents_metadata:
+            if metadata.hash != None:
+                try:
+                    content = self.persistency_controller.create_mission_content(mission_id, id=metadata.hash)
+                    self.persistency_controller.update_mission(mission_id, content=content)
+                except:
+                    self.persistency_controller.get_mission_content(id=metadata.hash)
+                hashes.remove(metadata.hash)
+                
+            elif metadata.PrimaryKey != None:
+                content = self.persistency_controller.create_mission_content(mission_id, id=metadata.PrimaryKey)
+                self.persistency_controller.update_mission(mission_id, content=content)
+                uids.remove(metadata.PrimaryKey)
+                
+        for uid in uids:
+            self.persistency_controller.create_mission_cot(mission_id, uid=uid)
         
-    def serialize_to_json(self, message):
+        self.get_mission(mission_id, config_loader)
+        
+    def serialize_to_json(self, message: Node):
         self.request.set_value("protocol", "json")
         self.request.set_value("message", [message])
         response = self.execute_sub_action("serialize")
         return response.get_value("message")
 
-    def serialize_to_xml(self, message):
+    def serialize_to_xml(self, message: Node):
         self.request.set_value("protocol", "xml")
         self.request.set_value("message", [message])
         response = self.execute_sub_action("serialize")

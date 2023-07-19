@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING, List
 from sqlalchemy import Column, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
+
+if TYPE_CHECKING:
+    from .mission_content import MissionContent
+    from .mission_cot import MissionCoT
 from . import MissionBase
 
 class Mission(MissionBase):
@@ -39,7 +44,9 @@ class Mission(MissionBase):
 
     # mapLayers = Column(String(100), default=[])
 
-    defaultRole = Column(String(100))
+    defaultRole = relationship("Role")
+    
+    defaultRole_id = Column(String(1000), ForeignKey("role.role_type"))
 
     ownerRole = Column(String(100))
 
@@ -51,7 +58,7 @@ class Mission(MissionBase):
 
     uids = Column(String(100), default="[]")
 
-    contents = Column(String(100))
+    contents: List['MissionContent'] = relationship("MissionContent", back_populates="mission")
 
     token = Column(String(100))
 
@@ -62,7 +69,7 @@ class Mission(MissionBase):
     mission_items = relationship("MissionItem", back_populates="mission")
 
     mission_subscriptions = relationship("Subscription", back_populates="mission")
-    
-    mission_contents = relationship("MissionContent", back_populates="mission")
-    
+        
     logs = relationship("MissionLog", back_populates="mission")
+    
+    cots: List['MissionCoT'] = relationship("MissionCoT", back_populates="mission")

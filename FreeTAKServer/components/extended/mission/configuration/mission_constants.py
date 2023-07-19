@@ -69,6 +69,17 @@ PERSISTENCE_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/mission.json")
 )
 
+PERMISSIONS = [
+    "MISSION_MANAGE_FEEDS",
+    "MISSION_SET_PASSWORD",
+    "MISSION_MANAGE_LAYERS",
+    "MISSION_WRITE",
+    "MISSION_UPDATE_GROUPS",
+    "MISSION_DELETE",
+    "MISSION_SET_ROLE",
+    "MISSION_READ"
+]
+
 MISSION_CONTENT = "mission_content"
 
 MISSION_ITEM = "mission_item"
@@ -80,3 +91,5 @@ MISSION_NOTIFICATION = "new_mission_notification"
 MISSION_COLLECTION = "mission_collection"
 
 MISSION_RECORD = "mission_record"
+
+MISSION_SUBSCRIPTION_LIST = "mission_subscription_list"

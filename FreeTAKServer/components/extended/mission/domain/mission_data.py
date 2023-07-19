@@ -192,7 +192,7 @@ class MissionData(CoTNode):
 
     @CoTProperty
     def contents(self):
-        return self.get_children_ex(children_type="MissionItemMetaData")
+        return self.get_children_ex(children_type="MissionContent")
 
     @contents.setter
     def contents(self, contents):

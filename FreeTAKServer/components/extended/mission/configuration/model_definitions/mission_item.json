@@ -9,14 +9,14 @@
 			"type": "object",
 			"anyOf":
 			[
-				{ "$ref": "#/definitions/MissionItemMetaData" },
-				{ "$ref": "#/definitions/MissionItem" }
+				{ "$ref": "#/definitions/MissionContent" },
+				{ "$ref": "#/definitions/MissionContentData" }
 			]
 		}
 	},
 	"definitions":
 	{
-		"MissionItemMetaData" : 
+		"MissionContent" : 
 		{
 			"type": "object",
 			"description" : "This is a Cursor On Target Class representing communications parameters for contacting a friendly element for human-to-human communications. The objective of this Class is to carry the essential information needed to contact this entity by a variety of means.   Multiple ways of establishing contact can be specified;\nnoThe attributes  callsign, phone, and email should be self-explanatory.  particular mode of contact is required. Other attributes, freq, dsn, modulation, and hostname, are also available. \n",
@@ -25,11 +25,11 @@
 				"contents":
 				{
 					"type" : "array",
-					"items" : { "$ref":"#/definitions/MissionItem" }
+					"items" : { "$ref":"#/definitions/MissionContentData" }
 				}
 			}
 		},
-		"MissionItem":{
+		"MissionContentData":{
 			"type": "object",
 			"description": "",
 			"properties": {}

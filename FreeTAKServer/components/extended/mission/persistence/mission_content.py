@@ -7,12 +7,8 @@ from .mission import Mission
 class MissionContent(MissionBase):
     __tablename__ = "mission_content"
     
-    PrimaryKey = Column(Integer, primary_key=True, autoincrement=True) 
-    
-    uid = Column(String(100), default="")
-    
-    hash = Column(String(100), default="")
+    PrimaryKey:str = Column(String(1000), primary_key=True) # type: ignore
 
-    mission_uid = Column(String, ForeignKey(Mission.PrimaryKey))
+    mission_uid: str = Column(String(1000), ForeignKey(Mission.PrimaryKey)) # type: ignore
 
-    mission : Mission = relationship(Mission, back_populates="mission_contents")
+    mission : Mission = relationship(Mission, back_populates="contents")

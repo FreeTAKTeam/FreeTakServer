@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING, List
+
+if TYPE_CHECKING:
+    from .enterprise_sync_keyword import EnterpriseSyncKeyword
+
 from sqlalchemy import Integer, String, Column, ForeignKey
 from sqlalchemy.orm import relationship, backref
 
@@ -14,7 +19,7 @@ class EnterpriseSyncDataObject(Base):
     file_type = Column(String(20))
     hash = Column(String(150))
     length = Column(Integer)
-    keywords = relationship("EnterpriseSyncKeyword", lazy="immediate")
+    keywords: List['EnterpriseSyncKeyword'] = relationship("EnterpriseSyncKeyword", lazy="immediate")
     start_time = Column(String(100))
     submitter = Column(String(100), default="anonymous")
     expiration = Column(Integer, default=-1)

@@ -1,7 +1,8 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
+from FreeTAKServer.components.extended.mission.domain.mission_content_data import MissionContentData
 
-class MissionItemMetaData(CoTNode):
+class MissionContent(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["timestamp"] = None
@@ -25,9 +26,9 @@ class MissionItemMetaData(CoTNode):
         self.cot_attributes["creatorUid"] = creatorUid
 
     @CoTProperty
-    def data(self):
-        return self.cot_attributes.get("MissionItem")
+    def data(self) -> MissionContentData:
+        return self.cot_attributes.get("MissionContentData") # type: ignore
     
     @data.setter
     def data(self, data=None):
-        self.cot_attributes["MissionItem"] = data
+        self.cot_attributes["MissionContentData"] = data

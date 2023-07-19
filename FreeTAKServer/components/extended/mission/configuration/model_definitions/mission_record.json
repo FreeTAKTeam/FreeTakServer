@@ -10,8 +10,8 @@
 			"anyOf":
 			[
 				{ "$ref": "#/definitions/MissionData" },
-				{ "$ref": "#/definitions/MissionItemMetaData" },
-				{ "$ref": "#/definitions/MissionItem" }
+				{ "$ref": "#/definitions/MissionContent" },
+				{ "$ref": "#/definitions/MissionContentData" }
 			]
 		}
 	},
@@ -26,7 +26,7 @@
 				"contents":
 				{
 					"type" : "array",
-					"items" : { "$ref":"#/definitions/MissionItemMetaData" }
+					"items" : { "$ref":"#/definitions/MissionContent" }
 				},
 				"externalData":
 				{
@@ -43,7 +43,7 @@
 				
 			}
 		},
-		"MissionItemMetaData" : 
+		"MissionContent" : 
 		{
 			"type": "object",
 			"description" : "",
@@ -51,13 +51,13 @@
 			{
 				"data":
 				{
-					"$ref" : "#/definitions/MissionItem",
+					"$ref" : "#/definitions/MissionContentData",
 					"minItems" : 1,
 					"maxItems" : 1
 				}
 			}
 		},
-		"MissionItem":{
+		"MissionContentData":{
 			"type": "object",
 			"description": "",
 			"properties": {}

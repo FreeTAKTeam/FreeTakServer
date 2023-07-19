@@ -65,7 +65,6 @@ class EnterpriseSync(DefaultFacade):
                 self.response.set_values(response.get_values())
         except Exception as e:
             self.logger.fatal(str(e))
-            
 
     @DefaultFacade.public
     def save_enterprise_sync_data(self, *args, **kwargs):

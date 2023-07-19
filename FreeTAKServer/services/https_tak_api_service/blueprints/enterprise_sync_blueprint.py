@@ -1,6 +1,6 @@
 import os
 from pathlib import Path, PurePath
-from random import random
+import random
 import string
 from flask import Blueprint, request, make_response
 from FreeTAKServer.core.services.DataPackageServer import USINGSSL
@@ -36,5 +36,13 @@ def upload():
     uid = 'uid-' + str(uid)
     filename = secure_filename(request.args.get('filename')) # type: ignore
     creatorUid = request.args.get('creatorUid') # type: ignore
-    HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", None, {"objectuid": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid], "objstarttime": ""}, False).get_value("objectid"), 200 # type: ignore
+    HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "", {
+        "objectuid": request.args.get('hash'), 
+        "objectdata": request.files.getlist('assetfile')[0].stream.read(), 
+        "objkeywords": [filename, creatorUid], 
+        "objstarttime": "", 
+        "synctype": "datapackage", 
+        "file_name": filename,
+        "tool": "public", 
+        "mime_type": dict(request.headers)["Content-Type"].split(";")[0]}, None, True).get_value("objectid"), 200 # type: ignore
     return "https://" + config.DataPackageServiceDefaultIP + ':' + str(config.HTTPSTakAPIPort) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
