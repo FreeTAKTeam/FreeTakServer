@@ -1,3 +1,4 @@
+from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_subscription_controller import MissionSubscriptionController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
@@ -54,12 +55,14 @@ class Mission(DefaultFacade):
         self.general_controller = MissionGeneralController(request, response, sync_action_mapper, configuration)
         self.persistence_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
         self.subscription_controller = MissionSubscriptionController(request, response, sync_action_mapper, configuration)
+        self.logs_controller = MissionLogsController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
         self.general_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
         self.subscription_controller.initialize(request, response)
+        self.logs_controller.initialize(request, response)
 
     def execute(self, method):
         try:
@@ -96,13 +99,33 @@ class Mission(DefaultFacade):
         self.general_controller.get_mission(*args, **kwargs)
         
     @DefaultFacade.public
-    def get_mission_logs(self, *args, **kwargs):
-        self.general_controller.get_mission_logs(*args, **kwargs)
-        
-    @DefaultFacade.public
     def get_mission_subscriptions(self, *args, **kwargs):
         self.subscription_controller.get_mission_subscriptions(*args, **kwargs)
         
     @DefaultFacade.public
     def add_mission_contents(self, *args, **kwargs):
         self.general_controller.add_contents_to_mission(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def add_mission_log(self, *args, **kwargs):
+        self.logs_controller.add_mission_log(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_mission_logs(self, *args, **kwargs):
+        self.logs_controller.get_mission_logs(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_all_logs(self, *args, **kwargs):
+        self.logs_controller.get_all_logs(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_mission_log(self, *args, **kwargs):
+        self.logs_controller.get_log(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def delete_mission_log(self, *args, **kwargs):
+        self.logs_controller.delete_mission_log(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def update_mission_log(self, *args, **kwargs):
+        self.logs_controller.update_mission_log(*args, **kwargs)

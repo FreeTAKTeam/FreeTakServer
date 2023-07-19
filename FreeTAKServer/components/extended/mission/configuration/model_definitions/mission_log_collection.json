@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://example.com/MissionLog#",
+    "type": "object",
+    "properties": {
+        "MissionLog": {
+            "$ref": "#/definitions/MissionLog"
+        }
+    },
+    "definitions": {
+        "MissionInfo":{
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/MissionLog"
+            }
+        },
+        "MissionLog": {
+            "type": "object",
+            "properties": {
+            }
+        }
+    }
+}

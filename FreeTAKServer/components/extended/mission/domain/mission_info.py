@@ -2,6 +2,7 @@ from typing import List
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 from FreeTAKServer.components.extended.excheck.domain.mission_data import MissionData
+from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
 from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
 
 class MissionInfo(CoTNode):
@@ -37,9 +38,10 @@ class MissionInfo(CoTNode):
         self.cot_attributes["nodeId"] = nodeId
 
     @CoTProperty
-    def data(self) -> List[MissionData | MissionSubscription]:
-        children: List[MissionData] = self.get_children_ex(children_type="MissionData")
+    def data(self) -> List[MissionData | MissionSubscription | MissionLog]:
+        children: List[MissionData | MissionSubscription | MissionLog] = self.get_children_ex(children_type="MissionData")
         children.extend(self.get_children_ex(children_type="MissionSubscription"))
+        children.extend(self.get_children_ex(children_type="MissionLog"))
         return children
     
     @data.setter

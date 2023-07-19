@@ -93,3 +93,7 @@ MISSION_COLLECTION = "mission_collection"
 MISSION_RECORD = "mission_record"
 
 MISSION_SUBSCRIPTION_LIST = "mission_subscription_list"
+
+MISSION_LOG = "mission_log"
+
+MISSION_LOG_COLLECTION = "mission_log_collection"

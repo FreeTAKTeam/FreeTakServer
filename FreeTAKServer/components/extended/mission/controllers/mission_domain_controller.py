@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
+
 if TYPE_CHECKING:
     from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 
@@ -30,6 +32,8 @@ from ..configuration.mission_constants import (
     BASE_OBJECT_NAME,
     MISSION_CONTENT,
     MISSION_ITEM,
+    MISSION_LOG,
+    MISSION_LOG_COLLECTION,
     MISSION_RECORD,
     MISSION_SUBSCRIPTION,
     MISSION_NOTIFICATION,
@@ -261,6 +265,47 @@ class MissionDomainController(Controller):
 
         response = self.execute_sub_action("CreateNode")
 
+        model_object = response.get_value("model_object")
+
+        return model_object
+    
+    def create_log(self, config_loader, *args, **kwargs) -> MissionLog:
+        """return the domain object used a log entry in a mission"""
+        self.request.set_value("object_class_name", "MissionLog")
+
+        configuration = config_loader.find_configuration(MISSION_LOG)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value("extended_domain", {"MissionLog": MissionLog})
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
+        model_object = response.get_value("model_object")
+
+        return model_object
+    
+    def create_log_collection(self, config_loader, *args, **kwargs) -> MissionInfo:
+        self.request.set_value("object_class_name", "MissionInfo")
+        
+        configuration = config_loader.find_configuration(MISSION_LOG_COLLECTION)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value("extended_domain", {"MissionInfo": MissionInfo, "MissionLog": MissionLog})
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+        
+        response = self.execute_sub_action("CreateNode")
+        
         model_object = response.get_value("model_object")
 
         return model_object

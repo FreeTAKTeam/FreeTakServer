@@ -160,14 +160,6 @@ class MissionGeneralController(Controller):
         mission = self.persistency_controller.get_mission(mission_id)
         self.persistency_controller.create_mission_log(id, content, creator_uid, entry_uid, mission, servertime, dtg, created, content_hashes, keywords)
     
-    def get_mission_logs(self):
-        """get all mission logs in the db as json mission logs"""
-        mission_logs_db = self.persistency_controller.get_all_mission_logs()
-        mission_logs_domain = self.domain_controller.create_mission_logs(mission_logs_db)
-        final_message = self.serialize_to_json(mission_logs_domain)
-        self.response.set_value("mission_logs", final_message[0])
-        return  final_message[0]
-    
     def create_mission_content(self, mission_id, hashes=[], uids=[], *args, **kwargs):
         """create a new mission content object"""
         sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData", objecthashs=hashes, objectuids=uids)

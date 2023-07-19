@@ -59,14 +59,6 @@ def get_mission_cots(mission_id):
     return """<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <events></events>""", 200
 
-@page.route('/Marti/api/missions/<mission_id>/log', methods=['GET'])
-def get_mission_log(mission_id):
-    """get the mission log"""
-    out_data = HTTPSTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": mission_id}, None, True).get_value("mission_logs"), 200
-    print(out_data)
-    return out_data
-
-
 @page.route('/Marti/api/missions/<mission_id>/changes', methods=['POST'])
 def get_mission_changes(mission_id):
     return {
@@ -88,3 +80,31 @@ def get_all_mission_subscriptions(mission_id):
     out_data = HTTPSTakApiCommunicationController().make_request("GetMissionSubscriptions", "mission", {"mission_id": mission_id}, None, True).get_value("mission_subscriptions"), 200
     print(out_data)
     return out_data
+
+
+@page.route('/Marti/api/missions/logs/entries', methods=['POST'])
+def add_log_entry():
+    request_json = request.get_json()
+    return HTTPSTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
+
+@page.route('/Marti/api/missions/logs/entries', methods=['PUT'])
+def update_log_entry():
+    request_json = request.get_json()
+    return HTTPSTakApiCommunicationController().make_request("UpdateMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
+
+@page.route('/Marti/api/missions/logs/entries/<id>', methods=['DELETE'])
+def delete_log_entry(id):
+    HTTPSTakApiCommunicationController().make_request("DeleteMissionLog", "mission", {"log_id": id}, None, True)
+    return "", 200
+
+@page.route('/Marti/api/missions/logs/entries/<id>', methods=['GET'])
+def get_log_entry():
+    return HTTPSTakApiCommunicationController().make_request("GetMissionLog", "mission", {"log_id": id}, None, True).get_value("log"), 200
+
+@page.route('/Marti/api/missions/<missionID>/log', methods=['GET'])
+def get_mission_logs(missionID):
+    return HTTPSTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": missionID}, None, True).get_value("logs"), 200
+
+@page.route('/Marti/api/missions/all/logs', methods=['GET'])
+def get_all_logs():
+    return HTTPSTakApiCommunicationController().make_request("GetAllLogs", "mission", {}, None, True).get_value("logs"), 200

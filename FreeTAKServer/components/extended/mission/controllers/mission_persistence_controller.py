@@ -295,3 +295,95 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             self.ses.rollback()
             raise ex
+        
+    def get_mission_logs(self, mission_id, *args, **kwargs):
+        try:
+            mission = self.get_mission(mission_id)
+            return mission.logs
+        except Exception as ex:
+            raise ex
+        
+    def get_log(self, log_id:str) -> Log:
+        try:
+            log: Log = self.ses.query(Log).filter(Log.id == log_id).first() # type: ignore
+            return log
+        except Exception as ex:
+            raise ex
+        
+    def create_log(self, uid, mission_ids, content, dtg, servertime, creatorUid, created, keywords, id) -> Log:
+        try:
+            log = Log()
+            log.id = id
+            log.entryUid = uid
+            log.content = content
+            log.creatorUid = creatorUid
+            log.servertime = servertime
+            log.dtg = dtg
+            log.created = created
+            log.keywords = keywords
+            
+            for mission_id in mission_ids:
+                mission = self.get_mission(mission_id)
+                mission_log = MissionLog()
+                mission_log.mission = mission
+                mission_log.log = log
+                log.missions.append(mission_log)
+                mission.logs.append(mission_log)
+                self.ses.add(mission_log)
+            self.ses.add(log)
+            
+            self.ses.commit()
+            return log
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+        
+    def update_log(self, id, entryUid=None, mission_ids=None, content=None, dtg=None, servertime=None, creatorUid=None, created=None, keywords=None) -> Log:
+        try:
+            log = self.get_log(id)
+            if entryUid is not None:
+                log.entryUid = entryUid
+            if content is not None:
+                log.content = content
+            if creatorUid is not None:
+                log.creatorUid = creatorUid
+            if servertime is not None:
+                log.servertime = servertime
+            if dtg is not None:
+                log.dtg = dtg
+            if created is not None:
+                log.created = created
+            if keywords is not None:
+                log.keywords = keywords
+
+            if mission_ids is not None:
+                for mission_id in mission_ids:
+                    mission = self.get_mission(mission_id)
+                    mission_log = MissionLog()
+                    mission_log.mission = mission
+                    mission_log.log = log
+                    log.missions.append(mission_log)
+                    mission.logs.append(mission_log)
+                    self.ses.add(mission_log)
+                
+            self.ses.add(log)
+            
+            self.ses.commit()
+            return log
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+        
+    def delete_mission_log(self, log_id):
+        try:
+            self.ses.delete(self.get_log(log_id))
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+        
+    def get_all_logs(self):
+        try:
+            return self.ses.query(Log).all()
+        except Exception as ex:
+            raise ex

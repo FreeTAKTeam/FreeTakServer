@@ -7,6 +7,8 @@ from datetime import datetime
 if TYPE_CHECKING:
     from .mission_content import MissionContent
     from .mission_cot import MissionCoT
+    from .mission_log import MissionLog
+    
 from . import MissionBase
 
 class Mission(MissionBase):
@@ -70,6 +72,6 @@ class Mission(MissionBase):
 
     mission_subscriptions = relationship("Subscription", back_populates="mission")
         
-    logs = relationship("MissionLog", back_populates="mission")
+    logs: List['MissionLog'] = relationship("MissionLog", back_populates="mission")
     
     cots: List['MissionCoT'] = relationship("MissionCoT", back_populates="mission")
