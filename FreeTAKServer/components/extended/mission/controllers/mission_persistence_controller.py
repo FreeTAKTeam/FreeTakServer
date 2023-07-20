@@ -1,4 +1,5 @@
 import codecs
+from datetime import datetime
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 
 from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
@@ -20,6 +21,7 @@ from ..persistence.mission_item import MissionItem
 from ..persistence.mission_log import MissionLog
 from ..persistence.log import Log
 from ..persistence.mission import Mission
+from ..persistence.mission_to_mission import MissionToMission
 from ..persistence import MissionBase
 from ..configuration.mission_constants import PERSISTENCE_PATH, DB_PATH, PERMISSIONS
 
@@ -300,6 +302,15 @@ class MissionPersistenceController(Controller):
         try:
             mission = self.get_mission(mission_id)
             return mission.logs
+        except Exception as ex:
+            raise ex
+        
+    def get_mission_logs_by_time(self, mission_id, start:datetime, end:datetime, *args, **kwargs):
+        """get all mission logs since a specific time"""
+        try:
+            
+            mission_logs = self.ses.query(MissionLog).join(Log, MissionLog.log_id == Log.id).filter(MissionLog.mission_uid == mission_id).filter(Log.created >= start).filter(Log.created <= end).all()
+            return mission_logs
         except Exception as ex:
             raise ex
         

@@ -9,6 +9,7 @@ from FreeTAKServer.components.extended.mission.domain.mission_log import Mission
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 from FreeTAKServer.components.extended.mission.persistence.mission_log import MissionLog as DBMissionLog
 from FreeTAKServer.core.domain.node import Node
+from FreeTAKServer.core.util.time_utils import get_current_datetime, get_datetime_from_dtg, get_dtg, get_past_datetime
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -55,10 +56,10 @@ class MissionLogsController(Controller):
             id = str(uuid4()),
             uid = mission_log_data["entryUid"], 
             mission_ids=mission_log_data["missionNames"], 
-            dtg=mission_log_data["dtg"], 
+            dtg=get_datetime_from_dtg(mission_log_data["dtg"]), 
             creatorUid=mission_log_data["creatorUid"], 
-            servertime=self.get_time(), 
-            created=self.get_time(), 
+            servertime=get_current_datetime(), 
+            created=get_current_datetime(), 
             content=json.dumps(mission_log_data["contentHashes"]), 
             keywords=json.dumps(mission_log_data["keywords"]))
         log_domain_obj = self.domain_controller.create_log(config_loader)
@@ -68,8 +69,23 @@ class MissionLogsController(Controller):
         self.response.set_value("log", serialized_message)
         return serialized_message
         
-    def get_mission_logs(self, mission_id, config_loader, *args, **kwargs):
-        logs = self.persistency_controller.get_mission_logs(mission_id)
+    def get_mission_logs(self, mission_id, seconds_ago, start, end, config_loader, *args, **kwargs):
+        """Get mission logs for a mission"""
+        start_time = None
+        end_time = None
+        
+        if seconds_ago is not None:
+            start_time = get_past_datetime(int(seconds_ago))
+            end_time = get_current_datetime()
+            
+        elif start is not None and end is not None:
+            start_time = get_datetime_from_dtg(start)
+            end_time = get_datetime_from_dtg(end)
+        
+        if start_time is not None and end_time is not None: 
+            logs = self.persistency_controller.get_mission_logs_by_time(mission_id, start_time, end_time)
+        else: 
+            logs = self.persistency_controller.get_mission_logs(mission_id)
         log_collection_obj = self.domain_controller.create_log_collection(config_loader)
         logs = [mission_log.log for mission_log in logs]
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
@@ -80,11 +96,15 @@ class MissionLogsController(Controller):
         return serialized_collection
         
     def update_mission_log(self, mission_log_data: Dict, config_loader, *args, **kwargs):
+        if mission_log_data.get("dtg") is not None:
+            dtg = get_datetime_from_dtg(mission_log_data["dtg"])
+        else:
+            dtg = None
         log_db_obj = self.persistency_controller.update_log(
                 id=mission_log_data.get("id"),
                 entryUid=mission_log_data.get("entryUid"), 
                 mission_ids=mission_log_data.get("missionNames"), 
-                dtg=mission_log_data.get("dtg"), 
+                dtg=dtg, 
                 creatorUid=mission_log_data.get("creatorUid"), 
                 content=json.dumps(mission_log_data.get("contentHashes")), 
                 keywords=json.dumps(mission_log_data.get("keywords")))
@@ -99,10 +119,10 @@ class MissionLogsController(Controller):
         """Completes the mission log object with the data from the database object"""
         mission_log_domain_obj.entryUid = log_db_obj.entryUid
         
-        mission_log_domain_obj.dtg = log_db_obj.dtg
+        mission_log_domain_obj.dtg = get_dtg(log_db_obj.dtg)
         mission_log_domain_obj.creatorUid = log_db_obj.creatorUid
-        mission_log_domain_obj.servertime = log_db_obj.servertime
-        mission_log_domain_obj.created = log_db_obj.created
+        mission_log_domain_obj.servertime = get_dtg(log_db_obj.servertime)
+        mission_log_domain_obj.created = get_dtg(log_db_obj.created)
         mission_log_domain_obj.contentHashes = json.loads(log_db_obj.content)
         mission_log_domain_obj.keywords = json.loads(log_db_obj.keywords)
         mission_log_domain_obj.id = log_db_obj.id

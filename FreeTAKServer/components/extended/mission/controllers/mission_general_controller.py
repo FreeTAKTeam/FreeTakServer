@@ -71,7 +71,7 @@ class MissionGeneralController(Controller):
             connected=str(initial_mission_data.get('connected')),
             isSubscribed=str(initial_mission_data.get('isSubscribed')),
             autoPublish=str(initial_mission_data.get('autoPublish')),
-            name=str(initial_mission_data.get('name')),
+            name=str(mission_id),
             description=str(initial_mission_data.get('description')),
             uids= str(initial_mission_data.get('uids')),
             contents=str(initial_mission_data.get('contents')),

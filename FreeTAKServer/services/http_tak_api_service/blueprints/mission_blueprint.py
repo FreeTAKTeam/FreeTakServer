@@ -112,7 +112,7 @@ def get_log_entry():
 
 @page.route('/Marti/api/missions/<missionID>/log', methods=['GET'])
 def get_mission_logs(missionID):
-    return HTTPTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": missionID}, None, True).get_value("logs"), 200
+    return HTTPTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": missionID, "seconds_ago": request.args.get("secago"), "start": request.args.get("start"), "end": request.args.get("end")}, None, True).get_value("logs"), 200
 
 @page.route('/Marti/api/missions/all/logs', methods=['GET'])
 def get_all_logs():

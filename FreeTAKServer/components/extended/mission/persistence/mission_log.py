@@ -14,5 +14,5 @@ class MissionLog(MissionBase):
     log_id = Column(String, ForeignKey(Log.id))
     log: Log = relationship(Log, back_populates="missions")
     
-    mission_uid = Column(String, ForeignKey(Mission.name))
+    mission_uid = Column(String, ForeignKey(Mission.PrimaryKey))
     mission : Mission = relationship(Mission, back_populates="logs")
