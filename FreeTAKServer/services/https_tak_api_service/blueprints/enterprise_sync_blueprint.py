@@ -11,6 +11,11 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 page = Blueprint("enterprise_sync", __name__)
 config = MainConfig.instance()
 
+@page.route('/Marti/sync/upload', methods=["POST"])
+def enterprise_sync_upload_alt():
+    """a new endpoint used by the enterprise sync tool to upload files"""
+    return HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", None, { "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid], "objstarttime": ""}, True).get_value("objectid"), 200 # type: ignore
+
 @page.route('/Marti/sync/content', methods=["POST"])
 def enterprise_sync_upload():
     return HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", None, {"objectuid": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid], "objstarttime": ""}, True).get_value("objectid"), 200 # type: ignore

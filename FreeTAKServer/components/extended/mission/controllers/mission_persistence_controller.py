@@ -247,13 +247,49 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
+    def add_parent_to_mission(self, child_mission:Mission, parent_mission: Mission, *args, **kwargs):
+        try:
+            mission_parent_rel: MissionToMission = MissionToMission()
+                    
+            mission_parent_rel.parent_mission = parent_mission
+            mission_parent_rel.child_mission = child_mission
+            
+            child_mission.parent_missions.append(mission_parent_rel)
+            parent_mission.child_missions.append(mission_parent_rel)
+            
+            self.ses.add(mission_parent_rel)
+            
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+        
+    def remove_parent_from_mission(self, mission_id, parent_mission: Mission, *args, **kwargs):
+        try:
+            mission: Mission = self.get_mission(mission_id)
+            
+            parent_mission_rel: MissionToMission = self.ses.query(MissionToMission).filter(MissionToMission.parent_mission_id == parent_mission.PrimaryKey).filter(MissionToMission.child_mission_id == mission.PrimaryKey).first() # type: ignore
+            
+            mission.parent_missions.remove(parent_mission_rel)
+            
+            parent_mission.child_missions.remove(parent_mission_rel)
+            
+            self.ses.delete(parent_mission_rel)
+            
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+        
     def update_mission(self, mission_id: str, content: MissionContent = None, cot: MissionCoT = None, *args, **kwargs): #type: ignore
         try:
             mission: Mission = self.get_mission(mission_id)
+            
             if content != None:
                 mission.contents.append(content)
             if cot != None:
                 mission.cots.append(cot)
+                
             self.ses.commit()
             return mission
         except Exception as ex:

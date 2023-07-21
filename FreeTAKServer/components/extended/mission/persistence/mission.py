@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, List
-from sqlalchemy import Column, String, ForeignKey, Boolean
+from sqlalchemy import Column, DateTime, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from .mission_content import MissionContent
     from .mission_cot import MissionCoT
     from .mission_log import MissionLog
+    from .mission_to_mission import MissionToMission
     
 from . import MissionBase
 
@@ -36,7 +37,7 @@ class Mission(MissionBase):
 
     creatorUid = Column(String(100), default="")
 
-    createTime = Column(String(100), default="2023-02-22T16:06:26.979Z")
+    createTime: datetime = Column(DateTime, default=datetime.utcnow) # type: ignore
 
     # groups = Column(String(100), default=[])
 
@@ -75,3 +76,7 @@ class Mission(MissionBase):
     logs: List['MissionLog'] = relationship("MissionLog", back_populates="mission")
     
     cots: List['MissionCoT'] = relationship("MissionCoT", back_populates="mission")
+    
+    child_missions: List['MissionToMission'] = relationship("MissionToMission", back_populates="parent_mission", foreign_keys="[MissionToMission.parent_mission_id]")
+    
+    parent_missions: List['MissionToMission'] = relationship("MissionToMission", back_populates="child_mission", foreign_keys="[MissionToMission.child_mission_id]")

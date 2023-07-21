@@ -8,6 +8,7 @@ from FreeTAKServer.components.extended.mission.domain.mission_role import Missio
 from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
 from FreeTAKServer.core.domain.node import Node
+from FreeTAKServer.core.util.time_utils import get_datetime_from_dtg
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -75,7 +76,7 @@ class MissionGeneralController(Controller):
             description=str(initial_mission_data.get('description')),
             uids= str(initial_mission_data.get('uids')),
             contents=str(initial_mission_data.get('contents')),
-            createTime=str(initial_mission_data.get('createTime')),
+            createTime=get_datetime_from_dtg(str(initial_mission_data.get('createTime'))),
             passwordProtected=str(initial_mission_data.get('passwordProtected')),
             groups=str(initial_mission_data.get('groups')),
             defaultRole=default_mission_role,

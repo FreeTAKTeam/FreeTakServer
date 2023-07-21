@@ -1,3 +1,4 @@
+from FreeTAKServer.components.extended.mission.controllers.mission_hierarchy_controller import MissionHierarchyController
 from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_subscription_controller import MissionSubscriptionController
@@ -56,6 +57,7 @@ class Mission(DefaultFacade):
         self.persistence_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
         self.subscription_controller = MissionSubscriptionController(request, response, sync_action_mapper, configuration)
         self.logs_controller = MissionLogsController(request, response, sync_action_mapper, configuration)
+        self.hierarchy_controller = MissionHierarchyController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -63,7 +65,8 @@ class Mission(DefaultFacade):
         self.persistence_controller.initialize(request, response)
         self.subscription_controller.initialize(request, response)
         self.logs_controller.initialize(request, response)
-
+        self.hierarchy_controller.initialize(request, response)
+    
     def execute(self, method):
         try:
             if hasattr(self, method):
@@ -99,10 +102,6 @@ class Mission(DefaultFacade):
         self.general_controller.get_mission(*args, **kwargs)
         
     @DefaultFacade.public
-    def get_mission_subscriptions(self, *args, **kwargs):
-        self.subscription_controller.get_mission_subscriptions(*args, **kwargs)
-        
-    @DefaultFacade.public
     def add_mission_contents(self, *args, **kwargs):
         self.general_controller.add_contents_to_mission(*args, **kwargs)
         
@@ -129,3 +128,39 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def update_mission_log(self, *args, **kwargs):
         self.logs_controller.update_mission_log(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def add_child_to_parent(self, *args, **kwargs):
+        self.hierarchy_controller.add_child_to_parent(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def delete_parent(self, *args, **kwargs):
+        self.hierarchy_controller.delete_parent(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_children(self, *args, **kwargs):
+        self.hierarchy_controller.get_children(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_parent(self, *args, **kwargs):
+        self.hierarchy_controller.get_parent(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_all_subscriptions(self, *args, **kwargs):
+        self.subscription_controller.get_all_subscriptions(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_mission_subscriptions(self, *args, **kwargs):
+        self.subscription_controller.get_mission_subscriptions(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def add_mission_subscription(self, *args, **kwargs):
+        self.subscription_controller.add_mission_subscription(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def delete_mission_subscription(self, *args, **kwargs):
+        self.subscription_controller.delete_mission_subscription(*args, **kwargs)
+        
+    @DefaultFacade.public
+    def get_mission_subscription(self, *args, **kwargs):
+        self.subscription_controller.get_mission_subscription(*args, **kwargs)

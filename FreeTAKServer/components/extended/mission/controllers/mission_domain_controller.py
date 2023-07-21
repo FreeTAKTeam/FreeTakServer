@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
+from FreeTAKServer.core.util.time_utils import get_dtg
 
 if TYPE_CHECKING:
     from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
@@ -115,11 +116,10 @@ class MissionDomainController(Controller):
         mission_domain_object.path = mission_db_object.path
         mission_domain_object.classification = mission_db_object.classification
         mission_domain_object.tool = "public"
-        # mission_domain_object.keywords = mission_db_object.keywords
         mission_domain_object.keywords = []
         mission_domain_object.creatorUid = mission_db_object.creatorUid
         # TODO: get time dynamically
-        mission_domain_object.createTime = "2023-02-22T16:06:26.979Z"
+        mission_domain_object.createTime = get_dtg(mission_db_object.createTime)
         # mission_domain_object.groups = mission_db_object.groups
         mission_domain_object.groups = []
         # mission_domain_object.externalData = mission_db_object.externalData
@@ -137,6 +137,12 @@ class MissionDomainController(Controller):
         for db_content in mission_db_object.contents:
             domain_content = self.create_mission_content(config_loader)
             mission_domain_object.contents = self.complete_mission_content_db(domain_content, db_content)
+        
+        #add the contents of all children to the mission
+        for child in mission_db_object.child_missions:
+            for db_content in child.child_mission.contents:
+                domain_content = self.create_mission_content(config_loader)
+                mission_domain_object.contents = self.complete_mission_content_db(domain_content, db_content)
         
         if subscription is not None:
             mission_domain_object.token = subscription.token

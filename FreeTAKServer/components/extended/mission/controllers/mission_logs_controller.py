@@ -100,6 +100,7 @@ class MissionLogsController(Controller):
             dtg = get_datetime_from_dtg(mission_log_data["dtg"])
         else:
             dtg = None
+            
         log_db_obj = self.persistency_controller.update_log(
                 id=mission_log_data.get("id"),
                 entryUid=mission_log_data.get("entryUid"), 

@@ -103,8 +103,26 @@ def get_log_entry():
 
 @page.route('/Marti/api/missions/<missionID>/log', methods=['GET'])
 def get_mission_logs(missionID):
-    return HTTPSTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": missionID}, None, True).get_value("logs"), 200
+    return HTTPSTakApiCommunicationController().make_request("GetMissionLogs", "mission", {"mission_id": missionID, "seconds_ago": request.args.get("secago"), "start": request.args.get("start"), "end": request.args.get("end")}, None, True).get_value("logs"), 200
 
 @page.route('/Marti/api/missions/all/logs', methods=['GET'])
 def get_all_logs():
     return HTTPSTakApiCommunicationController().make_request("GetAllLogs", "mission", {}, None, True).get_value("logs"), 200
+
+@page.route('/Marti/api/missions/<child_mission_id>/parent/<parent_mission_id>', methods=['PUT'])
+def add_child_to_parent(child_mission_id, parent_mission_id):
+    HTTPSTakApiCommunicationController().make_request("AddChildToParent", "mission", {"child_mission_id": child_mission_id, "parent_mission_id": parent_mission_id}, None, True)
+    return '', 200
+
+@page.route('/Marti/api/missions/<child_mission_id>/parent', methods=['DELETE'])
+def delete_child(child_mission_id):
+    HTTPSTakApiCommunicationController().make_request("DeleteParent", "mission", {"child_mission_id": child_mission_id}, None, True)
+    return '', 200
+
+@page.route('/Marti/api/missions/<parent_mission_id>/children', methods=['GET'])
+def get_children(parent_mission_id):
+    return HTTPSTakApiCommunicationController().make_request("GetChildren", "mission", {"parent_mission_id": parent_mission_id}, None, True).get_value("children"), 200
+
+@page.route('/Marti/api/missions/<child_mission_id>/parent', methods=['GET'])
+def get_parent(child_mission_id):
+    return HTTPSTakApiCommunicationController().make_request("GetParent", "mission", {"child_mission_id": child_mission_id}, None, True).get_value("parent"), 200
