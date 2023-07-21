@@ -146,14 +146,15 @@ def add_mission_subscription(mission_id):
                                                                                                   "secago": secago,
                                                                                                   "start": start,
                                                                                                   "end": end},
-                                                            None, True).get_value("mission_subscription"), 200
+                                                            None, True).get_value("mission_subscription"), 201
 
 @page.route('/Marti/api/missions/<mission_id>/subscription', methods=['DELETE'])
 def delete_mission_subscription(mission_id):
     uid = request.args.get("uid") # type: ignore
     topic = request.args.get("topic") # type: ignore
     disconnectOnly = request.args.get("disconnectOnly") # type: ignore
-    return HTTPTakApiCommunicationController().make_request("DeleteMissionSubscription", "mission", {"mission_id": mission_id, "client": uid, "topic": topic, "disconnect_only": disconnectOnly}, None, True).get_value("mission_subscription"), 200
+    HTTPTakApiCommunicationController().make_request("DeleteMissionSubscription", "mission", {"mission_id": mission_id, "client": uid, "topic": topic, "disconnect_only": disconnectOnly}, None, True)
+    return '', 200
 
 @page.route('/Marti/api/missions/<mission_id>/subscription', methods=['GET'])
 def get_mission_subscription(mission_id):

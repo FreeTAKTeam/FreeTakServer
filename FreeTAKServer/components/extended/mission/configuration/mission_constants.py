@@ -84,6 +84,8 @@ MISSION_CONTENT = "mission_content"
 
 MISSION_ITEM = "mission_item"
 
+MISSION_SUBSCRIPTION_DATA = "mission_subscription_data"
+
 MISSION_SUBSCRIPTION = "mission_subscription"
 
 MISSION_NOTIFICATION = "new_mission_notification"
@@ -97,3 +99,5 @@ MISSION_SUBSCRIPTION_LIST = "mission_subscription_list"
 MISSION_LOG = "mission_log"
 
 MISSION_LOG_COLLECTION = "mission_log_collection"
+
+MISSION_SUBSCRIPTION_SIMPLE_LIST = "mission_subscription_simple_list"

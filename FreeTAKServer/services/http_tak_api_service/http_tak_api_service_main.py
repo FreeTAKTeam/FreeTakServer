@@ -293,12 +293,6 @@ def ExCheckTemplatesAlt():
     except Exception as ex:
         print(ex)
         return '', 500
-    
-@app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
-def missionupdate(templateuid):
-    from flask import request
-    uid = request.args.get('uid')
-    return '', 200
 
 @app.route('/Marti/api/excheck/template', methods=['POST'])
 def template():

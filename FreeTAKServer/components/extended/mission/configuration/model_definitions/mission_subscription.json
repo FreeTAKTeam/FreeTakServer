@@ -1,33 +1,61 @@
 {
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"id": "http://iec.ch/TC57/all_mission_subscriptions#",
-	"type": "object",
-	"properties":
-	{
-		"all_mission_subscriptions":
-		{
-			"type": "object",
-			"anyOf":
-			[
-				{ "$ref": "#/definitions/MissionSubscription" },
-                { "$ref": "#/definitions/MissionRole" }
-			]
-		}
-	},
-	"definitions":
-	{
-        "MissionSubscription": {
-            "type" : "object",
-            "description" : "",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://example.com/message#",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string"
+        },
+        "type": {
+            "type": "string"
+        },
+        "data": {
+            "$ref": "#/definitions/MissionInfoSingle"
+        },
+        "nodeId": {
+            "type": "string"
+        }
+    },
+    "definitions": {
+        "MissionInfoSingle":{
+            "type": "object",
             "properties": {
-                "role":{ "$ref":"#/definitions/MissionRole" }
+                "version": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/MissionSubscription"
+                },
+                "nodeId": {
+                    "type": "string"
+                }
             }
         },
-        "MissionRole":{
+        "MissionSubscription": {
             "type": "object",
-            "description" : "",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "clientUid": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "createTime": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "role": {
+                    "$ref": "#/definitions/MissionRole"
+                }
+            }
+        },
+        "MissionRole": {
+            "type": "object",
             "properties": {
             }
         }
-	}
+    }
 }

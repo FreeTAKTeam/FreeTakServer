@@ -8,6 +8,7 @@ from FreeTAKServer.components.extended.mission.domain.mission_role import Missio
 from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
 from FreeTAKServer.core.domain.node import Node
+from FreeTAKServer.core.util.serialization_utils import serialize_to_json
 from FreeTAKServer.core.util.time_utils import get_datetime_from_dtg
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -23,7 +24,7 @@ from ..configuration.mission_constants import (
     BASE_OBJECT_NAME,
     MISSION_CONTENT,
     MISSION_ITEM,
-    MISSION_SUBSCRIPTION,
+    MISSION_SUBSCRIPTION_DATA,
     MISSION_NOTIFICATION
 )
 
@@ -64,7 +65,10 @@ class MissionGeneralController(Controller):
         else:
             initial_mission_data = dict(mission_data_args)
 
-        default_mission_role = self.persistency_controller.get_role(initial_mission_data.get('defaultRole'))
+        if isinstance(initial_mission_data.get('defaultRole'), dict):
+            default_mission_role = self.persistency_controller.get_role(initial_mission_data['defaultRole']["type"])
+        else:
+            default_mission_role = self.persistency_controller.get_role(initial_mission_data.get('defaultRole'))
 
         mission_db_obj = self.persistency_controller.create_mission(
             str(mission_id),
@@ -87,12 +91,7 @@ class MissionGeneralController(Controller):
         
         token = self.token_controller.get_token(mission_db_obj)
         
-        subscription_db_obj = self.persistency_controller.create_subscription(None, str(mission_id), token)    
-        
-        # set as owner because the default role for the creator of a mission should be owner
-        self.persistency_controller.update_subscription(subscription_db_obj.PrimaryKey, role = self.persistency_controller.get_role("MISSION_OWNER"))
-        
-        self.persistency_controller.update_subscription(subscription_db_obj.PrimaryKey, clientUid = creatorUid)
+        subscription_db_obj = self.persistency_controller.create_subscription(None, str(mission_id), token=token, client_uid=creatorUid, role=self.persistency_controller.get_role("MISSION_OWNER"))
         
         mission_collection_obj = self.domain_controller.create_mission_collection(config_loader)
         
@@ -104,8 +103,8 @@ class MissionGeneralController(Controller):
         mission_notification_obj = self.domain_controller.create_mission_creation_notification(config_loader)
         mission_notification_obj = self.domain_controller.complete_mission_creation_notification(mission_notification_obj, mission_subscription_obj)
         
-        final_message = self.serialize_to_json(mission_collection_obj)
-        self.response.set_value("mission_subscription", final_message[0])
+        final_message = serialize_to_json(mission_collection_obj, self.request, self.execute_sub_action)
+        self.response.set_value("mission_subscription", final_message)
         
         serialized_mission_notification = self.serialize_to_xml(mission_notification_obj)
         
@@ -180,7 +179,7 @@ class MissionGeneralController(Controller):
             mission_record_domain = self.domain_controller.create_mission_record_object(config_loader)
             self.domain_controller.complete_mission_record_db(mission_record_domain, mission, config_loader)
             self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
-        serialized_mission_collection = self.serialize_to_json(mission_collection)[0]    
+        serialized_mission_collection = serialize_to_json(mission_collection, self.request, self.execute_sub_action) 
         self.response.set_value("missions", serialized_mission_collection)
         return serialized_mission_collection
 
@@ -194,7 +193,7 @@ class MissionGeneralController(Controller):
         
         self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
         
-        serialized_mission_collection = self.serialize_to_json(mission_collection)[0]    
+        serialized_mission_collection = serialize_to_json(mission_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("mission", serialized_mission_collection)
         return serialized_mission_collection
@@ -222,12 +221,6 @@ class MissionGeneralController(Controller):
             self.persistency_controller.create_mission_cot(mission_id, uid=uid)
         
         self.get_mission(mission_id, config_loader)
-        
-    def serialize_to_json(self, message: Node):
-        self.request.set_value("protocol", "json")
-        self.request.set_value("message", [message])
-        response = self.execute_sub_action("serialize")
-        return response.get_value("message")
 
     def serialize_to_xml(self, message: Node):
         self.request.set_value("protocol", "xml")

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from FreeTAKServer.components.extended.mission.domain.mission_info_single import MissionInfoSingle
 
 from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
 from FreeTAKServer.core.util.time_utils import get_dtg
@@ -37,9 +38,11 @@ from ..configuration.mission_constants import (
     MISSION_LOG_COLLECTION,
     MISSION_RECORD,
     MISSION_SUBSCRIPTION,
+    MISSION_SUBSCRIPTION_DATA,
     MISSION_NOTIFICATION,
     MISSION_COLLECTION,
-    MISSION_SUBSCRIPTION_LIST
+    MISSION_SUBSCRIPTION_LIST,
+    MISSION_SUBSCRIPTION_SIMPLE_LIST
 )
 
 config = MainConfig.instance()
@@ -212,8 +215,29 @@ class MissionDomainController(Controller):
         
         return mission_notification
     
+    def create_mission_subscription_simple_list(self, config_loader, *args, **kwargs) -> MissionInfo:
+        """return the domain object used to show all the subscription ids in a mission"""
+        self.request.set_value("object_class_name", "MissionInfo")
+
+        configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION_SIMPLE_LIST)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value("extended_domain", {"MissionInfo": MissionInfo})
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
+        model_object = response.get_value("model_object")
+
+        return model_object
+    
     def create_mission_subscriptions_list(self, config_loader, *args, **kwargs) -> MissionInfo:
-        """return the domain object used to show all the subscriptions in a mission"""
+        """return the domain object used to show all the subscriptions and roles in a mission"""
         self.request.set_value("object_class_name", "MissionInfo")
 
         configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION_LIST)
@@ -233,11 +257,32 @@ class MissionDomainController(Controller):
 
         return model_object
     
-    def creation_mission_subscription(self, config_loader, *args, **kwargs) -> MissionSubscription:
+    def create_mission_subscription(self, config_loader, *args, **kwargs) ->MissionInfoSingle:
+        """return the domain object used a subscription in a mission"""
+        self.request.set_value("object_class_name", "MissionInfoSingle")
+
+        configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value("extended_domain", {"MissionInfoSingle": MissionInfoSingle, "MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
+        model_object = response.get_value("model_object")
+
+        return model_object
+    
+    def create_mission_subscription_data(self, config_loader, *args, **kwargs) -> MissionSubscription:
         """return the domain object used to show all the subscriptions in a mission"""
         self.request.set_value("object_class_name", "MissionSubscription")
 
-        configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION)
+        configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION_DATA)
 
         self.request.set_value("configuration", configuration)
 

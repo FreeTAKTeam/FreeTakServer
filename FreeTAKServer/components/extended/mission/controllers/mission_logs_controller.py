@@ -9,6 +9,7 @@ from FreeTAKServer.components.extended.mission.domain.mission_log import Mission
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 from FreeTAKServer.components.extended.mission.persistence.mission_log import MissionLog as DBMissionLog
 from FreeTAKServer.core.domain.node import Node
+from FreeTAKServer.core.util.serialization_utils import serialize_to_json
 from FreeTAKServer.core.util.time_utils import get_current_datetime, get_datetime_from_dtg, get_dtg, get_past_datetime
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -25,7 +26,7 @@ from ..configuration.mission_constants import (
     BASE_OBJECT_NAME,
     MISSION_CONTENT,
     MISSION_ITEM,
-    MISSION_SUBSCRIPTION,
+    MISSION_SUBSCRIPTION_DATA,
     MISSION_NOTIFICATION
 )
 
@@ -64,7 +65,7 @@ class MissionLogsController(Controller):
             keywords=json.dumps(mission_log_data["keywords"]))
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
-        serialized_message = self.general_controller.serialize_to_json(completed_obj)[0]
+        serialized_message = serialize_to_json(completed_obj, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_message)
         return serialized_message
@@ -90,7 +91,7 @@ class MissionLogsController(Controller):
         logs = [mission_log.log for mission_log in logs]
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection)[0]
+        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("logs", serialized_collection)
         return serialized_collection
@@ -111,7 +112,7 @@ class MissionLogsController(Controller):
                 keywords=json.dumps(mission_log_data.get("keywords")))
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
-        serialized_message = self.general_controller.serialize_to_json(completed_obj)[0]
+        serialized_message = self.general_controller.serialize_to_json(completed_obj, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_message)
         return serialized_message
@@ -156,7 +157,7 @@ class MissionLogsController(Controller):
         log_collection_obj = self.domain_controller.create_log_collection(config_loader)
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection)[0]
+        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("logs", serialized_collection)
         return serialized_collection
@@ -166,7 +167,7 @@ class MissionLogsController(Controller):
         log_collection_obj = self.domain_controller.create_log_collection(config_loader)
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection)[0]
+        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_collection)
         return serialized_collection

@@ -1,6 +1,7 @@
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_general_controller import MissionGeneralController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
+from FreeTAKServer.core.util.serialization_utils import serialize_to_json
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -49,7 +50,7 @@ class MissionHierarchyController(Controller):
             self.domain_controller.complete_mission_record_db(mission_record_domain, child.child_mission, config_loader)
             self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
         
-        serialized_children = self.general_controller.serialize_to_json(mission_collection)[0]
+        serialized_children = serialize_to_json(mission_collection, self.request, self.execute_sub_action)
         self.response.set_value("children", serialized_children)
         return children
         
@@ -68,6 +69,6 @@ class MissionHierarchyController(Controller):
         else:
             parent = None
             
-        serialized_parent = self.general_controller.serialize_to_json(mission_collection)[0]
+        serialized_parent = serialize_to_json(mission_collection, self.request, self.execute_sub_action)
         self.response.set_value("parent", serialized_parent)
         return parent

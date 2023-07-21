@@ -30,15 +30,3 @@ def clientEndPoint():
         ],
         "nodeId": config.nodeID
     }
-
-# TODO remove?
-@page.route('/Marti/api/missions/exchecktemplates/subscription', methods=['PUT'])
-def request_subscription():
-    try:
-        # this endpoint allows for the client to request a new subscription
-        # possibly the uid of the client db also contains create_time and mission_id
-        print(request.args.get('uid'))
-
-        return ('', 200)
-    except Exception as e:
-        print('exception in request_subscription' + str(e))

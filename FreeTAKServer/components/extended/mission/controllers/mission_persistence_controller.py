@@ -1,9 +1,11 @@
 import codecs
 from datetime import datetime
+from typing import List
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 
 from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
+from FreeTAKServer.core.util.time_utils import get_dtg
 from ..configuration.mission_constants import PERSISTENCE_PATH
 from digitalpy.core.main.controller import Controller
 import json
@@ -130,7 +132,7 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
     
-    def create_subscription(self, subscription_id, mission_id, token, *args, **kwargs):
+    def create_subscription(self, subscription_id, mission_id, token, client_uid, role, *args, **kwargs):
         """this method is used to create a new subscription and save it to the database.
         """
         try:
@@ -139,6 +141,8 @@ class MissionPersistenceController(Controller):
                 subscription.PrimaryKey = subscription_id
             subscription.mission_uid = mission_id
             subscription.token = token
+            subscription.clientUid = client_uid
+            subscription.role = role
             self.ses.add(subscription)
             self.ses.commit()
             return subscription
@@ -146,20 +150,29 @@ class MissionPersistenceController(Controller):
             self.ses.rollback()
             raise ex
 
-    def get_subscription(self, subscription_id, *args, **kwargs) -> Subscription:
+    def get_all_subscriptions(self, *args, **kwargs) -> List[Subscription]:
+        """this method is used to get all subscriptions from the database.
+        """
+        try:
+            subscriptions = self.ses.query(Subscription).all()
+            return subscriptions
+        except Exception as ex:
+            raise ex
+
+    def get_subscription(self, mission: Mission, client_uid: str, *args, **kwargs) -> Subscription:
         """this method is used to get a subscription from the database.
         """
         try:
-            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.PrimaryKey == subscription_id).first() # type: ignore
+            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.mission == mission).filter(Subscription.clientUid == client_uid).first() # type: ignore
             return subscription
         except Exception as ex:
             raise ex
 
-    def update_subscription(self, subscription_id, role:Role = None, token: str= None, clientUid:str = None, username: str = None, *args, **kwargs): # type: ignore
+    def update_subscription(self, mission: Mission, client_uid: str, role:Role = None, token: str= None, clientUid:str = None, username: str = None, *args, **kwargs): # type: ignore
         """this method is used to update a subscription in the database.
         """
         try:
-            subscription = self.get_subscription(subscription_id)
+            subscription = self.get_subscription(mission, client_uid)
             if role != None:
                 subscription.role = role
             if token != None:
@@ -168,6 +181,14 @@ class MissionPersistenceController(Controller):
                 subscription.clientUid = clientUid
             if username != None:
                 subscription.username = username
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+        
+    def delete_subscription(self, mission: Mission, client_uid: str, *args, **kwargs):
+        try:
+            self.ses.delete(self.get_subscription(mission, client_uid))
             self.ses.commit()
         except Exception as ex:
             self.ses.rollback()

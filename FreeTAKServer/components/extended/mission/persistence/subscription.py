@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+import datetime
+from datetime import datetime as dt
+from sqlalchemy import Column, DateTime, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from . import MissionBase
@@ -9,9 +11,9 @@ class Subscription(MissionBase):
 
     PrimaryKey = Column(Integer, primary_key=True, autoincrement=True)
 
-    username:str = Column(String(1000)) # type: ignore
+    username:str = Column(String(1000), default="anonymous") # type: ignore
     
-    createTime = Column(String(1000))
+    createTime: dt = Column(DateTime, default=datetime.datetime.utcnow)
     
     role: Role = relationship("Role")
     

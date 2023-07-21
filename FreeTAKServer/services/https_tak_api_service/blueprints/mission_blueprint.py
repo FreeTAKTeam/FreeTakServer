@@ -69,27 +69,14 @@ def get_mission_changes(mission_id):
         "nodeId": config.nodeID
     }
 
-@page.route('/Marti/api/missions/<mission_id>/subscriptions/roles', methods=['GET'])
-def get_all_mission_subscriptions(mission_id):
-    """get all the subscriptions from a mission
-
-    Args:
-        mission_id (_type_): _description_
-    """
-    print("request made to get all mission subscriptions")
-    out_data = HTTPSTakApiCommunicationController().make_request("GetMissionSubscriptions", "mission", {"mission_id": mission_id}, None, True).get_value("mission_subscriptions"), 200
-    print(out_data)
-    return out_data
-
-
 @page.route('/Marti/api/missions/logs/entries', methods=['POST'])
 def add_log_entry():
-    request_json = request.get_json()
+    request_json = request.get_json() # type: ignore
     return HTTPSTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
 
 @page.route('/Marti/api/missions/logs/entries', methods=['PUT'])
 def update_log_entry():
-    request_json = request.get_json()
+    request_json = request.get_json() # type: ignore
     return HTTPSTakApiCommunicationController().make_request("UpdateMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
 
 @page.route('/Marti/api/missions/logs/entries/<id>', methods=['DELETE'])
@@ -126,3 +113,53 @@ def get_children(parent_mission_id):
 @page.route('/Marti/api/missions/<child_mission_id>/parent', methods=['GET'])
 def get_parent(child_mission_id):
     return HTTPSTakApiCommunicationController().make_request("GetParent", "mission", {"child_mission_id": child_mission_id}, None, True).get_value("parent"), 200
+
+@page.route('/Marti/api/missions/all/subscriptions', methods=['GET'])
+def get_all_subscriptions():
+    return HTTPSTakApiCommunicationController().make_request("GetAllSubscriptions", "mission", {}, None, True).get_value("mission_subscriptions"), 200
+
+@page.route('/Marti/api/missions/<mission_id>/subscriptions', methods=['GET'])
+def get_mission_subscriptions(mission_id):
+    return HTTPSTakApiCommunicationController().make_request("GetMissionSubscriptions", "mission", {"mission_id": mission_id}, None, True).get_value("mission_subscriptions"), 200
+
+@page.route('/Marti/api/missions/<mission_id>/subscription', methods=['PUT'])
+def add_mission_subscription(mission_id):
+    uid = request.args.get("uid") # type: ignore
+    topic = request.args.get("topic") # type: ignore
+    password = request.args.get("password") # type: ignore
+    secago = request.args.get("secago") # type: ignore
+    start = request.args.get("start") # type: ignore
+    end = request.args.get("end") # type: ignore
+    return HTTPSTakApiCommunicationController().make_request("AddMissionSubscription", "mission", {"mission_id": mission_id, 
+                                                                                                  "client": uid, 
+                                                                                                  "topic": topic, 
+                                                                                                  "password": password, 
+                                                                                                  "secago": secago,
+                                                                                                  "start": start,
+                                                                                                  "end": end},
+                                                            None, True).get_value("mission_subscription"), 201
+
+@page.route('/Marti/api/missions/<mission_id>/subscription', methods=['DELETE'])
+def delete_mission_subscription(mission_id):
+    uid = request.args.get("uid") # type: ignore
+    topic = request.args.get("topic") # type: ignore
+    disconnectOnly = request.args.get("disconnectOnly") # type: ignore
+    HTTPSTakApiCommunicationController().make_request("DeleteMissionSubscription", "mission", {"mission_id": mission_id, "client": uid, "topic": topic, "disconnect_only": disconnectOnly}, None, True)
+    return '', 200
+
+@page.route('/Marti/api/missions/<mission_id>/subscription', methods=['GET'])
+def get_mission_subscription(mission_id):
+    uid = request.args.get("uid") # type: ignore
+    return HTTPSTakApiCommunicationController().make_request("GetMissionSubscription", "mission", {"mission_id": mission_id, "client": uid}, None, True).get_value("mission_subscription"), 200
+
+@page.route('/Marti/api/missions/<mission_id>/subscriptions/roles', methods=['GET'])
+def get_all_mission_subscriptions(mission_id):
+    """get all the subscriptions from a mission
+
+    Args:
+        mission_id (_type_): _description_
+    """
+    print("request made to get all mission subscriptions")
+    out_data = HTTPSTakApiCommunicationController().make_request("GetMissionSubscriptions", "mission", {"mission_id": mission_id}, None, True).get_value("mission_subscriptions"), 200
+    print(out_data)
+    return out_data

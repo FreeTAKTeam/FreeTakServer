@@ -5,13 +5,13 @@ from FreeTAKServer.components.extended.excheck.domain.mission_data import Missio
 from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
 from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
 
-class MissionInfo(CoTNode):
+class MissionInfoSingle(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
         self.cot_attributes["version"] = None
         self.cot_attributes["type"] = None
         self.cot_attributes["nodeId"] = None
-        self.cot_attributes["data"] = []
+        self.cot_attributes["data"] = None
 
     @CoTProperty
     def version(self):
@@ -38,21 +38,29 @@ class MissionInfo(CoTNode):
         self.cot_attributes["nodeId"] = nodeId
 
     @CoTProperty
-    def data(self) -> List[MissionData | MissionSubscription | MissionLog | str]:
-        children: List[MissionData | MissionSubscription | MissionLog] = self.get_children_ex(children_type="MissionData")
-        children.extend(self.get_children_ex(children_type="MissionSubscription"))
-        children.extend(self.get_children_ex(children_type="MissionLog"))
-        if len(children) == 0:
-            return self.cot_attributes.get("data", None)
-        return children
+    def data(self) -> MissionSubscription | MissionLog | MissionData | None:
+        data_val: MissionSubscription | MissionLog | MissionData = self.cot_attributes.get("data", None)
+        if data_val != None: # type: ignore
+            return data_val
+        
+        mission_subscription: MissionSubscription = self.cot_attributes.get("MissionSubscription", None)
+        if mission_subscription != None:
+            return mission_subscription
+        
+        mission_log: MissionLog = self.cot_attributes.get("MissionLog", None)
+        if mission_log != None:
+            return mission_log
+        
+        mission_data: MissionData = self.cot_attributes.get("MissionData", None)
+        if mission_data != None:
+            return mission_data
         
     @data.setter
-    def data(self, data: MissionData | MissionSubscription | MissionLog | str):
-        if isinstance(data, MissionData):
-            self.add_child(data)
-        elif isinstance(data, MissionSubscription):
-            self.add_child(data)
-        elif isinstance(data, MissionLog):  
-            self.add_child(data)
-        elif isinstance(data, str):
-            self.cot_attributes["data"].append(data)
+    def data(self, data: MissionData | MissionSubscription | MissionLog):
+        if self.cot_attributes.get("data") != None:
+            if isinstance(data, self.cot_attributes.get("data").__class__):
+                self.cot_attributes["data"] = data
+            else:
+                raise Exception("data type mismatch")
+        else:
+            self.cot_attributes["data"] = data
