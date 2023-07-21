@@ -7,7 +7,7 @@ I'd like to set this repo up to use github actions to push to pip and docker hub
 :warning: **That means you might be running unreleased code with this method**
 
 ## Persistence
-By default, docker will save pretty much nothing between runs of this container. So before we run this, we _really_ want somewhere for FreeTAKServer to store data. This container expects you to mount that volume at `/opt/FTSData/` inside the container. Let's put this in your home directory, for now. 
+By default, docker will save pretty much nothing between runs of this container. So before we run this, we _really_ want somewhere for FreeTAKServer to store data. This container expects you to mount that volume at `/opt/fts/` inside the container. Let's put this in your home directory, for now. 
 
 ```shell
 # This should work for all dockers, linux, windows, etc
@@ -27,7 +27,7 @@ Let's run this interactively to start, so we can control the server. This assume
 ```shell
 docker run -it \ # run the container interactively (hold the shell open)
 	-e FTS_DP_ADDRESS="$(curl ifconfig.me)" \ # dynamically get your address from iconfig.me for datapackages
-	--mount src=ftsdata,target=/opt/FTSData \ # mount the volume for FTSData
+	--mount src=ftsdata,target=/opt/fts \ # mount the volume for persistent data
 	-p 8080:8080 -p 8087:8087 -p 8443:8443 \ # expose ports
 	-p 9000:9000 -p 19023:19023 \ #expose more ports. Check the docs for explanations
 	fts:local # the container for docker to run
@@ -38,7 +38,7 @@ Once this is running, point your ATAK clients at it, and make sure it works. Onc
 ```shell 
 docker run --restart unless-stopped \ # run the container forever, unless stopped intentionally
 	-e FTS_DP_ADDRESS="$(curl ifconfig.me)" \ # dynamically get your address from iconfig.me for datapackages
-	--mount src=ftsdata,target=/opt/FTSData \ # mount the volume for FTSData
+	--mount src=ftsdata,target=/opt/fts \ # mount the volume for persistent data
 	-p 8080:8080 -p 8087:8087 -p 8443:8443 \ # expose ports
 	-p 9000:9000 -p 19023:19023 \ #expose more ports. Check the docs for explanations
 	fts:local # the container for docker to run

@@ -497,4 +497,4 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y') and not  os.path.exists(os.path.dirname(os.path.realpath(__file__))+os.sep+"installation.json")
+    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y') and not os.path.exists(f"{PERSISTENCE_PATH}/installation.json")
