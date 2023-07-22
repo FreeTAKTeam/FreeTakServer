@@ -9,10 +9,11 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.0.21"
+FTS_VERSION = "FreeTAKServer-2.0.69"
 API_VERSION = "3.0"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent
+USERPATH = rf"{ROOTPATH}usr/local/lib/"
 PERSISTENCE_PATH = r'/opt/fts'
 
 class MainConfig:
@@ -53,6 +54,7 @@ class MainConfig:
         "OptimizeAPI": {"default": True, "type": bool},
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},
+        "LogLevel": {"default": "info", "type": str},
         "UserPersistencePath": {
             "default": Path("/opt/user_persistence.txt"),
             "type": str,
@@ -252,7 +254,8 @@ class MainConfig:
         "FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS": "IntegrationManagerPublisherAddress",
         # radius of emergency within-which users will receive it
         "FTS_EMERGENCY_RADIUS": "EmergencyRadius",
-        "FTS_PERSISTENCE_PATH": "persistencePath"
+        "FTS_PERSISTENCE_PATH": "persistencePath",
+        "FTS_LOG_LEVEL": "LogLevel"
     }
 
     # This is a simple representation of the YAML config schema with
@@ -320,6 +323,7 @@ class MainConfig:
             "FTS_INTERNAL_COMPONENTS_IMPORT_ROOT": "InternalComponentsImportRoot",
             "FTS_EXTERNAL_COMPONENTS_PATH": "ExternalComponentsPath",
             "FTS_EXTERNAL_COMPONENTS_IMPORT_ROOT": "ExternalComponentsImportRoot",
+            "FTS_LOG_LEVEL": "LogLevel"
         },
         "Certs": {
             "FTS_SERVER_KEYDIR": "keyDir",

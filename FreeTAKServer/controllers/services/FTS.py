@@ -287,11 +287,11 @@ class FTS(DigitalPy):
                 self.TCPCoTService, ServiceTypes.TCPCOTSERVICE
             )
             self.FilterGroup.add_source(self.TCPCoTService, ServiceTypes.TCPCOTSERVICE)
-            print("CoTService started")
+            logger.info("CoT Service Started")
             return 1
-        except Exception as e:
+        except Exception as ex:
             logger.error(
-                "an exception has been thrown in CoT service startup " + str(e)
+                "an exception has been thrown in CoT service startup " + str(ex)
             )
             return -1
 

@@ -103,14 +103,8 @@ def test_connection_direct(mock_get_repeated_messages):
     assert_response_val('message', list, [mock_node], response)
     
 # patch the persistency output
-<<<<<<< Updated upstream
 @patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
 def test_connection_execute(mock_get_repeated_messages):
-=======
-@patch('pickle.load')
-@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.open')
-def test_connection_execute(mock_load):
->>>>>>> Stashed changes
     """test the connection action in the cot manager
     """
     # instnatiate request and response objects

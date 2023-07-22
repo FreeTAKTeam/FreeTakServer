@@ -124,7 +124,7 @@ class ReceiveConnections:
                 return -1
 
         except Exception as e:
-            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR)
+            logger.warning(loggingConstants.RECEIVECONNECTIONSLISTENERROR + ": " + str(e))
             try:
                 client.close()
             except Exception as e:

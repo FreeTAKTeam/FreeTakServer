@@ -61,10 +61,13 @@ class EmergencyGeneralController(Controller):
 
     def filter_by_distance(self, emergency: Event):
         """filter who receives this emergency based on their distance from the emergency"""
-        self.connections = self.retrieve_users()
-        for connection_obj in self.connections:
-            if self.validate_user_distance(emergency, connection_obj):
-                self.request.get_value('recipients').append(str(connection_obj.get_oid()))
+        if config.EmergencyRadius==0:
+            self.request.set_value('recipients', "*")
+        else:
+            self.connections = self.retrieve_users()
+            for connection_obj in self.connections:
+                if self.validate_user_distance(emergency, connection_obj):
+                    self.request.get_value('recipients').append(str(connection_obj.get_oid()))
             
     def validate_user_distance(self, emergency: Event, connection):
         connection_model_object = connection.model_object
@@ -73,7 +76,6 @@ class EmergencyGeneralController(Controller):
         # check that the distance between the user and the emergency is less than 10km
         # TODO: this hardcoded distance should be added to the business rules
         return (
-            config.EmergencyRadius==0 or
             distance.geodesic(
                 (connection_location.lat, connection_location.lon),
                 (emergency.point.lat, emergency.point.lon),

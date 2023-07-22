@@ -39,3 +39,6 @@ class TCPCoTConnection(Connection):
         state_cp = copy.copy(state)
         state_cp["_sock"] = None
         return state_cp
+    
+    def __str__(self):
+        return f"{self._protocol}-{self._service_id}-{self._model_object.uid}"

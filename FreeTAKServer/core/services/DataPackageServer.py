@@ -303,7 +303,26 @@ def home():
     return 'data package service is up, good job.'
 
 
-# exCheckStuff
+# exCheck functions
+"""   TODO End Points for 4.8 Support  
+    The Execution Checklist (ExCheck) allows users to monitor and update the status of a shared 
+    checklist that is hosted out on a TAK server. Each checklist is an instance of a template 
+    that defines a number of tasks to be completed. 
+   
+    @app.route('/Marti/api/excheck/<checklistUid>/stop', methods=['POST'])
+    @app.route('/Marti/api/excheck/<templateUid>/start', methods=['POST'])
+    @app.route('/Marti/api/excheck/checklist', methods=['POST'])
+    @app.route('/Marti/api/excheck/checklist/<checklistUid>', methods=['GET'])
+    @app.route('/Marti/api/excheck/checklist/<checklistUid>/mission/<missionName>', methods=['PUT', 'DELETE'])
+    @app.route('/Marti/api/excheck/checklist/<checklistUid>/status', methods=['GET', 'DELETE'])
+    @app.route('/Marti/api/excheck/checklist/<checklistUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE'])
+    @app.route('/Marti/api/excheck/checklist/active', methods=['GET'])
+    @app.route('/Marti/api/excheck/template', methods=['POST'])
+    @app.route('/Marti/api/excheck/template/<templateUid>', methods=['GET', 'DELETE'])
+    @app.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
+"""
+
+
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
     try:

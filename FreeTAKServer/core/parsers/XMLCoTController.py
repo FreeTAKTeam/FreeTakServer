@@ -59,6 +59,7 @@ class XMLCoTController:
         elif data.xmlString == b"" or data.xmlString == None:
             # this handeles a client dissconection CoT
             return ("clientDisconnected", data)
+
         else:
             # serialize the XML to an etree object
             event = etree.fromstring(data.xmlString)

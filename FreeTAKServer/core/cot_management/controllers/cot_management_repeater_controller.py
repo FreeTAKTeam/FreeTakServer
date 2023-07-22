@@ -1,3 +1,4 @@
+import pickle
 from digitalpy.core.IAM.model.connection import Connection
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -20,12 +21,12 @@ class CotManagementRepeaterController(Controller):
         self,
         request: Request,
         response: Response,
-        cot_management_action_mapper: ActionMapper,
+        sync_action_mapper: ActionMapper,
         configuration: Configuration,
     ) -> None:
-        super().__init__(request, response, cot_management_action_mapper, configuration)
-        self.persistency_controller = CotManagementRepeaterPersistence(request, response, cot_management_action_mapper, configuration)
-        self.geo_object_cotroller = CotManagementGeoObjectController(request, response, cot_management_action_mapper, configuration)
+        super().__init__(request, response, sync_action_mapper, configuration)
+        self.persistency_controller = CotManagementRepeaterPersistence(request, response, sync_action_mapper, configuration)
+        self.geo_object_cotroller = CotManagementGeoObjectController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         self.geo_object_cotroller.initialize(request, response)
@@ -40,13 +41,13 @@ class CotManagementRepeaterController(Controller):
             connection (Connection): the connection object of the new connection (required for `ValidateUsers` and `publish` actions)
         """
         # retrieve all repeated messages
-        message = self.persistency_controller._load_repeated_messages()
+        messages = self.persistency_controller.get_all_repeated_messages()
        
         nodes = []
 
         # convert the list to a dictionary
-        for node in message.values():
-            nodes.append(node)
+        for node in messages:
+            nodes.append(node.message)
 
         # set the response value of the messages for the validate users call
         self.response.set_value("message", nodes)
@@ -65,13 +66,13 @@ class CotManagementRepeaterController(Controller):
         """get all the repeated messages
         """
         # retrieve all repeated messages
-        messages = self.persistency_controller._load_repeated_messages()
+        messages = self.persistency_controller.get_all_repeated_messages()
        
         nodes = []
 
         # convert the list to a dictionary
-        for node in messages.values():
-            nodes.append(node)
+        for node in messages:
+            nodes.append(node.message)
 
         # set the response value of the messages
         self.response.set_value("message", nodes)
@@ -86,15 +87,15 @@ class CotManagementRepeaterController(Controller):
         Args:
             message (List[Event]): a list of events to be added to repeated messages.
         """
-        # load existing repeated messages
-        cur_messages = self.persistency_controller._load_repeated_messages()
         # iterate the passed list of nodes and add each one to the dict of current messages with the oid as the
+        
         # key and the object as the value
         for node in message:
+            if self.persistency_controller.get_repeated_message(id=str(node.uid)) is not None:
+                self.persistency_controller.update_repeated_message(message, str(node.uid))
             # use the event id 
-            cur_messages[str(node.uid)] = node
-        # save the updated dict of current messages
-        self.persistency_controller._save_repeated_messages(cur_messages)
+            self.persistency_controller.create_repeated_message(message, str(node.uid))
+            
         # return that the operation was successful
         self.response.set_value("success", True)
 
@@ -104,16 +105,9 @@ class CotManagementRepeaterController(Controller):
         Args:
             ids (List[str]): a list of object ids of repeated messages to be deleted
         """
-        # load existing repeated messages
-        cur_messages = self.persistency_controller._load_repeated_messages()
-        
-        # iterate through passed ids and remove each one from the current repeated messages
         for id in ids:
-            if id in cur_messages:
-                del cur_messages[id]
-
-        # save the repeated messages with passed id's deleted
-        self.persistency_controller._save_repeated_messages(cur_messages)
+            # load existing repeated messages
+            cur_messages = self.persistency_controller.delete_repeated_message(id=id)
 
         # return that the operation was successful
         self.response.set_value("success", True)

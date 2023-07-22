@@ -8,6 +8,11 @@
 #
 #######################################################
 from digitalpy.core.main.controller import Controller
+from digitalpy.core.zmanager.request import Request
+from digitalpy.core.zmanager.response import Response
+from digitalpy.core.zmanager.action_mapper import ActionMapper
+from digitalpy.core.digipy_configuration.configuration import Configuration
+from .cot_management_private_cot_controller import CoTManagementPrivateCoTController
 
 #  Placeholder Class to temporarily define COTDatabase
 class COTDatabase:
@@ -33,10 +38,21 @@ class MedevacRequest:
 def send_medevac_request(medevac_request):
     pass  # TODO: Implement this function
 
+from ..configuration.cot_management_constants import (
+    BASE_OBJECT,
+    BASE_OBJECT_NAME,
+)
 class COTManagementGeneralController(Controller):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.cot_db = COTDatabase()  # initialize COT database object
+    """this controller is responsible for general or fundamental component functionality"""
+    def __init__(
+        self,
+        request: Request,
+        response: Response,
+        sync_action_mapper: ActionMapper,
+        configuration: Configuration,
+    ) -> None:
+        super().__init__(request, response, sync_action_mapper, configuration)
+        self.private_cot_controller = CoTManagementPrivateCoTController(request, response, sync_action_mapper, configuration)
 
     def cot_record_in_db(self, cot_record: COTRecord):
         """
@@ -87,6 +103,9 @@ class COTManagementGeneralController(Controller):
 
         # Update the presence information in the database
         self.db.update_cot_presence(presence_data)
+    def initialize(self, request: Request, response: Response):
+        super().initialize(request, response)
+        self.private_cot_controller.initialize(request, response)
 
     def share_privately(self, cot_id: str, recipient_id: str):
         """Shares a specific COT privately with another user.
@@ -97,12 +116,12 @@ class COTManagementGeneralController(Controller):
         """
         # Check if the recipient is a valid user
         if not self.user_manager.is_valid_user(recipient_id):
-            raise InvalidInputError("Invalid recipient provided.")
+            raise ValueError("Invalid recipient provided.")
 
         # Check if the COT exists and is owned by the current user
         cot = self.db.get_cot(cot_id)
         if cot is None or cot.owner_id != self.current_user.id:
-            raise InvalidInputError("Invalid COT provided.")
+            raise ValueError("Invalid COT provided.")
 
         # Share the COT privately with the recipient
         self.db.add_cot_to_user(cot_id, recipient_id)
@@ -126,3 +145,40 @@ class COTManagementGeneralController(Controller):
         cot_message = self.request.get_value("cot_message")
         # broadcast the COT message to all registered listeners
         self.broadcast(cot_message)
+    
+    def handle_default_cot(self, config_loader, **kwargs):
+        """forward cots without a distinct handler
+        """
+        self.request.set_value("object_class_name", BASE_OBJECT_NAME)
+
+        configuration = config_loader.find_configuration(BASE_OBJECT)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
+        self.request.set_value("model_object", response.get_value("model_object"))
+
+        response = self.execute_sub_action("DictToNode")
+
+        for key, value in response.get_values().items():
+            self.response.set_value(key, value)
+
+        self.request.set_value('message', response.get_value("model_object"))
+        # Serializer called by service manager requires the message value
+        self.response.set_value('message', [response.get_value("model_object")])
+        recipients = self.private_cot_controller.get_recipients(response.get_value("model_object"))
+        self.request.set_value('recipients', recipients)
+
+        # validate the users in the recipients list
+        response = self.execute_sub_action("ValidateUsers")
+
+        for key, value in response.get_values().items():
+            self.response.set_value(key, value)
+        
+        self.response.set_action("publish")

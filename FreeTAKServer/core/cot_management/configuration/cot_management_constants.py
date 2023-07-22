@@ -11,6 +11,8 @@ GEO_OBJECT = "geoobject"
 
 DELETE_GEO_OBJECT = "deletegeoobject"
 
+BASE_OBJECT = "base_object"
+
 CONFIGURATION_PATH_TEMPLATE = Template(
     str(
         pathlib.PurePath(
@@ -46,8 +48,8 @@ BUSINESS_RULES_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/business_rules.json")
 )
 
-PERSISTENCE_PATH = str(
-    pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/repeated_messages.json")
+PERSISTENCE_PATH = "sqlite:///"+str(
+    pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/repeated_messages.db")
 )
 
 MANIFEST_PATH = str(
