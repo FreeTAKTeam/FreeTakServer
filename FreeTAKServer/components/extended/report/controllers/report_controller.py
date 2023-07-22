@@ -32,7 +32,7 @@ class ReportController(DefaultBusinessRuleController):
 			# to use the internal action mapping configuration.
 			# it is this internal action mapper that is used by
 			# the DefaultBusinessRuleController evaluate_request
-			internal_action_mapper=component_name_action_mapper,
+			internal_action_mapper=report_action_mapper,
 		)
 
 	def execute(self, method=None):

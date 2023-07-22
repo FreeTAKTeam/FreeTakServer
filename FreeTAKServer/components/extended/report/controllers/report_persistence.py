@@ -1,3 +1,4 @@
+import codecs
 from report.configuration.report_constants import PERSISTENCE_PATH
 from digitalpy.core.main.controller import Controller
 import json
