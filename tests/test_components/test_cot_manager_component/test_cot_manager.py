@@ -10,15 +10,14 @@ from tests.test_components.test_cot_manager_component.test_cot_manager_schemas i
 
 
 # patch the persistency output
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_connection(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_connection(mock_get_repeated_messages):
     """test the connection action in the cot manager
     """
     setup = ComponentTest(TEST_CONNECTION_SCHEMA)
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
+    mock_get_repeated_messages.return_value = [setup.mock_node]
 
     # instantiate the facade
     facade = CotManagement(None, setup.request, setup.response, None)
@@ -35,14 +34,13 @@ def test_connection(mock_load, mock_dump):
     # assert the message value is correct
     setup.assert_schema_to_response_val(setup.test_obj['response']['values'])
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_get_repeated_messages(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_get_repeated_messages(mock_load):
 
     setup = ComponentTest(TEST_GET_REPEATED_MESSAGES_SCHEMA)
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
+    mock_load.return_value = [setup.mock_node]
 
     # instantiate the facade
     facade = CotManagement(None, setup.request, setup.response, None)
@@ -59,9 +57,8 @@ def test_get_repeated_messages(mock_load, mock_dump):
     # assert the message value is correct
     setup.assert_schema_to_response_val(setup.test_obj['response']['values'])
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_create_repeated_message(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.create_repeated_message')
+def test_create_repeated_message(mock_load):
 
     setup = ComponentTest(TEST_CREATE_REPEATED_MESSAGE_SCHEMA)
 
@@ -83,14 +80,13 @@ def test_create_repeated_message(mock_load, mock_dump):
     # assert the success value is correct
     setup.assert_schema_to_response_val(setup.test_obj['response']['values'])
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_delete_repeated_message(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_delete_repeated_message(mock_get_all_repeated_messages):
 
     setup = ComponentTest(TEST_DELETE_REPEATED_MESSAGE_SCHEMA)
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
+    mock_get_all_repeated_messages.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
 
     # instantiate the facade
     facade = CotManagement(None, setup.request, setup.response, None)
