@@ -3,7 +3,7 @@ from digitalpy.core.logic.impl.default_business_rule_controller import (
 )
 
 
-from ..configuration.drop_point_constants import (
+from ..configuration.companion_parrot_constants import (
 	COMPONENT_NAME_BUSINESS_RULES_PATH,
 	COMPONENT_NAME,
 	BASE_OBJECT_NAME
@@ -32,7 +32,7 @@ class CompanionParrotController(DefaultBusinessRuleController):
 			# to use the internal action mapping configuration.
 			# it is this internal action mapper that is used by
 			# the DefaultBusinessRuleController evaluate_request
-			internal_action_mapper=component_name_action_mapper,
+			internal_action_mapper=companion_parrot_action_mapper,
 		)
 
 	def execute(self, method=None):
