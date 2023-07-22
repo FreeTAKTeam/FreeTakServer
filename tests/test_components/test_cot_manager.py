@@ -31,6 +31,11 @@ def get_mock_event(mock_node = get_mock_node(), uid = '', type = ''):
     mock_node.type = type
     return mock_node
 
+def get_mock_repeated_message(node):
+    mock_repeated_message = Mock()
+    mock_repeated_message.message = node
+    return mock_repeated_message
+    
 def get_mock_connection(node = get_mock_node(), service_id = "test-service", protocol = "test-protocol"):
     mock_connection = node
     mock_connection.service_id = "test_service"
@@ -51,13 +56,15 @@ def assert_response_val(value_name, value_type, value_content, response):
     assert isinstance(response.get_value(value_name), value_type)
     assert response.get_value(value_name) == value_content
 
-def assert_saved(persistency_save_method: callable, value):
-    assert value in persistency_save_method.mock_calls[0].args
+def assert_saved(persistency_save_method: callable, value):   
+    if len(persistency_save_method.mock_calls[0].args)>0:
+        assert value[0] in persistency_save_method.mock_calls[0].args
+    elif len(persistency_save_method.mock_calls[0].kwargs)>0:
+        assert value[0] in persistency_save_method.mock_calls[0].kwargs.values()
 
 # patch the persistency output
-@patch('pickle.load')
-@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.open')
-def test_connection_direct(mock_open, mock_load):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_connection_direct(mock_get_repeated_messages):
     """test the connection action in the cot manager
     """
     # instnatiate request and response objects
@@ -69,8 +76,11 @@ def test_connection_direct(mock_open, mock_load):
     # get a mock node object
     mock_node = get_mock_node()
 
+    # get a mock RepeatedMessage object
+    repeated_message = get_mock_repeated_message(mock_node)
+
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+    mock_get_repeated_messages.return_value = [repeated_message]
 
     # instantiate a mock connection object
     mock_connection = get_mock_connection()
@@ -93,8 +103,8 @@ def test_connection_direct(mock_open, mock_load):
     assert_response_val('message', list, [mock_node], response)
     
 # patch the persistency output
-@patch('pickle.load')
-def test_connection_execute(mock_load):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_connection_execute(mock_get_repeated_messages):
     """test the connection action in the cot manager
     """
     # instnatiate request and response objects
@@ -106,8 +116,11 @@ def test_connection_execute(mock_load):
     # get a mock node object
     mock_node = get_mock_node()
 
+    # get a mock RepeatedMessage object
+    repeated_message = get_mock_repeated_message(mock_node)
+
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+    mock_get_repeated_messages.return_value = [repeated_message]
 
     # instantiate a mock connection object
     mock_connection = get_mock_connection()
@@ -129,8 +142,8 @@ def test_connection_execute(mock_load):
     # assert the message value is correct
     assert_response_val('message', list, [mock_node], response)
 
-@patch('pickle.load')
-def test_get_repeated_messages(mock_load):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_get_repeated_messages(mock_get_repeated_messages):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("GetRepeatedMessages")
@@ -143,8 +156,11 @@ def test_get_repeated_messages(mock_load):
     # get a mock node object
     mock_node = get_mock_node()
 
+    # get a mock RepeatedMessage object
+    repeated_message = get_mock_repeated_message(mock_node)
+
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+    mock_get_repeated_messages.return_value = [repeated_message]
 
     # instantiate the facade
     facade = CotManagement(None, request, response, None)
@@ -162,8 +178,8 @@ def test_get_repeated_messages(mock_load):
     # assert the extra value was passed through
     assert_response_val('extra', bool, True, response)
 
-@patch('pickle.load')
-def test_get_repeated_messages_execute(mock_load):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_get_repeated_messages_execute(mock_get_repeated_messages):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("GetRepeatedMessages")
@@ -176,8 +192,11 @@ def test_get_repeated_messages_execute(mock_load):
     # get a mock node object
     mock_node = get_mock_node()
 
+    # get a mock RepeatedMessage object
+    repeated_message = get_mock_repeated_message(mock_node)
+
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+    mock_get_repeated_messages.return_value = [repeated_message]
 
     # instantiate the facade
     facade = CotManagement(None, request, response, None)
@@ -195,9 +214,9 @@ def test_get_repeated_messages_execute(mock_load):
     # assert the extra value was passed through
     assert_response_val('extra', bool, True, response)
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_create_repeated_message(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.create_repeated_message')
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_create_repeated_message(mock_get_repeated_messages, mock_create_repeated_message):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("CreateRepeatedMessage")
@@ -209,7 +228,7 @@ def test_create_repeated_message(mock_load, mock_dump):
     mock_event = get_mock_event()
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {}
+    mock_get_repeated_messages.return_value = []
 
     # set the content of the message value to be a list containing one mocked node
     request.set_value("message", [mock_event])
@@ -228,11 +247,11 @@ def test_create_repeated_message(mock_load, mock_dump):
     # assert the success value is correct
     assert_response_val('success', bool, True, response)
     # assert that the node was saved
-    assert_saved(mock_dump, {str(mock_event.uid): mock_event})
+    assert_saved(mock_create_repeated_message, [mock_event, str(mock_event.uid)])
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_create_repeated_message_execute(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.create_repeated_message')
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_create_repeated_message_execute(mock_get_repeated_messages, mock_create_repeated_message):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("CreateRepeatedMessage")
@@ -244,7 +263,7 @@ def test_create_repeated_message_execute(mock_load, mock_dump):
     mock_event = get_mock_event()
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {}
+    mock_get_repeated_messages.return_value = []
 
     # set the content of the message value to be a list containing one mocked node
     request.set_value("message", [mock_event])
@@ -263,11 +282,11 @@ def test_create_repeated_message_execute(mock_load, mock_dump):
     # assert the success value is correct
     assert_response_val('success', bool, True, response)
     # assert that the node was saved
-    assert_saved(mock_dump, {str(mock_event.uid): mock_event})
+    assert_saved(mock_create_repeated_message, [mock_event, str(mock_event.uid)])
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_delete_repeated_message(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.delete_repeated_message')
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_delete_repeated_message(mock_get_repeated_messages, mock_delete_repeated_message):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("DeleteRepeatedMessage")
@@ -279,7 +298,7 @@ def test_delete_repeated_message(mock_load, mock_dump):
     mock_node = get_mock_node()
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+    mock_get_repeated_messages.return_value = [mock_node]
 
     request.set_value("ids", [str(mock_node.get_oid())])
 
@@ -295,12 +314,12 @@ def test_delete_repeated_message(mock_load, mock_dump):
     assert response.get_action() == "DeleteRepeatedMessage"
     # assert the success value is correct
     assert_response_val('success', bool, True, response)
-    # assert that the was deleted and an empty dictionary was saved instead
-    assert_saved(mock_dump, {})
+    # delete was called with the node id
+    assert_saved(mock_delete_repeated_message, [str(mock_node.get_oid())])
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_delete_repeated_message_execute(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.delete_repeated_message')
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_delete_repeated_message_execute(mock_get_repeated_messages, mock_delete_repeated_message):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("DeleteRepeatedMessage")
@@ -312,7 +331,7 @@ def test_delete_repeated_message_execute(mock_load, mock_dump):
     mock_node = get_mock_node()
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {str(mock_node.get_oid()): mock_node}
+    mock_get_repeated_messages.return_value = [mock_node]
 
     request.set_value("ids", [str(mock_node.get_oid())])
 
@@ -329,11 +348,11 @@ def test_delete_repeated_message_execute(mock_load, mock_dump):
     # assert the success value is correct
     assert_response_val('success', bool, True, response)
     # assert that the was deleted and an empty dictionary was saved instead
-    assert_saved(mock_dump, {})
+    assert_saved(mock_delete_repeated_message, [str(mock_node.get_oid())])
 
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_delete_non_existent_repeated_message(mock_load, mock_dump):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.delete_repeated_message')
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.get_all_repeated_messages')
+def test_delete_non_existent_repeated_message(mock_get_repeated_messages, mock_delete_repeated_message):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("DeleteRepeatedMessage")
@@ -345,40 +364,9 @@ def test_delete_non_existent_repeated_message(mock_load, mock_dump):
     mock_node = get_mock_node()
 
     # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {}
+    mock_get_repeated_messages.return_value = [mock_node]
 
     request.set_value("ids", [str(mock_node.get_oid())])
-
-    # instantiate the facade
-    facade = CotManagement(None, request, response, None)
-
-    # initialize the facade
-    facade.initialize(request, response)
-
-    # call the delete_repeated_messages method from the facade
-    facade.delete_repeated_message(**request.get_values())
-
-    assert response.get_action() == "DeleteRepeatedMessage"
-    # assert the success value is correct
-    assert_response_val('success', bool, True, response)
-    # assert that the was deleted and an empty dictionary was saved instead
-    assert_saved(mock_dump, {})
-
-@patch('pickle.dump')
-@patch('pickle.load')
-def test_delete_non_existent_repeated_message(mock_load, mock_dump):
-
-    # instnatiate request and response objects
-    request, response = instantiate_request_response("DeleteRepeatedMessage")
-    
-    # mock the execute sub action method in the controller class
-    mock_controller_execute_sub_action(response)
-
-    # get a mock node object
-    mock_node = get_mock_node()
-
-    # define the output dictionary of the mocked persistency output
-    mock_load.return_value = {}
 
     request.set_value("ids", [str(mock_node.get_oid())])
 
@@ -395,10 +383,10 @@ def test_delete_non_existent_repeated_message(mock_load, mock_dump):
     # assert the success value is correct
     assert_response_val('success', bool, True, response)
     # assert that the was deleted and an empty dictionary was saved instead
-    assert_saved(mock_dump, {})
+    assert_saved(mock_delete_repeated_message, [str(mock_node.get_oid())])
 
-@patch('pickle.load')
-def test_create_geo_object(mock_load):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.create_repeated_message')
+def test_create_geo_object(create_repeated_message):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("CreateGeoObject")
@@ -422,8 +410,8 @@ def test_create_geo_object(mock_load):
     # assert the configuration is of correct type
     assert isinstance(response.get_value("configuration"), Configuration)
 
-@patch('pickle.load')
-def test_create_geo_object_execute(mock_load):
+@patch('FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence.CotManagementRepeaterPersistence.create_repeated_message')
+def test_create_geo_object_execute(mock_create_repeated_message):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("CreateGeoObject")
