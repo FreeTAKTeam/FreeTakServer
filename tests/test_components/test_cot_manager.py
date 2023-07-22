@@ -58,7 +58,7 @@ def assert_response_val(value_name, value_type, value_content, response):
 
 def assert_saved(persistency_save_method: callable, value):   
     if len(persistency_save_method.mock_calls[0].args)>0:
-        assert value[0] in persistency_save_method.mock_calls[0].args
+        assert value[0] in list(persistency_save_method.mock_calls[0].args[0])
     elif len(persistency_save_method.mock_calls[0].kwargs)>0:
         assert value[0] in persistency_save_method.mock_calls[0].kwargs.values()
 
