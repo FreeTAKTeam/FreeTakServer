@@ -1,6 +1,6 @@
 [project]
 name = "FreeTAKServer_FreeTAKTeam"
-version = "2.1.0"
+version = "0.2.1.0"
 authors = [
   { name="FreeTAKTeam", email="FreeTakTeam@gmail.com" },
 ]
