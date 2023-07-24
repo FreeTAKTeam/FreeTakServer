@@ -1,3 +1,20 @@
+[project]
+name = "FreeTAKServer_FreeTAKTeam"
+version = "2.1.0"
+authors = [
+  { name="FreeTAKTeam", email="FreeTakTeam@gmail.com" },
+]
+description = "An open source server for the TAK family of applications."
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)",
+    "Programming Language :: Python :: 3.8",
+]
+
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
