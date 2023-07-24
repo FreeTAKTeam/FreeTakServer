@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .mission_cot import MissionCoT
     from .mission_log import MissionLog
     from .mission_to_mission import MissionToMission
+    from .external_data import ExternalData
     
 from . import MissionBase
 
@@ -41,8 +42,6 @@ class Mission(MissionBase):
 
     # groups = Column(String(100), default=[])
 
-    # externalData = Column(String(100), default=[])
-
     # feeds = Column(String(100), default=[])
 
     # mapLayers = Column(String(100), default=[])
@@ -72,6 +71,8 @@ class Mission(MissionBase):
     mission_items = relationship("MissionItem", back_populates="mission")
 
     mission_subscriptions = relationship("Subscription", back_populates="mission")
+        
+    externalData: List['ExternalData'] = relationship("ExternalData", back_populates="mission")
         
     logs: List['MissionLog'] = relationship("MissionLog", back_populates="mission")
     

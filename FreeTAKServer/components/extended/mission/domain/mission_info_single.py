@@ -2,6 +2,7 @@ from typing import List
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 from FreeTAKServer.components.extended.excheck.domain.mission_data import MissionData
+from FreeTAKServer.components.extended.mission.domain.mission_external_data import MissionExternalData
 from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
 from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
 
@@ -38,7 +39,7 @@ class MissionInfoSingle(CoTNode):
         self.cot_attributes["nodeId"] = nodeId
 
     @CoTProperty
-    def data(self) -> MissionSubscription | MissionLog | MissionData | None:
+    def data(self) -> MissionSubscription | MissionLog | MissionData | MissionExternalData | None:
         data_val: MissionSubscription | MissionLog | MissionData = self.cot_attributes.get("data", None)
         if data_val != None: # type: ignore
             return data_val
@@ -55,8 +56,12 @@ class MissionInfoSingle(CoTNode):
         if mission_data != None:
             return mission_data
         
+        mission_external_data: MissionExternalData = self.cot_attributes.get("MissionExternalData", None)
+        if mission_external_data != None:
+            return mission_external_data
+        
     @data.setter
-    def data(self, data: MissionData | MissionSubscription | MissionLog):
+    def data(self, data: MissionData | MissionSubscription | MissionLog | MissionExternalData | None):
         if self.cot_attributes.get("data") != None:
             if isinstance(data, self.cot_attributes.get("data").__class__):
                 self.cot_attributes["data"] = data

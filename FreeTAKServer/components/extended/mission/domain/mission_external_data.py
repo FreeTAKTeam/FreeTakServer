@@ -1,11 +1,10 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
-class ExternalData(CoTNode):
+class MissionExternalData(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
 
-        self.cot_attributes["mission"] = None
         self.cot_attributes["name"] = None
         self.cot_attributes["notes"] = None
         self.cot_attributes["tool"] = None
@@ -14,57 +13,49 @@ class ExternalData(CoTNode):
         self.cot_attributes["urlView"] = None
 
     @CoTProperty
-    def mission(self):
-        return self.cot_attributes.get("mission", None)
-    
-    @mission.setter
-    def mission(self, mission=None):
-        self.cot_attributes["mission"] = mission
-    
-    @CoTProperty
-    def name(self):
+    def name(self) -> str:
         return self.cot_attributes.get("name", None)
     
     @name.setter
-    def name(self, name=None):
+    def name(self, name: str=None): # type: ignore
         self.cot_attributes["name"] = name
     
     @CoTProperty
-    def notes(self):
+    def notes(self) -> str:
         return self.cot_attributes.get("notes", None)
     
     @notes.setter
-    def notes(self, notes=None):
+    def notes(self, notes: str=None): # type: ignore
         self.cot_attributes["notes"] = notes
     
     @CoTProperty
-    def tool(self):
+    def tool(self) -> str:
         return self.cot_attributes.get("tool", None)
     
     @tool.setter
-    def tool(self, tool=None):
+    def tool(self, tool: str=None): # type: ignore
         self.cot_attributes["tool"] = tool
     
     @CoTProperty
-    def uid(self):
+    def uid(self) -> str:
         return self.cot_attributes.get("uid", None)
     
     @uid.setter
-    def uid(self, uid=None):
+    def uid(self, uid: str=None): # type: ignore
         self.cot_attributes["uid"] = uid
     
     @CoTProperty
-    def urlData(self):
+    def urlData(self) -> str:
         return self.cot_attributes.get("urlData", None)
     
     @urlData.setter
-    def urlData(self, urlData=None):
+    def urlData(self, urlData: str=None): # type: ignore
         self.cot_attributes["urlData"] = urlData
     
     @CoTProperty
-    def urlView(self):
+    def urlView(self) -> str:
         return self.cot_attributes.get("urlView", None)
     
     @urlView.setter
-    def urlView(self, urlView=None):
+    def urlView(self, urlView: str=None): # type: ignore
         self.cot_attributes["urlView"] = urlView

@@ -1,6 +1,7 @@
 import codecs
 from datetime import datetime
 from typing import List
+from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 
 from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
@@ -317,7 +318,7 @@ class MissionPersistenceController(Controller):
             self.ses.rollback()
             raise ex
         
-    def get_all_missions(self, *args, **kwargs):
+    def get_all_missions(self, *args, **kwargs) -> List[Mission]:
         try:
             return self.ses.query(Mission).all()
         except Exception as ex:
@@ -455,3 +456,43 @@ class MissionPersistenceController(Controller):
             return self.ses.query(Log).all()
         except Exception as ex:
             raise ex
+    
+    def get_external_data(self, mission_id, *args, **kwargs):
+        try:
+            mission = self.get_mission(mission_id)
+            return mission.external_data
+        except Exception as ex:
+            raise ex
+        
+    def add_external_data(self, mission_id, name, tool, urlData, notes, uid, urlView, *args, **kwargs):
+        try:
+            external_data = ExternalData()
+            external_data.name = name
+            external_data.tool = tool
+            external_data.urlData = urlData
+            external_data.notes = notes
+            external_data.uid = uid
+            external_data.urlView = urlView
+            
+            mission = self.get_mission(mission_id)
+            mission.externalData.append(external_data)
+            
+            external_data.mission = mission
+            
+            self.ses.add(external_data)
+            self.ses.commit()
+            return external_data
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+        
+    def get_external_data_by_uid(self, mission_id, uid, *args, **kwargs):
+        try:
+            mission = self.get_mission(mission_id)
+            for external_data in mission.externalData:
+                if external_data.uid == uid:
+                    return external_data
+            return None
+        except Exception as ex:
+            raise ex
+        

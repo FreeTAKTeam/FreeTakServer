@@ -172,3 +172,14 @@ def get_all_mission_subscriptions(mission_id):
     out_data = HTTPTakApiCommunicationController().make_request("GetMissionSubscriptions", "mission", {"mission_id": mission_id}, None, True).get_value("mission_subscriptions"), 200
     print(out_data)
     return out_data
+
+@page.route('/Marti/api/missions/<mission_id>/externaldata', methods=['POST'])
+def create_external_mission_data(mission_id):
+    """create external mission data
+
+    Args:
+        mission_id (_type_): _description_
+    """
+    request_json = request.get_json() # type: ignore
+    out_data = HTTPTakApiCommunicationController().make_request("CreateExternalMissionData", "mission", {"mission_id": mission_id, "mission_external_data": request_json}, None, True).get_value("external_data"), 200 # type: ignore
+    return out_data

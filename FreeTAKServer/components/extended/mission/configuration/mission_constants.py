@@ -101,3 +101,7 @@ MISSION_LOG = "mission_log"
 MISSION_LOG_COLLECTION = "mission_log_collection"
 
 MISSION_SUBSCRIPTION_SIMPLE_LIST = "mission_subscription_simple_list"
+
+MISSION_EXTERNAL_DATA = "mission_external_data"
+
+MISSION_EXTERNAL_DATA_COLLECTION = "mission_external_data"

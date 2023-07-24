@@ -1,5 +1,7 @@
+from typing import List
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
+from FreeTAKServer.components.extended.mission.domain.mission_external_data import MissionExternalData
 
 class MissionData(CoTNode):
     def __init__(self, configuration, model, oid=None):
@@ -127,12 +129,12 @@ class MissionData(CoTNode):
         self.cot_attributes["groups"] = groups
 
     @CoTProperty
-    def externalData(self):
-        return self.cot_attributes.get("externalData")
+    def externalData(self) -> List[MissionExternalData]:
+        return self.get_children_ex(children_type="MissionExternalData")
     
     @externalData.setter
-    def externalData(self, externalData=None):
-        self.cot_attributes["externalData"] = externalData
+    def externalData(self, externalData: MissionExternalData=None): # type: ignore
+        self.add_child(externalData)
 
     @CoTProperty
     def feeds(self):

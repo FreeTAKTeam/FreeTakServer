@@ -20,7 +20,7 @@ from digitalpy.core.parsing.load_configuration import LoadConfiguration
 
 from ..domain.mission_info import MissionInfo
 from ..domain.mission_data import MissionData
-from ..domain.external_data import ExternalData
+from ..domain.mission_external_data import MissionExternalData
 from ..domain.mission_role import MissionRole
 from ..domain.mission_content_data import MissionContentData 
 from ..domain.mission_content import MissionContent
@@ -33,6 +33,7 @@ from ..persistence.subscription import Subscription as DBSubscription
 from ..configuration.mission_constants import (
     BASE_OBJECT_NAME,
     MISSION_CONTENT,
+    MISSION_EXTERNAL_DATA,
     MISSION_ITEM,
     MISSION_LOG,
     MISSION_LOG_COLLECTION,
@@ -97,7 +98,7 @@ class MissionDomainController(Controller):
 
         self.request.set_value("configuration", configuration)
 
-        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionContent": MissionContent, "MissionContentData": MissionContentData, "ExternalData": ExternalData, "MissionRole": MissionRole})
+        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionContent": MissionContent, "MissionContentData": MissionContentData, "MissionExternalData": MissionExternalData, "MissionRole": MissionRole})
 
         self.request.set_value(
             "source_format", self.request.get_value("source_format")
@@ -126,7 +127,7 @@ class MissionDomainController(Controller):
         # mission_domain_object.groups = mission_db_object.groups
         mission_domain_object.groups = []
         # mission_domain_object.externalData = mission_db_object.externalData
-        mission_domain_object.externalData = []
+        
         # mission_domain_object.feeds = mission_db_object.feeds
         mission_domain_object.feeds = []
         # mission_domain_object.mapLayers = mission_db_object.mapLayers
@@ -357,6 +358,48 @@ class MissionDomainController(Controller):
         
         response = self.execute_sub_action("CreateNode")
         
+        model_object = response.get_value("model_object")
+
+        return model_object
+    
+    def create_external_data_collection(self, config_loader, *args, **kwargs) -> MissionInfoSingle:
+        """return the domain object used a external data entry in a mission"""
+        self.request.set_value("object_class_name", "MissionInfoSingle")
+
+        configuration = config_loader.find_configuration(MISSION_EXTERNAL_DATA)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value("extended_domain", {"MissionExternalData": MissionExternalData, "MissionInfoSingle": MissionInfoSingle})
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
+        model_object = response.get_value("model_object")
+
+        return model_object
+    
+    def create_external_data(self, config_loader, *args, **kwargs) -> MissionExternalData:
+        """return the domain object used a external data entry in a mission"""
+        self.request.set_value("object_class_name", "MissionExternalData")
+
+        configuration = config_loader.find_configuration(MISSION_EXTERNAL_DATA)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value("extended_domain", {"MissionExternalData": MissionExternalData})
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
         model_object = response.get_value("model_object")
 
         return model_object

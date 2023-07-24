@@ -1,7 +1,7 @@
 from typing import List
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from FreeTAKServer.components.extended.excheck.domain.mission_data import MissionData
+from FreeTAKServer.components.extended.mission.domain.mission_data import MissionData
 from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
 from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
 

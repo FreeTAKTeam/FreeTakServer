@@ -1,11 +1,13 @@
 import json
 from typing import List, Dict
+from FreeTAKServer.components.extended.excheck.domain.mission_data import MissionData
+from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_token_controller import MissionTokenController
-from FreeTAKServer.components.extended.mission.domain.external_data import ExternalData
+from FreeTAKServer.components.extended.mission.domain.mission_external_data import MissionExternalData
 from FreeTAKServer.components.extended.mission.domain.mission_role import MissionRole
-from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
+from FreeTAKServer.components.extended.mission.domain.mission import mission
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
 from FreeTAKServer.core.domain.node import Node
 from FreeTAKServer.core.util.serialization_utils import serialize_to_json
@@ -43,12 +45,14 @@ class MissionGeneralController(Controller):
         self.persistency_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
         self.token_controller = MissionTokenController(request, response, sync_action_mapper, configuration)
         self.domain_controller = MissionDomainController(request, response, sync_action_mapper, configuration)
+        self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.persistency_controller.initialize(request, response)
         self.token_controller.initialize(request, response)
         self.domain_controller.initialize(request, response)
+        self.external_data_controller.initialize(request, response)
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -176,8 +180,13 @@ class MissionGeneralController(Controller):
         missions = self.persistency_controller.get_all_missions()
         mission_collection = self.domain_controller.create_mission_collection(config_loader)
         for mission in missions:
-            mission_record_domain = self.domain_controller.create_mission_record_object(config_loader)
+            mission_record_domain: 'MissionData' = self.domain_controller.create_mission_record_object(config_loader)
             self.domain_controller.complete_mission_record_db(mission_record_domain, mission, config_loader)
+           
+            for db_content in mission.externalData:
+                domain_external_data = self.domain_controller.create_external_data(config_loader)
+                mission_record_domain.externalData = self.external_data_controller.complete_mission_external_data(domain_external_data, db_content)
+                
             self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
         serialized_mission_collection = serialize_to_json(mission_collection, self.request, self.execute_sub_action) 
         self.response.set_value("missions", serialized_mission_collection)

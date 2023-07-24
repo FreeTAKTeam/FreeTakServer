@@ -1,3 +1,4 @@
+from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_hierarchy_controller import MissionHierarchyController
 from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
@@ -58,6 +59,7 @@ class Mission(DefaultFacade):
         self.subscription_controller = MissionSubscriptionController(request, response, sync_action_mapper, configuration)
         self.logs_controller = MissionLogsController(request, response, sync_action_mapper, configuration)
         self.hierarchy_controller = MissionHierarchyController(request, response, sync_action_mapper, configuration)
+        self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -66,6 +68,7 @@ class Mission(DefaultFacade):
         self.subscription_controller.initialize(request, response)
         self.logs_controller.initialize(request, response)
         self.hierarchy_controller.initialize(request, response)
+        self.external_data_controller.initialize(request, response)
     
     def execute(self, method):
         try:
@@ -164,3 +167,7 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def get_mission_subscription(self, *args, **kwargs):
         self.subscription_controller.get_mission_subscription(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def add_mission_external_data(self, *args, **kwargs):
+        self.external_data_controller.add_mission_external_data(*args, **kwargs)

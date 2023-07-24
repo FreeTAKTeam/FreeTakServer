@@ -30,13 +30,13 @@
 				},
 				"externalData":
 				{
-					"$ref": "#/definitions/ExternalData",
+					"$ref": "#/definitions/MissionExternalData",
 					"minItems" : 1,
 					"maxItems" : 1
 				}
 			}
 		},
-		"ExternalData":{
+		"MissionExternalData":{
 			"type": "object",
 			"description": "",
 			"properties": {
