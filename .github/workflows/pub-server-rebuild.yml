@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Rebuild Pub Server
         env:
-          DIGITALOCEAN_ACCESS_TOKEN: ${{ DO_API_TOKEN }}
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DO_API_TOKEN }}
         run: |
-          doctl compute droplet-action restore ${{ DO_PUB_DROPLET_ID }} --image-id ${{ DO_PUB_SNAPSHOT_ID }}
+          doctl compute droplet-action restore ${{ secrets.DO_PUB_DROPLET_ID }} --image-id ${{ secrets.DO_PUB_SNAPSHOT_ID }}
