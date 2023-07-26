@@ -11,6 +11,12 @@ jobs:
   rebuild:
     runs-on: ubuntu-latest
     steps:
+
+      - name: Set up doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
+
       - name: Rebuild Pub Server
         env:
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DO_API_TOKEN }}
