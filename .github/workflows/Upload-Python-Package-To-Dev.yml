@@ -32,8 +32,6 @@ jobs:
         pip install build setuptools poetry
     - name: Build and publish
       env:
-        TWINE_USERNAME: ${{ secrets.DEV_PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
         POETRY_REPOSITORIES_DEV: "http://${{ secrets.DEV_PYPI_ADDRESS }}:8080/"
         POETRY_HTTP_BASIC_DEV_USERNAME: ${{ secrets.DEV_PYPI_USERNAME }}
         POETRY_HTTP_BASIC_DEV_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
