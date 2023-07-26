@@ -1,6 +1,8 @@
 name: "FTS Pub Server Rebuild"
 
 on:
+  push:
+    branches: [ "617-schedule-rebuild-of-pub-server" ]
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:
