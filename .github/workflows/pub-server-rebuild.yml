@@ -8,7 +8,9 @@ on:
 jobs:
   rebuild:
     runs-on: ubuntu-latest
-    - name: Rebuild Pub Server
-      env:
-      run: |
-        doctl compute droplet-action restore ${{ DO_PUB_DROPLET_ID }} --image-id ${{ DO_PUB_SNAPSHOT_ID }}
+    steps:
+      - name: Rebuild Pub Server
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ DO_API_TOKEN }}
+        run: |
+          doctl compute droplet-action restore ${{ DO_PUB_DROPLET_ID }} --image-id ${{ DO_PUB_SNAPSHOT_ID }}
