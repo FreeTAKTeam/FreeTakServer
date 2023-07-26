@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build setuptools
+        pip install build setuptools poetry
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.DEV_PYPI_USERNAME }}
