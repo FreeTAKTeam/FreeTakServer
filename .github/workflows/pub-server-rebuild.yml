@@ -1,0 +1,14 @@
+name: "FTS Pub Server Rebuild"
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    - name: Rebuild Pub Server
+      env:
+      run: |
+        doctl compute droplet-action restore ${{ DO_PUB_DROPLET_ID }} --image-id ${{ DO_PUB_SNAPSHOT_ID }}
