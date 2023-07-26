@@ -38,5 +38,4 @@ jobs:
         POETRY_HTTP_BASIC_DEV_USERNAME: ${{ secrets.DEV_PYPI_USERNAME }}
         POETRY_HTTP_BASIC_DEV_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
       run: |
-        peotry build
-        poetry publish
+        poetry publish --build --repository dev
