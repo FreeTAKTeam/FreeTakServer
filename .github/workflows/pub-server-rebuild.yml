@@ -1,0 +1,22 @@
+name: "FTS Pub Server Rebuild"
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
+
+      - name: Rebuild Pub Server
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DO_API_TOKEN }}
+        run: |
+          doctl compute droplet-action restore ${{ secrets.DO_PUB_DROPLET_ID }} --image-id ${{ secrets.DO_PUB_SNAPSHOT_ID }}
