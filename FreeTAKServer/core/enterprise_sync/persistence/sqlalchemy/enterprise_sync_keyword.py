@@ -9,5 +9,5 @@ class EnterpriseSyncKeyword(Base):
 
     __tablename__ = "keyword"
     id = Column(Integer, primary_key=True)
-    keyword = Column(String(100))
+    keyword: str = Column(String(100)) # type: ignore
     enterprise_sync_data_object_id = Column(String(100), ForeignKey('EnterpriseSyncDataObject.PrimaryKey'))

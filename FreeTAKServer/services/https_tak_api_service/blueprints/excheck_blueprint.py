@@ -71,8 +71,9 @@ def ExCheckTemplates():
     except Exception as ex:
         print(ex)
         return '', 500
-
+"""
 # TODO: this needs to be moved out to the mission blueprint
 @page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
 def get_checklist_mission(mission_id):
     return HTTPSTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}).get_value("mission_info")
+"""

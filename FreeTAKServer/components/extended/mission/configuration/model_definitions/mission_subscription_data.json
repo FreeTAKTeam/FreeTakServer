@@ -1,0 +1,33 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://iec.ch/TC57/all_mission_subscriptions#",
+	"type": "object",
+	"properties":
+	{
+		"all_mission_subscriptions":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/MissionSubscription" },
+                { "$ref": "#/definitions/MissionRole" }
+			]
+		}
+	},
+	"definitions":
+	{
+        "MissionSubscription": {
+            "type" : "object",
+            "description" : "",
+            "properties": {
+                "role":{ "$ref":"#/definitions/MissionRole" }
+            }
+        },
+        "MissionRole":{
+            "type": "object",
+            "description" : "",
+            "properties": {
+            }
+        }
+	}
+}

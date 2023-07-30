@@ -174,45 +174,15 @@ def insert_video_link():
 def versionConfig():
     logger.info('sending client version json')
     return const.VERSIONJSON
-
-
-@app.route('/Marti/sync/missionupload', methods=[const.POST])
-def upload():
-    from FreeTAKServer.model.ServiceObjects.SSLDataPackageVariables import SSLDataPackageVariables
-    logger.info('datapackage upload started')
-    file_hash = sanitize_hash(request.args.get('hash'))
-    app.logger.info(f"Data Package hash = {str(file_hash)}")
-    letters = string.ascii_letters
-    uid = ''.join(random.choice(letters) for i in range(4))
-    uid = 'uid-' + str(uid)
-    filename = secure_filename(request.args.get('filename'))
-    creatorUid = request.args.get('creatorUid')
-    file = request.files.getlist('assetfile')[0]
-    directory = Path(dp_directory, file_hash)
-    if not Path.exists(directory):
-        os.mkdir(str(directory))
-    file.save(os.path.join(str(directory), filename))
-    fileSize = Path(str(directory), filename).stat().st_size
-    callsign = str(
-        FlaskFunctions().getSubmissionUser(creatorUid,
-                                           dbController))  # fetchone() gives a tuple, so only grab the first element
-    FlaskFunctions().create_dp(dbController, uid=uid, Name=filename, Hash=file_hash, SubmissionUser=callsign,
-                               CreatorUid=creatorUid, Size=fileSize)
-    if USINGSSL == False:
-        return "http://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
-
-    else:
-        return "https://" + IP + ':' + str(HTTPPORT) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
-
-
+"""
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.PUT])
 def putDataPackageTool(hash):
     file_hash = sanitize_hash(hash)
     if request.data == b'private':
         dbController.update_datapackage(query=f'Hash = "{file_hash}"', column_value={"Privacy": 1})
     return "Okay", 200
-
-
+"""
+"""
 @app.route('/Marti/api/sync/metadata/<hash>/tool', methods=[const.GET])
 @cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
@@ -222,7 +192,7 @@ def getDataPackageTool(hash):
     app.logger.info(f"Sending data package from {str(path)}")
     resp = send_file(str(path))
     return resp
-
+"""
 
 @app.route('/Marti/sync/search', methods=[const.GET])
 def retrieveData():
@@ -237,7 +207,7 @@ def returnVersion():
     logger.info('api version triggered')
     return const.versionInfo
 
-
+"""
 @app.route('/Marti/sync/missionquery', methods=const.HTTPMETHODS)
 def checkPresent():
     logger.info('synce missionquery triggered')
@@ -252,7 +222,7 @@ def checkPresent():
     else:
         app.logger.info(f"Data package with hash {file_hash} does not exist")
         return '404', 404
-
+"""
 
 @app.route('/')
 def home():
@@ -323,12 +293,6 @@ def ExCheckTemplatesAlt():
     except Exception as ex:
         print(ex)
         return '', 500
-    
-@app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
-def missionupdate(templateuid):
-    from flask import request
-    uid = request.args.get('uid')
-    return '', 200
 
 @app.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
@@ -356,40 +320,6 @@ def startList(subscription):
         print(ex)
         return '', 500
 
-@app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
-def specificPackage():
-    from defusedxml import ElementTree as etree
-    from os import listdir
-    try:
-        if request.method == 'GET' and request.args.get('uid') != None:
-            dp_request = ObjectFactory.get_instance("request")
-            dp_response = ObjectFactory.get_instance("response")
-            enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-            enterprisesync_facade.initialize(dp_request, dp_response)
-            enterprisesync_facade.get_enterprise_sync_data(objectuid = request.args.get('uid'))
-            return dp_response.get_value("objectdata"), 200
-        else:
-            file_hash = sanitize_hash(request.args.get('hash'))
-
-            if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
-                logger.info('marti sync content triggerd')
-                app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
-                file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
-                app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
-                path = PurePath(dp_directory, str(file_hash), file_list[0])
-                app.logger.debug(str(path))
-                return send_file(str(path))
-            else:
-                dp_request = ObjectFactory.get_instance("request")
-                dp_response = ObjectFactory.get_instance("response")
-                enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-                enterprisesync_facade.initialize(dp_request, dp_response)
-                enterprisesync_facade.get_enterprise_sync_data(objecthash = request.args.get('hash'))
-                return dp_response.get_value("objectdata"), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
-    
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
     return ExCheckController().update_checklist()
@@ -435,7 +365,7 @@ API_REQUEST_TIMEOUT = 5000
 
 import time
 
-from .blueprints import excheck_blueprint, citrap_blueprint, misc_blueprint, mission_blueprint
+from .blueprints import excheck_blueprint, citrap_blueprint, misc_blueprint, mission_blueprint, enterprise_sync_blueprint
 
 class HTTPTakAPI(DigitalPyService):
      # a dictionary containing the request_id and response objects for all received requests
@@ -529,7 +459,8 @@ class HTTPTakAPI(DigitalPyService):
         app.register_blueprint(citrap_blueprint.page)
         app.register_blueprint(misc_blueprint.page)
         app.register_blueprint(mission_blueprint.page)
-
+        app.register_blueprint(enterprise_sync_blueprint.page)
+        
     def setIP(self, IP_to_be_set):
         global IP
         IP = IP_to_be_set

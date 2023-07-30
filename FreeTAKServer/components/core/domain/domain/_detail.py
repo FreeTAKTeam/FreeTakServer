@@ -54,6 +54,17 @@ class detail(CoTNode):
         self.cot_attributes["contact"] = contact
 
     @CoTProperty
+    def mission(self):
+        data = self.cot_attributes.get("mission", None)
+        if data is None:
+            raise AttributeError("attribute 'mission' doesnt exist")
+        return data
+
+    @mission.setter
+    def mission(self, mission):
+        self.cot_attributes["mission"] = mission
+
+    @CoTProperty
     def emergency(self):
         data = self.cot_attributes.get("emergency", None)
         if data is None:

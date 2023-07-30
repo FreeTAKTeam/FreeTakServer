@@ -1,0 +1,37 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://example.com/message#",
+    "type": "object",
+    "properties": {
+        "message": {
+            "$ref": "#/definitions/MissionExternalData"
+        }
+    },
+    "definitions": {
+        "MissionExternalData": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tool": {
+                    "type": "string"
+                },
+                "urlData": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "urlView": {
+                    "type": "string",
+                    "format": "uri"
+                }
+            }
+        }
+    }
+}

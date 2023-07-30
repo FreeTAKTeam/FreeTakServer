@@ -10,7 +10,7 @@ setup(
     packages=find_packages(
         include=["FreeTAKServer", "FreeTAKServer.*", "*.json", "*.ini", "*.conf"]
     ),
-    version="2.0.70.5",
+    version="0.2.1.0",
     license="EPL-2.0",
     description="An open source server for the TAK family of applications.",
     #long_description=long_description,
@@ -67,6 +67,7 @@ setup(
         "pyzmq",
         "digitalpy>=0.3.13.2",
         "opentelemetry-sdk",
+        "PyJWT"
     ],
     extras_require={
         "ui": ["FreeTAKServer_UI"],

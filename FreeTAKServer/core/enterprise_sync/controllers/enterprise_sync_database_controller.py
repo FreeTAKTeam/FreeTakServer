@@ -24,18 +24,34 @@ class EnterpriseSyncDatabaseController(Controller):
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
     
-    def update_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash: str, logger, *args, **kwargs):
+    def update_enterprise_sync_object(self, logger, filetype: str=None, objectuid: str=None, objecthash: str=None, obj_length: int=None, obj_keywords: str=None, obj_start_time: str=None, mime_type: str=None, tool: str=None, file_name: str=None, private: int=0, *args, **kwargs):
         try:
             db_controller = DatabaseController()
-            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey==objectuid).first()
-            data_obj.file_type = filetype
-            data_obj.hash = objecthash
+            data_obj: EnterpriseSyncDataObject = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey==objectuid).first()
+            if filetype is not None:
+                data_obj.file_type = filetype # type: ignore
+            if objecthash is not None:
+                data_obj.hash = objecthash # type: ignore
+            if obj_length is not None:
+                data_obj.length = obj_length # type: ignore
+            if obj_keywords is not None:
+                data_obj.keywords = obj_keywords # type: ignore
+            if obj_start_time is not None:
+                data_obj.start_time = obj_start_time # type: ignore
+            if mime_type is not None:
+                data_obj.mime_type = mime_type # type: ignore
+            if tool is not None:
+                data_obj.tool = tool # type: ignore
+            if file_name is not None:
+                data_obj.file_name = file_name # type: ignore
+            if private is not None:
+                data_obj.private = private # type: ignore
             db_controller.session.commit()
         except Exception as ex:
             logger.error("error thrown updating enterprise sync obj: %s err: %s", objectuid, ex)
             db_controller.session.rollback()
 
-    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash, obj_length, obj_keywords, obj_start_time, logger, *args, **kwargs):
+    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash, obj_length, obj_keywords, obj_start_time, mime_type, tool, file_name, logger, private=0, *args, **kwargs):
         """create an enterprise sync data object instance and save it to the database
         with sqlalachemy
 
@@ -51,6 +67,10 @@ class EnterpriseSyncDatabaseController(Controller):
             data_obj.hash = objecthash
             data_obj.length = obj_length
             data_obj.start_time = obj_start_time
+            data_obj.mime_type = mime_type
+            data_obj.tool = tool
+            data_obj.file_name = file_name
+            data_obj.private = private
             
             for obj_keyword in obj_keywords:
                 keyword_obj = EnterpriseSyncKeyword()
@@ -77,6 +97,8 @@ class EnterpriseSyncDatabaseController(Controller):
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == object_uid).first()
             elif object_hash != None:
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == object_hash).first()
+            else:
+                raise Exception("no object uid or hash provided")
             return data_obj
         except Exception as ex:
             logger.error("error thrown getting enterprise sync obj: %s err: %s", object_uid, ex)

@@ -80,7 +80,8 @@ class ExCheckTemplateController(Controller):
         self.request.set_value("objkeywords", [parsed_template.find("checklistDetails").find("name").text,
                                                 parsed_template.find("checklistDetails").find("description").text,
                                                 parsed_template.find("checklistDetails").find("creatorCallsign").text])
-        
+        self.request.set_value("tool", "ExCheck")
+        self.request.set_value("mime_type", "application/xml")        
         self.request.set_value("objstarttime", self.get_time())
 
         self.execute_sub_action("SaveEnterpriseSyncData")

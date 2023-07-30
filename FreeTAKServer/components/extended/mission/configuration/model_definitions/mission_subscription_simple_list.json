@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://example.com/message#",
+    "type": "object",
+    "properties": {
+        "message": {
+            "$ref": "#/definitions/MissionInfo"
+        }
+    },
+    "definitions": {
+        "MissionInfo": {
+            "type": "object",
+            "properties": {
+            }
+        }
+    }
+}

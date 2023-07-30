@@ -72,7 +72,8 @@ def get_template(templateUid):
     except Exception as ex:
         print(ex)
         return '', 500
-
+"""
 @page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
 def get_checklist_mission(mission_id):
     return HTTPTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}).get_value("mission_info")
+"""
