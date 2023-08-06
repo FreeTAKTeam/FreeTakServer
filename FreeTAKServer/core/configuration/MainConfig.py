@@ -69,6 +69,7 @@ class MainConfig:
         # this is the port to which clients will connect
         "CoTServicePort": {"default": 8087, "type": int},
         "SSLCoTServicePort": {"default": 8089, "type": int},
+        # This is the TAK API used by Data Packages ExCheck and Mission 
         "HTTPSTakAPIPort": {"default": 8443, "type": int},
         "HTTPTakAPIPort": {"default": 8080, "type": int},
         # this needs to be changed for private data packages to work
@@ -204,6 +205,8 @@ class MainConfig:
         "FTS_MAINLOOP_DELAY": "MainLoopDelay",
         "FTS_COT_PORT": "CoTServicePort",
         "FTS_SSLCOT_PORT": "SSLCoTServicePort",
+        "FTS_HTTPS_TAK_API_PORT": "HTTPSTakAPIPort",
+        "FTS_HTTP_TAK_API_PORT": "HTTPTakAPIPort",
         "FTS_DP_ADDRESS": "DataPackageServiceDefaultIP",
         "FTS_USER_ADDRESS": "UserConnectionIP",
         "FTS_API_PORT": "APIPort",
@@ -286,6 +289,8 @@ class MainConfig:
             "FTS_API_PORT": "APIPort",
             "FTS_FED_PORT": "FederationPort",
             "FTS_API_ADDRESS": "APIIP",
+            "FTS_HTTPS_TAK_API_PORT": "HTTPSTakAPIPort",
+            "FTS_HTTP_TAK_API_PORT": "HTTPTakAPIPort",
             "FTS_CLI_WHITELIST": "AllowCLIIPs",
             # the number of routing workers to use
             "NumRoutingWorkers": {"default": 3, "type": int},
