@@ -23,7 +23,7 @@ jobs:
         pip install build setuptools poetry
     - name: Build and publish
       env:
-        POETRY_HTTP_BASIC_DEV_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        POETRY_HTTP_BASIC_DEV_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        POETRY_HTTP_BASIC_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        POETRY_HTTP_BASIC_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
         poetry publish --build
