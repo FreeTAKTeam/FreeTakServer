@@ -1,14 +1,16 @@
 from typing import TYPE_CHECKING
-from FreeTAKServer.components.extended.mission.domain.mission_info_single import MissionInfoSingle
+from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
 
-from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
+from FreeTAKServer.components.core.domain.domain import MissionLog
 from FreeTAKServer.core.util.time_utils import get_dtg
 
 if TYPE_CHECKING:
+    from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_keyword import EnterpriseSyncKeyword
+    
     from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 
 from FreeTAKServer.components.core.domain.domain import Event
-from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
+from FreeTAKServer.components.core.domain.domain import MissionSubscription
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 from digitalpy.core.main.controller import Controller
@@ -18,13 +20,13 @@ from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
 from digitalpy.core.parsing.load_configuration import LoadConfiguration
 
-from ..domain.mission_info import MissionInfo
-from ..domain.mission_data import MissionData
-from ..domain.mission_external_data import MissionExternalData
-from ..domain.mission_role import MissionRole
-from ..domain.mission_content_data import MissionContentData 
-from ..domain.mission_content import MissionContent
-from ..domain.mission import mission as DomainMissionCot
+from FreeTAKServer.components.core.domain.domain import MissionInfo
+from FreeTAKServer.components.core.domain.domain import MissionData
+from FreeTAKServer.components.core.domain.domain import MissionExternalData
+from FreeTAKServer.components.core.domain.domain import MissionRole
+from FreeTAKServer.components.core.domain.domain import MissionContentData 
+from FreeTAKServer.components.core.domain.domain import MissionContent
+from FreeTAKServer.components.core.domain.domain import mission as DomainMissionCot
 
 from ..persistence.mission import Mission as DBMission
 from ..persistence.mission_content import MissionContent as DBMissionContent
@@ -67,8 +69,6 @@ class MissionDomainController(Controller):
         configuration = config_loader.find_configuration(MISSION_COLLECTION)
         
         self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionInfo": MissionInfo})
 
         self.request.set_value(
             "source_format", self.request.get_value("source_format")

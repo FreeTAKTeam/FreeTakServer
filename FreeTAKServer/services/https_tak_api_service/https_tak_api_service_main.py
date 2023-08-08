@@ -277,12 +277,7 @@ def home():
     @app.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
 """
 
-@app.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
-def excheck_template_task(templateUid, taskUid):
-    if request.method == "GET":
-        return ExCheckController().get_excheck_template_task(templateUid, taskUid, request.data)
-    elif request.method == "POST":
-        return ExCheckController().create_excheck_template_task(templateUid, taskUid, request.data)
+
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
@@ -297,6 +292,17 @@ def check_changes():
     except Exception as e:
         print('exception in check changes' + str(e))
 
+@app.route('/Marti/api/missions/<mission_id>', methods=['GET'])
+def get_mission(mission_id):
+    try:
+        # this endpoint returns the mission data for a specific mission
+        is_excheck: bool = False
+        if is_excheck:
+            return excheck_blueprint.get_checklist_mission(mission_id)
+        else:
+            return mission_blueprint.get_mission(mission_id)
+    except Exception as ex:
+        return str(ex), 500
 """
 # TODO remove?
 @app.route('/Marti/api/missions/exchecktemplates/subscription', methods=['PUT'])

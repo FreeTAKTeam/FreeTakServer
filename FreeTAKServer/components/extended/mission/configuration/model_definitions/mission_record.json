@@ -30,9 +30,8 @@
 				},
 				"externalData":
 				{
-					"$ref": "#/definitions/MissionExternalData",
-					"minItems" : 1,
-					"maxItems" : 1
+					"type" : "array",
+					"items" : {"$ref": "#/definitions/MissionExternalData"}
 				}
 			}
 		},

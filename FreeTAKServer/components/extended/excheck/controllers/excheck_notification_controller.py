@@ -2,6 +2,7 @@ from typing import List
 import uuid
 
 from bitarray import bitarray
+from FreeTAKServer.components.extended.excheck.controllers.excheck_domain_controller import ExcheckDomainController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
 from FreeTAKServer.components.extended.excheck.domain.content import content
 from FreeTAKServer.components.extended.excheck.domain.expiration import expiration
@@ -16,7 +17,6 @@ from defusedxml import ElementTree
 
 import hashlib
 
-from lxml.etree import Element
 from lxml import etree
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
@@ -65,11 +65,13 @@ class ExCheckNotificationController(Controller):
         super().__init__(request, response, sync_action_mapper, configuration)
         self.excheck_checklist_controller = ExCheckChecklistController(request, response, sync_action_mapper, configuration)
         self.persistence_controller = ExCheckPersistencyController(request, response, sync_action_mapper, configuration)
-    
+        self.domain_controller = ExcheckDomainController(request, response, sync_action_mapper, configuration)
+
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.excheck_checklist_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
+        self.domain_controller.initialize(request, response)
 
     def generate_group_vector(self):
         length = 32768
@@ -104,7 +106,7 @@ class ExCheckNotificationController(Controller):
 
         checklist_element = etree.fromstring(checklist_data)
         
-        update_task_model_object = self.get_update_task_model_object(config_loader)
+        update_task_model_object = self.domain_controller.get_update_task_model_object(config_loader)
         
         self.complete_update_task_model_object(checklist_task_obj.checklist_uid, changer_uid, task_uid, str(len(checklist_task)), checklist_task_metadata.hash, update_task_model_object, checklist_task)
         
@@ -147,28 +149,7 @@ class ExCheckNotificationController(Controller):
 
         return rendered_template
     
-    def get_update_task_model_object(self, config_loader):
-        self.request.set_value("object_class_name", EVENT)
-
-        configuration = config_loader.find_configuration(CHECKLIST_UPDATE)
-
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"mission": mission, "MissionChanges": MissionChanges, "MissionChange": MissionChange, 
-                                                   "contentResource": contentResource, "creatorUid": creatorUid, "type": type, 
-                                                   "submitter": submitter, "missionName": missionName, "timestamp": timestamp,
-                                                   "uid": uid, "tool": tool, "filename": filename, "hash": hash, "keywords": keywords,
-                                                   "mimeType": mimeType, "name": name, "size": size, "submissionTime": submissionTime,
-                                                   "content": content, "isFederatedChange": isFederatedChange, "expiration": expiration,
-                                                   "groupVector": groupVector})
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
+    
 
     def complete_update_task_model_object(self, checklist_uid, changer_uid, task_uid, task_size, checklist_hash, update_task_model_object, task_data):
         update_task_model_object.type = "t-x-m-c"

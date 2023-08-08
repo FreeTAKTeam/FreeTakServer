@@ -1,7 +1,7 @@
 from typing import List
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from FreeTAKServer.components.extended.mission.domain.mission_external_data import MissionExternalData
+from FreeTAKServer.components.core.domain.domain import MissionExternalData
 
 class MissionData(CoTNode):
     def __init__(self, configuration, model, oid=None):

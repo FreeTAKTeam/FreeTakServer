@@ -5,7 +5,7 @@ from FreeTAKServer.components.extended.excheck.domain.mission_info import Missio
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_general_controller import MissionGeneralController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
-from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
+from FreeTAKServer.components.core.domain.domain import MissionLog
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 from FreeTAKServer.components.extended.mission.persistence.mission_log import MissionLog as DBMissionLog
 from FreeTAKServer.core.domain.node import Node

@@ -1,5 +1,6 @@
 from typing import List
 import uuid
+from FreeTAKServer.components.extended.excheck.controllers.excheck_domain_controller import ExcheckDomainController
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -12,14 +13,13 @@ import hashlib
 
 from lxml import etree
 
-from lxml.etree import Element
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
-from ..domain.mission_info import MissionInfo
-from ..domain.mission_data import MissionData
-from ..domain.mission_item import MissionItem
-from ..domain.mission_item_metadata import MissionItemMetaData
+from FreeTAKServer.components.core.domain.domain import MissionInfo
+from FreeTAKServer.components.core.domain.domain import MissionData
+from FreeTAKServer.components.core.domain.domain import MissionContent
+from FreeTAKServer.components.core.domain.domain import MissionContentData
 
 from .excheck_persistency_controller import ExCheckPersistencyController
 
@@ -42,48 +42,13 @@ class ExCheckMissionController(Controller):
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
         self.persistency_controller = ExCheckPersistencyController(request, response, sync_action_mapper, configuration)
+        self.domain_controller = ExcheckDomainController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.persistency_controller.initialize(request, response)
+        self.domain_controller.initialize(request, response)
 
-    def get_mission_info_object(self, config_loader, *args, **kwargs):
-        self.request.set_value("object_class_name", BASE_OBJECT_NAME)
-
-        configuration = config_loader.find_configuration(TEMPLATE_CONTENT)
-
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionInfo": MissionInfo, "MissionItemMetaData": MissionItemMetaData, "MissionItem": MissionItem})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
-    
-    def get_mission_item_metadata_object(self, config_loader):
-
-        self.request.set_value("object_class_name", "MissionItemMetaData")
-
-        configuration = config_loader.find_configuration(TEMPLATE_METADATA)
-
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionItemMetaData": MissionItemMetaData, "MissionItem": MissionItem})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
-    
     def complete_mission_info(self, mission_info: MissionInfo, object_metadata: List, mission_id: str, config_loader):
         mission_info.nodeId = config.nodeID
         mission_info.version = config.APIVersion
@@ -112,11 +77,11 @@ class ExCheckMissionController(Controller):
         mission_data.expiration = -1
         mission_data.uids = []
         mission_data.passwordProtected = False
-        mission_item_metadata_list: List[MissionItemMetaData]= mission_data.contents
+        mission_item_metadata_list: List[MissionContent]= mission_data.contents
         if len(mission_item_metadata_list)>0:
             self._serialize_template_metadata(mission_item_metadata_list[0], object_metadata[0])
             for index in range(1, len(object_metadata)):
-                mission_item_metadata: MissionItemMetaData = self.get_mission_item_metadata_object(config_loader)
+                mission_item_metadata: MissionContentData = self.domain_controller.get_mission_item_metadata_object(config_loader)
                 mission_data.contents = mission_item_metadata
                 self._serialize_template_metadata(mission_item_metadata, object_metadata[index])
 

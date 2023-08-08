@@ -1,9 +1,9 @@
 from typing import List
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from FreeTAKServer.components.extended.mission.domain.mission_data import MissionData
-from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
-from FreeTAKServer.components.extended.mission.domain.mission_subscription import MissionSubscription
+from ._mission_data import MissionData
+from ._mission_log import MissionLog
+from ._mission_subscription import MissionSubscription
 
 class MissionInfo(CoTNode):
     def __init__(self, configuration, model, oid=None):

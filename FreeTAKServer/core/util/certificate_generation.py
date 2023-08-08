@@ -207,6 +207,8 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "",
         zipf.write('manifest.xml')
         zipf.write(user_filename)
         zipf.write(server_filename)
+
+
     os.remove('fts.pref')
     os.remove('manifest.xml')
 

@@ -5,7 +5,6 @@ from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
 
-from FreeTAKServer.services.http_tak_api_service.http_tak_api_service_main import APPLICATION_PROTOCOL
 
 class HTTPTakApiCommunicationController(ServiceManagementCommunicationController):
     def __init__(self):

@@ -5,9 +5,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_external_data
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_token_controller import MissionTokenController
-from FreeTAKServer.components.extended.mission.domain.mission_external_data import MissionExternalData
-from FreeTAKServer.components.extended.mission.domain.mission_role import MissionRole
-from FreeTAKServer.components.extended.mission.domain.mission import mission
+from FreeTAKServer.components.core.domain.domain import mission
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
 from FreeTAKServer.core.domain.node import Node
 from FreeTAKServer.core.util.serialization_utils import serialize_to_json

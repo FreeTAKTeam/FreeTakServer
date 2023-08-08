@@ -8,8 +8,11 @@
 # 
 #######################################################
 import hashlib
-from typing import List
-from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
+from typing import List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_keyword import EnterpriseSyncKeyword
+    from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
+
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -106,18 +109,21 @@ class EnterpriseSyncGeneralController(Controller):
         """Uploads one file to the server via HTTPS."""
         pass
 
-    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, objstarttime: str, tool, mime_type, logger, file_name=None, length=None, *args, **kwargs):
+    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, tool, mime_type, logger, objecthash: str=None, file_name=None, length=None, convert_newlines: bool = False, *args, **kwargs):
         """save enterprise sync data to the db and the file system"""
         if file_name==None:
             file_name = objectuid
-        objectdata = self.format_sync_controller.convert_newlines(objectdata)
-        obj_hash = str(hashlib.sha256(objectdata).hexdigest())
+        if convert_newlines:
+            objectdata = self.format_sync_controller.convert_newlines(objectdata)
+        if objecthash == None:
+            objecthash = str(hashlib.sha256(objectdata).hexdigest())
+
         if length == None:
             obj_length = len(objectdata)
         else:
             obj_length = length
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, obj_hash, obj_length, objkeywords, objstarttime, mime_type, tool, file_name=file_name, logger=logger)
+        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, objecthash, obj_length, objkeywords, mime_type, tool, file_name=file_name, logger=logger)
 
     def update_enterprise_sync_data(self, synctype: str, objecthash: str, objectuid: str, objectdata: str, logger, *args, **kwargs):
         """update enterprise sync data in the db and the file system
@@ -154,11 +160,12 @@ class EnterpriseSyncGeneralController(Controller):
             updated_values["objstarttime"] = objstarttime
         self.persistence_controller.update_enterprise_sync_object(logger, updated_values)
         
-    def get_enterprise_sync_data(self, logger, objecthash: str = None, objectuid: str = None, use_bytes: bool = False, *args, **kwargs):
+    def get_enterprise_sync_data(self, logger, objecthash: str = None, objectuid: str = None, use_bytes: bool = False, convert_newlines: bool = False, *args, **kwargs):
         """get the object data from an enterprise sync object"""
         data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, objectuid, objecthash)
         object_data = self.filesystem_controller.get_file(data_obj.file_type, data_obj.PrimaryKey, use_bytes=use_bytes) # type: ignore
-        object_data = self.format_sync_controller.convert_newlines(object_data)
+        if convert_newlines:
+            object_data = self.format_sync_controller.convert_newlines(object_data)
         self.response.set_value("objectdata", object_data)
 
     def get_multiple_enterprise_sync_data(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, use_bytes=False, *args, **kwargs):
@@ -192,7 +199,7 @@ class EnterpriseSyncGeneralController(Controller):
                     logger.error("exception thrown getting enterprise sync object by hash %s", ex)
         self.response.set_value("objectdata", object_data_list)
 
-    def get_multiple_enterprise_sync_metadata(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, *args, **kwargs):
+    def get_multiple_enterprise_sync_metadata(self, logger, objectuids: List[str]=None, objecthashs: List[str]=None, tool: str=None, keyword:str = None, *args, **kwargs):
         """
         Get the object data from multiple enterprise sync objects.
 
@@ -215,6 +222,15 @@ class EnterpriseSyncGeneralController(Controller):
                 data_obj = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objhash)
                 if data_obj != None:
                     object_metadata_list.append(data_obj)
+
+        if objecthashs == None and objectuids == None:
+            kwarg = {}
+            if tool != None:
+                kwarg["tool"] = tool
+            if keyword != None:
+                kwarg["keyword"] = keyword
+            object_metadata_list: List[EnterpriseSyncDataObject] = self.persistence_controller.get_multiple_enterprise_sync_data_objec(logger, **kwarg)
+
         self.response.set_value("objectmetadata", object_metadata_list)
     
     def get_enterprise_sync_metadata(self, logger, objectuid: str=None, objecthash: str=None, *args, **kwargs):
@@ -235,3 +251,7 @@ class EnterpriseSyncGeneralController(Controller):
             object_metadata: EnterpriseSyncDataObject = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objecthash)
             
         self.response.set_value("objectmetadata", object_metadata)
+
+    def get_all_enterprise_sync_metadata(self, logger, *args, **kwargs):
+        sync_data = self.persistence_controller.get_all_enterprise_sync_data_objects(logger)
+        self.response.set_value("objectmetadata", sync_data) 

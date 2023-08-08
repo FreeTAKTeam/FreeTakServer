@@ -58,7 +58,8 @@ def template():
 @page.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
     try:
-        return HTTPTakApiCommunicationController().make_request("GetAllTemplates", "excheck", {}, True).get_value("")
+        return_val = HTTPTakApiCommunicationController().make_request("GetAllTemplates", "excheck", {}, None, True).get_value("template_info")
+        return return_val, 200
     except Exception as ex:
         print(ex)
         return '', 500
@@ -72,8 +73,7 @@ def get_template(templateUid):
     except Exception as ex:
         print(ex)
         return '', 500
-"""
-@page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
+
+# @page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
 def get_checklist_mission(mission_id):
     return HTTPTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}).get_value("mission_info")
-"""

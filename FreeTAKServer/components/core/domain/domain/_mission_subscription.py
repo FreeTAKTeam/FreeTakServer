@@ -1,6 +1,6 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from FreeTAKServer.components.extended.mission.domain.mission_role import MissionRole
+from ._mission_role import MissionRole
 
 class MissionSubscription(CoTNode):
     def __init__(self, configuration, model, oid=None):

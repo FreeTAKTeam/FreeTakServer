@@ -17,6 +17,8 @@ import qrcode
 import io
 from typing import Dict, List
 import time
+from FreeTAKServer.services.rest_api_service.controllers.rest_api_communication_controller import RestAPICommunicationController
+
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.main.object_factory import ObjectFactory
@@ -440,8 +442,9 @@ def addSystemUser(jsondata):
                 dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
                 openfile = open(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                                 mode='rb')
+                
                 file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-                openfile.close()
+                openfile.seek(0)
                 newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
                 os.mkdir(newDirectory)
                 shutil.copy(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
@@ -454,6 +457,8 @@ def addSystemUser(jsondata):
                                                 token=systemuser["Token"], password=systemuser["Password"],
                                                 uid=user_id,
                                                 certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
+                data = openfile.read()
+                RestAPICommunicationController().make_request("SaveEnterpriseSyncData", "", {"file_name":cert_name + '.zip',"objecthash": file_hash, "objectdata": data, "objkeywords": [cert_name + '.zip', user_id, "missionpackage"], "mime_type": "application/zip", "tool": "public", "synctype": "datapackage", "objectuid": file_hash, "length": len(data)}, None, True)
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
                 now = timer.utcnow()
@@ -1488,14 +1493,22 @@ def DataPackageTable():
     config = MainConfig.instance()
 
     if request.method == "GET":
-        output = dbController.query_datapackage()
+        return_vals = []
+        output = RestAPICommunicationController().make_request("GetAllEnterpriseSyncMetaData", "", {}, None, True).get_value("objectmetadata")
         for i in range(0, len(output)):
+            updated_val = {}
             output[i] = output[i].__dict__
+            updated_val['PrimaryKey'] = output[i]["keywords"][0].keyword
+            updated_val['SubmissionUser'] = output[i]['submitter']
+            updated_val['Size'] = output[i]['length']
+            updated_val['Privacy'] = output[i]['private']
+            updated_val['SubmissionDateTime'] = output[i]['start_time']
+            return_vals.append(updated_val)
             del (output[i]['_sa_instance_state'])
-            del (output[i]['CreatorUid'])
-            del (output[i]['MIMEType'])
-            del (output[i]['uid'])
-        return jsonify(json_list=output), 200
+            #del (output[i]['CreatorUid'])
+            #del (output[i]['MIMEType'])
+            #del (output[i]['uid'])
+        return jsonify(json_list=return_vals), 200
 
     elif request.method == "DELETE":
         jsondata = json.loads(request.data)
@@ -1621,8 +1634,11 @@ def excheck_table():
     dp_response = ObjectFactory.get_instance("response")
     excheck_facade = ObjectFactory.get_instance("ExCheck")
     excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.get_all_templates(), 200
-
+    return_data = excheck_facade.get_all_templates()
+    if return_data:
+        return return_data, 200
+    else:
+        return '{}'
 
 @app.route('/checkStatus', methods=[restMethods.GET])
 @auth.login_required()

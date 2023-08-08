@@ -10,6 +10,8 @@ from sqlalchemy.exc import IntegrityError
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.core.persistence import APIUsersController
+from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_keyword import EnterpriseSyncKeyword
+from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 from FreeTAKServer.components.extended.excheck.persistence import ExCheckController
 from FreeTAKServer.components.extended.excheck.persistence import ExCheckChecklistController
 from FreeTAKServer.core.persistence import APICallController

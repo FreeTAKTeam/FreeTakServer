@@ -47,7 +47,6 @@ def put_mission(mission_id):
 
 @page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
 def get_mission(mission_id):
-    from flask import request
     out_data = HTTPTakApiCommunicationController().make_request("GetMission", "mission", {"mission_id": mission_id}, None, True).get_value("mission"), 200
     print(out_data)
     return out_data

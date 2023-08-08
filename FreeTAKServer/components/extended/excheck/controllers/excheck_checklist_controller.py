@@ -1,5 +1,6 @@
 from typing import List
 import uuid
+from FreeTAKServer.components.extended.excheck.controllers.excheck_domain_controller import ExcheckDomainController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_wintak_adapter import ExCheckWintakAdapter
 from digitalpy.core.main.controller import Controller
@@ -50,6 +51,7 @@ class ExCheckChecklistController(Controller):
         self.template_controller = ExCheckTemplateController(request, response, sync_action_mapper, configuration)
         self.wintak_adapter = ExCheckWintakAdapter(request, response, sync_action_mapper, configuration)
         self.mission_controller = ExCheckMissionController(request, response, sync_action_mapper, configuration)
+        self.domain_controller = ExcheckDomainController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
@@ -57,6 +59,7 @@ class ExCheckChecklistController(Controller):
         self.persistency_controller.initialize(request, response)
         self.wintak_adapter.initialize(request, response)
         self.mission_controller.initialize(request, response)
+        self.domain_controller.initialize(request, response)
 
     def start_checklist(self, templateuid: str, checklistname: str, checklist_description: str,  config_loader, checklist_content: bytes=b"", *args, **kwargs):
         """record a new checklist in the component
@@ -114,6 +117,8 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("objectuid", checklist_uuid)
         self.request.set_value("objkeywords", ["Template"])
         self.request.set_value("objstarttime", start_time)
+        self.request.set_value("tool", "ExCheck")
+        self.request.set_value("mime_type", "application/xml")
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
@@ -122,6 +127,31 @@ class ExCheckChecklistController(Controller):
         # for checklist_task in checklist_task_list:
         #     checklist_tasks.append(checklist_task)
         checklist_string = etree.tostring(parsed_checklist, xml_declaration=True, encoding='UTF-8')
+
+        self.request.set_value("mission_id", checklist_uuid)
+        self.request.set_value("mission_data", b'')
+        self.request.set_value("mission_data_args", {
+            'defaultRole': "Owner",
+            'downloaded': False,
+            'connected': True,
+            'isSubscribed': True,
+            'autoPublish': False,
+            'description': checklist_description,
+            'uids': [],
+            'contents': [
+                {
+
+                }
+            ],
+            'createTime': start_time,
+            'passwordProtected': False,
+            'groups': [],
+            'serviceUri': '',
+            'classification': 'UNCLASSIFIED'})
+        self.request.set_value("creatorUid", "ExCheck")
+
+        self.execute_sub_action("PutMission")
+
         self.response.set_value("checklist", checklist_string)
         return checklist_string
     
@@ -307,14 +337,15 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("objectuid", taskuid)
         self.request.set_value("objkeywords", ["Task"])
         self.request.set_value("objstarttime", self.get_time())
-
+        self.request.set_value("tool", "ExCheck")
+        self.request.set_value("mime_type", "application/xml")
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
         self.persistency_controller.create_checklist_task(checklistuid, taskuid)
 
     def get_checklist_mission(self, checklist_id, config_loader, *args, **kwargss):
-        mission_info = self.mission_controller.get_mission_info_object(config_loader)
+        mission_info = self.domain_controller.get_mission_info_object(config_loader)
         checklist_db_obj = self.persistency_controller.get_checklist(checklist_id)
         
         mission_uids = [checklist_task.PrimaryKey for checklist_task in checklist_db_obj.tasks]
