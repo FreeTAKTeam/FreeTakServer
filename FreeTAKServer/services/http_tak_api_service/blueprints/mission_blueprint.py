@@ -58,16 +58,6 @@ def get_mission_cots(mission_id):
     return """<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <events></events>""", 200
 
-@page.route('/Marti/api/missions/<mission_id>/changes', methods=['POST'])
-def get_mission_changes(mission_id):
-    return {
-        "version": "3",
-        "type": "MissionChange",
-        "data": [
-        ],
-        "nodeId": config.nodeID
-    }
-
 @page.route('/Marti/api/missions/<mission_id>/contents', methods=['PUT'])
 def add_mission_contents(mission_id: str):
     """add contents to a mission
@@ -76,7 +66,7 @@ def add_mission_contents(mission_id: str):
         mission_id (str): the id of the mission to add contents to
     """
     request_json = request.get_json() # type: ignore
-    return HTTPTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": request_json["hashes"], "uids": request_json["uids"]}, None, True).get_value("mission"), 200
+    return HTTPTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": request_json.get("hashes", []), "uids": request_json.get("uids", [])}, None, True).get_value("mission"), 200
 
 @page.route('/Marti/api/missions/logs/entries', methods=['POST'])
 def add_log_entry():
@@ -181,4 +171,14 @@ def create_external_mission_data(mission_id):
     """
     request_json = request.get_json() # type: ignore
     out_data = HTTPTakApiCommunicationController().make_request("CreateExternalMissionData", "mission", {"mission_id": mission_id, "mission_external_data": request_json}, None, True).get_value("external_data"), 200 # type: ignore
+    return out_data
+
+@page.route('/Marti/api/missions/<mission_id>/changes', methods=['GET'])
+def get_mission_changes(mission_id):
+    """get mission changes
+
+    Args:
+        mission_id (_type_): _description_
+    """
+    out_data = HTTPTakApiCommunicationController().make_request("GetMissionChanges", "mission", {"mission_id": mission_id}, None, True).get_value("mission_changes"), 200
     return out_data

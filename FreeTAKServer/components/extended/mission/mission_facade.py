@@ -1,3 +1,4 @@
+from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_hierarchy_controller import MissionHierarchyController
 from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
@@ -60,6 +61,7 @@ class Mission(DefaultFacade):
         self.logs_controller = MissionLogsController(request, response, sync_action_mapper, configuration)
         self.hierarchy_controller = MissionHierarchyController(request, response, sync_action_mapper, configuration)
         self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
+        self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -69,6 +71,7 @@ class Mission(DefaultFacade):
         self.logs_controller.initialize(request, response)
         self.hierarchy_controller.initialize(request, response)
         self.external_data_controller.initialize(request, response)
+        self.change_controller.initialize(request, response)
     
     def execute(self, method):
         try:
@@ -171,3 +174,7 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def add_mission_external_data(self, *args, **kwargs):
         self.external_data_controller.add_mission_external_data(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_mission_changes(self, *args, **kwargs):
+        self.change_controller.get_mission_changes(*args, **kwargs)

@@ -1,6 +1,7 @@
 import json
 from typing import List, Dict
 from FreeTAKServer.components.extended.excheck.domain.mission_data import MissionData
+from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
@@ -44,6 +45,7 @@ class MissionGeneralController(Controller):
         self.token_controller = MissionTokenController(request, response, sync_action_mapper, configuration)
         self.domain_controller = MissionDomainController(request, response, sync_action_mapper, configuration)
         self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
+        self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
@@ -51,7 +53,8 @@ class MissionGeneralController(Controller):
         self.token_controller.initialize(request, response)
         self.domain_controller.initialize(request, response)
         self.external_data_controller.initialize(request, response)
-
+        self.change_controller.initialize(request, response)
+        
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
         return self.response
@@ -111,6 +114,8 @@ class MissionGeneralController(Controller):
         serialized_mission_notification = self.serialize_to_xml(mission_notification_obj)
         
         self.response.set_value("message", serialized_mission_notification[0])
+
+        self.change_controller.create_mission_record(mission_id, creatorUid)
         # TODO: resolve these topics dynamically
         # tcp_cot_topic = f"/tcp_cot_service/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}//{self.response.}".encode()
         # ssl_cot_topic = f"/ssl_cot_service/XML/{self.response.get_sender()}/{self.response.get_context()}/{self.response.get_action()}/{self.response.get_id()}/".encode()
@@ -212,21 +217,20 @@ class MissionGeneralController(Controller):
         contents_metadata = self.execute_sub_action("GetMultipleEnterpriseSyncMetaData").get_value("objectmetadata")
         for metadata in contents_metadata:
             if metadata.hash != None:
-                try:
-                    content = self.persistency_controller.create_mission_content(mission_id, id=metadata.hash)
-                    self.persistency_controller.update_mission(mission_id, content=content)
-                except:
-                    self.persistency_controller.get_mission_content(id=metadata.hash)
+                content = self.persistency_controller.create_mission_content(mission_id, id=metadata.hash)
+                self.persistency_controller.update_mission(mission_id, content=content)
+                self.change_controller.create_mission_content_upload_record(mission_id, None, metadata.hash)
                 hashes.remove(metadata.hash)
                 
             elif metadata.PrimaryKey != None:
                 content = self.persistency_controller.create_mission_content(mission_id, id=metadata.PrimaryKey)
                 self.persistency_controller.update_mission(mission_id, content=content)
+                self.change_controller.create_mission_content_upload_record(mission_id, None, metadata.PrimaryKey)
                 uids.remove(metadata.PrimaryKey)
                 
         for uid in uids:
             self.persistency_controller.create_mission_cot(mission_id, uid=uid)
-        
+
         self.get_mission(mission_id, config_loader)
 
     def serialize_to_xml(self, message: Node):

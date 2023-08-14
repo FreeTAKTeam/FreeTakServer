@@ -61,7 +61,7 @@ class MissionLogsController(Controller):
             creatorUid=mission_log_data["creatorUid"], 
             servertime=get_current_datetime(), 
             created=get_current_datetime(), 
-            content=json.dumps(mission_log_data["contentHashes"]), 
+            content=json.dumps(mission_log_data.get("contentHashes", [])), 
             keywords=json.dumps(mission_log_data["keywords"]))
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
@@ -91,7 +91,7 @@ class MissionLogsController(Controller):
         logs = [mission_log.log for mission_log in logs]
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
+        serialized_collection = serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("logs", serialized_collection)
         return serialized_collection
@@ -112,7 +112,7 @@ class MissionLogsController(Controller):
                 keywords=json.dumps(mission_log_data.get("keywords")))
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
-        serialized_message = self.general_controller.serialize_to_json(completed_obj, self.request, self.execute_sub_action)
+        serialized_message = serialize_to_json(completed_obj, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_message)
         return serialized_message
@@ -157,7 +157,7 @@ class MissionLogsController(Controller):
         log_collection_obj = self.domain_controller.create_log_collection(config_loader)
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
+        serialized_collection = serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("logs", serialized_collection)
         return serialized_collection
@@ -167,7 +167,7 @@ class MissionLogsController(Controller):
         log_collection_obj = self.domain_controller.create_log_collection(config_loader)
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
+        serialized_collection = serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_collection)
         return serialized_collection

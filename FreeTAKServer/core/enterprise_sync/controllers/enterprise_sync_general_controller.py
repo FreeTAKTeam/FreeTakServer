@@ -9,6 +9,7 @@
 #######################################################
 import hashlib
 from typing import List, TYPE_CHECKING
+import uuid
 if TYPE_CHECKING:
     from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_keyword import EnterpriseSyncKeyword
     from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
@@ -117,13 +118,18 @@ class EnterpriseSyncGeneralController(Controller):
             objectdata = self.format_sync_controller.convert_newlines(objectdata)
         if objecthash == None:
             objecthash = str(hashlib.sha256(objectdata).hexdigest())
-
+        if objectuid == None:
+            objectuid = str(uuid.uuid4())
         if length == None:
             obj_length = len(objectdata)
         else:
             obj_length = length
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, objecthash, obj_length, objkeywords, mime_type, tool, file_name=file_name, logger=logger)
+        data_obj = self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, objecthash, obj_length, objkeywords, mime_type, tool, file_name=file_name, logger=logger)
+
+        self.response.set_value("objectmetadata", data_obj)
+
+        return data_obj
 
     def update_enterprise_sync_data(self, synctype: str, objecthash: str, objectuid: str, objectdata: str, logger, *args, **kwargs):
         """update enterprise sync data in the db and the file system
@@ -243,11 +249,11 @@ class EnterpriseSyncGeneralController(Controller):
         Returns:
             None
         """
-        object_metadata: EnterpriseSyncDataObject
+        object_metadata: EnterpriseSyncDataObject = None
         if objectuid != None:
             object_metadata: EnterpriseSyncDataObject = self.persistence_controller.get_enterprise_sync_data_object(logger, objectuid, None, )
         
-        elif objecthash != None:
+        if objecthash != None and object_metadata == None:
             object_metadata: EnterpriseSyncDataObject = self.persistence_controller.get_enterprise_sync_data_object(logger, None, objecthash)
             
         self.response.set_value("objectmetadata", object_metadata)

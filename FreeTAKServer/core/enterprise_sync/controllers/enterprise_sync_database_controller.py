@@ -54,7 +54,7 @@ class EnterpriseSyncDatabaseController(Controller):
             logger.error("error thrown updating enterprise sync obj: %s err: %s", objectuid, ex)
             db_controller.session.rollback()
 
-    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash, obj_length, obj_keywords, mime_type, tool, file_name, logger, private=0, obj_start_time=None, *args, **kwargs):
+    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash, obj_length, obj_keywords, mime_type, tool, file_name, logger, private=0, obj_start_time=None, *args, **kwargs) -> EnterpriseSyncDataObject:
         """create an enterprise sync data object instance and save it to the database
         with sqlalachemy
 
@@ -84,7 +84,11 @@ class EnterpriseSyncDatabaseController(Controller):
                 db_controller.session.add(keyword_obj)
 
             db_controller.session.add(data_obj)
+            db_controller.session.expire_on_commit = False
             db_controller.session.commit()
+            db_controller.session.expunge(data_obj)
+            db_controller.session.expire_on_commit = True
+            return data_obj
         except Exception as ex:
             logger.error("error thrown creating enterprise sync obj: %s err: %s", objectuid, ex)
             db_controller.session.rollback()
@@ -98,9 +102,10 @@ class EnterpriseSyncDatabaseController(Controller):
         """
         try:
             db_controller = DatabaseController()
+            data_obj = None
             if object_uid != None:
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == object_uid).first()
-            elif object_hash != None:
+            if object_hash != None and data_obj == None:
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == object_hash).first()
             else:
                 raise Exception("no object uid or hash provided")

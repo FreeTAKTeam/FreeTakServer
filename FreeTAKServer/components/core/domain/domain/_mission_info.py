@@ -4,6 +4,7 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 from ._mission_data import MissionData
 from ._mission_log import MissionLog
 from ._mission_subscription import MissionSubscription
+from ._mission_change_record import MissionChangeRecord
 
 class MissionInfo(CoTNode):
     def __init__(self, configuration, model, oid=None):
@@ -39,20 +40,23 @@ class MissionInfo(CoTNode):
 
     @CoTProperty
     def data(self) -> List[MissionData | MissionSubscription | MissionLog | str]:
-        children: List[MissionData | MissionSubscription | MissionLog] = self.get_children_ex(children_type="MissionData")
+        children: List[MissionData | MissionSubscription | MissionLog | MissionChangeRecord] = self.get_children_ex(children_type="MissionData")
         children.extend(self.get_children_ex(children_type="MissionSubscription"))
         children.extend(self.get_children_ex(children_type="MissionLog"))
+        children.extend(self.get_children_ex(children_type="MissionChangeRecord"))
         if len(children) == 0:
             return self.cot_attributes.get("data", None)
         return children
         
     @data.setter
-    def data(self, data: MissionData | MissionSubscription | MissionLog | str):
+    def data(self, data: MissionData | MissionSubscription | MissionLog | MissionChangeRecord | str):
         if isinstance(data, MissionData):
             self.add_child(data)
         elif isinstance(data, MissionSubscription):
             self.add_child(data)
-        elif isinstance(data, MissionLog):  
+        elif isinstance(data, MissionLog):
+            self.add_child(data)
+        elif isinstance(data, MissionChangeRecord):
             self.add_child(data)
         elif isinstance(data, str):
             self.cot_attributes["data"].append(data)

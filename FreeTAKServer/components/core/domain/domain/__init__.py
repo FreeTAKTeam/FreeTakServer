@@ -22,3 +22,4 @@ from ._mission_log import MissionLog as MissionLog
 from ._mission_role import MissionRole as MissionRole
 from ._mission_subscription import MissionSubscription as MissionSubscription
 from ._mission_data import MissionData as MissionData
+from ._mission_change_record import MissionChangeRecord as MissionChangeRecord

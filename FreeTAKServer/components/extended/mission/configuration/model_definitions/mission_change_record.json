@@ -1,0 +1,38 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://iec.ch/TC57/mission_collection#",
+	"type": "object",
+	"properties":
+	{
+		"mission_change_record":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/MissionContent" },
+				{ "$ref": "#/definitions/MissionChangeRecord" }
+			]
+		}
+	},
+	"definitions":
+	{
+        "MissionChangeRecord" :
+        {
+            "type": "object",
+            "description" : "",
+            "properties":
+            {
+                "contentResource":
+                {
+					"$ref" : "#/definitions/MissionContentData",
+					"minItems" : 0,
+					"maxItems" : 1
+				}
+            }
+        },
+        "MissionContentData":
+        {
+            "type": "object"
+        }
+	}
+}

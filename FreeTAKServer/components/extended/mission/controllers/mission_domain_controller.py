@@ -24,7 +24,9 @@ from FreeTAKServer.components.core.domain.domain import MissionInfo
 from FreeTAKServer.components.core.domain.domain import MissionData
 from FreeTAKServer.components.core.domain.domain import MissionExternalData
 from FreeTAKServer.components.core.domain.domain import MissionRole
-from FreeTAKServer.components.core.domain.domain import MissionContentData 
+from FreeTAKServer.components.core.domain.domain import MissionContentData
+from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
+from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
 from FreeTAKServer.components.core.domain.domain import MissionContent
 from FreeTAKServer.components.core.domain.domain import mission as DomainMissionCot
 
@@ -45,7 +47,9 @@ from ..configuration.mission_constants import (
     MISSION_NOTIFICATION,
     MISSION_COLLECTION,
     MISSION_SUBSCRIPTION_LIST,
-    MISSION_SUBSCRIPTION_SIMPLE_LIST
+    MISSION_SUBSCRIPTION_SIMPLE_LIST,
+    MISSION_CHANGE_RECORD,
+    MISSION_CONTENT_DATA
 )
 
 config = MainConfig.instance()
@@ -62,6 +66,23 @@ class MissionDomainController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
     
+    def create_mission_change_record(self, config_loader, *args, **kwargs) -> MissionChangeRecord:
+        """create a new mission change record"""
+        self.request.set_value("object_class_name", "MissionChangeRecord")
+
+        configuration = config_loader.find_configuration(MISSION_CHANGE_RECORD)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
+        return response.get_value("model_object")
+
     def create_mission_collection(self, config_loader, *args, **kwargs) -> MissionInfo:
         """create a new empty mission collection"""
         self.request.set_value("object_class_name", "MissionInfo")
@@ -180,26 +201,30 @@ class MissionDomainController(Controller):
         
         enterprise_sync_db: 'EnterpriseSyncDataObject' = self.execute_sub_action("GetEnterpriseSyncMetaData").get_value("objectmetadata")
         
-        mission_content_domain.timestamp = enterprise_sync_db.start_time
+        mission_content_domain.timestamp = get_dtg(enterprise_sync_db.start_time)
         mission_content_domain.creatorUid = enterprise_sync_db.creator_uid
         
-        mission_content_domain.data.uid = enterprise_sync_db.PrimaryKey
-        mission_content_domain.data.hash = enterprise_sync_db.hash
-        mission_content_domain.data.name = enterprise_sync_db.file_name
-        mission_content_domain.data.mimeType = enterprise_sync_db.mime_type
-        mission_content_domain.data.size = enterprise_sync_db.length
-        mission_content_domain.data.tool = enterprise_sync_db.tool
-        mission_content_domain.data.submitter = enterprise_sync_db.submitter
+        self.complete_mission_content_data(mission_content_domain.data, enterprise_sync_db)
+
+        return mission_content_domain
+
+    def complete_mission_content_data(self, mission_content_data_domain: MissionContentData, mission_content_db: 'EnterpriseSyncDataObject') -> MissionContentData:
+        mission_content_data_domain.uid = mission_content_db.PrimaryKey
+        mission_content_data_domain.hash = mission_content_db.hash
+        mission_content_data_domain.name = mission_content_db.file_name
+        mission_content_data_domain.mimeType = mission_content_db.mime_type
+        mission_content_data_domain.size = mission_content_db.length
+        mission_content_data_domain.tool = mission_content_db.tool
+        mission_content_data_domain.submitter = mission_content_db.submitter
         
         keywords = []
-        for keyword in enterprise_sync_db.keywords:
+        for keyword in mission_content_db.keywords:
             keywords.append(keyword.keyword)
             
-        mission_content_domain.data.keywords = keywords
-        mission_content_domain.data.expiration = enterprise_sync_db.expiration
-        
-        return mission_content_domain
-    
+        mission_content_data_domain.keywords = keywords
+        mission_content_data_domain.expiration = mission_content_db.expiration
+        return mission_content_data_domain
+
     def complete_mission_creation_notification(self, mission_notification: Event, mission: MissionData, *args, **kwargs) -> Event:
         """complete a mission creation notification object based on a mission domain object
 
@@ -309,6 +334,27 @@ class MissionDomainController(Controller):
         self.request.set_value("configuration", configuration)
 
         self.request.set_value("extended_domain", {"MissionContent": MissionContent, "MissionContentData": MissionContentData})
+
+        self.request.set_value(
+            "source_format", self.request.get_value("source_format")
+        )
+        self.request.set_value("target_format", "node")
+
+        response = self.execute_sub_action("CreateNode")
+
+        model_object = response.get_value("model_object")
+
+        return model_object
+    
+    def create_mission_content_data(self, config_loader, *args, **kwargs) -> MissionContentData:
+        """return the domain object used a content entry in a mission"""
+        self.request.set_value("object_class_name", "MissionContentData")
+
+        configuration = config_loader.find_configuration(MISSION_CONTENT_DATA)
+
+        self.request.set_value("configuration", configuration)
+
+        self.request.set_value("extended_domain", {"MissionContentData": MissionContentData})
 
         self.request.set_value(
             "source_format", self.request.get_value("source_format")

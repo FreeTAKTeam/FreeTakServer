@@ -105,3 +105,7 @@ MISSION_SUBSCRIPTION_SIMPLE_LIST = "mission_subscription_simple_list"
 MISSION_EXTERNAL_DATA = "mission_external_data"
 
 MISSION_EXTERNAL_DATA_COLLECTION = "mission_external_data"
+
+MISSION_CHANGE_RECORD = "mission_change_record"
+
+MISSION_CONTENT_DATA = "mission_content_data"

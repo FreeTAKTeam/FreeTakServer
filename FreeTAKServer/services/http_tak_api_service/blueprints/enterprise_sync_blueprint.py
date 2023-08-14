@@ -15,6 +15,7 @@ from FreeTAKServer.core.services.DataPackageServer import USINGSSL
 from FreeTAKServer.services.http_tak_api_service.controllers.http_tak_api_communication_controller import HTTPTakApiCommunicationController
 from werkzeug.utils import secure_filename
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
+from FreeTAKServer.core.util.time_utils import get_dtg
 
 page = Blueprint('enterprise_sync', __name__)
 config = MainConfig.instance()
@@ -22,7 +23,22 @@ config = MainConfig.instance()
 @page.route('/Marti/sync/upload', methods=["POST"])
 def enterprise_sync_upload_alt():
     """a new endpoint used by the enterprise sync tool to upload files"""
-    return HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "", { "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid], "objstarttime": ""}, True).get_value("objectid"), 200 # type: ignore
+    filename = request.args.get("filename")
+    creatorUid = request.args.get("creatorUid")
+    tool = request.args.get("tool", "public")
+    if not request.data:
+        data = request.files.getlist('assetfile')[0].stream.read()
+    else:
+        data = request.data
+    metadata: EnterpriseSyncDataObject = HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": request.args.get('hash'), "tool": tool, "objectdata": data, "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "synctype": "content", "mime_type": request.headers["Content-Type"]}).get_value("objectmetadata") # type: ignore
+    return {
+        "UID": metadata.id,
+        "SubmissionDateTime": get_dtg(metadata.start_time),
+        "MIMEType": metadata.mime_type,
+        "SubmissionUser": metadata.submitter,
+        "PrimaryKey": metadata.PrimaryKey,
+        "Hash": metadata.hash,
+    }
 
 @page.route('/Marti/sync/search', methods=["GET"])
 def retrieveData():
@@ -60,7 +76,8 @@ def enterprise_sync_head():
 def enterprise_sync_upload():
     filename = request.args.get("filename")
     creatorUid = request.args.get("creatorUid")
-    return HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", None, {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid], "objstarttime": ""}, True).get_value("objectid"), 200 # type: ignore
+    tool = request.args.get("tool", "public")
+    return HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", None, {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "tool": tool}, True).get_value("objectid"), 200 # type: ignore
 
 @page.route('/Marti/sync/content', methods=["GET"])
 def specificPackage():
@@ -84,7 +101,8 @@ def upload():
     uid = 'uid-' + str(uid)
     filename = secure_filename(request.args.get('filename')) # type: ignore
     creatorUid = request.args.get('creatorUid') # type: ignore
-    HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0].stream._file.getvalue(), "objkeywords": [filename, creatorUid], "objstarttime": "", "synctype": "content", "tool": "enterprise_sync", "mime_type": request.files.getlist('assetfile')[0].headers["Content-Type"]}).get_value("objectid"), 200 # type: ignore
+    tool: str = request.args.get('tool', "public") # type: ignore
+    HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": request.args.get('hash'), "tool": tool, "objectdata": request.files.getlist('assetfile')[0].stream.read(), "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "synctype": "content", "mime_type": request.files.getlist('assetfile')[0].headers["Content-Type"]}).get_value("objectid"), 200 # type: ignore
     return "http://" + config.DataPackageServiceDefaultIP + ':' + str(config.HTTPTakAPIPort) + "/Marti/api/sync/metadata/" + file_hash + "/tool"
 
 @page.route('/Marti/sync/missionquery', methods=["GET"])

@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
 from FreeTAKServer.components.extended.mission.persistence.log import Log
+from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 
 from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
@@ -25,7 +26,11 @@ from ..persistence.mission_log import MissionLog
 from ..persistence.log import Log
 from ..persistence.mission import Mission
 from ..persistence.mission_to_mission import MissionToMission
+from ..persistence.mission_content import MissionContent
+from ..persistence.mission_cot import MissionCoT
+from ..persistence.mission_change import MissionChange
 from ..persistence import MissionBase
+
 from ..configuration.mission_constants import PERSISTENCE_PATH, DB_PATH, PERMISSIONS
 
 class MissionPersistenceController(Controller):
@@ -496,3 +501,14 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
+    def create_mission_change(self, type, content_uid, creator_uid, mission_uid, content_resource_uid, cot_detail_uid) -> MissionChange:
+        change = MissionChange()
+        change.type = type
+        change.content_uid = content_uid
+        change.creator_uid = creator_uid
+        change.mission = self.get_mission(mission_uid)
+        change.content_resource = self.get_mission_content(content_resource_uid)
+        # change.cot_detail = self.get_mission_cot(cot_detail_uid)
+        self.ses.add(change)
+        self.ses.commit()
+        return change
