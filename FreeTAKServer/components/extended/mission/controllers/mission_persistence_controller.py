@@ -145,7 +145,7 @@ class MissionPersistenceController(Controller):
             subscription = Subscription()
             if subscription_id:
                 subscription.PrimaryKey = subscription_id
-            subscription.mission_uid = mission_id
+            subscription.mission_uid = mission_id.lower()
             subscription.token = token
             subscription.clientUid = client_uid
             subscription.role = role
@@ -207,7 +207,7 @@ class MissionPersistenceController(Controller):
             mission_item = MissionItem()
             mission_item.PrimaryKey = mission_item_id
             mission_item.MissionItemData = mission_item_data
-            mission_item.mission_uid = mission_id
+            mission_item.mission_uid = mission_id.lower()
             self.ses.add(mission_item)
             self.ses.commit()
         except Exception as ex:
@@ -226,7 +226,7 @@ class MissionPersistenceController(Controller):
     def create_mission_content(self, mission_id: str, id: str) -> MissionContent:
         try:
             mission_content = MissionContent()
-            mission_content.mission_uid = mission_id
+            mission_content.mission_uid = mission_id.lower()
             mission_content.PrimaryKey = id
             self.ses.add(mission_content)
             self.ses.commit()
@@ -242,13 +242,13 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
 
-    def create_mission(self, mission_id, name, description, uids, contents, createTime, passwordProtected, groups, defaultRole, serviceUri, classification, *args, **kwargs):
+    def create_mission(self, mission_id: str, name, description, uids, contents, createTime, passwordProtected, groups, defaultRole, serviceUri, classification, tool, *args, **kwargs):
         """this method is used to create a new mission, save it to the database and return the mission information
         to the client in json format, it uses the mission persistence controller to access the database.
         """
         try:
             mission = Mission()
-            mission.PrimaryKey = mission_id
+            mission.PrimaryKey = mission_id.lower()
             mission.name = name
             mission.description = description
             #mission.uids = uids
@@ -258,6 +258,7 @@ class MissionPersistenceController(Controller):
             mission.defaultRole = defaultRole
             mission.serviceUri = serviceUri
             mission.classification = classification
+            mission.tool = tool
             self.ses.add(mission)
             self.ses.commit()
             return mission
@@ -269,7 +270,7 @@ class MissionPersistenceController(Controller):
         """this method is used to get a mission from the database and return it to the client in json format.
         """
         try:
-            mission: Mission = self.ses.query(Mission).filter(Mission.PrimaryKey == mission_id).first() # type: ignore
+            mission: Mission = self.ses.query(Mission).filter(Mission.PrimaryKey == mission_id.lower()).first() # type: ignore
             return mission
         except Exception as ex:
             raise ex
@@ -310,7 +311,7 @@ class MissionPersistenceController(Controller):
         
     def update_mission(self, mission_id: str, content: MissionContent = None, cot: MissionCoT = None, *args, **kwargs): #type: ignore
         try:
-            mission: Mission = self.get_mission(mission_id)
+            mission: Mission = self.get_mission(mission_id.lower())
             
             if content != None:
                 mission.contents.append(content)
@@ -353,7 +354,7 @@ class MissionPersistenceController(Controller):
         try:
             mission_cot = MissionCoT()
             mission_cot.uid = uid
-            mission_cot.mission_uid = mission_id
+            mission_cot.mission_uid = mission_id.lower()
             self.ses.add(mission_cot)
             self.ses.commit()
             return mission_cot
@@ -372,7 +373,7 @@ class MissionPersistenceController(Controller):
         """get all mission logs since a specific time"""
         try:
             
-            mission_logs = self.ses.query(MissionLog).join(Log, MissionLog.log_id == Log.id).filter(MissionLog.mission_uid == mission_id).filter(Log.created >= start).filter(Log.created <= end).all()
+            mission_logs = self.ses.query(MissionLog).join(Log, MissionLog.log_id == Log.id).filter(MissionLog.mission_uid == mission_id.lower()).filter(Log.created >= start).filter(Log.created <= end).all()
             return mission_logs
         except Exception as ex:
             raise ex
@@ -384,7 +385,7 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
-    def create_log(self, uid, mission_ids, content, dtg, servertime, creatorUid, created, keywords, id) -> Log:
+    def create_log(self, uid, mission_ids, content, dtg, servertime, creatorUid, created, keywords, id, contentHashes) -> Log:
         try:
             log = Log()
             log.id = id
@@ -395,7 +396,8 @@ class MissionPersistenceController(Controller):
             log.dtg = dtg
             log.created = created
             log.keywords = keywords
-            
+            log.contentHashes = contentHashes
+
             for mission_id in mission_ids:
                 mission = self.get_mission(mission_id)
                 mission_log = MissionLog()

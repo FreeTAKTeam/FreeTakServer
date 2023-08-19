@@ -55,13 +55,14 @@ class MissionLogsController(Controller):
     def add_mission_log(self, mission_log_data: Dict, config_loader, *args, **kwargs):
         log_db_obj = self.persistency_controller.create_log(
             id = str(uuid4()),
-            uid = mission_log_data["entryUid"], 
+            uid = mission_log_data.get("entryUid", str(uuid4())), 
             mission_ids=mission_log_data["missionNames"], 
             dtg=get_datetime_from_dtg(mission_log_data["dtg"]), 
             creatorUid=mission_log_data["creatorUid"], 
             servertime=get_current_datetime(), 
             created=get_current_datetime(), 
-            content=json.dumps(mission_log_data.get("contentHashes", [])), 
+            contentHashes=json.dumps(mission_log_data.get("contentHashes", [])), 
+            content = mission_log_data.get("content", ""),
             keywords=json.dumps(mission_log_data["keywords"]))
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
@@ -108,8 +109,8 @@ class MissionLogsController(Controller):
                 mission_ids=mission_log_data.get("missionNames"), 
                 dtg=dtg, 
                 creatorUid=mission_log_data.get("creatorUid"), 
-                content=json.dumps(mission_log_data.get("contentHashes")), 
-                keywords=json.dumps(mission_log_data.get("keywords")))
+                content=json.dumps(mission_log_data.get("contentHashes", [])), 
+                keywords=json.dumps(mission_log_data.get("keywords", [])))
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
         serialized_message = serialize_to_json(completed_obj, self.request, self.execute_sub_action)
@@ -125,7 +126,8 @@ class MissionLogsController(Controller):
         mission_log_domain_obj.creatorUid = log_db_obj.creatorUid
         mission_log_domain_obj.servertime = get_dtg(log_db_obj.servertime)
         mission_log_domain_obj.created = get_dtg(log_db_obj.created)
-        mission_log_domain_obj.contentHashes = json.loads(log_db_obj.content)
+        mission_log_domain_obj.contentHashes = json.loads(log_db_obj.contentHashes)
+        mission_log_domain_obj.content = log_db_obj.content
         mission_log_domain_obj.keywords = json.loads(log_db_obj.keywords)
         mission_log_domain_obj.id = log_db_obj.id
 
