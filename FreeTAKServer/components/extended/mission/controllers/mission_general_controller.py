@@ -186,7 +186,7 @@ class MissionGeneralController(Controller):
         Args:
             config_loader (_type_): passed from the facade
         """
-        missions = self.persistency_controller.get_all_missions()
+        missions = self.persistency_controller.get_all_public_missions()
         mission_collection = self.domain_controller.create_mission_collection(config_loader)
         for mission in missions:
             mission_record_domain: 'MissionData' = self.domain_controller.create_mission_record_object(config_loader)

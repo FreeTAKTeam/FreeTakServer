@@ -330,6 +330,12 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
+    def get_all_public_missions(self, *args, **kwargs) -> List[Mission]:
+        try:
+            return self.ses.query(Mission).filter(Mission.tool=="public").all()
+        except Exception as ex:
+            raise ex
+
     def create_mission_log(self, id, content, creatorUid, entryUid, mission, servertime, dtg, created, contentHashes, keywords, *args, **kwargs):
         """create a mission log record in the database"""
         try:
