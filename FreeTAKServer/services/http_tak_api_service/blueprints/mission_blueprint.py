@@ -43,7 +43,7 @@ def get_groups():
 def put_mission(mission_id):
     from flask import request
     out_data = HTTPTakApiCommunicationController().make_request("PutMission", "mission", {"mission_id": mission_id, "mission_data": request.data, "mission_data_args": request.args, "creatorUid": request.args.get("creatorUid")}, None, True).get_value("mission_subscription"), 200 # type: ignore
-    HTTPTakApiCommunicationController().make_request("MissionCreatedNotification", "mission", {"mission_id": mission_id}, synchronous= False)
+    HTTPTakApiCommunicationController().make_request("MissionCreatedNotification", "mission", {"mission_id": mission_id}, None, synchronous= False)
     print(out_data)
     return out_data
 
@@ -124,21 +124,28 @@ def get_mission_subscriptions(mission_id):
 
 @page.route('/Marti/api/missions/<mission_id>/subscription', methods=['PUT'])
 def add_mission_subscription(mission_id):
-    uid = request.args.get("uid") # type: ignore
-    topic = request.args.get("topic") # type: ignore
-    password = request.args.get("password") # type: ignore
-    secago = request.args.get("secago") # type: ignore
-    start = request.args.get("start") # type: ignore
-    end = request.args.get("end") # type: ignore
-    return HTTPTakApiCommunicationController().make_request("AddMissionSubscription", "mission", {"mission_id": mission_id, 
-                                                                                                  "client": uid, 
-                                                                                                  "topic": topic, 
-                                                                                                  "password": password, 
-                                                                                                  "secago": secago,
-                                                                                                  "start": start,
-                                                                                                  "end": end},
-                                                            None, True).get_value("mission_subscription"), 201
-
+    try:
+        uid = request.args.get("uid") # type: ignore
+        topic = request.args.get("topic") # type: ignore
+        password = request.args.get("password") # type: ignore
+        secago = request.args.get("secago") # type: ignore
+        start = request.args.get("start") # type: ignore
+        end = request.args.get("end") # type: ignore
+        mission_subscription_data = HTTPTakApiCommunicationController().make_request("AddMissionSubscription", "mission", {"mission_id": mission_id, 
+                                                                                                    "client": uid, 
+                                                                                                    "topic": topic, 
+                                                                                                    "password": password, 
+                                                                                                    "secago": secago,
+                                                                                                    "start": start,
+                                                                                                    "end": end},
+                                                                None, True).get_value("mission_subscription")
+        if mission_subscription_data is not None:
+            return mission_subscription_data, 201
+        else:
+            return '', 404
+    except Exception as e:
+        print(e)
+        return '', 500
 @page.route('/Marti/api/missions/<mission_id>/subscription', methods=['DELETE'])
 def delete_mission_subscription(mission_id):
     uid = request.args.get("uid") # type: ignore

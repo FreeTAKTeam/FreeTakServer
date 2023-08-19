@@ -93,18 +93,21 @@ class MissionSubscriptionController(Controller):
         """
         mission_db_obj = self.persistency_controller.get_mission(mission_id)
         
-        token = self.token_controller.get_token(mission_db_obj)
-        
-        subscription_db_obj = self.persistency_controller.create_subscription(None, str(mission_id), token, client, mission_db_obj.defaultRole)
-        
-        domain_subscription = self.domain_controller.create_mission_subscription(config_loader)
-        
-        completed_subscription = self.complete_mission_subscription(domain_subscription, subscription_db_obj, config_loader)
+        if mission_db_obj is not None:
+            token = self.token_controller.get_token(mission_db_obj)
             
-        serialized_object = serialize_to_json(completed_subscription, self.request, self.execute_sub_action)
-        
-        self.response.set_value("mission_subscription", serialized_object)
-        
+            subscription_db_obj = self.persistency_controller.create_subscription(None, str(mission_id), token, client, mission_db_obj.defaultRole)
+            
+            domain_subscription = self.domain_controller.create_mission_subscription(config_loader)
+            
+            completed_subscription = self.complete_mission_subscription(domain_subscription, subscription_db_obj, config_loader)
+                
+            serialized_object = serialize_to_json(completed_subscription, self.request, self.execute_sub_action)
+            
+            self.response.set_value("mission_subscription", serialized_object)
+        else:
+            self.response.set_value("mission_subscription", None)
+            
         return serialized_object
             
     def delete_mission_subscription(self, mission_id: str, client: str, topic:str, disconnect_only:str, config_loader, *args, **kwargs):
