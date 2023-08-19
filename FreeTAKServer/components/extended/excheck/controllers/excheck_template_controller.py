@@ -62,7 +62,7 @@ class ExCheckTemplateController(Controller):
         self.request.set_value("mission_id", "exchecktemplates")
         self.request.set_value("mission_data", b"")
         self.request.set_value("mission_data_args",  {
-            'defaultRole': "Owner",
+            'defaultRole': "MISSION_OWNER",
             'tool': "ExCheck",
             'downloaded': False,
             'connected': True,
