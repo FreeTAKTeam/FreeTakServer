@@ -74,12 +74,12 @@ class ExCheckTemplateController(Controller):
             'createTime': get_current_dtg(),
             'passwordProtected': False,
             'groups': [],
-            'serviceUri': '',
-            'classification': 'UNCLASSIFIED'})
+            'serviceUri': ''})
         self.request.set_value("creatorUid", "ExCheck")
+        self.request.set_context("mission")
         self.execute_sub_action("PutMission")
 
-    def create_template(self, templatedata: str, *args, **kwargs):
+    def create_template(self, templatedata: str, creator_uid:str, *args, **kwargs):
         """record a new template in the component
 
         Args:
@@ -108,12 +108,19 @@ class ExCheckTemplateController(Controller):
                                                 parsed_template.find("checklistDetails").find("description").text,
                                                 parsed_template.find("checklistDetails").find("creatorCallsign").text])
         self.request.set_value("tool", "ExCheck")
+        self.request.set_value("creator_uid", creator_uid)
         self.request.set_value("mime_type", "application/xml")        
         self.request.set_value("objstarttime", self.get_time())
 
-        self.execute_sub_action("SaveEnterpriseSyncData")
+        save_metadata = self.execute_sub_action("SaveEnterpriseSyncData").get_value("objectmetadata")
 
+        self.request.set_value("mission_id", "exchecktemplates")
 
+        self.request.set_value("hashes", [save_metadata.hash])
+
+        self.request.set_context("mission")
+
+        self.execute_sub_action("AddMissionContents")
 
     def get_template(self, templateuid: str, config_loader, *args, **kwargs) -> str:
         """get the contents of a template based on its UID

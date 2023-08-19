@@ -275,7 +275,7 @@ def check_changes():
         print('exception in check changes' + str(e))
 
 
-
+"""
 @app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
     try:
@@ -299,7 +299,7 @@ def ExCheckTemplatesAlt():
     except Exception as ex:
         print(ex)
         return '', 500
-
+"""
 @app.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
     try:

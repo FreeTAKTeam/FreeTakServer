@@ -10,7 +10,7 @@ from FreeTAKServer.components.core.domain.domain import mission
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
 from FreeTAKServer.core.domain.node import Node
 from FreeTAKServer.core.util.serialization_utils import serialize_to_json
-from FreeTAKServer.core.util.time_utils import get_datetime_from_dtg
+from FreeTAKServer.core.util.time_utils import get_datetime_from_dtg, get_current_datetime
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -75,8 +75,14 @@ class MissionGeneralController(Controller):
         else:
             default_mission_role = self.persistency_controller.get_role(initial_mission_data.get('defaultRole'))
 
+        if initial_mission_data.get('createTime', None) == None:
+            create_time = get_current_datetime()
+        else:
+            create_time = get_datetime_from_dtg(str(initial_mission_data.get('createTime')))
+
         mission_db_obj = self.persistency_controller.create_mission(
             str(mission_id),
+            tool=str(initial_mission_data.get('tool', 'public')),
             downloaded=str(initial_mission_data.get('downloaded')),
             connected=str(initial_mission_data.get('connected')),
             isSubscribed=str(initial_mission_data.get('isSubscribed')),
@@ -85,7 +91,7 @@ class MissionGeneralController(Controller):
             description=str(initial_mission_data.get('description')),
             uids= str(initial_mission_data.get('uids')),
             contents=str(initial_mission_data.get('contents')),
-            createTime=get_datetime_from_dtg(str(initial_mission_data.get('createTime'))),
+            createTime=create_time,
             passwordProtected=str(initial_mission_data.get('passwordProtected')),
             groups=str(initial_mission_data.get('groups')),
             defaultRole=default_mission_role,
@@ -105,7 +111,7 @@ class MissionGeneralController(Controller):
 
         mission_collection_obj = self.domain_controller.add_mission_to_collection(mission_collection_obj, mission_subscription_obj)
 
-        mission_notification_obj = self.domain_controller.create_mission_creation_notification(config_loader)
+        mission_notification_obj = self.domain_controller.create_mission_notification(config_loader)
         mission_notification_obj = self.domain_controller.complete_mission_creation_notification(mission_notification_obj, mission_subscription_obj)
         
         final_message = serialize_to_json(mission_collection_obj, self.request, self.execute_sub_action)

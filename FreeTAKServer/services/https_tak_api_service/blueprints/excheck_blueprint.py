@@ -49,7 +49,7 @@ def startList(subscription):
 @page.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
     try:
-        HTTPSTakApiCommunicationController().make_request("CreateTemplate", "excheck", {"templatedata": request.data}, None, False)
+        HTTPSTakApiCommunicationController().make_request("CreateTemplate", "excheck", {"templatedata": request.data, "creator_uid": request.args.get("creatorUid", "")}, None, False)
         return "done", 200
     except Exception as ex:
         print(ex)
@@ -63,7 +63,7 @@ def get_template(templateUid):
         print(ex)
         return '', 500
 
-@page.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
+"""@page.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
 @page.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
     try:
@@ -72,7 +72,7 @@ def ExCheckTemplates():
     except Exception as ex:
         print(ex)
         return '', 500
-    
+""" 
 def get_checklist_mission(mission_id):
     return HTTPSTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}, None, True).get_value("mission_info")
 

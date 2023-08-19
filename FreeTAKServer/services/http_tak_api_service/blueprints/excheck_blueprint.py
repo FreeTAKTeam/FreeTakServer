@@ -41,7 +41,7 @@ def accesschecklist(checklistid):
 @page.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
     try:
-        return HTTPTakApiCommunicationController().make_request("StartChecklist", "excheck", {"templateuid":subscription, "checklistname":request.args.get("name"), "checklist_description":request.args.get("description")}, False)
+        return HTTPTakApiCommunicationController().make_request("StartChecklist", "excheck", {"templateuid":subscription, "client_uid":request.args.get("clientUid"), "callsign":request.args.get("callsign"), "checklistname":request.args.get("name"), "checklist_description":request.args.get("description")}, None, True).get_value("checklist_task_data"), 200
     except Exception as ex:
         print(ex)
         return '', 500
@@ -53,7 +53,7 @@ def template():
     except Exception as ex:
         print(ex)
         return '', 500
-
+"""
 @page.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
 @page.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
@@ -63,7 +63,7 @@ def ExCheckTemplates():
     except Exception as ex:
         print(ex)
         return '', 500
-
+"""
     
 @page.route('/Marti/api/excheck/template/<templateUid>', methods=['GET'])
 def get_template(templateUid):

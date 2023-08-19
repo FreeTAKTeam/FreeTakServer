@@ -1,3 +1,4 @@
+from uuid import uuid4
 from flask import Blueprint, request
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.services.https_tak_api_service.controllers.https_tak_api_communication_controller import HTTPSTakApiCommunicationController
@@ -42,6 +43,7 @@ def get_groups():
 def put_mission(mission_id):
     from flask import request
     out_data = HTTPSTakApiCommunicationController().make_request("PutMission", "mission", {"mission_id": mission_id, "mission_data": request.data, "mission_data_args": request.args, "creatorUid": request.args.get("creatorUid")}, None, True).get_value("mission_subscription"), 200 # type: ignore
+    HTTPSTakApiCommunicationController().make_request("MissionCreatedNotification", "mission", {"mission_id": mission_id}, None, True)
     print(out_data)
     return out_data
 
@@ -183,3 +185,29 @@ def get_mission_changes(mission_id):
     """
     out_data = HTTPSTakApiCommunicationController().make_request("GetMissionChanges", "mission", {"mission_id": mission_id}, None, True).get_value("mission_changes"), 200
     return out_data
+
+@page.route('/Marti/api/missions/<mission_id>/contents/missionpackage', methods=["PUT"])
+def add_mission_content_direct(mission_id):
+    filename = request.args.get("filename")
+    creatorUid = request.args.get("creatorUid")
+    tool = request.args.get("tool", "public")
+    if not request.data:
+        data = request.files.getlist('assetfile')[0].stream.read()
+    else:
+        data = request.data
+
+    if request.args.get("hash", None) == None:
+        id = str(uuid4())
+    else:
+        id = request.args.get("hash")
+    
+    metadata = HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": id, "tool": tool, "objectdata": data, "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "synctype": "content", "mime_type": request.headers["Content-Type"]}).get_value("objectmetadata") # type: ignore
+
+    HTTPSTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": [metadata.hash], "uids": []}, None, True).get_value("mission"),200
+    
+    return {
+        "version": "3",
+        "type": "MissionChange",
+        "data": [],
+        "nodeId": config.nodeID
+    }
