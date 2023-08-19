@@ -49,7 +49,8 @@ from ..configuration.mission_constants import (
     MISSION_SUBSCRIPTION_LIST,
     MISSION_SUBSCRIPTION_SIMPLE_LIST,
     MISSION_CHANGE_RECORD,
-    MISSION_CONTENT_DATA
+    MISSION_CONTENT_DATA,
+    MISSION_CONTENT_NOTIFICATION
 )
 
 config = MainConfig.instance()
@@ -89,22 +90,13 @@ class MissionDomainController(Controller):
         
         configuration = config_loader.find_configuration(MISSION_COLLECTION)
         
-        self.request.set_value("configuration", configuration)
+        mission_collection: MissionInfo = self.create_model_object(configuration)
 
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        mission_collection: MissionInfo = response.get_value("model_object")
-        
         mission_collection.version = "3"
         mission_collection.type = "Mission"
         mission_collection.nodeId = config.nodeID
         
-        return response.get_value("model_object")
+        return mission_collection
     
     def add_mission_to_collection(self, mission_collection:MissionInfo, mission_record:MissionData, *args, **kwargs) -> MissionData:
         """add a mission record to a mission collection"""
@@ -117,18 +109,14 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_RECORD)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionContent": MissionContent, "MissionContentData": MissionContentData, "MissionExternalData": MissionExternalData, "MissionRole": MissionRole})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
+        return self.create_model_object(configuration, extended_domain=
+                                        {
+                                            "MissionData": MissionData,
+                                            "MissionContent": MissionContent, 
+                                            "MissionContentData": MissionContentData, 
+                                            "MissionExternalData": MissionExternalData, 
+                                            "MissionRole": MissionRole
+                                        })
     
     def complete_mission_record_db(self, mission_domain_object: MissionData, mission_db_object: DBMission, config_loader, subscription: DBSubscription = None, **kwargs) -> MissionData: # type: ignore
         """complete the mission record from a db object"""
@@ -173,28 +161,22 @@ class MissionDomainController(Controller):
             mission_domain_object.token = subscription.token
         
         return mission_domain_object
-    
-    def create_mission_creation_notification(self, config_loader,*args, **kwargs):
+
+    def create_mission_notification(self, config_loader,*args, **kwargs):
         """create a new mission notification object"""
         self.request.set_value("object_class_name", "Event")
 
         configuration = config_loader.find_configuration(MISSION_NOTIFICATION)
 
-        self.request.set_value("configuration", configuration)
+        return self.create_model_object(configuration, extended_domain={"mission": DomainMissionCot})
 
-        self.request.set_value("extended_domain", {"mission": DomainMissionCot})
+    def create_mission_content_notification(self, config_loader, *args, **kwargs):
+        self.request.set_value("object_class_name", "Event")
 
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
+        configuration = config_loader.find_configuration(MISSION_NOTIFICATION)
 
-        response = self.execute_sub_action("CreateNode")
+        return self.create_model_object(configuration, extended_domain={"mission": DomainMissionCot})
 
-        model_object = response.get_value("model_object")
-
-        return model_object
-    
     def complete_mission_content_db(self, mission_content_domain: MissionContent, mission_content_db: DBMissionContent, *args, **kwargs) -> MissionContent:
         self.request.set_value("objectuid", mission_content_db.PrimaryKey)
         self.request.set_value("objecthash", mission_content_db.PrimaryKey)
@@ -247,20 +229,7 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION_SIMPLE_LIST)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionInfo": MissionInfo})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionInfo": MissionInfo})
     
     def create_mission_subscriptions_list(self, config_loader, *args, **kwargs) -> MissionInfo:
         """return the domain object used to show all the subscriptions and roles in a mission"""
@@ -268,20 +237,7 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION_LIST)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionInfo": MissionInfo, "MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionInfo": MissionInfo, "MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
     
     def create_mission_subscription(self, config_loader, *args, **kwargs) ->MissionInfoSingle:
         """return the domain object used a subscription in a mission"""
@@ -289,21 +245,8 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION)
 
-        self.request.set_value("configuration", configuration)
+        return self.create_model_object(configuration, extended_domain={"MissionInfoSingle": MissionInfoSingle, "MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
 
-        self.request.set_value("extended_domain", {"MissionInfoSingle": MissionInfoSingle, "MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
-    
     def create_mission_subscription_data(self, config_loader, *args, **kwargs) -> MissionSubscription:
         """return the domain object used to show all the subscriptions in a mission"""
         self.request.set_value("object_class_name", "MissionSubscription")
@@ -312,18 +255,7 @@ class MissionDomainController(Controller):
 
         self.request.set_value("configuration", configuration)
 
-        self.request.set_value("extended_domain", {"MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
     
     def create_mission_content(self, config_loader, *args, **kwargs) -> MissionContent:
         """return the domain object used a content entry in a mission"""
@@ -331,20 +263,7 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_CONTENT)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionContent": MissionContent, "MissionContentData": MissionContentData})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionContent": MissionContent, "MissionContentData": MissionContentData})
     
     def create_mission_content_data(self, config_loader, *args, **kwargs) -> MissionContentData:
         """return the domain object used a content entry in a mission"""
@@ -352,20 +271,7 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_CONTENT_DATA)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionContentData": MissionContentData})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionContentData": MissionContentData})
     
     def create_log(self, config_loader, *args, **kwargs) -> MissionLog:
         """return the domain object used a log entry in a mission"""
@@ -373,40 +279,14 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_LOG)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionLog": MissionLog})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionLog": MissionLog})
     
     def create_log_collection(self, config_loader, *args, **kwargs) -> MissionInfo:
         self.request.set_value("object_class_name", "MissionInfo")
         
         configuration = config_loader.find_configuration(MISSION_LOG_COLLECTION)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionInfo": MissionInfo, "MissionLog": MissionLog})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-        
-        response = self.execute_sub_action("CreateNode")
-        
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionLog": MissionLog})
     
     def create_external_data_collection(self, config_loader, *args, **kwargs) -> MissionInfoSingle:
         """return the domain object used a external data entry in a mission"""
@@ -414,20 +294,7 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_EXTERNAL_DATA)
 
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionExternalData": MissionExternalData, "MissionInfoSingle": MissionInfoSingle})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        model_object = response.get_value("model_object")
-
-        return model_object
+        return self.create_model_object(configuration, extended_domain={"MissionExternalData": MissionExternalData, "MissionInfoSingle": MissionInfoSingle})
     
     def create_external_data(self, config_loader, *args, **kwargs) -> MissionExternalData:
         """return the domain object used a external data entry in a mission"""
@@ -435,9 +302,12 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_EXTERNAL_DATA)
 
+        return self.create_model_object(configuration, extended_domain={"MissionExternalData": MissionExternalData})
+    
+    def create_model_object(self, configuration, extended_domain={}, *args, **kwargs):
         self.request.set_value("configuration", configuration)
 
-        self.request.set_value("extended_domain", {"MissionExternalData": MissionExternalData})
+        self.request.set_value("extended_domain", extended_domain)
 
         self.request.set_value(
             "source_format", self.request.get_value("source_format")
@@ -447,5 +317,5 @@ class MissionDomainController(Controller):
         response = self.execute_sub_action("CreateNode")
 
         model_object = response.get_value("model_object")
-
+        
         return model_object
