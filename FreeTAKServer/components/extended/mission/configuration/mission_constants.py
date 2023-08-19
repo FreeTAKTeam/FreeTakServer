@@ -109,3 +109,5 @@ MISSION_EXTERNAL_DATA_COLLECTION = "mission_external_data"
 MISSION_CHANGE_RECORD = "mission_change_record"
 
 MISSION_CONTENT_DATA = "mission_content_data"
+
+MISSION_CONTENT_NOTIFICATION= "mission_content_notification"

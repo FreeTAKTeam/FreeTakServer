@@ -110,7 +110,7 @@ class EnterpriseSyncGeneralController(Controller):
         """Uploads one file to the server via HTTPS."""
         pass
 
-    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, tool, mime_type, logger, objecthash: str=None, file_name=None, length=None, convert_newlines: bool = False, *args, **kwargs):
+    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, tool, mime_type, logger, objecthash: str=None, file_name=None, length=None, convert_newlines: bool = False, creator_uid = "", *args, **kwargs):
         """save enterprise sync data to the db and the file system"""
         if file_name==None:
             file_name = objectuid
@@ -125,7 +125,7 @@ class EnterpriseSyncGeneralController(Controller):
         else:
             obj_length = length
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        data_obj = self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, objecthash, obj_length, objkeywords, mime_type, tool, file_name=file_name, logger=logger)
+        data_obj = self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, objecthash, obj_length, objkeywords, mime_type, tool, creator_uid=creator_uid, file_name=file_name, logger=logger)
 
         self.response.set_value("objectmetadata", data_obj)
 
@@ -143,7 +143,7 @@ class EnterpriseSyncGeneralController(Controller):
         """
         objectdata = self.format_sync_controller.convert_newlines(objectdata)
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        self.persistence_controller.update_enterprise_sync_data_object(synctype, objectuid, objecthash, logger)
+        self.persistence_controller.update_enterprise_sync_object(filetype=synctype, objectuid=objectuid, objecthash=objecthash, logger=logger)
 
     def update_enterprise_sync_metadata(self, logger, objectuid: str = None, objecthash: str = None, objkeywords: list = None, objstarttime: str = None, *args, **kwargs):
         """update an enterprise_sync metadata object

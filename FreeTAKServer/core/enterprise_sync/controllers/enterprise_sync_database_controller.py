@@ -54,7 +54,7 @@ class EnterpriseSyncDatabaseController(Controller):
             logger.error("error thrown updating enterprise sync obj: %s err: %s", objectuid, ex)
             db_controller.session.rollback()
 
-    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash, obj_length, obj_keywords, mime_type, tool, file_name, logger, private=0, obj_start_time=None, *args, **kwargs) -> EnterpriseSyncDataObject:
+    def create_enterprise_sync_data_object(self, filetype: str, objectuid: str, objecthash, obj_length, obj_keywords, mime_type, tool, file_name, logger, private=0, obj_start_time=None, creator_uid="", *args, **kwargs) -> EnterpriseSyncDataObject:
         """create an enterprise sync data object instance and save it to the database
         with sqlalachemy
 
@@ -69,6 +69,7 @@ class EnterpriseSyncDatabaseController(Controller):
             data_obj.PrimaryKey = objectuid
             data_obj.hash = objecthash
             data_obj.length = obj_length
+            data_obj.creator_uid = ""
             if obj_start_time != None:
                 data_obj.start_time = obj_start_time
             data_obj.mime_type = mime_type
@@ -107,7 +108,7 @@ class EnterpriseSyncDatabaseController(Controller):
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == object_uid).first()
             if object_hash != None and data_obj == None:
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == object_hash).first()
-            else:
+            if object_uid == None and object_hash == None:
                 raise Exception("no object uid or hash provided")
             return data_obj
         except Exception as ex:

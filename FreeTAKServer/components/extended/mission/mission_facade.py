@@ -2,6 +2,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_change_contro
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_hierarchy_controller import MissionHierarchyController
 from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
+from FreeTAKServer.components.extended.mission.controllers.mission_notification_controller import MissionNotificationController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_subscription_controller import MissionSubscriptionController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
@@ -62,6 +63,7 @@ class Mission(DefaultFacade):
         self.hierarchy_controller = MissionHierarchyController(request, response, sync_action_mapper, configuration)
         self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
         self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
+        self.notification_controller = MissionNotificationController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -72,7 +74,8 @@ class Mission(DefaultFacade):
         self.hierarchy_controller.initialize(request, response)
         self.external_data_controller.initialize(request, response)
         self.change_controller.initialize(request, response)
-    
+        self.notification_controller.initialize(request, response)
+
     def execute(self, method):
         try:
             if hasattr(self, method):
@@ -178,3 +181,7 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def get_mission_changes(self, *args, **kwargs):
         self.change_controller.get_mission_changes(*args, **kwargs)
+
+    @DefaultFacade.public
+    def mission_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_mission_created_notification(*args, **kwargs)

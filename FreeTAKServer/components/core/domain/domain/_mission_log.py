@@ -9,6 +9,7 @@ class MissionLog(CoTNode):
         self.cot_attributes["entryUid"] = None
         self.cot_attributes["missionNames"] = []
         self.cot_attributes["dtg"] = None
+        self.cot_attributes["content"] = None
         self.cot_attributes["contentHashes"] = []
         self.cot_attributes["keywords"] = []
         self.cot_attributes["servertime"] = None
@@ -85,3 +86,11 @@ class MissionLog(CoTNode):
     @id.setter
     def id(self, id=None):
         self.cot_attributes["id"] = id
+
+    @CoTProperty
+    def content(self):
+        return self.cot_attributes.get("content", None)
+    
+    @content.setter
+    def content(self, content=None):
+        self.cot_attributes["content"] = content
