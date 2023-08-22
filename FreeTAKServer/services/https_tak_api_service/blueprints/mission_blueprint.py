@@ -69,12 +69,18 @@ def add_mission_contents(mission_id: str):
         mission_id (str): the id of the mission to add contents to
     """
     request_json = request.get_json() # type: ignore
-    return HTTPSTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": request_json.get("hashes", []), "uids": request_json.get("uids", [])}, None, True).get_value("mission"), 200
+    return_data = HTTPSTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": request_json.get("hashes", []), "uids": request_json.get("uids", [])}, None, True).get_value("mission")
+    for hash in request_json.get("hashes", []):
+        HTTPSTakApiCommunicationController().make_request("MissionContentCreatedNotification", "mission", {"content_id": hash}, None, synchronous=False)
+        
+    return return_data, 200
 
 @page.route('/Marti/api/missions/logs/entries', methods=['POST'])
 def add_log_entry():
     request_json = request.get_json() # type: ignore
-    return HTTPSTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
+    return_data =  HTTPSTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
+    HTTPSTakApiCommunicationController().make_request("MissionLogCreatedNotification", "mission", {"log_id": return_data["id"]}, None, synchronous=False)
+    return return_data, 200
 
 @page.route('/Marti/api/missions/logs/entries', methods=['PUT'])
 def update_log_entry():
@@ -139,17 +145,14 @@ def add_mission_subscription(mission_id):
                                                                                                     "secago": secago,
                                                                                                     "start": start,
                                                                                                     "end": end},
-                                                                None, True).get_value("mission_subscription"), 201
-        
+                                                                None, True).get_value("mission_subscription")
         if mission_subscription_data is not None:
             return mission_subscription_data, 201
         else:
             return '', 404
-        
     except Exception as e:
         print(e)
-        return "", 500
-
+        return '', 500
 @page.route('/Marti/api/missions/<mission_id>/subscription', methods=['DELETE'])
 def delete_mission_subscription(mission_id):
     uid = request.args.get("uid") # type: ignore

@@ -185,3 +185,11 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def mission_created_notification(self, *args, **kwargs):
         self.notification_controller.send_mission_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def mission_content_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_content_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def mission_log_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_log_created_notification(*args, **kwargs)

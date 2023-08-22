@@ -1,18 +1,39 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"id": "http://iec.ch/TC57/new_mission_notification#",
+	"id": "http:/freetakteam.fts.org/COT_Excheck_Notification_Update#",
 	"type": "object",
 	"properties":
 	{
-		"new_mission_notification":
+		"COT_Excheck_Notification_Update":
 		{
 			"type": "object",
 			"anyOf":
 			[
 				{ "$ref": "#/definitions/Event" },
+				{ "$ref": "#/definitions/MissionChange" },
+				{ "$ref": "#/definitions/MissionChanges" },
+				{ "$ref": "#/definitions/content" },
+				{ "$ref": "#/definitions/contentResource" },
+				{ "$ref": "#/definitions/creatorUid" },
 				{ "$ref": "#/definitions/detail" },
+				{ "$ref": "#/definitions/expiration" },
+				{ "$ref": "#/definitions/filename" },
+				{ "$ref": "#/definitions/groupVector" },
+				{ "$ref": "#/definitions/hash" },
+				{ "$ref": "#/definitions/isFederatedChange" },
+				{ "$ref": "#/definitions/keywords" },
+				{ "$ref": "#/definitions/mimeType" },
+				{ "$ref": "#/definitions/mission" },
+				{ "$ref": "#/definitions/missionName" },
+				{ "$ref": "#/definitions/name" },
 				{ "$ref": "#/definitions/point" },
-				{ "$ref": "#/definitions/mission" }
+				{ "$ref": "#/definitions/size" },
+				{ "$ref": "#/definitions/submissionTime" },
+				{ "$ref": "#/definitions/submitter" },
+				{ "$ref": "#/definitions/timestamp" },
+				{ "$ref": "#/definitions/tool" },
+				{ "$ref": "#/definitions/type" },
+				{ "$ref": "#/definitions/uid" }
 			]
 		}
 	},
@@ -21,16 +42,9 @@
 		"Event" : 
 		{
 			"type": "object",
-			"description" : "represents a TAK event: this class is instantiated with a standard set of values.\n  The opex field is intended to indicate that the event is part of a   live operation, an exercise, or a simulation.  For backward compatibility, absence of the opex indicates \"no statement\", which will be interpreted in   an installation specific manner.\n  \n  opex=\"o-&lt;name&gt;\" or \"e-&lt;nickname&gt;\"  or \"s-&lt;nickname&gt;\",\n  where \"-&lt;name&gt;\" is optional.  That is, it is permissible to   specify only \"o\", \"e\", or \"s\" for the opex value.\n<ul>\n\t<li>  o = operations</li>\n\t<li>  e = exercise</li>\n</ul>\n  s = simulation\n",
+			"description" : "represents a TAK event: this class is instantiated with a standard set of values.\n  The opex field is intended to indicate that the event is part of a   live operation, an exercise, or a simulation.  For backward compatibility, absence of the opex indicates \"no statement\", which will be interpreted in   an installation specific manner.\n  \n  opex=\"o-&lt;name&gt;\" or \"e-&lt;nickname&gt;\"  or \"s-&lt;nickname&gt;\",\n  where \"-&lt;name&gt;\" is optional.  That is, it is permissible to   specify only \"o\", \"e\", or \"s\" for the opex value.\n<ul>\n\t<li>  o = operations</li>\n\t<li>  e = exercise</li>\n</ul>\n  s = simulation",
 			"properties":
 			{
-				"access":
-				{
-					"description" : "Specifies access controls that should be applied to the event",
-					"type" : "string",
-					"minItems" : 1,
-					"maxItems" : 1
-				},
 				"detail":
 				{
 					"$ref" : "#/definitions/detail",
@@ -44,29 +58,15 @@
 					"minItems" : 1,
 					"maxItems" : 1
 				},
-				"opex":
-				{
-					"description" : "OPTIONAL: Specifies whether the event is part of a live operation, an exercise, or a simulation. \nThe access field is intended to indicates who has access to this  event. (e.g. unrestricted, nato, army, coalition...) \nIt is currently defined as a string, and is optional in V2.0.\t\nFuture version of the event schema will provide formal definition of this field.",
-					"type" : "integer",
-					"minItems" : 0,
-					"maxItems" : 1
-				},
 				"point":
 				{
 					"$ref" : "#/definitions/point",
 					"minItems" : 1,
 					"maxItems" : 1
 				},
-				"qos":
-				{
-					"description" : "OPTIONAL: Specifies a quality of service desired from applications processing or routing the event",
-					"type" : "integer",
-					"minItems" : 0,
-					"maxItems" : 1
-				},
 				"stale":
 				{
-					"description" : "The \"stale\" attribute defines the ending time of the event's validity interval. The start and stale fields together define an interval in time.\nIt has the same format as time and start.\nending time when an event should no longer be considered valid l (with respect to Zulu time in extended ISO 8601 format)\nIn protobuff is in milliseconds",
+					"description" : "The \"stale\" attribute defines the ending time of the event's validity interval. The start and stale fields together define an interval in time.\nIt has the same format as time and start.\nending time when an event should no longer be considered valid l (with respect to Zulu time in extended ISO 8601 format)\nIn protobuff is in milliseconds\n\nthe attribute is calculated as following\nString stale = DateUtil.toCotTime(millis + 20L * 1000L);",
 					"type" : "integer",
 					"minItems" : 1,
 					"maxItems" : 1
@@ -102,16 +102,156 @@
 				"version":
 				{
 					"description" : "Schema version of this event instance (e.g. 2.0)",
-					"type" : "",
+					"type" : "integer",
 					"minItems" : 1,
 					"maxItems" : 1
 				}
 			}
 		},
+		"MissionChange" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"contentResource":
+				{
+					"$ref" : "#/definitions/contentResource",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"creatorUid":
+				{
+					"$ref" : "#/definitions/creatorUid",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"isFederatedChange":
+				{
+					"$ref" : "#/definitions/isFederatedChange",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"missionName":
+				{
+					"$ref" : "#/definitions/missionName",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"timestamp":
+				{
+					"$ref" : "#/definitions/timestamp",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"type":
+				{
+					"$ref" : "#/definitions/type",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"MissionChanges" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"MissionChange":
+				{
+					"type" : "array",
+					"items" : { "$ref":"#/definitions/MissionChange" }
+				}
+			}
+		},
+		"content" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"contentResource" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"creatorUid":
+				{
+					"$ref" : "#/definitions/creatorUid",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"groupVector": {
+					"$ref": "#/definitions/groupVector",
+					"minItems": 1,
+					"maxItems": 1
+				},
+				"expiration":
+				{
+					"$ref" : "#/definitions/expiration",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"hash":
+				{
+					"$ref" : "#/definitions/hash",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"mimeType":
+				{
+					"type" : "array",
+					"items" : { "$ref":"#/definitions/mimeType" }
+				},
+				"name":
+				{
+					"$ref" : "#/definitions/name",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"size":
+				{
+					"$ref" : "#/definitions/size",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"submissionTime":
+				{
+					"$ref" : "#/definitions/submissionTime",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"submitter":
+				{
+					"$ref" : "#/definitions/submitter",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"uid":
+				{
+					"$ref" : "#/definitions/uid",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"timestamp":
+				{
+					"$ref" : "#/definitions/timestamp",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"creatorUid" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
 		"detail" : 
 		{
 			"type": "object",
-			"description" : "An optional element used to hold CoT sub-schema. Detail has no special properties.\n <b>   Detail entities...</b>\n  The \"detail\" entity is intended to carry information that is   specific to smaller communities of producers and consumers and     require more intimate knowledge of the operating domain.  For     example, mensurated \"target\" events may come from dramatically     different sources and need to propagate dramatically different     \"detail\" information.  A close-air-support mission will augment     target details with initial point and callsign details to     facilitate coordination of weapon delivery.  In contrast, a\n    mission planning system may augment planned targets with target     catalog information and weapon fuzing requirements. \n    Because the \"details\" portion of the event are of interest only to     a subset of subscribers, that entity may be mentioned by reference     when the event is communicated.  This reduces the congestion when events are transmitted over bandwidth limited links and also     prevents the retransmission of static data elements.",
+			"description" : "An optional element used to hold CoT sub-schema. Detail has no special properties.\n<b>   Detail entities...</b>\n  The \"detail\" entity is intended to carry information that is   specific to smaller communities of producers and consumers and     require more intimate knowledge of the operating domain.  For example, mesurated \"target\" events may come from dramatically     different sources and need to propagate dramatically different     \"detail\" information.  A close-air-support mission will augment     target details with initial point and callsign details to     facilitate coordination of weapon delivery.  In contrast, a mission planning system may augment planned targets with target     catalog information and weapon fuzing requirements.  Because the \"details\" portion of the event are of interest only to a subset of subscribers, that entity may be mentioned by reference     when the event is communicated.  This reduces the congestion when events are transmitted over bandwidth limited links and also     prevents the retransmission of static data elements.",
 			"properties":
 			{
 				"mission":
@@ -122,13 +262,112 @@
 				}
 			}
 		},
+		"expiration" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"filename" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"groupVector" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"hash" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"timestamp" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"isFederatedChange" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"keywords" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"mimeType" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
 		"mission" : 
 		{
 			"type": "object",
-			"description" : "",
 			"properties":
 			{
-				
+				"MissionChanges":
+				{
+					"$ref" : "#/definitions/MissionChanges",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"authorUid":
+				{
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"name":
+				{
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"tool":
+				{
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"type":
+				{
+					"description" : "Types of mission changes: Missions, and Mission content. Content changes will specify either a hash or uid, not both",
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"missionName" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"name" : 
+		{
+			"type": "object",
+			"properties":
+			{
 			}
 		},
 		"point" : 
@@ -171,6 +410,56 @@
 					"minItems" : 1,
 					"maxItems" : 1
 				}
+			}
+		},
+		"size" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"submissionTime" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"submitter" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"timestamp" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"tool" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"type" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"uid" : 
+		{
+			"type": "object",
+			"description" : "special class used in mission only for ID",
+			"properties":
+			{
 			}
 		}
 	}

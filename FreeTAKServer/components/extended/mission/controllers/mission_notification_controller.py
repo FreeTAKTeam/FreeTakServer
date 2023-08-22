@@ -71,23 +71,24 @@ class MissionNotificationController(Controller):
         self.response.set_action("publish")
 
     def send_content_created_notification(self, content_id: str, config_loader, *args, **kwargs):
-        mission_content = self.persistence_controller.get_mission_content(content_id)
+        mission_change_db = self.persistence_controller.get_mission_change(content_id)
 
-        mission_content_notification = self.domain_controller.create_mission_content_notification(config_loader)
+        mission_content_notification = self.domain_controller.create_mission_change_notification(config_loader)
         
+        mission_change_record = self.domain_controller.create_mission_change_record(config_loader)
+
         mission_content_notification.uid = str(uuid4())
         mission_content_notification.type = "t-x-m-c"
         mission_content_notification.how = "h-g-i-g-o"
         mission_content_notification.detail.mission.type = "CHANGE"
-        mission_content_notification.detail.mission.tool = mission_content.missions[0].mission.tool
-        mission_content_notification.detail.mission.name = mission_content.missions[0].mission.name
-        mission_content_notification.detail.mission.authorUid = mission_content.creatorUid
+        mission_content_notification.detail.mission.tool = mission_change_db.mission.tool
+        mission_content_notification.detail.mission.name = mission_change_db.mission.name
+        mission_content_notification.detail.mission.authorUid = mission_change_db.creator_uid
         
-        #notification_string = self.sample_notification(checklist_task_metadata.hash, update_task_model_object.stale, task_uid, update_task_model_object.start, len(checklist_task), checklist_task_obj.checklist_uid, checklist_element.find("checklistDetails").find("name").text, url, checklist_task)
+        self.domain_controller.complete_mission_change_notification(mission_content_notification, mission_change_db, config_loader)
 
         # Serializer called by service manager requires the message value
         self.response.set_value('message', [mission_content_notification])
-        #self.response.set_value('message', [notification_string.encode()])
         
         self.response.set_value('recipients', "*")
         self.response.set_action("publish")

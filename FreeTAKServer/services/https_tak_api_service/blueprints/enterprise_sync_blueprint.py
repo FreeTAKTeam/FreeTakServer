@@ -129,7 +129,7 @@ def putDataPackageTool(hash):
         privacy = 1
     else:
         privacy = 0
-    HTTPSTakApiCommunicationController().make_request("UpdateEnterpriseSyncMetaData", "enterpriseSync", {"objecthash": hash, "privacy": privacy})
+    HTTPSTakApiCommunicationController().make_request("UpdateEnterpriseSyncMetaData", "enterpriseSync", {"objectuid": hash, "privacy": privacy}, None, synchronous = False)
     return "Okay", 200
 
 
