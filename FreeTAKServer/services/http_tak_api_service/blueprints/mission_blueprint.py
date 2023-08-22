@@ -68,12 +68,18 @@ def add_mission_contents(mission_id: str):
         mission_id (str): the id of the mission to add contents to
     """
     request_json = request.get_json() # type: ignore
-    return HTTPTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": request_json.get("hashes", []), "uids": request_json.get("uids", [])}, None, True).get_value("mission"), 200
+    return_data = HTTPTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": request_json.get("hashes", []), "uids": request_json.get("uids", [])}, None, True).get_value("mission")
+    for hash in request_json.get("hashes", []):
+        HTTPTakApiCommunicationController().make_request("MissionContentCreatedNotification", "mission", {"content_id": hash}, None, synchronous=False)
+        
+    return return_data, 200
 
 @page.route('/Marti/api/missions/logs/entries', methods=['POST'])
 def add_log_entry():
     request_json = request.get_json() # type: ignore
-    return HTTPTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
+    return_data = HTTPTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
+    HTTPTakApiCommunicationController().make_request("MissionLogCreatedNotification", "mission", {"log_id": return_data["id"]}, None, synchronous=False)
+    return return_data, 200
 
 @page.route('/Marti/api/missions/logs/entries', methods=['PUT'])
 def update_log_entry():

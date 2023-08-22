@@ -520,3 +520,6 @@ class MissionPersistenceController(Controller):
         self.ses.add(change)
         self.ses.commit()
         return change
+    
+    def get_mission_change(self, content_uid) -> MissionChange:
+        return self.ses.query(MissionChange).filter(MissionChange.content_resource_uid == content_uid).first()

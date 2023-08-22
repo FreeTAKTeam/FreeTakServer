@@ -8,7 +8,7 @@ class mission(CoTNode):
         self.cot_attributes["type"] = None
         self.cot_attributes["tool"] = None
         self.cot_attributes["authorUid"] = None
-    
+        
     @CoTProperty
     def name(self):
         return self.cot_attributes.get("name", None)
@@ -40,3 +40,11 @@ class mission(CoTNode):
     @authorUid.setter
     def authorUid(self, authorUid=None):
         self.cot_attributes["authorUid"] = authorUid
+
+    @CoTProperty
+    def MissionChanges(self, MissionChanges=None):
+        return self.cot_attributes.get("MissionChanges", None)
+    
+    @MissionChanges.setter
+    def MissionChanges(self, MissionChanges=None):
+        self.cot_attributes["MissionChanges"] = MissionChanges

@@ -110,7 +110,7 @@ class EnterpriseSyncGeneralController(Controller):
         """Uploads one file to the server via HTTPS."""
         pass
 
-    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, tool, mime_type, logger, objecthash: str=None, file_name=None, length=None, convert_newlines: bool = False, creator_uid = "", *args, **kwargs):
+    def save_enterprise_sync_data(self, synctype: str, objectuid: str, objectdata: str, objkeywords: list, tool, mime_type, logger, objecthash: str=None, file_name=None, length=None, convert_newlines: bool = False, creator_uid = "", privacy=0, *args, **kwargs):
         """save enterprise sync data to the db and the file system"""
         if file_name==None:
             file_name = objectuid
@@ -125,7 +125,7 @@ class EnterpriseSyncGeneralController(Controller):
         else:
             obj_length = length
         self.filesystem_controller.save_file(synctype, objectuid, objectdata)
-        data_obj = self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, objecthash, obj_length, objkeywords, mime_type, tool, creator_uid=creator_uid, file_name=file_name, logger=logger)
+        data_obj = self.persistence_controller.create_enterprise_sync_data_object(synctype, objectuid, objecthash, obj_length, objkeywords, mime_type, tool, creator_uid=creator_uid, file_name=file_name, logger=logger, private=privacy)
 
         self.response.set_value("objectmetadata", data_obj)
 
@@ -164,7 +164,7 @@ class EnterpriseSyncGeneralController(Controller):
             updated_values["objkeywords"] = objkeywords
         if objstarttime != None:
             updated_values["objstarttime"] = objstarttime
-        self.persistence_controller.update_enterprise_sync_object(logger, updated_values)
+        self.persistence_controller.update_enterprise_sync_object(logger, **updated_values)
         
     def get_enterprise_sync_data(self, logger, objecthash: str = None, objectuid: str = None, use_bytes: bool = False, convert_newlines: bool = False, *args, **kwargs):
         """get the object data from an enterprise sync object"""

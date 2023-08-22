@@ -111,3 +111,7 @@ MISSION_CHANGE_RECORD = "mission_change_record"
 MISSION_CONTENT_DATA = "mission_content_data"
 
 MISSION_CONTENT_NOTIFICATION= "mission_content_notification"
+
+MISSION_CHANGES_OBJ = "mission_changes_obj"
+
+MISSION_CHANGE_NOTIFICATION = "mission_change_notification"

@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
 
 from FreeTAKServer.components.core.domain.domain import MissionLog
+from FreeTAKServer.components.extended.excheck.domain.mission_changes import MissionChanges
+from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 from FreeTAKServer.core.util.time_utils import get_dtg
 
 if TYPE_CHECKING:
@@ -36,6 +38,7 @@ from ..persistence.subscription import Subscription as DBSubscription
 
 from ..configuration.mission_constants import (
     BASE_OBJECT_NAME,
+    MISSION_CHANGES_OBJ,
     MISSION_CONTENT,
     MISSION_EXTERNAL_DATA,
     MISSION_ITEM,
@@ -50,7 +53,8 @@ from ..configuration.mission_constants import (
     MISSION_SUBSCRIPTION_SIMPLE_LIST,
     MISSION_CHANGE_RECORD,
     MISSION_CONTENT_DATA,
-    MISSION_CONTENT_NOTIFICATION
+    MISSION_CONTENT_NOTIFICATION,
+    MISSION_CHANGE_NOTIFICATION
 )
 
 config = MainConfig.instance()
@@ -73,16 +77,63 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_CHANGE_RECORD)
 
-        self.request.set_value("configuration", configuration)
+        return self.create_model_object(configuration)
 
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
+    def complete_mission_change_record(self, mission_change_record: MissionChangeRecord, mission_change_db: 'MissionChange', config_loader, *args, **kwargs) -> MissionChangeRecord:
+        """complete a mission change record from a db object"""
+        mission_change_record.type = mission_change_db.type
+        mission_change_record.creatorUid = mission_change_db.creator_uid
+        mission_change_record.missionName = mission_change_db.mission_uid
+        mission_change_record.serverTime = get_dtg(mission_change_db.server_time)
+        mission_change_record.timestamp = get_dtg(mission_change_db.timestamp)
+        mission_change_record.contentUid = mission_change_db.content_uid
 
-        response = self.execute_sub_action("CreateNode")
+        if mission_change_db.content_resource_uid != None:
+            mission_content = self.create_mission_content_data(config_loader)
+            self.request.set_value("objectuid", mission_change_db.content_resource_uid)
+            self.request.set_value("objecthash", mission_change_db.content_resource_uid)
+            enterprise_sync_db: 'EnterpriseSyncDataObject' = self.execute_sub_action("GetEnterpriseSyncMetaData").get_value("objectmetadata")
+            
+            mission_change_record.contentResource = self.complete_mission_content_data(mission_content, enterprise_sync_db)
+    
+        return mission_change_record
 
-        return response.get_value("model_object")
+    def complete_mission_change_notification(self, mission_change_notification: Event, mission_change_db: 'MissionChange', config_loader, *args, **kwargs) -> MissionChangeRecord:
+        """complete a mission change record from a db object"""
+        mission_change = mission_change_notification.detail.mission.MissionChanges.MissionChange[0]
+        mission_change.type.text = mission_change_db.type
+        mission_change.creatorUid.text = mission_change_db.creator_uid
+        mission_change.missionName.text = mission_change_db.mission_uid
+        mission_change.timestamp.text = get_dtg(mission_change_db.timestamp)
+        mission_change.isFederatedChange.text = "false"
+
+        if mission_change_db.content_resource_uid != None:
+            self.request.set_value("objectuid", mission_change_db.content_resource_uid)
+            self.request.set_value("objecthash", mission_change_db.content_resource_uid)
+            enterprise_sync_db: 'EnterpriseSyncDataObject' = self.execute_sub_action("GetEnterpriseSyncMetaData").get_value("objectmetadata")
+            
+            mission_change.contentResource.creatorUid.text = enterprise_sync_db.creator_uid
+            mission_change.contentResource.timestamp.text = get_dtg(enterprise_sync_db.start_time)
+            mission_change.contentResource.uid.text = enterprise_sync_db.PrimaryKey
+            mission_change.contentResource.hash.text = enterprise_sync_db.hash
+            mission_change.contentResource.name.text = enterprise_sync_db.file_name
+            mission_change.contentResource.mimeType.text = enterprise_sync_db.mime_type
+            mission_change.contentResource.size.text = enterprise_sync_db.length
+            mission_change.contentResource.expiration.text = enterprise_sync_db.expiration
+            mission_change.contentResource.groupVector.text = "0000100"
+            mission_change.contentResource.submitter.text = enterprise_sync_db.submitter
+            mission_change.contentResource.submissionTime.text = get_dtg(enterprise_sync_db.start_time)
+    
+        return mission_change
+
+
+    def create_mission_changes(self, config_loader, *args, **kwargs) -> MissionChanges:
+        """create a new mission changes object"""
+        self.request.set_value("object_class_name", "MissionChanges")
+
+        configuration = config_loader.find_configuration(MISSION_CHANGES_OBJ)
+
+        return self.create_model_object(configuration)
 
     def create_mission_collection(self, config_loader, *args, **kwargs) -> MissionInfo:
         """create a new empty mission collection"""
@@ -168,14 +219,14 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_NOTIFICATION)
 
-        return self.create_model_object(configuration, extended_domain={"mission": DomainMissionCot})
+        return self.create_model_object(configuration)
 
-    def create_mission_content_notification(self, config_loader, *args, **kwargs):
+    def create_mission_change_notification(self, config_loader, *args, **kwargs):
         self.request.set_value("object_class_name", "Event")
 
-        configuration = config_loader.find_configuration(MISSION_NOTIFICATION)
+        configuration = config_loader.find_configuration(MISSION_CHANGE_NOTIFICATION)
 
-        return self.create_model_object(configuration, extended_domain={"mission": DomainMissionCot})
+        return self.create_model_object(configuration)
 
     def complete_mission_content_db(self, mission_content_domain: MissionContent, mission_content_db: DBMissionContent, *args, **kwargs) -> MissionContent:
         self.request.set_value("objectuid", mission_content_db.PrimaryKey)
