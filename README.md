@@ -55,7 +55,7 @@ TAKFreeServer uses a MVC pattern, the concept of a COT (Cursor On Target) is des
 See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for various information including an UML model of the Domain classes involved in a COT event.
 
 ## Requirements
-- Python 3.8 
+- Python 3.11
 - Dependencies:
   - `flask`
   - `lxml`
