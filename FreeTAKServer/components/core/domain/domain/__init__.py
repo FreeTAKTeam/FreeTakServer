@@ -28,6 +28,7 @@ from ._mission_change import MissionChange as MissionChange
 from ._uid import uid as uid
 from ._expiration import expiration as expiration
 from ._creator_uid import creatorUid as creatorUid
+from ._content_uid import contentUid as contentUid
 from ._group_vector import groupVector as groupVector
 from ._hash import hash as hash
 from ._name import name as name

@@ -92,3 +92,25 @@ class MissionChange(CoTNode):
     @content.setter
     def content(self, content):
         self.cot_attributes["content"] = content
+
+    @CoTProperty
+    def details(self):
+        data = self.cot_attributes.get("details", None)
+        if data is None:
+            raise AttributeError("attribute 'details' doesnt exist")
+        return data
+    
+    @details.setter
+    def details(self, details):
+        self.cot_attributes["details"] = details
+
+    @CoTProperty
+    def contentUid(self):
+        data = self.cot_attributes.get("contentUid", None)
+        if data is None:
+            raise AttributeError("attribute 'contentUid' doesnt exist")
+        return data
+    
+    @contentUid.setter
+    def contentUid(self, contentUid):
+        self.cot_attributes["contentUid"] = contentUid

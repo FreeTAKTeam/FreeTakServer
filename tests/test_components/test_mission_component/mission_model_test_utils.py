@@ -2,6 +2,7 @@ from FreeTAKServer.components.extended.mission.persistence.log import Log
 from FreeTAKServer.components.extended.mission.persistence.mission import Mission as MissionDBObj
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
+from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
 from FreeTAKServer.components.extended.mission.persistence.mission_log import MissionLog
 from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 from FreeTAKServer.core.util.time_utils import get_current_datetime
@@ -18,6 +19,8 @@ def create_test_mission():
     mission.creatorUid = "test_creator_uid"
 
     mission.createTime = get_current_datetime()
+
+    mission.cots = []
 
     return mission
 
@@ -112,3 +115,24 @@ def add_log_to_mission(mission: MissionDBObj, log: Log):
     mission.logs.append(mission_log)
 
     log.missions.append(mission_log)
+
+def create_cot():
+    cot = MissionCoT()
+
+    cot.callsign = "test_callsign"
+
+    cot.iconset_path = "test_iconset_path"
+
+    cot.lat = 1.0
+
+    cot.lon = 1.0
+
+    cot.uid = "test_cot_uid"
+
+    cot.type = "test_cot_type"
+
+    cot.xml_content = "<event></event>"
+
+    cot.create_time = get_current_datetime()
+
+    return cot

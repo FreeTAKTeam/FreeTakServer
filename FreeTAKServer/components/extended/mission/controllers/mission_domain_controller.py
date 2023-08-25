@@ -4,6 +4,7 @@ from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
 from FreeTAKServer.components.core.domain.domain import MissionLog
 from FreeTAKServer.components.extended.excheck.domain.mission_changes import MissionChanges
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
+from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
 from FreeTAKServer.core.util.time_utils import get_dtg
 
 if TYPE_CHECKING:
@@ -36,10 +37,17 @@ from ..persistence.mission import Mission as DBMission
 from ..persistence.mission_content import MissionContent as DBMissionContent
 from ..persistence.subscription import Subscription as DBSubscription
 
+from ..domain import detail
+from ..domain._details import details
+from ..domain._events import events
+from ..domain._location import location
+
 from ..configuration.mission_constants import (
     BASE_OBJECT_NAME,
+    EVENTS,
     MISSION_CHANGES_OBJ,
     MISSION_CONTENT,
+    MISSION_COT_CHANGE,
     MISSION_EXTERNAL_DATA,
     MISSION_ITEM,
     MISSION_LOG,
@@ -54,7 +62,8 @@ from ..configuration.mission_constants import (
     MISSION_CHANGE_RECORD,
     MISSION_CONTENT_DATA,
     MISSION_CONTENT_NOTIFICATION,
-    MISSION_CHANGE_NOTIFICATION
+    MISSION_CHANGE_NOTIFICATION,
+    DETAILS
 )
 
 config = MainConfig.instance()
@@ -71,6 +80,21 @@ class MissionDomainController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
     
+    def create_details(self, config_loader, *args, **kwargs):
+        self.request.set_value("object_class_name", "details")
+
+        configuration = config_loader.find_configuration(DETAILS)
+
+        return self.create_model_object(configuration, extended_domain={"details": details, "location": location})
+
+    def create_events(self, config_loader, *args, **kwargs):
+        """create a new events object"""
+        self.request.set_value("object_class_name", "events")
+
+        configuration = config_loader.find_configuration(EVENTS)
+
+        return self.create_model_object(configuration, extended_domain={"events": events})
+
     def create_mission_change_record(self, config_loader, *args, **kwargs) -> MissionChangeRecord:
         """create a new mission change record"""
         self.request.set_value("object_class_name", "MissionChangeRecord")
@@ -355,6 +379,34 @@ class MissionDomainController(Controller):
 
         return self.create_model_object(configuration, extended_domain={"MissionExternalData": MissionExternalData})
     
+    def create_mission_cot_change(self, config_loader, *args, **kwargs):
+        self.request.set_value("object_class_name", "detail")
+
+        configuration = config_loader.find_configuration(MISSION_COT_CHANGE)
+
+        return self.create_model_object(configuration, extended_domain={"detail": detail})
+
+    def complete_mission_cot_change(self, cot_record: MissionCoT, detailobj: detail, *args, **kwargs):
+        detailobj.type = cot_record.type
+
+        detailobj.callsign = cot_record.callsign
+
+        return detailobj
+
+    def complete_mission_cot_notification(self, notification_details: details, cot_record: MissionCoT, *args, **kwargs):
+        notification_details.callsign = cot_record.callsign
+        notification_details.type = cot_record.type
+        notification_details.iconsetPath = cot_record.iconset_path
+        notification_details.location.lat = cot_record.lat
+        notification_details.location.lon = cot_record.lon
+
+    def create_cot_created_notification(self, cot_change_record, cot_db, config_loader, *args, **kwargs):
+        self.request.set_value("object_class_name", "MissionContentData")
+
+        configuration = config_loader.find_configuration(MISSION_CONTENT_DATA)
+
+        return self.create_model_object(configuration, extended_domain={"MissionContentData": MissionContentData})
+
     def create_model_object(self, configuration, extended_domain={}, *args, **kwargs):
         self.request.set_value("configuration", configuration)
 
@@ -370,3 +422,5 @@ class MissionDomainController(Controller):
         model_object = response.get_value("model_object")
         
         return model_object
+    
+    

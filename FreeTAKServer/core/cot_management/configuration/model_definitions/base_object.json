@@ -13,7 +13,8 @@
 				{ "$ref": "#/definitions/marti" },
 				{ "$ref": "#/definitions/dest" },
 				{ "$ref": "#/definitions/detail" },
-				{ "$ref": "#/definitions/point" }
+				{ "$ref": "#/definitions/point" },
+				{ "$ref": "#/definitions/contact" }
 			]
 		}
 	},
@@ -115,6 +116,21 @@
 				}
 			}
 		},
+		"contact" : 
+		{
+			"type": "object",
+			"description" : "",
+			"properties":
+			{
+			}
+		},
+		"usericon":
+		{
+			"type": "object",
+			"description": "",
+			"properties": 
+			{}
+		},
 		"detail" : 
 		{
 			"type": "object",
@@ -124,6 +140,18 @@
 				"marti":
 				{
 					"$ref" : "#/definitions/marti",
+					"minItems" : 0,
+					"maxItems" : 1
+				},
+				"contact":
+				{
+					"$ref" : "#/definitions/contact",
+					"minItems" : 0,
+					"maxItems" : 1
+				},
+				"usericon":
+				{
+					"$ref" : "#/definitions/usericon",
 					"minItems" : 0,
 					"maxItems" : 1
 				}

@@ -1,4 +1,5 @@
 from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
+from FreeTAKServer.components.extended.mission.controllers.mission_cot_controller import MissionCOTController
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_hierarchy_controller import MissionHierarchyController
 from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
@@ -64,6 +65,7 @@ class Mission(DefaultFacade):
         self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
         self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
         self.notification_controller = MissionNotificationController(request, response, sync_action_mapper, configuration)
+        self.cot_controller = MissionCOTController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -75,10 +77,12 @@ class Mission(DefaultFacade):
         self.external_data_controller.initialize(request, response)
         self.change_controller.initialize(request, response)
         self.notification_controller.initialize(request, response)
-
+        self.cot_controller.initialize(request, response)
+        
     def execute(self, method):
         try:
             if hasattr(self, method):
+                print("executing method "+method)
                 getattr(self, method)(**self.request.get_values())
             else:
                 self.request.set_value("logger", self.logger)
@@ -193,3 +197,23 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def mission_log_created_notification(self, *args, **kwargs):
         self.notification_controller.send_log_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def create_mission_cot(self, *args, **kwargs):
+        self.cot_controller.create_mission_cot(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def create_mission_geofence(self, *args, **kwargs):
+        self.cot_controller.create_mission_geofence(*args, **kwargs)
+
+    @DefaultFacade.public
+    def create_mission_video_alias(self, *args, **kwargs):
+        self.cot_controller.create_mission_video_alias(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_mission_cots(self, *args, **kwargs):
+        self.cot_controller.get_mission_cots(*args, **kwargs)
+
+    @DefaultFacade.public
+    def send_cot_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_cot_created_notification(*args, **kwargs)

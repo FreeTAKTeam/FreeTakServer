@@ -87,12 +87,12 @@ class detail(CoTNode):
         self.cot_attributes["remarks"] = remarks
     
     @CoTProperty
-    def mission(self):
-        data = self.cot_attributes.get("mission", None)
+    def usericon(self):
+        data = self.cot_attributes.get("usericon", None)
         if data is None:
-            raise AttributeError("attribute 'mission' doesnt exist")
+            raise AttributeError("attribute 'usericon' doesnt exist")
         return data
-
-    @mission.setter
-    def mission(self, mission):
-        self.cot_attributes["mission"] = mission
+    
+    @usericon.setter
+    def usericon(self, usericon):
+        self.cot_attributes["usericon"] = usericon

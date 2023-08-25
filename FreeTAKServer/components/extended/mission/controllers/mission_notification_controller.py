@@ -1,6 +1,7 @@
 from uuid import uuid4
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
+from FreeTAKServer.core.util.time_utils import get_dtg
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -89,6 +90,35 @@ class MissionNotificationController(Controller):
 
         # Serializer called by service manager requires the message value
         self.response.set_value('message', [mission_content_notification])
+        
+        self.response.set_value('recipients', "*")
+        self.response.set_action("publish")
+
+    def send_cot_created_notification(self, mission_cot_id: str, config_loader, *args, **kwargs):
+        mission_cot_db = self.persistence_controller.get_mission_cot(mission_cot_id)
+
+        mission_cot_notification = self.domain_controller.create_mission_change_notification(config_loader)
+        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].contentResource = None
+
+        mission_cot_notification_details = self.domain_controller.create_details(config_loader)
+        
+        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].details = mission_cot_notification_details
+
+        mission_cot_notification.uid = str(uuid4())
+        mission_cot_notification.type = "t-x-m-c"
+        mission_cot_notification.how = "h-g-i-g-o"
+        mission_cot_notification.detail.mission.type = "CHANGE"
+        mission_cot_notification.detail.mission.tool = mission_cot_db.mission.tool
+        mission_cot_notification.detail.mission.name = mission_cot_db.mission.name
+        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].contentUid.text = mission_cot_db.uid
+        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].isFederatedChange.text = "false"
+        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].missionName.text = mission_cot_db.mission.name
+        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].timestamp.text = get_dtg(mission_cot_db.create_time)
+
+        self.domain_controller.complete_mission_cot_notification(mission_cot_notification_details, mission_cot_db)
+
+        # Serializer called by service manager requires the message value
+        self.response.set_value('message', [mission_cot_notification])
         
         self.response.set_value('recipients', "*")
         self.response.set_action("publish")

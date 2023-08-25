@@ -15,6 +15,7 @@ from digitalpy.core.component_management.impl.component_registration_handler imp
 class ComponentTest(DigitalPy):
 
     def __init__(self, test_schema, mock_sub_actions= True, include_base_components=False) -> None:
+        ComponentRegistrationHandler.clear()
         super().__init__()
 
         self.test_obj = self.parse_schema(test_schema)
@@ -139,13 +140,13 @@ class ComponentTest(DigitalPy):
         for key, value in self.test_obj['request']['values'].items():
             if isinstance(value, list):
                 self.test_obj['request']['values'][key] = self.r_convert_values_to_node(value)
-            elif isinstance(value, dict) and value['is_node']:
+            elif isinstance(value, dict) and value.get('is_node', False):
                 self.test_obj['request']['values'][key] = self.get_mock_node_from_obj(value, value.get('oid', self.get_mock_oid()))
 
         for key, value in self.test_obj['response']['values'].items():
             if isinstance(value, list):
                 self.test_obj['response']['values'][key] = self.r_convert_values_to_node(value)
-            elif isinstance(value, dict) and value['is_node']:
+            elif isinstance(value, dict) and value.get('is_node', False):
                 self.test_obj['response']['values'][key] = self.get_mock_node_from_obj(value, value.get('oid', self.get_mock_oid()))
 
         # set request action and values

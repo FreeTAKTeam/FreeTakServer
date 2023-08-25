@@ -356,11 +356,18 @@ class MissionPersistenceController(Controller):
             self.ses.rollback()
             raise ex
         
-    def create_mission_cot(self, mission_id, uid):
+    def create_mission_cot(self, mission_id, type, callsign, uid, iconset_path, lat, lon, xml_content, *args, **kwargs):
         try:
             mission_cot = MissionCoT()
             mission_cot.uid = uid
             mission_cot.mission_uid = mission_id.lower()
+            mission_cot.type = type
+            mission_cot.callsign = callsign
+            mission_cot.iconset_path = iconset_path
+            mission_cot.lat = lat
+            mission_cot.lon = lon
+            mission_cot.xml_content = xml_content
+            mission_cot.create_time = datetime.now()
             self.ses.add(mission_cot)
             self.ses.commit()
             return mission_cot
@@ -516,10 +523,17 @@ class MissionPersistenceController(Controller):
         change.creator_uid = creator_uid
         change.mission = self.get_mission(mission_uid)
         change.content_resource = self.get_mission_content(content_resource_uid)
-        # change.cot_detail = self.get_mission_cot(cot_detail_uid)
+        change.cot_detail = self.get_mission_cot(cot_detail_uid)
         self.ses.add(change)
         self.ses.commit()
         return change
     
+    def get_mission_cot(self, cot_uid):
+        return self.ses.query(MissionCoT).filter(MissionCoT.uid == cot_uid).first()
+    
+    def get_mission_cots(self, mission_id) -> List[MissionCoT]:
+        mission = self.get_mission(mission_id)
+        return mission.cots
+
     def get_mission_change(self, content_uid) -> MissionChange:
         return self.ses.query(MissionChange).filter(MissionChange.content_resource_uid == content_uid).first()

@@ -1,0 +1,23 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://iec.ch/TC57/mission_cot_change#",
+	"type": "object",
+	"properties":
+	{
+		"mission_cot_change":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/detail" }
+			]
+		}
+	},
+    "definitions": {
+        "detail":{
+            "type": "object",
+            "description": "",
+            "properties": {}
+        }
+    }
+}

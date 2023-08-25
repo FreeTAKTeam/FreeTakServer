@@ -104,10 +104,10 @@ class DictToNodeController(Controller):
             elem = etree.fromstring(response.get_value("xml").encode())
             node.xml.append(elem)
         elif isinstance(value, list):
-            for l_item in value:
-                self.add_value_to_node(key, l_item, node)
+            for val in value:
+                self.request.set_value("xml_dict", {key: val})
                 response = self.execute_sub_action("DictToXML")
-                elem = etree.Element(key, response.get_value("message"))
+                elem = etree.fromstring(response.get_value("xml").encode())
                 node.xml.append(elem)
                 
         elif value is not None:

@@ -56,9 +56,8 @@ def get_mission(mission_id):
 @page.route('/Marti/api/missions/<mission_id>/cot', methods=['GET'])
 def get_mission_cots(mission_id):
     """get all cots for a mission"""
-    # TODO: implement this function
-    return """<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
-<events></events>""", 200
+    response = HTTPTakApiCommunicationController().make_request("GetMissionCots", "mission", {"mission_id": mission_id}, None, True)
+    return response.get_value("cots"), 200
 
 @page.route('/Marti/api/missions/<mission_id>/contents', methods=['PUT'])
 def add_mission_contents(mission_id: str):

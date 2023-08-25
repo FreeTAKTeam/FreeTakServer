@@ -15,6 +15,10 @@ from ..configuration.xml_serializer_constants import (
 
 
 class XMLSerializationController(Controller):
+
+    def __init__(self, request, response, sync_action_mapper, configuration) -> None:
+        super().__init__(request, response, sync_action_mapper, configuration)
+
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
         return self.response
@@ -27,7 +31,7 @@ class XMLSerializationController(Controller):
         """
         self.response.set_value("dict", xmltodict.parse(message))
 
-    def convert_dict_to_xml(self, xml_dict: dict, **kwargs) -> str:
+    def convert_dict_to_xml(self, xml_dict: dict, *args, **kwargs) -> str:
         """converts the provided dictionary to an xml string
 
         Args:

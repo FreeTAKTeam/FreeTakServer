@@ -115,3 +115,9 @@ MISSION_CONTENT_NOTIFICATION= "mission_content_notification"
 MISSION_CHANGES_OBJ = "mission_changes_obj"
 
 MISSION_CHANGE_NOTIFICATION = "mission_change_notification"
+
+MISSION_COT_CHANGE = "mission_cot_change"
+
+EVENTS = "events"
+
+DETAILS = "details"

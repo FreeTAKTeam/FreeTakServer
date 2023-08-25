@@ -1,4 +1,5 @@
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
+from digitalpy.core.zmanager.impl.async_action_mapper import AsyncActionMapper
 
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_controller import CotManagementRepeaterController
 from FreeTAKServer.core.cot_management.controllers.cot_management_geo_object_controller import CotManagementGeoObjectController
@@ -33,6 +34,7 @@ class CotManagement(DefaultFacade):
         request,
         response,
         configuration,
+        action_mapper: AsyncActionMapper=None,
         tracing_provider_instance=None,
     ):
         super().__init__(
@@ -64,8 +66,8 @@ class CotManagement(DefaultFacade):
         self.repeater_controller = CotManagementRepeaterController(request, response, sync_action_mapper, configuration)
         self.geo_object_controller = CotManagementGeoObjectController(request, response, sync_action_mapper, configuration)
         self.general_controller = COTManagementGeneralController(request, response, sync_action_mapper, configuration)
+        self.injected_values["action_mapper"] = action_mapper
 
-    
     def initialize(self, request, response):
         super().initialize(request, response)
         self.repeater_controller.initialize(request, response)

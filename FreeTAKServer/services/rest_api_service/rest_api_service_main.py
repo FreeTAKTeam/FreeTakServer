@@ -363,10 +363,10 @@ def updateSystemUserRest():
     """
     try:
         updateSystemUser(request.json)
-        return 'user updated', 200
+        return {'message': 'user updated'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to update user.", 500
+        return {"message": "An error occured attempting to update user."}, 500
 
 def updateSystemUser(jsondata):
     """ this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
@@ -397,7 +397,7 @@ def addSystemUserWebsocket(jsondata):
         addSystemUser(json.loads(jsondata))
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to add user(s) to the system.", 500
+        return {"message": "An error occured attempting to add user(s) to the system."}, 500
 
 @app.route('/ManageSystemUser/postSystemUser', methods=["POST"])
 @auth.login_required
@@ -492,11 +492,11 @@ def addSystemUser(jsondata):
                 errors.append(f"operation failed for user. missing name parameter.")
 
     if len(errors) == 0:
-        return "all users created", 201
+        return {"message": "all users created"}, 201
     elif len(errors)<len(jsondata['systemUsers']):
-        return ", ".join(errors), 201
+        return {"message": ", ".join(errors)}, 201
     else:
-        return "all users failed to create "+", ".join(errors), 500
+        return {"message":"all users failed to create "+", ".join(errors)}, 500
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
@@ -507,7 +507,7 @@ def removeSystemUserWebsocket(jsondata):
         removeSystemUser(json.loads(jsondata))
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to remove the user(s).", 500
+        return {"message":"An error occured attempting to remove the user(s)."}, 500
 
 @app.route('/ManageSystemUser/deleteSystemUser', methods=["DELETE"])
 @auth.login_required
@@ -516,10 +516,10 @@ def removeSystemUserRest():
     """
     try:
         removeSystemUser(request.json)
-        return 'user deleted', 200
+        return {"message":'user deleted'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to remove the user(s).", 500
+        return {"message":"An error occured attempting to remove the user(s)."}, 500
 
 def removeSystemUser(jsondata):
     """ iterates through a list of system users and removes them in addition to revoking and
@@ -541,7 +541,7 @@ def removeSystemUser(jsondata):
         os.remove(config.certsPath + f"/{na}{uid}.pem")
         os.remove(config.certsPath + f"/{na}{uid}.key")
         os.remove(config.certsPath + f"/{na}{uid}.p12")
-    return '', 200
+    return {"message":'user removed'}, 200
 
 @socketio.on("events")
 @socket_auth(session=session)
@@ -655,7 +655,7 @@ def SendGeoChat():
         rawcot.clientInformation = None
         object = SendGeoChatController(rawcot)
         APIPipe.put(object.getObject())
-        return '200', 200
+        return {"message":'geochat sent'}, 200
     except Exception as e:
         logger.error(str(e))
 
@@ -676,7 +676,7 @@ def postPresence():
         jsonobj = JsonController().serialize_presence_post(jsondata)
         Presence = SendPresenceController(jsonobj).getCoTObject()
         APIPipe.put(Presence)
-        return Presence.modelObject.getuid(), 200
+        return {"message":Presence.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
         return "An error occurred managing presence.", 500
@@ -692,7 +692,7 @@ def putPresence():
         jsonobj = JsonController().serialize_presence_post(jsondata)
         Presence = UpdatePresenceController(jsonobj).getCoTObject()
         APIPipe.put(Presence)
-        return Presence.modelObject.getuid(), 200
+        return {"message":Presence.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
         return "An error occurred managing presence.", 500
@@ -714,10 +714,10 @@ def postRoute():
         jsonobj = JsonController().serialize_route_post(jsondata)
         Route = SendRouteController(jsonobj).getCoTObject()
         APIPipe.put(Route)
-        return Route.modelObject.getuid(), 200
+        return {"message":Route.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred managing route.", 500
+        return {"message":"An error occurred managing route."}, 500
 
 
 @app.route("/ManageCoT/getZoneCoT", methods=[restMethods.GET])
@@ -787,7 +787,7 @@ def getZoneCoT():
         return json.dumps(output)
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving zone CoT.", 500
+        return {"message":"An error occurred retrieving zone CoT."}, 500
 
 
 
@@ -873,7 +873,7 @@ def getGeoObject():
             ))])
 
         else:
-            return "unsupported coordinates"
+            return {"message":"unsupported coordinates"}, 500
 
         """                 and_(
                             Point.lon < 0,
@@ -940,7 +940,7 @@ def getGeoObject():
 
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving geo object.", 500
+        return {"message":"An error occurred retrieving geo object."}, 500
 
 
 #@app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
@@ -971,7 +971,7 @@ def postGeoObject():
         return simpleCoTObject.modelObject.getuid(), 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding geo object.", 500
+        return {"message":"An error occurred adding geo object."}, 500
 
 
 @app.route("/ManageGeoObject/putGeoObject", methods=["PUT"])
@@ -987,12 +987,12 @@ def putGeoObject():
             simpleCoTObject.modelObject.setuid(jsondata["uid"])
             simpleCoTObject.setXmlString(XMLCoTController().serialize_model_to_CoT(simpleCoTObject.modelObject))
             APIPipe.put(simpleCoTObject)
-            return simpleCoTObject.modelObject.getuid(), 200
+            return {"message":simpleCoTObject.modelObject.getuid()}, 200
         else:
             raise Exception("uid is a required parameter")
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred updating geo object.", 500
+        return {"message":"An error occurred updating geo object."}, 500
 
 
 @app.route("/ManageVideoStream")
@@ -1031,7 +1031,7 @@ def getVideoStream():
         return dumps(return_value), 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving video stream.", 500
+        return {"message":"An error occurred retrieving video stream."}, 500
 
 
 @app.route("/ManageVideoStream/deleteVideoStream", methods=[restMethods.DELETE])
@@ -1043,10 +1043,10 @@ def deleteVideoStream():
         jsonobj = JsonController().serialize_video_stream_delete(jsondata)
         EmergencyObject = SendDeleteVideoStreamController(jsonobj).getCoTObject()
         APIPipe.put(EmergencyObject)
-        return 'success', 200
+        return {"message":'success'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred deleting video stream.", 500
+        return {"message":"An error occurred deleting video stream."}, 500
 
 
 @app.route("/ManageVideoStream/postVideoStream", methods=["POST"])
@@ -1071,18 +1071,18 @@ def postVideoStream():
                 xmlString = tostring(XmlSerializer().from_fts_object_to_format(modelObject))
                 modelObject.xmlString = xmlString
                 APIPipe.put(modelObject)
-                return "entry already exists in db " + str(video.PrimaryKey) + " resending existing entry", 201
+                return {"message":"entry already exists in db " + str(video.PrimaryKey) + " resending existing entry"}, 201
 
         simpleCoTObject = SendVideoStreamController(jsondata).getCoTObject()
         print("putting in queue")
         APIPipe.put(simpleCoTObject)
         print(simpleCoTObject.xmlString)
         print('put in queue')
-        return simpleCoTObject.modelObject.getuid(), 200
+        return {"message":simpleCoTObject.modelObject.getuid()}, 200
 
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding video stream.", 500
+        return {"message":"An error occurred adding video stream."}, 500
 
 
 """@app.route("/ManageGeoObject/getGeoObject", methods=[restMethods.GET])
@@ -1110,10 +1110,10 @@ def postChatToAll():
         jsonobj = JsonController().serialize_chat_post(jsondata)
         ChatObject = SendChatController(jsonobj).getCoTObject()
         APIPipe.put(ChatObject)
-        return 'success', 200
+        return {"message":'success'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred sending chat.", 500
+        return {"message":"An error occurred sending chat."}, 500
 
 @app.route("/Sensor")
 @auth.login_required
@@ -1146,7 +1146,7 @@ def postDroneSensor():
         return DroneObject.modelObject.getuid(), 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding drone sensor.", 500
+        return {"message":"An error occurred adding drone sensor."}, 500
 
 
 @app.route("/Sensor/postSPI", methods=["POST"])
@@ -1159,10 +1159,10 @@ def postSPI():
         jsonobj = JsonController().serialize_spi_post(jsondata)
         SPIObject = SendSPISensorController(jsonobj).getCoTObject()
         APIPipe.put(SPIObject)
-        return SPIObject.modelObject.getuid(), 200
+        return {"message":SPIObject.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding SPI details.", 500
+        return {"message":"An error occurred adding SPI details."}, 500
 
 
 @app.route("/MapVid", methods=["POST"])
@@ -1173,7 +1173,7 @@ def mapvid():
     jsonobj = JsonController().serialize_imagery_video(jsondata)
     ImagerVideoObject = SendImageryVideoController(jsonobj).getCoTObject()
     APIPipe.put(ImagerVideoObject)
-    return 200
+    return {"message":"success"}, 200
 
 
 @app.route("/AuthenticateUser", methods=["GET"])
@@ -1207,12 +1207,12 @@ def authenticate_user():
             print('done defining dict')
             return_data = json.dumps({"uid": json_user["uid"]})
             print('returning data ' + str(return_data))
-            return return_data
+            return return_data, 200
         else:
             return None
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred authenticating user.", 500
+        return {"message": "An error occurred authenticating user."}, 500
 
 # @app.route("/ConnectionMessage", methods=[restMethods.POST])
 def ConnectionMessage():
@@ -1230,7 +1230,7 @@ def ConnectionMessage():
         object = SendChatController(rawcot).getCoTObject()
         object.type = "connmessage"
         APIPipe.put(object.SendGeoChat)
-        return '200', 200
+        return {"message":"success"}, 200
     except Exception as e:
         logger.error(str(e))
 
@@ -1242,13 +1242,13 @@ def APIUser():
             if request.method == restMethods.POST:
                 json = request.get_json()
                 dbController.create_APIUser(Username=json['username'], Token=json['token'])
-                return 'success', 200
+                return {"message":'success'}, 200
 
             elif request.method == restMethods.DELETE:
                 json = request.get_json()
                 username = json['username']
                 dbController.remove_APIUser(query=f'Username = "{username}"')
-                return 'success', 200
+                return {"message":'success'}, 200
 
             elif request.method == restMethods.GET:
                 output = dbController.query_APIUser()
@@ -1261,9 +1261,9 @@ def APIUser():
 
         except Exception as e:
             logger.error(str(e))
-            return "An error occurred updating api user record.", 500
+            return {"message":"An error occurred updating api user record."}, 500
     else:
-        return 'endpoint can only be accessed by approved IPs', 401
+        return {"message":'endpoint can only be accessed by approved IPs'}, 401
 
 
 @app.route("/RecentCoT", methods=[restMethods.GET])
@@ -1292,10 +1292,10 @@ def Clients():
             dumps = json.dumps(returnValue)
             return dumps
         else:
-            return 'endpoint can only be accessed by approved IPs', 401
+            return {"message":'endpoint can only be accessed by approved IPs'}, 401
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving client details.", 500
+        return {"message":"An error occurred retrieving client details."}, 500
 
 
 @app.route('/FederationTable', methods=[restMethods.GET, restMethods.POST, "PUT", restMethods.DELETE])
@@ -1326,7 +1326,7 @@ def FederationTable():
                     CommandPipe.put((id, "CREATE"))
                 else:
                     pass
-            return '', 200
+            return {"message":''}, 200
 
         elif request.method == "PUT":
             jsondata = json.loads(request.data)
@@ -1350,7 +1350,7 @@ def FederationTable():
                             pass
                     else:
                         pass
-            return '', 200
+            return {"message":''}, 200
 
         elif request.method == "DELETE":
             jsondata = json.loads(request.data)
@@ -1362,11 +1362,11 @@ def FederationTable():
                 else:
                     pass
                 dbController.remove_Federation(f'id = "{fed["id"]}"')
-            return '', 200
+            return {"message":''}, 200
 
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred accessing federation details.", 500
+        return {"message":"An error occurred accessing federation details."}, 500
 
 
 @app.route('/ManageKML/postKML', methods=[restMethods.POST])
@@ -1453,7 +1453,7 @@ def create_kml():
         # broacast DP
         broadcast_datapackage(uid)
 
-        return "successful", 200
+        return {"message":"successful"}, 200
     except Exception as e:
         logger.error(str(e))
 
@@ -1522,7 +1522,7 @@ def DataPackageTable():
             currentPath = config.DataPackageFilePath
             shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
             dbController.remove_datapackage(f'Hash = "{Hash}"')
-        return '200', 200
+        return {"message":'success'}, 200
 
     elif request.method == "POST":
         try:
@@ -1584,10 +1584,10 @@ def DataPackageTable():
                     'callsign']))  # fetchone() gives a tuple, so only grab the first element
                 dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser=callsign,
                                                 CreatorUid=creatorUid, Size=fileSize)
-            return 'successful', 200
+            return {"message":'success'}, 200
         except Exception as e:
             logger.error(str(e))
-            return "An error occurred accessing datapackage details.", 500
+            return {"message":"An error occurred accessing datapackage details."}, 500
 
     elif request.method == "PUT":
         updatedata = json.loads(request.data)
@@ -1601,7 +1601,7 @@ def DataPackageTable():
             if "Name" in dp:
                 updateDict["Name"] = dp["Name"]
             dbController.update_datapackage(query=f'PrimaryKey = {dp["PrimaryKey"]}', column_value=updateDict)
-        return "success", 200
+        return {"message":"success"}, 200
 
 
 @app.route("/MissionTable", methods=['GET', 'POST', 'DELETE'])
@@ -1619,12 +1619,12 @@ def mission_table():
             }
             return json.dumps(jsondata)
         elif request.method == "POST":
-            return b'', 200
+            return {"message":b''}, 200
         elif request.method == "DELETE":
-            return b'', 200
+            return {"message":b''}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred accessing mission details.", 500
+        return {"message":"An error occurred accessing mission details."}, 500
 
 
 @app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
@@ -1651,10 +1651,10 @@ def check_status():
             out = ApplyFullJsonController().serialize_model_to_json(FTSServerStatusObject)
             return json.dumps(out), 200
         else:
-            return 'endpoint can only be accessed by approved IPs', 401
+            return {"message":'endpoint can only be accessed by approved IPs'}, 401
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred accessing server status details.", 500
+        return {"message":"An error occurred accessing server status details."}, 500
 
 
 @app.route('/manageAPI/getHelp', methods=[restMethods.GET])
@@ -1668,7 +1668,7 @@ def help():
         return json.dumps(message)
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred accessing helper details.", 500
+        return {"message":"An error occurred accessing helper details."}, 500
 
 
 # @app.route('/changeStatus', methods=[restMethods.POST])
@@ -1758,10 +1758,10 @@ def changeStatus(jsonmessage):
         FTSObject.TCPDataPackageService.TCPDataPackageServiceIP = ip
         CommandPipe.put([functionNames.Status, FTSObject])
         out = CommandPipe.get()
-        return '200', 200
+        return {"message":'success'}, 200
 
     except Exception as e:
-        return '500', 500
+        return {"message":'500'}, 500
 
 
 def submitData(dataRaw):
@@ -1771,7 +1771,6 @@ def submitData(dataRaw):
     data.clientInformation = "SERVER"
     data.xmlString = dataRaw.encode()
     APIPipe.put([data])
-
 
 def emitUpdates(Updates):
     data = [SimpleClient()]
@@ -1881,7 +1880,7 @@ class ManageGeoObjects(BaseView):
             return json.dumps(output)
 
         except Exception as e:
-            return str(e), 500
+            return {"message":str(e)}, 500
 
     def post_geo_object(self):
         """this method is responsible for creating publishing and saving a geoobject to the repeater
@@ -1952,10 +1951,10 @@ class ManageGeoObjects(BaseView):
             APIPipe.put(simpleCoTObject)
             print(simpleCoTObject.xmlString)
             print('put in queue')
-            return simpleCoTObject.modelObject.getuid(), 200
+            return {"message":simpleCoTObject.modelObject.getuid()}, 200
         except Exception as e:
             logger.error(str(e))
-            return "An error occurred adding geo object.", 500
+            return {"message":"An error occurred adding geo object."}, 500
     
     def delete_repeated_messages(self):
         """delete an existing repeated message
@@ -1981,9 +1980,9 @@ class ManageGeoObjects(BaseView):
                     model_obj.stale = None # set to default val
                     delete_objs.append(model_obj)
                 self.make_request("publish", {"recipients": "*", "message": delete_objs}, False)
-                return 'operation successful', 200
+                return {"message":'operation successful'}, 200
             else:
-                return 'operation failed', 500
+                return {"message":'operation failed'}, 500
         except Exception as e:
             return str(e), 500
 

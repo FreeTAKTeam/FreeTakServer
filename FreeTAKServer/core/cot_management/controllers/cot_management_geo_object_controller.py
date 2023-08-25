@@ -1,3 +1,4 @@
+from FreeTAKServer.core.cot_management.controllers.cot_management_general_controller import COTManagementGeneralController
 from digitalpy.core.IAM.model.connection import Connection
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -24,10 +25,12 @@ class CotManagementGeoObjectController(Controller):
         configuration: Configuration,
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
+        self.general_controller = COTManagementGeneralController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         self.request = request
         self.response = response
+        self.general_controller.initialize(request, response)
     
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())

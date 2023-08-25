@@ -1,3 +1,4 @@
+from FreeTAKServer.components.core.xml_serializer.controllers.xml_serialization_controller import XMLSerializationController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.components.core.xml_serializer.configuration.xml_serializer_constants import (
@@ -51,3 +52,33 @@ class XmlSerializer(DefaultFacade):
             # the path to the manifest file
             manifest_path=MANIFEST_PATH,
         )
+        self.serialization_controller = XMLSerializationController(request, response, xml_serializer_action_mapper, configuration)
+
+    def initialize(self, request, response):
+        super().initialize(request, response)
+        self.serialization_controller.initialize(request, response)
+
+    def execute(self, method):
+        try:
+            if hasattr(self, method):
+                getattr(self, method)(**self.request.get_values())
+            else:
+                self.request.set_value("logger", self.logger)
+                self.request.set_value("config_loader", self.config_loader)
+                self.request.set_value("tracer", self.tracer)
+                response = self.execute_sub_action(self.request.get_action())
+                self.response.set_values(response.get_values())
+        except Exception as e:
+            self.logger.fatal(str(e))
+
+    @DefaultFacade.public
+    def convert_dict_to_xml(self, *args, **kwargs):
+        self.serialization_controller.convert_dict_to_xml(*args,**kwargs)
+
+    @DefaultFacade.public
+    def convert_xml_to_dict(self, *args, **kwargs):
+        self.serialization_controller.convert_xml_to_dict(*args,**kwargs)
+
+    @DefaultFacade.public
+    def convert_node_to_xml(self, *args, **kwargs):
+        self.serialization_controller.convert_node_to_xml(*args,**kwargs)

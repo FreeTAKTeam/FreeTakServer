@@ -1,1 +1,1 @@
-
+from ._detail import detail

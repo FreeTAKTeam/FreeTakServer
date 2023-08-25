@@ -56,8 +56,9 @@ class MissionChangeController(Controller):
                 type = "ADD_CONTENT",
                 mission_uid=mission_cot_uid,
                 creator_uid=creator_uid,
-                content_uid=cot_uid,
-                cot_detail_uid=None,
+                content_uid=None,
+                cot_detail_uid=cot_uid,
+
                 content_resource_uid=None
             )
 
@@ -67,8 +68,12 @@ class MissionChangeController(Controller):
         change_collection.version = "3"
         change_collection.nodeId = config.nodeID
 
-        mission_changes = self.persistence_controller.get_mission(mission_id).changes
-
+        mission = self.persistence_controller.get_mission(mission_id)
+        if mission == None:
+            self.response.set_value("mission_changes", None)
+            return None
+        else:
+            mission_changes = mission.changes
         for change in mission_changes:
             change_record = self.domain_controller.create_mission_change_record(config_loader)
             change_record.type = change.type
@@ -86,6 +91,12 @@ class MissionChangeController(Controller):
                 
                 change_record.contentResource = self.domain_controller.complete_mission_content_data(mission_content, enterprise_sync_db)
 
+            elif change.cot_detail_uid != None:
+                mission_cot = self.domain_controller.create_mission_cot_change(config_loader)
+                self.request.set_value("cot_uid", change.cot_detail_uid)
+                mission_cot_db = change.cot_detail
+                change_record.detail = self.domain_controller.complete_mission_cot_change(mission_cot_db, mission_cot)
+                
             change_collection.data = change_record
         
         serialized_change_collections = serialize_to_json(change_collection, self.request, self.execute_sub_action)

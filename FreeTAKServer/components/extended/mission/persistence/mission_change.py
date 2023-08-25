@@ -33,6 +33,6 @@ class MissionChange(MissionBase):
 
     content_resource: 'MissionContent' = relationship("MissionContent", back_populates="change")
 
-    #cot_detail_uid = Column(String(100), ForeignKey('MissionCoT.uid'))
+    cot_detail_uid = Column(String(100), ForeignKey('MissionCoT.uid'))
 
-    #cot_detail: 'MissionCoT' = relationship("MissionCoT", back_populates="change")
+    cot_detail: 'MissionCoT' = relationship("MissionCoT", back_populates="change")
