@@ -86,4 +86,4 @@ class contact(CoTNode):
 
     @phone.setter
     def phone(self, phone=None):
-        self.phone = phone
+        self.cot_attributes["phone"] = phone
