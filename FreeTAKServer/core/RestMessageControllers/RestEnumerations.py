@@ -23,6 +23,7 @@ class RestEnumerations:
         "anti Tank": "a-.-G-U-C-A-A",
         "AA": "a-.-G-U-C-D",
         "Engineer": "a-.-G-U-C-E",
+        "Mortar": "a-.-G-E-W-O"
     }
 
     ems_nicknames = {
