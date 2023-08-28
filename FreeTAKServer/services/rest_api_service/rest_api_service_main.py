@@ -1964,10 +1964,6 @@ class ManageGeoObjects(BaseView):
 # TODO: move this out of the rest_api_service and into it's own file in views
 # this will require changing it from using the API Pipe to use the ZManager instead
 
-ManageEmergency.decorators.append(auth.login_required)
-app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET","DELETE"])
-#app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
-
 APPLICATION_PROTOCOL = "xml"
 API_REQUEST_TIMEOUT = 5000
 
@@ -2054,8 +2050,9 @@ class RestAPI(DigitalPyService):
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
 
     def register_blueprints(self, app):
-        from .blueprints import geoobject_blueprint
+        from .blueprints import geoobject_blueprint, emergency_blueprint
         app.register_blueprint(geoobject_blueprint.page)
+        app.register_blueprint(emergency_blueprint.page)
 
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():

@@ -9,6 +9,11 @@
 # Author: (Future feature of EA-Bridge)
 #######################################################
 
+from FreeTAKServer.components.extended.emergency.controllers.emergency_general_controller import EmergencyGeneralController
+from FreeTAKServer.components.extended.emergency.controllers.emergency_off_controller import EmergencyOffController
+from FreeTAKServer.components.extended.emergency.controllers.emergency_on_controller import EmergencyOnController
+from FreeTAKServer.components.extended.emergency.controllers.emergency_persistence import EmergencyPersistence
+from FreeTAKServer.components.extended.emergency.controllers.emergency_sender_controller import EmergencySenderController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.components.extended.emergency.configuration.emergency_constants import (
@@ -32,10 +37,11 @@ class Emergency(DefaultFacade):
 
     def __init__(
         self,
-        emergency_action_mapper,
+        sync_action_mapper,
         request,
         response,
         configuration,
+        emergency_action_mapper=None,
         tracing_provider_instance=None,
     ):
         super().__init__(
@@ -66,3 +72,61 @@ class Emergency(DefaultFacade):
             # the path to the manifest file
             manifest_path=MANIFEST_PATH,
         )
+        self.persistency_controller = EmergencyPersistence(
+            sync_action_mapper, request, response, configuration
+        )
+        self.general_controller = EmergencyGeneralController(
+            sync_action_mapper, request, response, configuration
+        )
+        self.on_controller = EmergencyOnController(
+            sync_action_mapper, request, response, configuration, emergency_action_mapper
+        )
+        self.off_controller = EmergencyOffController(
+            sync_action_mapper, request, response, configuration, emergency_action_mapper
+        )
+        self.sender_controller = EmergencySenderController(
+            sync_action_mapper, request, response, configuration, emergency_action_mapper
+        )
+
+    def initialize(self, request, response):
+        super().initialize(request, response)
+        self.persistency_controller.initialize(request, response)
+        self.on_controller.initialize(request, response)
+        self.off_controller.initialize(request, response)
+        self.general_controller.initialize(request, response)
+        self.sender_controller.initialize(request, response)
+        
+    def execute(self, method):
+        try:
+            if hasattr(self, method):
+                getattr(self, method)(**self.request.get_values())
+            else:
+                self.request.set_value("logger", self.logger)
+                self.request.set_value("config_loader", self.config_loader)
+                self.request.set_value("tracer", self.tracer)
+                response = self.execute_sub_action(self.request.get_action())
+                self.response.set_values(response.get_values())
+        except Exception as e:
+            self.logger.fatal(str(e))
+
+    @DefaultFacade.public
+    def create_emergency_alert(self, *args, **kwargs):
+        """create an emergency alert"""
+        self.on_controller.evaluate_request(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_all_emergencies(self, *args, **kwargs):
+        """get all emergencies"""
+        self.persistency_controller.get_all_emergencies(*args, **kwargs)
+
+    @DefaultFacade.public
+    def cancel_emergency_alert(self, *args, **kwargs):
+        self.off_controller.evaluate_request(*args, **kwargs)
+
+    @DefaultFacade.public
+    def broadcast_emergency(self, *args, **kwargs):
+        self.sender_controller.broadcast_emergency(*args, **kwargs)
+
+    @DefaultFacade.public
+    def send_emergencies_to_client(self, *args, **kwargs):
+        self.sender_controller.send_emergencies_to_client(*args, **kwargs)
