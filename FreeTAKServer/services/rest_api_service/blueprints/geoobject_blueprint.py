@@ -17,6 +17,34 @@ from FreeTAKServer.services.rest_api_service.controllers.rest_api_communication_
 config = MainConfig.instance()
 page = Blueprint('geoobject', __name__)
 
+def create_geoobject_json(type, how, uid, lat, lon, timeout=0, name=None, remarks=None, link_uid=None):
+    json_geoobj = {
+            "event": {
+                "@how": how,
+                "@type": type,
+                "@uid": uid,
+                "@time": get_current_dtg(),
+                "@start": get_current_dtg(),
+                "@stale": get_current_dtg(timeout),
+                "point": {
+                    "@lat": lat,
+                    "@lon": lon,
+                    "@hae": "9999999",
+                    "@ce": "9999999",
+                    "@le": "9999999"
+                },
+                "detail": {
+                }
+            }
+        }
+    if name:
+        json_geoobj["event"]["detail"]["contact"] = {"@callsign": name}
+    if link_uid:
+        json_geoobj["event"]["detail"]["link"] = {"@uid": link_uid}
+    if remarks:
+        json_geoobj["event"]["detail"]["remarks"] = {"#text": remarks}
+    return json_geoobj
+
 @page.route("/ManageGeoObject/GetRepeatedMessages", methods=["GET"])
 @auth.login_required
 def get_repeated_messages():
@@ -50,28 +78,7 @@ def delete_repeated_messages():
         if response.get_value("success"):
             for id in ids:
                 # TODO move strings out to constants
-                json_result = {
-                    "event": {
-                        "@how": "h-g",
-                        "@type": "t-x-d-d",
-                        "@uid": id,
-                        "@time": get_current_dtg(),
-                        "@start": get_current_dtg(),
-                        "@stale": get_current_dtg(30),
-                        "point": {
-                            "@lat": 0,
-                            "@lon": 0,
-                            "@hae": "9999999",
-                            "@ce": "9999999",
-                            "@le": "9999999"
-                        },
-                        "detail": {
-                            "link": {
-                                "@uid": id
-                            }
-                        }
-                    }
-                }
+                json_result = create_geoobject_json("t-x-d-d", "m-g", id, 0, 0, link_uid=id)
                 RestAPICommunicationController().make_request("DeleteGeoObject", "XMLCoT", {"dictionary": json_result}, None, synchronous = False)
             return {"message":'operation successful'}, 200
         else:
@@ -109,29 +116,8 @@ def put_geoobject():
         lat = end_point.latitude
         lon = end_point.longitude
 
-    json_result = {
-        "event": {
-            "@how": RestEnumerations.how[jsondata["how"]],
-            "@type": obj_type,
-            "@uid": jsondata["uid"],
-            "@time": get_current_dtg(),
-            "@start": get_current_dtg(),
-            "@stale": get_current_dtg(jsondata["timeout"]),
-            "point": {
-                "@lat": lat,
-                "@lon": lon,
-                "@hae": "9999999",
-                "@ce": "9999999",
-                "@le": "9999999"
-            },
-            "detail": {
-                "contact": {
-                    "@callsign": jsondata["name"]
-                }
-            }
-        }
-    }
-
+    json_result = create_geoobject_json(obj_type, RestEnumerations.how[jsondata["how"]], jsondata["uid"], lat, lon, jsondata["timeout"], jsondata.get("name", None), jsondata.get("remarks", None), jsondata.get("link_uid", None))
+    
     RestAPICommunicationController().make_request("CreateGeoObject", "XMLCoT", {"dictionary": json_result, "repeated": jsondata.get("repeat", False)}, None, synchronous = False)
 
     return {"message":json_result["event"]["@uid"]}, 200
@@ -172,28 +158,7 @@ def post_geoobject():
             lat = end_point.latitude
             lon = end_point.longitude
 
-        json_result = {
-            "event": {
-                "@how": RestEnumerations.how[jsondata["how"]],
-                "@type": obj_type,
-                "@uid": str(uuid.uuid4()),
-                "@time": get_current_dtg(),
-                "@start": get_current_dtg(),
-                "@stale": get_current_dtg(jsondata["timeout"]),
-                "point": {
-                    "@lat": lat,
-                    "@lon": lon,
-                    "@hae": "9999999",
-                    "@ce": "9999999",
-                    "@le": "9999999"
-                },
-                "detail": {
-                    "contact": {
-                        "@callsign": jsondata["name"]
-                    }
-                }
-            }
-        }
+        json_result = create_geoobject_json(obj_type, RestEnumerations.how[jsondata["how"]], jsondata["uid"], lat, lon, jsondata["timeout"], jsondata.get("name", None), jsondata.get("remarks", None), jsondata.get("link_uid", None))
 
         RestAPICommunicationController().make_request("CreateGeoObject", "XMLCoT", {"dictionary": json_result, "repeated": jsondata.get("repeat", False)}, None, synchronous = False)
 
