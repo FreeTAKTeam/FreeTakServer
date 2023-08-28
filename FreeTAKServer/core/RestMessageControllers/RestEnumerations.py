@@ -101,7 +101,7 @@ class RestEnumerations:
         "suspect": "-s-",
         "joker": "-j-",
         "faker": "-k-",
-        "atoms": "-"}
+    }
 
     '''
     the base types without an id
