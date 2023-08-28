@@ -14,6 +14,19 @@ class RestEnumerations:
         'Blue': 'Blue'
     }
 
+    simplified_squad_types = {
+        "Sniper": "a-.-G-U-C-I-d",
+        "Medic": "a-.-G-U-i-m-etf",
+        "Recon": "a-.-G-U-C-R",
+        "LMG": "a-.-G-E-W-R",
+        "Grenadier": "a-.-G-E-W-Z",
+        "anti Tank": "a-.-G-U-C-A-A",
+        "AA": "a-.-G-U-C-D",
+        "Engineer": "a-.-G-U-C-E",
+    }
+
+    simplified_squad_types.update(simplified_squad_types)
+
     SquadTypes = {
         "Gnd Combat Infantry Rifleman": "a-.-G-U-C-I",
         "Gnd Combat Infantry grenadier": "a-.-G-E-W-Z",
