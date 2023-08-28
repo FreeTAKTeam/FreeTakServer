@@ -163,7 +163,7 @@ def post_geoobject():
             lat = end_point.latitude
             lon = end_point.longitude
 
-        json_result = create_geoobject_json(obj_type, RestEnumerations.how[jsondata["how"]], uuid.uuid4(), lat, lon, jsondata["timeout"], jsondata.get("name", None), jsondata.get("remarks", None), jsondata.get("link_uid", None))
+        json_result = create_geoobject_json(obj_type, RestEnumerations.how[jsondata["how"]], str(uuid.uuid4()), lat, lon, jsondata["timeout"], jsondata.get("name", None), jsondata.get("remarks", None), jsondata.get("link_uid", None))
 
         RestAPICommunicationController().make_request("CreateGeoObject", "XMLCoT", {"dictionary": json_result, "repeated": jsondata.get("repeat", False)}, None, synchronous = False)
 
