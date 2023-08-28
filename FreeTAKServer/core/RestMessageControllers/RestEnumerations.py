@@ -25,6 +25,27 @@ class RestEnumerations:
         "Engineer": "a-.-G-U-C-E",
     }
 
+    ems_nicknames = {
+        "Vehicle": "a-.-G-E-V-C",
+        "Ambulance": "a-.-G-E-V-m",
+        "Emergency Station": "a-.-G-I-i-e",
+        "Police Station": "a-.-G-I-i-l",
+        "gas Station": "a-.-G-I-R-P",
+        "Power Station": "a-.-G-I-U-E",
+        "Telco Station": "a-.-G-I-U-T",
+        "Hospital": "a-.-G-I-X-H",
+        "Resources": "a-.-G-U-i",
+        "Food": "b-r-.-O-O-O",
+        "Police": "a-.-G-U-i-l-cct",
+        "Incident": "a-.-X-i-o",
+        "SAR": "a-.-A-M-F-Q-H",
+        "Medevac": "a-.-G-U-C-V-R-E",
+        "Alarm": "b-l",
+        "Disorder": "b-l-l-l-cd",
+        "Refugees": "b-r-.-O-I-R",
+        "Riot": "b-r-.-O-I-V"
+    }
+
     
 
     SquadTypes = {
@@ -47,11 +68,29 @@ class RestEnumerations:
         "Ground": "a-.-G"
     }
 
+    IncidentTypeNicknames = {
+        "geo incident": "a-.-X-i-g",
+        "avalanche": "a-.-X-i-g-a",
+        "earthquake": "a-.-X-i-g-e",
+        "landslide": "a-.-X-i-g-l",
+        "subsistance": "a-.-X-i-g-s",
+        "volcano": "a-.-X-i-g-v",
+        "eruption": "a-.-X-i-g-v-e",
+        "drought": "a-.-X-i-m-d",
+        "cyclone": "a-.-X-i-m-c",
+        "tsunami": "a-.-X-i-m-n",
+        "fire": "a-.-X-i-f",
+        "medical incident": "a-.-X-i-h",
+        "vehicle accident": "a-.-X-i-t-v-a"
+    }
+
     supportedTypeEnumerations = {}
     
     supportedTypeEnumerations.update(otherTypes)
     supportedTypeEnumerations.update(SquadTypes)
     supportedTypeEnumerations.update(simplified_squad_types)
+    supportedTypeEnumerations.update(ems_nicknames)
+    supportedTypeEnumerations.update(IncidentTypeNicknames)
     """
     used when creating an emergency
     """
@@ -659,7 +698,6 @@ class RestEnumerations:
         "Backhoe": "a-.-G-E-V-E-H",
         "Ferry transporter": "a-.-G-E-V-E-F",
         "Crane loading device": "a-.-G-E-V-S-C",
-        "Ambulance": "a-.-G-E-V-U-A",
         "Tow truck": "a-.-G-E-V-U-T",
         "Medium": "a-.-S-C-A-L-S-M",
         "Tank": "a-.-S-C-A-L-S-T",
