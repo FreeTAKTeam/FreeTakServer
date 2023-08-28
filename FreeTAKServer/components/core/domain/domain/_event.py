@@ -185,3 +185,11 @@ class Event(CoTNode):
     @detail.setter
     def detail(self, detail=None):
         self.cot_attributes["detail"] = detail
+
+    @CoTProperty
+    def access(self):
+        return self.cot_attributes.get("access", None)
+    
+    @access.setter
+    def access(self, access=None):
+        self.cot_attributes["access"] = access
