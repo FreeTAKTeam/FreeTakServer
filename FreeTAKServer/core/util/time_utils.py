@@ -16,11 +16,14 @@ def get_unix(datetime: datetime) -> str:
     """
     return str(datetime.timestamp())
 
-def get_current_dtg() -> str:
+def get_current_dtg(delay = 0) -> str:
     """
     Returns a DTG string from the current time
+
+    Args:
+        delay (int): The number of seconds to delay the current time by
     """
-    return get_dtg(datetime.utcnow())
+    return get_dtg(dt.timedelta(seconds=delay) + datetime.utcnow())
 
 def get_current_unix() -> str:
     """

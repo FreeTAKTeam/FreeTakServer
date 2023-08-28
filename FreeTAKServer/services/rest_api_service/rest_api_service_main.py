@@ -1,7 +1,5 @@
 from flask import Flask, request, jsonify, session, send_file, views
-from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
-from flask_httpauth import HTTPTokenAuth
 from flask_login import current_user, LoginManager
 import threading
 from functools import wraps
@@ -58,14 +56,14 @@ from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
 from .views.connections_view_controller import ManageConnections
+from .controllers.authentication import auth
+from .controllers.persistency import dbController
 
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
-auth = HTTPTokenAuth(scheme='Bearer')
 app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 CORS(app)
 socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
 socketio.init_app(app, cors_allowed_origins="*")
@@ -93,33 +91,10 @@ defaultValues.default_values()
 loggingConstants = LoggingConstants(log_name="FTS-RestAPI_Service")
 logger = CreateLoggerController("FTS-RestAPI_Service", logging_constants=loggingConstants).getLogger()
 
-#TODO Change everything about this
-def init_config():
-    global dbController
-
-    dbController = DatabaseController()
-    dbController.session = db.session
-
-
 @app.errorhandler(404)
 def page_not_found(e):
     return 'this endpoint does not exist'
 
-
-@auth.verify_token
-def verify_token(token):
-    if token:
-        output = dbController.query_APIUser(query=f'token = "{token}"')
-        if output:
-            return output[0].Username
-        else:
-            output = dbController.query_systemUser(query=f'token = "{token}"')
-            if output:
-                output = output[0]
-                r = request
-                dbController.create_APICall(user_id=output.uid, timestamp=dt.datetime.now(), content=request.data,
-                                            endpoint=request.base_url)
-                return output.name
 
 
 def socket_auth(session=None):
@@ -968,7 +943,7 @@ def postGeoObject():
         APIPipe.put(simpleCoTObject)
         print(simpleCoTObject.xmlString)
         print('put in queue')
-        return simpleCoTObject.modelObject.getuid(), 200
+        return {"message": simpleCoTObject.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
         return {"message":"An error occurred adding geo object."}, 500
@@ -1143,7 +1118,7 @@ def postDroneSensor():
             SPISensor = SendSPISensorController(jsonobjSPI).getCoTObject()
             APIPipe.put(SPISensor)
             return json.dumps({"uid": DroneObject.modelObject.getuid(), "SPI_uid": SPISensor.modelObject.getuid()}), 200
-        return DroneObject.modelObject.getuid(), 200
+        return {"message": DroneObject.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
         return {"message":"An error occurred adding drone sensor."}, 500
@@ -1852,7 +1827,6 @@ class ManageGeoObjects(BaseView):
     def __init__(self, *args, **kwargs) -> None:
         endpoints: Dict[str, callable] = {
             "GetRepeatedMessages": self.get_repeated_messages,
-            "postGeoObject": self.post_geo_object,
             "DeleteRepeatedMessages": self.delete_repeated_messages,
         }
         super().__init__(endpoints)
@@ -1888,6 +1862,7 @@ class ManageGeoObjects(BaseView):
             str: the uid of the generated object
         """
         try:
+            print("received request")
             # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
             jsondata = request.get_json(force=True)
             # conver the json body to an object
@@ -1991,10 +1966,11 @@ class ManageGeoObjects(BaseView):
 
 ManageEmergency.decorators.append(auth.login_required)
 app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET","DELETE"])
-app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
+#app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
 
 APPLICATION_PROTOCOL = "xml"
 API_REQUEST_TIMEOUT = 5000
+
 
 class RestAPI(DigitalPyService):
     
@@ -2062,17 +2038,24 @@ class RestAPI(DigitalPyService):
 
     def start(self, APIPipea, CommandPipea, IP, Port, starttime, factory):
         print('running api')
+        
         super().start()
         self.initialize_connections(APPLICATION_PROTOCOL)
         ObjectFactory.configure(factory)
-        init_config()
+        from .controllers import persistency
+        persistency.init_config(app)
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime
         APIPipe = APIPipea
         CommandPipe = CommandPipea
+        self.register_blueprints(app)
         socketio.run(app, host=IP, port=Port)
         # try below if something breaks
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
+
+    def register_blueprints(self, app):
+        from .blueprints import geoobject_blueprint
+        app.register_blueprint(geoobject_blueprint.page)
 
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():
