@@ -25,7 +25,7 @@ class RestEnumerations:
         "Engineer": "a-.-G-U-C-E",
     }
 
-    simplified_squad_types.update(simplified_squad_types)
+    
 
     SquadTypes = {
         "Gnd Combat Infantry Rifleman": "a-.-G-U-C-I",
@@ -51,7 +51,7 @@ class RestEnumerations:
     
     supportedTypeEnumerations.update(otherTypes)
     supportedTypeEnumerations.update(SquadTypes)
-
+    supportedTypeEnumerations.update(simplified_squad_types)
     """
     used when creating an emergency
     """
