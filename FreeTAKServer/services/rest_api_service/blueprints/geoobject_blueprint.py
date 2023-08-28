@@ -13,9 +13,14 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.RestMessageControllers.SendSimpleCoTController import SendSimpleCoTController
 from FreeTAKServer.services.rest_api_service.controllers.rest_api_communication_controller import RestAPICommunicationController
+from FreeTAKServer.core.configuration.LoggingConstants import LoggingConstants
+from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 
 config = MainConfig.instance()
 page = Blueprint('geoobject', __name__)
+
+loggingConstants = LoggingConstants(log_name="FTS-RestAPI_Service")
+logger = CreateLoggerController("FTS-RestAPI_Service", logging_constants=loggingConstants).getLogger()
 
 def create_geoobject_json(type, how, uid, lat, lon, timeout=0, name=None, remarks=None, link_uid=None):
     json_geoobj = {
@@ -91,10 +96,10 @@ def delete_repeated_messages():
 def put_geoobject():
     # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
     jsondata = request.get_json(force=True)
-    if "-.-" in RestEnumerations.geoObject[jsondata["geoObject"]]:
-        obj_type = RestEnumerations.geoObject[jsondata["geoObject"]].replace("-.-", RestEnumerations.attitude[jsondata['attitude']])
+    if "-.-" in RestEnumerations.supportedTypeEnumerations[jsondata["geoObject"]]:
+        obj_type = RestEnumerations.supportedTypeEnumerations[jsondata["geoObject"]].replace("-.-", RestEnumerations.attitude[jsondata['attitude']])
     else:
-        obj_type = RestEnumerations.geoObject[jsondata["geoObject"]]
+        obj_type = RestEnumerations.supportedTypeEnumerations[jsondata["geoObject"]]
     
     if jsondata.get("address", None):
         locator = Nominatim(user_agent=str(uuid.uuid4()))
@@ -133,10 +138,10 @@ def post_geoobject():
         print("received request")
         # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
         jsondata = request.get_json(force=True)
-        if "-.-" in RestEnumerations.geoObject[jsondata["geoObject"]]:
-            obj_type = RestEnumerations.geoObject[jsondata["geoObject"]].replace("-.-", RestEnumerations.attitude[jsondata['attitude']])
+        if "-.-" in RestEnumerations.supportedTypeEnumerations[jsondata["geoObject"]]:
+            obj_type = RestEnumerations.supportedTypeEnumerations[jsondata["geoObject"]].replace("-.-", RestEnumerations.attitude[jsondata['attitude']])
         else:
-            obj_type = RestEnumerations.geoObject[jsondata["geoObject"]]
+            obj_type = RestEnumerations.supportedTypeEnumerations[jsondata["geoObject"]]
         
         if jsondata.get("address", None):
             locator = Nominatim(user_agent=str(uuid.uuid4()))
@@ -158,7 +163,7 @@ def post_geoobject():
             lat = end_point.latitude
             lon = end_point.longitude
 
-        json_result = create_geoobject_json(obj_type, RestEnumerations.how[jsondata["how"]], jsondata["uid"], lat, lon, jsondata["timeout"], jsondata.get("name", None), jsondata.get("remarks", None), jsondata.get("link_uid", None))
+        json_result = create_geoobject_json(obj_type, RestEnumerations.how[jsondata["how"]], uuid.uuid4(), lat, lon, jsondata["timeout"], jsondata.get("name", None), jsondata.get("remarks", None), jsondata.get("link_uid", None))
 
         RestAPICommunicationController().make_request("CreateGeoObject", "XMLCoT", {"dictionary": json_result, "repeated": jsondata.get("repeat", False)}, None, synchronous = False)
 

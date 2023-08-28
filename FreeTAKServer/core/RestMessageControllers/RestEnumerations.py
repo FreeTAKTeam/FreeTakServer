@@ -49,6 +49,8 @@ class RestEnumerations:
         "In Contact": "b-a-o-opn",
     }
 
+    supportedTypeEnumerations.update(emergencyTypes)
+
     """
     used to define how the message is sent
     """
@@ -89,17 +91,17 @@ class RestEnumerations:
     inserted into COTTYPE
     '''
     attitude = {
-        "friend": "a-f-",
-        "friendly": "a-f-",
-        "hostile": "a-h-",
-        "unknown": "a-u-",
-        "pending": "a-p-",
-        "assumed": "a-a-",
-        "neutral": "a-n-",
-        "suspect": "a-s-",
-        "joker": "a-j-",
-        "faker": "a-k-",
-        "atoms": "a-"}
+        "friend": "-f-",
+        "friendly": "-f-",
+        "hostile": "-h-",
+        "unknown": "-u-",
+        "pending": "-p-",
+        "assumed": "-a-",
+        "neutral": "-n-",
+        "suspect": "-s-",
+        "joker": "-j-",
+        "faker": "-k-",
+        "atoms": "-"}
 
     '''
     the base types without an id
@@ -1103,3 +1105,5 @@ class RestEnumerations:
         "DRUG VEHICLE": "b-r-.-O-I-D",
         "INTERNAL SECURITY FORCE": "b-r-.-O-I-F",
         "NON-COT OBJECT": "b-x.*"}
+    
+    supportedTypeEnumerations.update(geoObject)
