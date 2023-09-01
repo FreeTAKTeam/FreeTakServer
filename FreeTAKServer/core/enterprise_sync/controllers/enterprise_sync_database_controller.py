@@ -95,7 +95,7 @@ class EnterpriseSyncDatabaseController(Controller):
             db_controller.session.rollback()
             raise ex
             
-    def get_enterprise_sync_data_object(self, logger, object_uid: str=None, object_hash: str=None, *args, **kwargs) -> EnterpriseSyncDataObject:
+    def get_enterprise_sync_data_object(self, logger, object_uid: str=None, object_hash: str=None, object_id:str=None, *args, **kwargs) -> EnterpriseSyncDataObject:
         """retrieve an enterprise sync record based on the object uid
 
         Args:
@@ -104,12 +104,17 @@ class EnterpriseSyncDatabaseController(Controller):
         try:
             db_controller = DatabaseController()
             data_obj = None
-            if object_uid != None:
+            if object_uid != None and data_obj == None:
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == object_uid).first()
+            
             if object_hash != None and data_obj == None:
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == object_hash).first()
-            if object_uid == None and object_hash == None:
-                raise Exception("no object uid or hash provided")
+            
+            if object_id != None and data_obj == None:
+                data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.id == object_id).first()
+
+            if data_obj == None:
+                raise Exception("no object uid, hash or id provided")
             return data_obj
         except Exception as ex:
             logger.error("error thrown getting enterprise sync obj: %s err: %s", object_uid, ex)
