@@ -67,7 +67,7 @@ def retrieveData():
 
 @page.route('/Marti/sync/content', methods=["HEAD"])
 def enterprise_sync_head():
-    contents = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash')}, True).get_value("objectdata")# type: ignore
+    contents = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash')}, None, True).get_value("objectdata")# type: ignore
     if contents == None:
         return '', 404
     else:
