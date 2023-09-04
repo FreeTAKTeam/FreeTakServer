@@ -55,7 +55,7 @@ class MissionNotificationController(Controller):
 
         mission_log_notification = self.domain_controller.create_mission_notification(config_loader)
         
-        mission_log_notification.uid = str(uuid4())
+        mission_log_notification.uid = log_id
         mission_log_notification.type = "t-x-m-c-l"
         mission_log_notification.how = "h-g-i-g-o"
         mission_log_notification.detail.mission.type = "CHANGE"

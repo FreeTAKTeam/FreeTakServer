@@ -64,9 +64,14 @@ class MissionLogsController(Controller):
             contentHashes=json.dumps(mission_log_data.get("contentHashes", [])), 
             content = mission_log_data.get("content", ""),
             keywords=json.dumps(mission_log_data["keywords"]))
+        log_collection_domain_obj = self.domain_controller.create_log_collection(config_loader)
+        log_collection_domain_obj.version = "3"
+        log_collection_domain_obj.type = "com.bbn.marti.sync.model.LogEntry"
+        log_collection_domain_obj.nodeId = config.nodeID
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
-        serialized_message = serialize_to_json(completed_obj, self.request, self.execute_sub_action)
+        log_collection_domain_obj.data = completed_obj
+        serialized_message = serialize_to_json(log_collection_domain_obj, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_message)
         return serialized_message
