@@ -8,6 +8,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_persistence_c
 from FreeTAKServer.components.extended.mission.controllers.mission_subscription_controller import MissionSubscriptionController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 from .controllers.mission_general_controller import MissionGeneralController
+from digitalpy.core.zmanager.impl.async_action_mapper import AsyncActionMapper
 
 from .configuration.mission_constants import (
     ACTION_MAPPING_PATH,
@@ -29,6 +30,7 @@ class Mission(DefaultFacade):
         request,
         response,
         configuration,
+        action_mapper: AsyncActionMapper=None,
         tracing_provider_instance=None,
     ):
         super().__init__(
@@ -66,6 +68,7 @@ class Mission(DefaultFacade):
         self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
         self.notification_controller = MissionNotificationController(request, response, sync_action_mapper, configuration)
         self.cot_controller = MissionCOTController(request, response, sync_action_mapper, configuration)
+        self.injected_values["action_mapper"] = action_mapper
 
     def initialize(self, request, response):
         super().initialize(request, response)
@@ -91,7 +94,7 @@ class Mission(DefaultFacade):
                 response = self.execute_sub_action(self.request.get_action())
                 self.response.set_values(response.get_values())
         except Exception as e:
-            self.logger.fatal(str(e))
+             self.logger.fatal(str(e))
     
     def register(self, *args, **kwargs):
         super().register(*args, **kwargs)

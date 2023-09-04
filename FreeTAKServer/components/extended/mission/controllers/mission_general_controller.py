@@ -1,5 +1,7 @@
+import io
 import json
 from typing import List, Dict
+import zipfile
 from FreeTAKServer.components.extended.excheck.domain.mission_data import MissionData
 from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
@@ -9,6 +11,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_token_control
 from FreeTAKServer.components.core.domain.domain import mission
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
 from FreeTAKServer.core.domain.node import Node
+from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 from FreeTAKServer.core.util.serialization_utils import serialize_to_json
 from FreeTAKServer.core.util.time_utils import get_datetime_from_dtg, get_current_datetime
 from digitalpy.core.main.controller import Controller
@@ -16,6 +19,7 @@ from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.main.object_factory import ObjectFactory
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
@@ -175,7 +179,9 @@ class MissionGeneralController(Controller):
     
     def create_mission_content(self, mission_id, hashes=[], uids=[], *args, **kwargs):
         """create a new mission content object"""
-        sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData", objecthashs=hashes, objectuids=uids)
+        self.request.set_value("objecthashs", hashes)
+        self.request.set_value("objectuids", uids)
+        sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
         mission_contents = sub_response.get_value("objectdata")
         for mission_content in mission_contents:
             self.persistency_controller.create_mission_content(mission_id, hash=mission_content.hash, uid=mission_content.uid)
@@ -216,12 +222,44 @@ class MissionGeneralController(Controller):
         self.response.set_value("mission", serialized_mission_collection)
         return serialized_mission_collection
     
-    def add_contents_to_mission(self, mission_id, config_loader, hashes=[], uids=[], *args, **kwargs):
+    def add_contents_to_mission(self, mission_id, config_loader, action_mapper, hashes=[], uids=[], *args, **kwargs):
         """add contents to a mission"""
         self.request.set_value("objecthashs", hashes)
         self.request.set_value("objectuids", uids)
-        contents_metadata = self.execute_sub_action("GetMultipleEnterpriseSyncMetaData").get_value("objectmetadata")
-        for metadata in contents_metadata:
+        contents_metadata: List[EnterpriseSyncDataObject] = self.execute_sub_action("GetMultipleEnterpriseSyncMetaData").get_value("objectmetadata")
+        self.request.set_value("use_bytes", True)
+        contents_data = self.execute_sub_action("GetMultipleEnterpriseSyncData").get_value("objectdata")
+        for metadata, data in zip(contents_metadata, contents_data):
+            if metadata.mime_type == "application/x-zip-compressed":
+                zipf = zipfile.ZipFile(io.BytesIO(data))
+                file_data = zipf.open(zipf.filelist[0].filename).read()
+                change_data = json.loads(zipf.open("changes.json").read())
+                mission_changes = change_data['missionChanges'][0]['contentResource']
+
+                sub_request = ObjectFactory.get_new_instance("request")
+                sub_request.set_value("objectdata", file_data)
+                sub_request.set_value("objectuid", mission_changes.get("uid", metadata.PrimaryKey))
+                sub_request.set_value("objecthash", mission_changes.get("hash", metadata.hash))
+                sub_request.set_value("synctype", "content")
+                
+                sub_request.set_value("objecthash", mission_changes.get("hash", metadata.hash))
+                hashes.remove(metadata.hash)
+                metadata.hash = mission_changes.get("hash", metadata.hash)
+                hashes.append(metadata)
+
+                sub_request.set_value("file_name", mission_changes.get("name", metadata.file_name))
+                sub_request.set_value("mime_type", mission_changes.get("mimeType", metadata.mime_type))
+                sub_request.set_value("objkeywords", mission_changes.get("keywords", metadata.keywords))
+                sub_request.set_value("length", mission_changes.get("size", metadata.length))
+                sub_request.set_value("objectuid", mission_changes.get("uid", metadata.PrimaryKey))
+                sub_request.set_value("tool", "public")
+                sub_request.set_value("privacy", 1)
+                sub_request.set_action("SaveEnterpriseSyncData")
+                
+                sub_request.set_format("pickled")
+
+                action_mapper.process_action(sub_request, self.response, False, protocol="json")
+                
             if metadata.hash != None:
                 content = self.persistency_controller.create_mission_content(mission_id, id=metadata.hash)
                 self.persistency_controller.update_mission(mission_id, content=content)
@@ -234,8 +272,8 @@ class MissionGeneralController(Controller):
                 self.change_controller.create_mission_content_upload_record(mission_id, None, metadata.PrimaryKey)
                 uids.remove(metadata.PrimaryKey)
                 
-        for uid in uids:
-            self.persistency_controller.create_mission_cot(mission_id, uid=uid)
+        #for uid in uids:
+        #    self.persistency_controller.create_mission_cot(mission_id, uid=uid)
 
         self.get_mission(mission_id, config_loader)
 

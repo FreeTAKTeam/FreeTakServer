@@ -211,8 +211,8 @@ def add_mission_content_direct(mission_id):
         id = str(uuid4())
     else:
         id = request.args.get("hash")
-    
-    metadata = HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": id, "tool": tool, "objectdata": data, "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "synctype": "content", "mime_type": request.headers["Content-Type"]}).get_value("objectmetadata") # type: ignore
+
+    metadata = HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": id, "tool": tool, "objectdata": data, "objkeywords": [filename, creatorUid, "missionpackage"], "file_name": filename, "objstarttime": "", "synctype": "content", "mime_type": request.headers["Content-Type"]}).get_value("objectmetadata") # type: ignore
 
     HTTPTakApiCommunicationController().make_request("AddMissionContents", "mission", {"mission_id": mission_id, "hashes": [metadata.hash], "uids": []}, None, True).get_value("mission"),200
     

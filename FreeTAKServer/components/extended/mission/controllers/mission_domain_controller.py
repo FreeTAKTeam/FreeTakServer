@@ -196,7 +196,7 @@ class MissionDomainController(Controller):
     def complete_mission_record_db(self, mission_domain_object: MissionData, mission_db_object: DBMission, config_loader, subscription: DBSubscription = None, **kwargs) -> MissionData: # type: ignore
         """complete the mission record from a db object"""
         # complete the mission record db object
-        mission_domain_object.name = mission_db_object.PrimaryKey
+        mission_domain_object.name = mission_db_object.name
         mission_domain_object.description = mission_db_object.description
         mission_domain_object.chatRoom = mission_db_object.chatRoom
         mission_domain_object.baseLayer = mission_db_object.baseLayer

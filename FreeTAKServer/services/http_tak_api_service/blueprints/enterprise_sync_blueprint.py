@@ -67,17 +67,18 @@ def retrieveData():
 
 @page.route('/Marti/sync/content', methods=["HEAD"])
 def enterprise_sync_head():
-    contents = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", None, {"objecthash": request.args.get('hash')}, True).get_value("objectdata"), 200 # type: ignore
+    contents = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash')}, True).get_value("objectdata")# type: ignore
     if contents == None:
         return '', 404
     else:
         return '', 200
+    
 @page.route('/Marti/sync/content', methods=["PUT", "POST"])
 def enterprise_sync_upload():
     filename = request.args.get("filename")
     creatorUid = request.args.get("creatorUid")
     tool = request.args.get("tool", "public")
-    return HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", None, {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "tool": tool}, True).get_value("objectid"), 200 # type: ignore
+    return HTTPTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "", {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "tool": tool}, True).get_value("objectid"), 200 # type: ignore
 
 @page.route('/Marti/sync/content', methods=["GET"])
 def specificPackage():
@@ -85,10 +86,13 @@ def specificPackage():
     from os import listdir
     try:
         if request.method == 'GET' and request.args.get('uid') != None: # type: ignore
-            return HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objectuid": request.args.get('uid'), "use_bytes": True}, None, True).get_value("objectdata"), 200 # type: ignore
+            return_data = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objectuid": request.args.get('uid'), "use_bytes": True}, None, True).get_value("objectdata") # type: ignore
         else:
-            out_data = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash'), "use_bytes": True}, None, True).get_value("objectdata"), 200 # type: ignore
-            return out_data
+            return_data = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash'), "use_bytes": True}, None, True).get_value("objectdata") # type: ignore
+        if return_data != None:
+            return return_data, 200
+        else:
+            return "", 404
     except Exception as ex:
         print(ex)
         return '', 500
@@ -129,6 +133,8 @@ def putDataPackageTool(hash):
 @cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
     data: bytes = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", None, {"objecthash": hash}, True).get_value("objectdata") # type: ignore
+    if data == None:
+        return "", 404
     metadata: EnterpriseSyncDataObject = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncMetaData", None, {"objecthash": hash}, True).get_value("objectmetadata") # type: ignore
     with BytesIO() as file:
         file.write(data)

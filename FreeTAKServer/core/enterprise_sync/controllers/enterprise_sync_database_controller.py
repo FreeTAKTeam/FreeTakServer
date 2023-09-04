@@ -113,7 +113,7 @@ class EnterpriseSyncDatabaseController(Controller):
             if object_id != None and data_obj == None:
                 data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.id == object_id).first()
 
-            if data_obj == None:
+            if object_id == None and object_hash == None and object_uid == None:
                 raise Exception("no object uid, hash or id provided")
             return data_obj
         except Exception as ex:

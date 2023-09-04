@@ -75,7 +75,7 @@ def retrieveData():
 
 @page.route('/Marti/sync/content', methods=["HEAD"])
 def enterprise_sync_head():
-    contents = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", None, {"objecthash": request.args.get('hash')}, True).get_value("objectdata"), 200 # type: ignore
+    contents = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash')}, True).get_value("objectdata"), 200 # type: ignore
     if contents == None:
         return '', 404
     else:
@@ -85,7 +85,7 @@ def enterprise_sync_upload():
     filename = request.args.get("filename")
     creatorUid = request.args.get("creatorUid")
     tool = request.args.get("tool", "public")
-    return HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", None, {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "tool": tool}, True).get_value("objectid"), 200 # type: ignore
+    return HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "", {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "tool": tool}, True).get_value("objectid"), 200 # type: ignore
 
 @page.route('/Marti/sync/content', methods=["GET"])
 def specificPackage():
@@ -136,8 +136,10 @@ def putDataPackageTool(hash):
 @page.route('/Marti/api/sync/metadata/<hash>/tool', methods=["GET"])
 @cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
-    data: bytes = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", None, {"objecthash": hash}, True).get_value("objectdata") # type: ignore
-    metadata: EnterpriseSyncDataObject = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncMetaData", None, {"objecthash": hash}, True).get_value("objectmetadata") # type: ignore
+    data: bytes = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": hash}, True).get_value("objectdata") # type: ignore
+    metadata: EnterpriseSyncDataObject = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncMetaData", "", {"objecthash": hash}, True).get_value("objectmetadata") # type: ignore
+    if metadata == None:
+        return '', 404
     with BytesIO() as file:
         file.write(data)
         file.seek(0)
