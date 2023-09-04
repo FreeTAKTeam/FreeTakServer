@@ -277,3 +277,9 @@ class EnterpriseSyncGeneralController(Controller):
     def get_all_enterprise_sync_metadata(self, logger, *args, **kwargs):
         sync_data = self.persistence_controller.get_all_enterprise_sync_data_objects(logger)
         self.response.set_value("objectmetadata", sync_data) 
+
+    def delete_enterprise_sync_data(self, logger, *args, **kwargs):
+        data_obj = self.persistence_controller.get_enterprise_sync_data_object(*args, **kwargs)
+        self.filesystem_controller.delete_file(file_type=data_obj.file_type, object_uid=data_obj.PrimaryKey)
+        self.persistence_controller.delete_enterprise_sync_object(*args, **kwargs)
+       

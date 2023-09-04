@@ -76,3 +76,18 @@ class EnterpriseSyncFilesystemController(Controller):
             file_contents = file.read()
 
         return file_contents
+
+    def delete_file(self, file_type: str, object_uid: str, *args, **kwargs):
+        """
+        Delete an enterprise sync file from the file system.
+
+        Args:
+            filetype (str): The folder in which the file will be saved.
+            objectuid (str): The UID of the file which will be used as the file name.
+            *args: Additional positional arguments (not used).
+            **kwargs: Additional keyword arguments (not used).
+        """
+        root_path = config.EnterpriseSyncPath
+        complete_file_path = os.path.join(root_path, file_type, object_uid+'.txt')
+
+        os.remove(complete_file_path)

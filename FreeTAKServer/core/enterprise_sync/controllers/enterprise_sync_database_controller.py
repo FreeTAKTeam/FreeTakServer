@@ -27,6 +27,17 @@ class EnterpriseSyncDatabaseController(Controller):
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
     
+    def delete_enterprise_sync_object(self, objecthash:str=None, objectuid:str=None, *args, **kwargs):
+        db_controller = DatabaseController()
+        if objecthash != None:
+            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == objecthash).first()
+        elif objectuid != None:
+            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == objectuid).first()
+        else:
+            raise Exception("no object uid or hash provided")
+        db_controller.session.delete(data_obj)
+        db_controller.session.commit()
+
     def update_enterprise_sync_object(self, logger, filetype: str=None, objectuid: str=None, objecthash: str=None, obj_length: int=None, obj_keywords: str=None, obj_start_time: str=None, mime_type: str=None, tool: str=None, file_name: str=None, private: int=0, *args, **kwargs):
         try:
             db_controller = DatabaseController()

@@ -57,7 +57,6 @@ from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemy
 from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
 from .views.connections_view_controller import ManageConnections
 from .controllers.authentication import auth
-from .controllers.persistency import dbController
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -350,6 +349,8 @@ def updateSystemUser(jsondata):
         jsondata: dict
     Returns: None
     """
+    from .controllers.persistency import dbController
+
     for systemuser in jsondata['systemUsers']:
         update_column = {}
 
@@ -388,6 +389,7 @@ def addSystemUserRest():
 def addSystemUser(jsondata):
     """ method which adds new system user
     """
+    from .controllers.persistency import dbController
     errors = []
     for systemuser in jsondata['systemUsers']:
         try:
@@ -500,6 +502,7 @@ def removeSystemUser(jsondata):
     """ iterates through a list of system users and removes them in addition to revoking and
     deleting their certificates.
     """
+    from .controllers.persistency import dbController
     from FreeTAKServer.core.util.certificate_generation import revoke_certificate
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
@@ -525,8 +528,9 @@ def events(empty=None):
     # socketio.emit(json.dumps([current_notifications.logErrors, current_notifications.emergencys]))
     emit("eventsUpdate", {"events": current_notifications.logErrors + current_notifications.emergencys})
 
-@app.route('/GenerateQR', methods=["GET"])
+#@app.route('/GenerateQR', methods=["GET"])
 def generate_qr():
+    from .controllers.persistency import dbController
     datapackage_id = request.args.get('datapackage_id')
     dp = dbController.query_datapackage(query=f"PrimaryKey={datapackage_id}")[0]
     qr = qrcode.QRCode(
@@ -587,6 +591,7 @@ def getlogErrors():
 
 
 def getemergencys():
+    from .controllers.persistency import dbController
     output = dbController.query_ActiveEmergency()
     for i in range(0, len(output)):
         try:
@@ -699,6 +704,7 @@ def postRoute():
 @auth.login_required
 def getZoneCoT():
     try:
+        from .controllers.persistency import dbController
         from math import sqrt, degrees, cos, sin, radians, atan2
         from sqlalchemy import or_, and_
         jsondata = request.get_json(force=True)
@@ -776,6 +782,7 @@ def ManageGeoObject():
 @auth.login_required
 def getGeoObject():
     try:
+        from .controllers.persistency import dbController
         from math import sqrt, degrees, cos, sin, radians, atan2
         from sqlalchemy import or_, and_
         # jsondata = request.get_json(force=True)
@@ -989,6 +996,7 @@ def getVideoStream():
         from json import dumps
         from urllib import parse
         from FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor import Sensor
+        from .controllers.persistency import dbController
 
         output = dbController.query_video()
         return_value = {"video_stream": {}}
@@ -1031,6 +1039,8 @@ def postVideoStream():
     the db and sends a CoT to all connected clients containing stream information."""
     from FreeTAKServer.model.FTSModel.Event import Event
     from lxml.etree import tostring  # pylint: disable=no-name-in-module; name is in module
+    from .controllers.persistency import dbController
+
     try:
         jsondata = request.get_json(force=True)
 
@@ -1155,6 +1165,7 @@ def mapvid():
 @auth.login_required
 def authenticate_user():
     try:
+        from .controllers.persistency import dbController
         print('request made')
         username = request.args.get("username")
         password = request.args.get("password")
@@ -1212,6 +1223,7 @@ def ConnectionMessage():
 
 @app.route("/APIUser", methods=[restMethods.GET, restMethods.POST, restMethods.DELETE])
 def APIUser():
+    from .controllers.persistency import dbController
     if request.remote_addr in config.AllowedCLIIPs:
         try:
             if request.method == restMethods.POST:
@@ -1277,6 +1289,8 @@ def Clients():
 @auth.login_required()
 def FederationTable():
     try:
+        from .controllers.persistency import dbController
+
         import random
         if request.method == restMethods.GET:
             output = dbController.query_ActiveFederation()
@@ -1349,7 +1363,7 @@ def FederationTable():
 def create_kml():
     # Make a connection to the MainConfig object
     config = MainConfig.instance()
-
+    from .controllers.persistency import dbController
     try:
         from pykml.factory import KML_ElementMaker as KML
         from pykml import parser
@@ -1457,149 +1471,6 @@ def broadcast_datapackage(uid):
     cot.xmlString = clientXML.encode()
     newCoT = SendOtherController(cot, addToDB=False)
     APIPipe.put(newCoT.getObject())
-
-
-@app.route('/DataPackageTable', methods=[restMethods.GET, restMethods.POST, restMethods.DELETE, "PUT"])
-@auth.login_required()
-def DataPackageTable():
-    from pathlib import Path
-
-    # Make a connection to the MainConfig object
-    config = MainConfig.instance()
-
-    if request.method == "GET":
-        return_vals = []
-        output = RestAPICommunicationController().make_request("GetAllEnterpriseSyncMetaData", "", {}, None, True).get_value("objectmetadata")
-        for i in range(0, len(output)):
-            updated_val = {}
-            output[i] = output[i].__dict__
-            updated_val['PrimaryKey'] = output[i]["keywords"][0].keyword
-            updated_val['SubmissionUser'] = output[i]['submitter']
-            updated_val['Size'] = output[i]['length']
-            updated_val['Privacy'] = output[i]['private']
-            updated_val['SubmissionDateTime'] = output[i]['start_time']
-            return_vals.append(updated_val)
-            del (output[i]['_sa_instance_state'])
-            #del (output[i]['CreatorUid'])
-            #del (output[i]['MIMEType'])
-            #del (output[i]['uid'])
-        return jsonify(json_list=return_vals), 200
-
-    elif request.method == "DELETE":
-        jsondata = json.loads(request.data)
-        Hashes = jsondata['DataPackages']
-        for hash in Hashes:
-            Hash = hash['hash']
-            print(Hash)
-            obj = dbController.query_datapackage(f'Hash = "{Hash}"')
-            print(obj)
-            # TODO: make this coherent with constants
-            currentPath = config.DataPackageFilePath
-            shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
-            dbController.remove_datapackage(f'Hash = "{Hash}"')
-        return {"message":'success'}, 200
-
-    elif request.method == "POST":
-        try:
-            import string
-            import random
-            from pathlib import PurePath, Path
-            import hashlib
-            from zipfile import ZipFile
-            from defusedxml import ElementTree as etree
-            import uuid
-            from lxml.etree import SubElement, Element  # pylint: disable=no-name-in-module
-            dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
-            letters = string.ascii_letters
-            # uid = ''.join(random.choice(letters) for i in range(4))
-            # uid = 'uid-' + str(uid)
-            uid = str(uuid.uuid4())
-            filename = request.args.get('filename')
-            creatorUid = request.args.get('creatorUid')
-            file = request.files.getlist('assetfile')[0]
-            with ZipFile(file, mode='a') as zip:
-                print(zip.infolist())
-                if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
-                    manifestXML = Element("MissionPackageManifest", version="2")
-                    config = SubElement(manifestXML, "Configuration")
-                    SubElement(config, "Parameter", name="uid", value=uid)
-                    SubElement(config, "Parameter", name="name", value=filename)
-
-                    contents = SubElement(manifestXML, "Contents")
-                    for fileName in zip.namelist():
-                        SubElement(contents, "Content", ignore="false", zipEntry=str(fileName))
-                    # manifest = zip.open('MANIFEST\\manifest.xml', mode="w")
-                    zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
-                    print(zip.namelist())
-                    file.seek(0)
-                else:
-                    pass
-
-            tempuid = str(uuid.uuid4())
-            app.logger.info(f"Data Package hash = {str(tempuid)}")
-            directory = Path(dp_directory, tempuid)
-            if not Path.exists(directory):
-                os.mkdir(str(directory))
-            file.seek(0)
-            filepath = str(PurePath(Path(directory), Path(filename)))
-            file.save(filepath)
-            openfile = open(str(PurePath(Path(str(directory), filename))), mode='rb')
-            file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-            openfile.close()
-            newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
-            os.rename(str(PurePath(Path(directory))), newDirectory)
-            fileSize = Path(str(newDirectory), filename).stat().st_size
-            if creatorUid == None:
-                callsign = str(dbController.query_user(query=f'uid = "server-uid"', column=[
-                    'callsign']))  # fetchone() gives a tuple, so only grab the first element
-                dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser='server',
-                                                CreatorUid='server-uid', Size=fileSize)
-            else:
-                callsign = str(dbController.query_user(query=f'uid = f"{creatorUid}"', column=[
-                    'callsign']))  # fetchone() gives a tuple, so only grab the first element
-                dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser=callsign,
-                                                CreatorUid=creatorUid, Size=fileSize)
-            return {"message":'success'}, 200
-        except Exception as e:
-            logger.error(str(e))
-            return {"message":"An error occurred accessing datapackage details."}, 500
-
-    elif request.method == "PUT":
-        updatedata = json.loads(request.data)
-        DataPackages = updatedata['DataPackages']
-        for dp in DataPackages:
-            updateDict = {}
-            if 'Privacy' in dp:
-                updateDict["Privacy"] = int(dp["Privacy"])
-            if "Keywords" in dp:
-                updateDict["Keywords"] = dp["Keywords"]
-            if "Name" in dp:
-                updateDict["Name"] = dp["Name"]
-            dbController.update_datapackage(query=f'PrimaryKey = {dp["PrimaryKey"]}', column_value=updateDict)
-        return {"message":"success"}, 200
-
-
-@app.route("/MissionTable", methods=['GET', 'POST', 'DELETE'])
-@auth.login_required()
-def mission_table():
-    try:
-        if request.method == "GET":
-            import random
-
-            jsondata = {
-                "version": "3",
-                "type": "Mission",
-                "data": [],
-                "nodeId": "6ff99444fa124679a3943ee90308a44c9d794c02-e5a5-42b5-b4c8-625203ea1287"
-            }
-            return json.dumps(jsondata)
-        elif request.method == "POST":
-            return {"message":b''}, 200
-        elif request.method == "DELETE":
-            return {"message":b''}, 200
-    except Exception as e:
-        logger.error(str(e))
-        return {"message":"An error occurred accessing mission details."}, 500
 
 
 @app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
@@ -2050,9 +1921,12 @@ class RestAPI(DigitalPyService):
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
 
     def register_blueprints(self, app):
-        from .blueprints import geoobject_blueprint, emergency_blueprint
+        from .blueprints import geoobject_blueprint, emergency_blueprint, user_management_blueprint, datapackages_blueprint, missions_blueprint
         app.register_blueprint(geoobject_blueprint.page)
         app.register_blueprint(emergency_blueprint.page)
+        app.register_blueprint(user_management_blueprint.page)
+        app.register_blueprint(datapackages_blueprint.page)
+        app.register_blueprint(missions_blueprint.page)
 
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():
