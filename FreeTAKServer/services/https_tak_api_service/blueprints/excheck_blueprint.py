@@ -49,7 +49,7 @@ def startList(subscription):
 @page.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
     try:
-        HTTPSTakApiCommunicationController().make_request("CreateTemplate", "excheck", {"templatedata": request.data, "creator_uid": request.args.get("creatorUid", "")}, None, False)
+        HTTPSTakApiCommunicationController().make_request("CreateTemplate", "excheck", {"templatedata": request.data, "creator_uid": request.args.get("creatorUid", request.args.get("clientUid", ""))}, None, False)
         return "done", 200
     except Exception as ex:
         print(ex)

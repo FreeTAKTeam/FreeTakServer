@@ -86,6 +86,8 @@ class ExCheckTemplateController(Controller):
             templateuid (str): the uid of the new template
             templatedata (str): the content of the template
         """
+        if isinstance(templatedata, str):
+            templatedata = templatedata.encode("utf-8")
         parsed_template = etree.fromstring(templatedata)
         
         template_uid = parsed_template.find("checklistDetails").find("uid").text

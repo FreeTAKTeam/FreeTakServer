@@ -300,20 +300,7 @@ def ExCheckTemplatesAlt():
         print(ex)
         return '', 500
 """
-@app.route('/Marti/api/excheck/template', methods=['POST'])
-def template():
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        excheck_facade.create_template(request.data)
-        return 'template created successfully', 200
-        # return ExCheckController().template(PIPE)
-    except Exception as ex:
-        print(ex)
-        return '', 500
-    
+
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
     try:
