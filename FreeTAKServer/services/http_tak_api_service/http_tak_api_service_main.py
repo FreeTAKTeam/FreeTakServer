@@ -300,7 +300,7 @@ def ExCheckTemplatesAlt():
         print(ex)
         return '', 500
 """
-
+"""
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
     try:
@@ -312,7 +312,7 @@ def startList(subscription):
     except Exception as ex:
         print(ex)
         return '', 500
-
+"""
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
     return ExCheckController().update_checklist()

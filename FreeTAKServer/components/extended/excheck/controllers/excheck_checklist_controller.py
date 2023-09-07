@@ -131,7 +131,7 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("mission_id", checklist_uuid)
         self.request.set_value("mission_data", b'')
         self.request.set_value("mission_data_args", {
-            'defaultRole': "Owner",
+            'defaultRole': "MISSION_OWNER",
             'downloaded': False,
             'connected': True,
             'isSubscribed': True,
@@ -149,6 +149,8 @@ class ExCheckChecklistController(Controller):
             'serviceUri': '',
             'classification': 'UNCLASSIFIED'})
         self.request.set_value("creatorUid", "ExCheck")
+
+        self.request.set_context("mission")
 
         self.execute_sub_action("PutMission")
 
