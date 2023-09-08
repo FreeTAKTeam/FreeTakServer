@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from .enterprise_sync_keyword import EnterpriseSyncKeyword
 
-from sqlalchemy import Integer, String, Column, ForeignKey, DateTime
+from sqlalchemy import Integer, String, Column, ForeignKey, DateTime, Sequence
 from sqlalchemy.orm import relationship, backref
 
 from FreeTAKServer.model.SQLAlchemy.Root import Base
@@ -16,8 +16,8 @@ class EnterpriseSyncDataObject(Base):
     so they can be indexed and found in the file system"""
 
     __tablename__ = "EnterpriseSyncDataObject"
-    PrimaryKey = Column(String(100), primary_key=True)
-    id = Column(Integer, autoincrement=True, default=0 )
+    PrimaryKey = Column(String(100))
+    id = Column(Integer, autoincrement=True, primary_key=True)
     file_type = Column(String(20))
     hash = Column(String(150))
     length = Column(Integer)

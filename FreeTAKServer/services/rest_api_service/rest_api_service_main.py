@@ -374,7 +374,7 @@ def addSystemUserWebsocket(jsondata):
     except Exception as e:
         logger.error(str(e))
         return {"message": "An error occured attempting to add user(s) to the system."}, 500
-
+'''
 @app.route('/ManageSystemUser/postSystemUser', methods=["POST"])
 @auth.login_required
 def addSystemUserRest():
@@ -385,7 +385,7 @@ def addSystemUserRest():
     except Exception as e:
         logger.error(str(e))
         return "An error occured attempting to add user(s) to the system.", 500
-
+'''
 def addSystemUser(jsondata):
     """ method which adds new system user
     """

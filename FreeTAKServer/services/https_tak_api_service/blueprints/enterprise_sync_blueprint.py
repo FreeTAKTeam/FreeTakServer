@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path, PurePath
 import random
 import string
@@ -59,10 +60,10 @@ def retrieveData():
             }
     for pack in packages:
         package_dict["results"].append({
-            "UID": pack.id,
+            "UID": str(pack.PrimaryKey),
             "Name": pack.keywords[0].keyword,
             "Hash": pack.PrimaryKey,
-            "PrimaryKey": pack.id,
+            "PrimaryKey": str(pack.id),
             "SubmissionDateTime": str(pack.start_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
             "SubmissionUser": pack.submitter,
             "CreatorUid": pack.creator_uid,
@@ -71,7 +72,7 @@ def retrieveData():
             "Size": pack.length
         })
     print(str(package_dict))
-    return str(package_dict)
+    return json.dumps(package_dict)
 
 @page.route('/Marti/sync/content', methods=["HEAD"])
 def enterprise_sync_head():
