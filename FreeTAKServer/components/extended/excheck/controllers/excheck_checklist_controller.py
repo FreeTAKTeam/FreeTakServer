@@ -132,6 +132,7 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("mission_data", b'')
         self.request.set_value("mission_data_args", {
             'defaultRole': "MISSION_OWNER",
+            'tool': 'ExCheck',
             'downloaded': False,
             'connected': True,
             'isSubscribed': True,
