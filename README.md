@@ -97,7 +97,7 @@ You can also support the project by buying one of our [t-shirts](http://tee.pub/
 > Not a big fan of Paypal, but that is the easiest way I found for an initial attempt. We may go to some more ethical system in future.
 Finally you can help the project by spamming FTS information, starring our repositories in github and Pip and upvoting us.
 
-![star-history-2023123](https://user-images.githubusercontent.com/60719165/214117639-8bd41fd2-adea-4d41-a3b5-c75dca57b369.png)
+[![Star History Chart](https://api.star-history.com/svg?repos=FreeTAKTeam/FreeTakServer,tkuester/taky,TAK-Product-Center/Server&type=Date)](https://star-history.com/#FreeTAKTeam/FreeTakServer&tkuester/taky&TAK-Product-Center/Server&Date)
 
 
 ## Open Source Notes
