@@ -1,11 +1,15 @@
 from digitalpy.core.parsing.load_configuration import Configuration
 from .model_constants import EventVariables as vars
 import uuid
+from typing import TYPE_CHECKING
 from datetime import datetime as dt
 import datetime
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 from lxml import etree
+
+if TYPE_CHECKING:
+    from . import point, detail
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 DEFAULT_STALE_TIME = 60
@@ -171,7 +175,7 @@ class Event(CoTNode):
         self.cot_attributes["type"] = type
 
     @CoTProperty
-    def point(self):
+    def point(self) -> 'point':
         return self.cot_attributes.get("point", None)
 
     @point.setter
@@ -179,7 +183,7 @@ class Event(CoTNode):
         self.cot_attributes["point"] = point
 
     @CoTProperty
-    def detail(self):
+    def detail(self) -> 'detail':
         return self.cot_attributes.get("detail", None)
 
     @detail.setter
