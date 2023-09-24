@@ -23,14 +23,16 @@ class XMLSerializationController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
 
-    def convert_xml_to_dict(self, message: str, **kwargs):
+    def convert_xml_to_dict(self, message: str, **kwargs) -> dict:
         """converts the provided xml string to a dictionary
 
         Args:
             message (str): xml string to be converted to a dictionary
         """
-        self.response.set_value("dict", xmltodict.parse(message))
-
+        dict_obj = xmltodict.parse(message)
+        self.response.set_value("dict", dict_obj)
+        return dict_obj
+    
     def convert_dict_to_xml(self, xml_dict: dict, *args, **kwargs) -> str:
         """converts the provided dictionary to an xml string
 
@@ -38,7 +40,7 @@ class XMLSerializationController(Controller):
             xml_dict (dict): a dictionary parsed by xmltodict
         """
         self.response.set_value("xml", xmltodict.unparse(xml_dict))
-    
+
     def convert_node_to_xml(self, node, **kwargs):
         """converts the provided node to an xml string
 
@@ -49,6 +51,20 @@ class XMLSerializationController(Controller):
             "message", self._serialize_node(node, node.__class__.__name__.lower())
         )
 
+    def convert_xml_to_node(self, xml, model_object, object_class_name, **kwargs):
+        if not isinstance(model_object, Node):
+            raise TypeError("model_object must be of type Node")
+        
+        if not isinstance(xml, str) and not isinstance(xml, bytes):
+            raise TypeError("xml must be of type str")
+        
+        if not isinstance(object_class_name, str):
+            raise TypeError("object_class_name must be of type str")
+        
+        dictionary = self.convert_xml_to_dict(xml)
+        self.request.set_value("dictionary", dictionary)
+        response = self.execute_sub_action("DictToNode")
+        self.response.set_value("model_object", response.get_value("model_object"))
     def _serialize_node(
         self, node: Node, tag_name: str, level=0
     ) -> Union[str, Element]:

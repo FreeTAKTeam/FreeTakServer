@@ -82,3 +82,7 @@ class XmlSerializer(DefaultFacade):
     @DefaultFacade.public
     def convert_node_to_xml(self, *args, **kwargs):
         self.serialization_controller.convert_node_to_xml(*args,**kwargs)
+
+    @DefaultFacade.public
+    def convert_xml_to_node(self, *args, **kwargs):
+        self.serialization_controller.convert_xml_to_node(*args,**kwargs)
