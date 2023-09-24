@@ -22,15 +22,15 @@
             "description" : "",
             "properties":
             {
-                "contentResource":
+                "details":
                 {
-					"$ref" : "#/definitions/MissionContentData",
-					"minItems" : 0,
+					"$ref" : "#/definitions/details",
+					"minItems" : 1,
 					"maxItems" : 1
 				}
             }
         },
-        "MissionContentData":
+        "details":
         {
             "type": "object"
         }

@@ -13,20 +13,6 @@ class MissionCoT(MissionBase):
     
     uid = Column(String(100), primary_key=True)
     
-    type: str = Column(String(100))
-
-    callsign: str = Column(String(100))
-
-    iconset_path: str = Column(String(100))
-
-    lat: float = Column(Float)
-    
-    lon: float = Column(Float)
-
-    xml_content: str = Column(String(10000))
-
-    create_time: datetime = Column(DateTime)
-    
     mission_uid: str = Column(String, ForeignKey(Mission.PrimaryKey), primary_key=True) # type: ignore
 
     mission : Mission = relationship(Mission, back_populates="cots")

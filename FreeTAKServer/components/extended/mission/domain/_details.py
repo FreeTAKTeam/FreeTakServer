@@ -10,7 +10,7 @@ class details(CoTNode):
         self.cot_attributes["type"] = None
         self.cot_attributes["callsign"] = None
         self.cot_attributes["iconsetPath"] = None
-
+        
     @CoTProperty
     def type(self):
         data = self.cot_attributes.get("type", None)

@@ -1,0 +1,27 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://iec.ch/TC57/emergency_alert#",
+	"type": "object",
+	"properties":
+	{
+		"emergency_alert":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/MissionListCoTContent" }
+			]
+		}
+	},
+	"definitions":
+	{
+		"MissionListCoTContent" : 
+		{
+			"type": "object",
+			"description" : "",
+			"properties":
+			{
+			}
+		}
+	}
+}

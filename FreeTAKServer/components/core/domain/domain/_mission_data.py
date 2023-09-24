@@ -178,11 +178,13 @@ class MissionData(CoTNode):
 
     @CoTProperty
     def uids(self):
-        return self.cot_attributes.get("uids")
+        children: List = self.get_children_ex(children_type="MissionCoTContent")
+        children.extend(self.get_children_ex(children_type="MissionListCoTContent"))
+        return children
     
     @uids.setter
-    def uids(self, uids=None):
-        self.cot_attributes["uids"] = uids
+    def uids(self, uid=None): # type: ignore
+        self.add_child(uid)
 
     @CoTProperty
     def passwordProtected(self):

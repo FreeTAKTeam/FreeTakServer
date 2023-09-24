@@ -8,6 +8,7 @@
 # 
 #######################################################
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
+from FreeTAKServer.core.cot_management.controllers.cot_management_persistence_controller import CoTManagementPersistenceController
 from FreeTAKServer.core.domain.node import Node
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -31,10 +32,12 @@ class COTManagementGeneralController(Controller):
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
         self.private_cot_controller = CoTManagementPrivateCoTController(request, response, sync_action_mapper, configuration)
+        self.persistence_controller = CoTManagementPersistenceController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.private_cot_controller.initialize(request, response)
+        self.persistence_controller.initialize(request, response)
 
     def share_privately(self, cot_id: str, recipient_id: str):
         """Shares a specific COT privately with another user.
@@ -124,18 +127,28 @@ class COTManagementGeneralController(Controller):
         if cot_model_object.detail is not None:
             missions = [d.mission for d in cot_model_object.detail.marti.dest if d.mission is not None]
         if len(missions)>0:
+
+            self.persistence_controller.create_cot(cot_model_object)
+
             self.request.set_value("xml_dict", cot_dict)
-            cot_xml = self.execute_sub_action("DictToXML").get_value("xml")            
+            cot_xml = self.execute_sub_action("DictToXML").get_value("xml")
 
             if cot_model_object.type == "b-i-v":
-                action_mapper.process_action("CreateMissionVideoAlias", self.request, self.response)
-
+                self.request.set_value("mission_ids", missions)
+                self.request.set_value("cot_type", cot_model_object.type)
+                self.request.set_value("callsign", cot_model_object.detail._video.ConnectionEntry.path)
+                self.request.set_value("uid", cot_model_object.uid)
+                self.request.set_value("lat", cot_model_object.point.lat)
+                self.request.set_value("lon", cot_model_object.point.lon)
+                self.request.set_value("iconset_path", cot_model_object.detail.usericon.iconsetpath)
+                self.request.set_value("xml_content", cot_xml)
+                self.request.set_context("mission")
+                self.request.set_action("CreateMissionVideoAlias")
+                self.request.set_format("pickled")
+                action_mapper.process_action(self.request, self.response, False, protocol="XML")
+                
             # if the CoT is being sent to a mission and the CoT is a geofence
             elif cot_model_object.type == "u-d-c-c":
-                action_mapper.process_action("CreateMissionGeoFence", self.request, self.response)
-            
-            # generic handler for all other CoTs being sent to a mission
-            else:
                 self.request.set_value("mission_ids", missions)
                 self.request.set_value("cot_type", cot_model_object.type)
                 self.request.set_value("callsign", cot_model_object.detail.contact.callsign)
@@ -144,6 +157,15 @@ class COTManagementGeneralController(Controller):
                 self.request.set_value("lon", cot_model_object.point.lon)
                 self.request.set_value("iconset_path", cot_model_object.detail.usericon.iconsetpath)
                 self.request.set_value("xml_content", cot_xml)
+                self.request.set_context("mission")
+                self.request.set_action("CreateMissionGeoFence")
+                self.request.set_format("pickled")
+                action_mapper.process_action(self.request, self.response, False, protocol="XML")
+            
+            # generic handler for all other CoTs being sent to a mission
+            else:
+                self.request.set_value("mission_ids", missions)
+                self.request.set_value("uid", cot_model_object.uid)
                 self.request.set_context("mission")
                 self.request.set_action("CreateMissionCOT")
                 self.request.set_format("pickled")

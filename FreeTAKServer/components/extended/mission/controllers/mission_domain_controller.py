@@ -3,6 +3,7 @@ from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
 
 from FreeTAKServer.components.core.domain.domain import MissionLog
 from FreeTAKServer.components.extended.excheck.domain.mission_changes import MissionChanges
+from FreeTAKServer.components.extended.mission.controllers.mission_director import Director
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
 from FreeTAKServer.core.util.time_utils import get_dtg
@@ -42,6 +43,8 @@ from ..domain._details import details
 from ..domain._events import events
 from ..domain._location import location
 
+from .builders import MissionCoTChangeBuilder, MissionCoTContentBuilder
+
 from ..configuration.mission_constants import (
     BASE_OBJECT_NAME,
     EVENTS,
@@ -72,9 +75,11 @@ class MissionDomainController(Controller):
     """manage operations related to mission domain"""
     def __init__(self, request: Request, response: Response, sync_action_mapper: ActionMapper, configuration: Configuration):
         super().__init__(request, response, sync_action_mapper, configuration)
+        self.director = Director(request, response, sync_action_mapper, configuration)
         
     def initialize(self, request, response):
         super().initialize(request, response)
+        self.director.initialize(request, response)
     
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -226,6 +231,13 @@ class MissionDomainController(Controller):
             domain_content = self.create_mission_content(config_loader)
             mission_domain_object.contents = self.complete_mission_content_db(domain_content, db_content)
         
+        for db_cot in mission_db_object.cots:
+
+            self.request.set_value("cot_id", db_cot.uid)
+            cot = self.execute_sub_action("GetCoT").get_value("cot")
+            
+            mission_domain_object.uids.append(self.director.construct(MissionCoTContentBuilder, cot, config_loader))
+
         #add the contents of all children to the mission
         for child in mission_db_object.child_missions:
             for db_content in child.child_mission.contents:
@@ -389,16 +401,16 @@ class MissionDomainController(Controller):
     def complete_mission_cot_change(self, cot_record: MissionCoT, detailobj: detail, *args, **kwargs):
         detailobj.type = cot_record.type
 
-        detailobj.callsign = cot_record.callsign
+        detailobj.callsign = cot_record.detail.contact.callsign
 
         return detailobj
 
-    def complete_mission_cot_notification(self, notification_details: details, cot_record: MissionCoT, *args, **kwargs):
-        notification_details.callsign = cot_record.callsign
+    def complete_mission_cot_notification(self, notification_details: details, cot_record: Event, *args, **kwargs):
+        notification_details.callsign = cot_record.detail.contact.callsign
         notification_details.type = cot_record.type
-        notification_details.iconsetPath = cot_record.iconset_path
-        notification_details.location.lat = cot_record.lat
-        notification_details.location.lon = cot_record.lon
+        notification_details.iconsetPath = cot_record.detail.usericon.iconsetpath
+        notification_details.location.lat = cot_record.point.lat
+        notification_details.location.lon = cot_record.point.lon
 
     def create_cot_created_notification(self, cot_change_record, cot_db, config_loader, *args, **kwargs):
         self.request.set_value("object_class_name", "MissionContentData")

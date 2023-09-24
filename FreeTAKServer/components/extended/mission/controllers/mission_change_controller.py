@@ -1,3 +1,4 @@
+from FreeTAKServer.components.extended.mission.controllers.directors.mission_changes_director import MissionChangesDirector
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
@@ -20,12 +21,14 @@ class MissionChangeController(Controller):
         super().__init__(request, response, sync_action_mapper, configuration)
         self.domain_controller = MissionDomainController(request, response, sync_action_mapper, configuration)
         self.persistence_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
+        self.changes_director = MissionChangesDirector(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
         """initialize the controller"""
         super().initialize(request, response)
         self.domain_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
+        self.changes_director.initialize(request, response)
 
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
@@ -69,6 +72,9 @@ class MissionChangeController(Controller):
         change_collection.nodeId = config.nodeID
 
         mission = self.persistence_controller.get_mission(mission_id)
+
+        change_collection = self.changes_director.construct(mission, config_loader, *args, **kwargs)
+        """
         if mission == None:
             self.response.set_value("mission_changes", None)
             return None
@@ -93,12 +99,12 @@ class MissionChangeController(Controller):
 
             elif change.cot_detail_uid != None:
                 mission_cot = self.domain_controller.create_mission_cot_change(config_loader)
-                self.request.set_value("cot_uid", change.cot_detail_uid)
-                mission_cot_db = change.cot_detail
-                change_record.detail = self.domain_controller.complete_mission_cot_change(mission_cot_db, mission_cot)
-                
+                self.request.set_value("cot_id", change.cot_detail_uid)
+                cot_obj = self.execute_sub_action("GetCoT").get_value("cot")
+                change_record.detail = self.domain_controller.complete_mission_cot_change(cot_obj, mission_cot)
+                change_record.contentUid = change.cot_detail_uid
             change_collection.data = change_record
-        
+        """
         serialized_change_collections = serialize_to_json(change_collection, self.request, self.execute_sub_action)
 
         self.response.set_value("mission_changes", serialized_change_collections)

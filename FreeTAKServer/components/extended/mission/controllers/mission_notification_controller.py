@@ -1,4 +1,9 @@
 from uuid import uuid4
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from FreeTAKServer.components.core.domain.domain import Event
+
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
@@ -97,7 +102,9 @@ class MissionNotificationController(Controller):
 
     def send_cot_created_notification(self, mission_cot_id: str, config_loader, *args, **kwargs):
         mission_cot_db: MissionCoT = self.persistence_controller.get_mission_cot(mission_cot_id)
-
+        self.request.set_value("cot_id", mission_cot_db.uid)
+        cot_element: Event = self.execute_sub_action("GetCoT").get_value("cot")
+        
         mission_cot_notification = self.domain_controller.create_mission_change_notification(config_loader)
         mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].contentResource = None
 
@@ -115,9 +122,9 @@ class MissionNotificationController(Controller):
         mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].type.text = "ADD_CONTENT"
         mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].isFederatedChange.text = "false"
         mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].missionName.text = mission_cot_db.mission.name
-        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].timestamp.text = get_dtg(mission_cot_db.create_time)
+        mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].timestamp.text = cot_element.time
 
-        self.domain_controller.complete_mission_cot_notification(mission_cot_notification_details, mission_cot_db)
+        self.domain_controller.complete_mission_cot_notification(mission_cot_notification_details, cot_element)
 
         # Serializer called by service manager requires the message value
         self.response.set_value('message', [mission_cot_notification])

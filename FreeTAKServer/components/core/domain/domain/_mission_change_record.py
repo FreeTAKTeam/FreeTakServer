@@ -1,5 +1,11 @@
+from typing import TYPE_CHECKING
+
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
+from FreeTAKServer.components.extended.mission.domain import details
+
+if TYPE_CHECKING:
+    from FreeTAKServer.components.core.domain.domain import MissionContentData
 
 class MissionChangeRecord(CoTNode):
     
@@ -12,7 +18,15 @@ class MissionChangeRecord(CoTNode):
         self.cot_attributes["creatorUid"] = None
         self.cot_attributes["serverTime"] = None
         self.cot_attributes["contentResource"] = None
-        self.cot_attributes["detail"] = None
+        self.cot_attributes["isFederatedChange"] = None
+
+    @CoTProperty
+    def isFederatedChange(self):
+        return self.cot_attributes.get("isFederatedChange", None)
+    
+    @isFederatedChange.setter
+    def isFederatedChange(self, isFederatedChange=None):
+        self.cot_attributes["isFederatedChange"] = isFederatedChange
 
     @CoTProperty
     def type(self):
@@ -63,7 +77,7 @@ class MissionChangeRecord(CoTNode):
         self.cot_attributes["serverTime"] = serverTime
 
     @CoTProperty
-    def contentResource(self):
+    def contentResource(self) -> 'MissionContentData':
         return self.cot_attributes.get("contentResource", None)
     
     @contentResource.setter
@@ -71,9 +85,9 @@ class MissionChangeRecord(CoTNode):
         self.cot_attributes["contentResource"] = contentResource
 
     @CoTProperty
-    def detail(self):
-        return self.cot_attributes.get("detail", None)
+    def details(self) -> details:
+        return self.cot_attributes.get("details", None)
     
-    @detail.setter
-    def detail(self, detail=None):
-        self.cot_attributes["detail"] = detail
+    @details.setter
+    def details(self, details=None):
+        self.cot_attributes["details"] = details

@@ -1,6 +1,8 @@
 import pathlib
 from string import Template
 
+from FreeTAKServer.core.configuration import MainConfig
+
 COMPONENT_NAME = "CotManagement"
 
 CONFIGURATION_FORMAT = "json"
@@ -50,6 +52,10 @@ BUSINESS_RULES_PATH = str(
 
 PERSISTENCE_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/repeated_messages.json")
+)
+
+DB_PATH = "sqlite:///"+str(
+    pathlib.PurePath(MainConfig.PERSISTENCE_PATH, "CoTManagementRecords.db")
 )
 
 MANIFEST_PATH = str(

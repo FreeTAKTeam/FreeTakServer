@@ -9,7 +9,7 @@ config = MainConfig.instance()
 
 @page.route('/Marti/api/missions', methods=['GET'])
 def get_missions():
-    out_data =  HTTPTakApiCommunicationController().make_request("GetMissions", "mission", None, True).get_value("missions"), 200
+    out_data =  HTTPTakApiCommunicationController().make_request("GetMissions", "mission", {}, None, True).get_value("missions"), 200
     print(out_data)
     return out_data
 

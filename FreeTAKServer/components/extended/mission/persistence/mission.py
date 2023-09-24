@@ -47,9 +47,9 @@ class Mission(MissionBase):
 
     # mapLayers = Column(String(100), default=[])
 
-    defaultRole = relationship("Role")
+    defaultRole = relationship("Role", back_populates="missions")
     
-    defaultRole_id = Column(String(1000), ForeignKey("role.role_type"))
+    defaultRole_id = Column(String(1000), ForeignKey("Role.role_type"))
 
     ownerRole = Column(String(100))
 

@@ -94,7 +94,7 @@ class Mission(DefaultFacade):
                 response = self.execute_sub_action(self.request.get_action())
                 self.response.set_values(response.get_values())
         except Exception as e:
-             self.logger.fatal(str(e))
+            self.logger.fatal(str(e))
     
     def register(self, *args, **kwargs):
         super().register(*args, **kwargs)

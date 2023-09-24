@@ -1,6 +1,7 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 from ._mission_content_data import MissionContentData
+from FreeTAKServer.components.extended.mission.domain import details
 
 class MissionContent(CoTNode):
     def __init__(self, configuration, model, oid=None):
@@ -32,3 +33,11 @@ class MissionContent(CoTNode):
     @data.setter
     def data(self, data=None):
         self.cot_attributes["MissionContentData"] = data
+
+    @CoTProperty
+    def details(self) -> details:
+        return self.cot_attributes.get("details", None)
+    
+    @details.setter
+    def details(self, details=None):
+        self.cot_attributes["details"] = details

@@ -9,8 +9,10 @@ from sqlalchemy.orm import relationship
 from . import MissionBase
 
 class Role(MissionBase):
-    __tablename__ = "role"
+    __tablename__ = "Role"
 
     role_type = Column(String(100), primary_key=True)
 
     permissions: List['RolePermission'] = relationship('RolePermission', back_populates="role")
+
+    missions = relationship("Mission", back_populates="defaultRole")

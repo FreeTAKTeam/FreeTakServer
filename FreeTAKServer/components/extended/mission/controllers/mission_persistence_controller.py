@@ -356,18 +356,11 @@ class MissionPersistenceController(Controller):
             self.ses.rollback()
             raise ex
         
-    def create_mission_cot(self, mission_id, type, callsign, uid, iconset_path, lat, lon, xml_content, *args, **kwargs):
+    def create_mission_cot(self, mission_id, uid, *args, **kwargs):
         try:
             mission_cot = MissionCoT()
             mission_cot.uid = uid
             mission_cot.mission_uid = mission_id.lower()
-            mission_cot.type = type
-            mission_cot.callsign = callsign
-            mission_cot.iconset_path = iconset_path
-            mission_cot.lat = lat
-            mission_cot.lon = lon
-            mission_cot.xml_content = xml_content
-            mission_cot.create_time = datetime.now()
             self.ses.add(mission_cot)
             self.ses.commit()
             return mission_cot
@@ -398,7 +391,7 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
-    def create_log(self, uid, mission_ids, content, dtg, servertime, creatorUid, created, keywords, id, contentHashes) -> Log:
+    def create_log(self, uid, mission_ids, content, dtg, servertime, creatorUid, created, keywords, id, contentHashes, contentUid) -> Log:
         try:
             log = Log()
             log.id = id
@@ -410,6 +403,7 @@ class MissionPersistenceController(Controller):
             log.created = created
             log.keywords = keywords
             log.contentHashes = contentHashes
+            log.creatorUid = contentUid
 
             for mission_id in mission_ids:
                 mission = self.get_mission(mission_id)

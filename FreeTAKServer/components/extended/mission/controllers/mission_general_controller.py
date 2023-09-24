@@ -3,6 +3,8 @@ import json
 from typing import List, Dict
 import zipfile
 from FreeTAKServer.components.extended.excheck.domain.mission_data import MissionData
+from FreeTAKServer.components.extended.mission.controllers.directors.mission_director import MissionDirector
+from FreeTAKServer.components.extended.mission.controllers.directors.mission_list_director import MissionListDirector
 from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
@@ -50,6 +52,8 @@ class MissionGeneralController(Controller):
         self.domain_controller = MissionDomainController(request, response, sync_action_mapper, configuration)
         self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
         self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
+        self.mission_list_director = MissionListDirector(request, response, sync_action_mapper, configuration)
+        self.mission_director = MissionDirector(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
@@ -58,7 +62,9 @@ class MissionGeneralController(Controller):
         self.domain_controller.initialize(request, response)
         self.external_data_controller.initialize(request, response)
         self.change_controller.initialize(request, response)
-        
+        self.mission_list_director.initialize(request, response)
+        self.mission_director.initialize(request, response)
+
     def execute(self, method=None):
         getattr(self, method)(**self.request.get_values())
         return self.response
@@ -108,17 +114,12 @@ class MissionGeneralController(Controller):
         
         subscription_db_obj = self.persistency_controller.create_subscription(None, str(mission_id), token=token, client_uid=creatorUid, role=self.persistency_controller.get_role("MISSION_OWNER"))
         
-        mission_collection_obj = self.domain_controller.create_mission_collection(config_loader)
-        
-        mission_subscription_obj = self.domain_controller.create_mission_record_object(config_loader)
-        mission_subscription_obj = self.domain_controller.complete_mission_record_db(mission_subscription_obj, mission_db_obj, config_loader, subscription_db_obj)
-
-        mission_collection_obj = self.domain_controller.add_mission_to_collection(mission_collection_obj, mission_subscription_obj)
+        mission_obj = self.mission_director.construct(mission_db_obj, config_loader)
 
         mission_notification_obj = self.domain_controller.create_mission_notification(config_loader)
         mission_notification_obj = self.domain_controller.complete_mission_creation_notification(mission_notification_obj, mission_subscription_obj)
         
-        final_message = serialize_to_json(mission_collection_obj, self.request, self.execute_sub_action)
+        final_message = serialize_to_json(mission_obj, self.request, self.execute_sub_action)
         self.response.set_value("mission_subscription", final_message)
         
         serialized_mission_notification = self.serialize_to_xml(mission_notification_obj)
@@ -193,16 +194,7 @@ class MissionGeneralController(Controller):
             config_loader (_type_): passed from the facade
         """
         missions = self.persistency_controller.get_all_public_missions()
-        mission_collection = self.domain_controller.create_mission_collection(config_loader)
-        for mission in missions:
-            mission_record_domain: 'MissionData' = self.domain_controller.create_mission_record_object(config_loader)
-            self.domain_controller.complete_mission_record_db(mission_record_domain, mission, config_loader)
-           
-            for db_content in mission.externalData:
-                domain_external_data = self.domain_controller.create_external_data(config_loader)
-                mission_record_domain.externalData = self.external_data_controller.complete_mission_external_data(domain_external_data, db_content)
-                
-            self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
+        mission_collection = self.mission_list_director.construct(missions, config_loader)
         serialized_mission_collection = serialize_to_json(mission_collection, self.request, self.execute_sub_action) 
         self.response.set_value("missions", serialized_mission_collection)
         return serialized_mission_collection
@@ -210,14 +202,8 @@ class MissionGeneralController(Controller):
     def get_mission(self, mission_id: str, config_loader, *args, **kwargs):
         """get a specific mission by id"""
         mission = self.persistency_controller.get_mission(mission_id)
-        mission_collection = self.domain_controller.create_mission_collection(config_loader)
-        
-        mission_record_domain = self.domain_controller.create_mission_record_object(config_loader)
-        self.domain_controller.complete_mission_record_db(mission_record_domain, mission, config_loader)
-        
-        self.domain_controller.add_mission_to_collection(mission_collection, mission_record_domain)
-        
-        serialized_mission_collection = serialize_to_json(mission_collection, self.request, self.execute_sub_action)
+        mission_obj = self.mission_director.construct(mission, config_loader)
+        serialized_mission_collection = serialize_to_json(mission_obj, self.request, self.execute_sub_action)
         
         self.response.set_value("mission", serialized_mission_collection)
         return serialized_mission_collection

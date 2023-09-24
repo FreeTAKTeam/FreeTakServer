@@ -14,6 +14,7 @@ class MissionLog(CoTNode):
         self.cot_attributes["keywords"] = []
         self.cot_attributes["servertime"] = None
         self.cot_attributes["created"] = None
+        self.cot_attributes["data"] = None
 
     @CoTProperty
     def creatorUid(self):
@@ -94,3 +95,11 @@ class MissionLog(CoTNode):
     @content.setter
     def content(self, content=None):
         self.cot_attributes["content"] = content
+
+    @CoTProperty
+    def data(self):
+        return self.cot_attributes.get("data", None)
+    
+    @data.setter
+    def data(self, data=None):
+        self.cot_attributes["data"] = data
