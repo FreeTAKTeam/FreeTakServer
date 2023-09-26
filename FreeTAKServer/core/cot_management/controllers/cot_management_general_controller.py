@@ -128,22 +128,16 @@ class COTManagementGeneralController(Controller):
             missions = [d.mission for d in cot_model_object.detail.marti.dest if d.mission is not None]
         if len(missions)>0:
 
-            self.persistence_controller.create_cot(cot_model_object)
+            self.persistence_controller.create_or_update_cot(cot_model_object)
 
             self.request.set_value("xml_dict", cot_dict)
             cot_xml = self.execute_sub_action("DictToXML").get_value("xml")
 
             if cot_model_object.type == "b-i-v":
                 self.request.set_value("mission_ids", missions)
-                self.request.set_value("cot_type", cot_model_object.type)
-                self.request.set_value("callsign", cot_model_object.detail._video.ConnectionEntry.path)
                 self.request.set_value("uid", cot_model_object.uid)
-                self.request.set_value("lat", cot_model_object.point.lat)
-                self.request.set_value("lon", cot_model_object.point.lon)
-                self.request.set_value("iconset_path", cot_model_object.detail.usericon.iconsetpath)
-                self.request.set_value("xml_content", cot_xml)
                 self.request.set_context("mission")
-                self.request.set_action("CreateMissionVideoAlias")
+                self.request.set_action("CreateMissionCOT")
                 self.request.set_format("pickled")
                 action_mapper.process_action(self.request, self.response, False, protocol="XML")
                 

@@ -34,9 +34,10 @@ class MissionCoTContentBuilder(Builder):
         self.result.timestamp = cot.time
         
         # set values from mapped object at detail
-        self.result.details.callsign = cot.detail.contact.callsign
+        
         self.result.details.iconsetPath = cot.detail.usericon.iconsetpath
         self.result.details.type = cot.type
+        self.result.details.callsign = cot.detail.contact.callsign
 
         self.result.details.location.lat = cot.point.lat
         self.result.details.location.lon = cot.point.lon

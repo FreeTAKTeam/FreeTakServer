@@ -42,9 +42,10 @@ class MissionCoTChangeBuilder(Builder):
         self.result.timestamp = cot.time
         self.result.serverTime = cot.time
         
-        # set values from mapped object at detail
         r_details = self.result.details 
+
         r_details.callsign = cot.detail.contact.callsign
+        
         r_details.iconsetPath = cot.detail.usericon.iconsetpath
         r_details.type = cot.type
 

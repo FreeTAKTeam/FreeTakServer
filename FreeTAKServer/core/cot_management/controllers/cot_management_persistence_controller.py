@@ -62,8 +62,46 @@ class CoTManagementPersistenceController(Controller):
         # create a Session
         return SessionClass()
 
-    def update_cot(self, cot_id: str, cot: CoTNode):
-        pass
+    # TODO add logic to update dests
+    def update_cot(self, cot_id: str, cot: 'Event'):
+        cot_item = self.get_cot(cot_id)
+        if cot_item is None:
+            raise ValueError("Invalid COT provided.")
+        try:
+            cot_item.uid = cot.uid
+            cot_item.type = cot.type
+            cot_item.how = cot.how
+            cot_item.time = cot.time
+            cot_item.start = cot.start
+            cot_item.stale = cot.stale
+
+            cot_item.point.lat = cot.point.lat
+            cot_item.point.lon = cot.point.lon
+            
+            cot_item.detail.xml_content = etree.tostring(cot.detail.xml)
+
+            # 
+            if cot_item.detail.contact.uid is None and cot.detail.contact.cot_attributes.values() is not None:
+                cot_item.detail.contact = Contact()
+            if cot.detail.contact.cot_attributes.values() is not None and cot_item.detail.contact is not None:
+                cot_item.detail.contact.callsign = cot.detail.contact.callsign
+                cot_item.detail.contact.endpoint = cot.detail.contact.endpoint
+                cot_item.detail.contact.iconsetpath = cot.detail.contact.iconsetpath
+                cot_item.detail.contact.name = cot.detail.contact.name
+                cot_item.detail.contact.emailAddress = cot.detail.contact.emailAddress
+                cot_item.detail.contact.xmppUsername = cot.detail.contact.xmppUsername
+                cot_item.detail.contact.sipAddress = cot.detail.contact.sipAddress
+
+            if cot_item.detail.usericon is None and cot.detail.usericon.cot_attributes.values() is not None:
+                cot_item.detail.usericon = Usericon()
+
+            if cot.detail.usericon.cot_attributes.values() is not None and cot_item.detail.usericon is not None:
+                cot_item.detail.usericon.iconsetpath = cot.detail.usericon.iconsetpath
+            
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
 
     def delete_cot(self, cot_id: str):
         try:
@@ -78,6 +116,16 @@ class CoTManagementPersistenceController(Controller):
             cot: DBEvent = self.ses.query(DBEvent).filter_by(uid=cot_id).first()
             self.response.set_value("cot", cot)
             return cot
+        except Exception as ex:
+            raise ex
+        
+    def create_or_update_cot(self, cot: 'Event'):
+        try:
+            cot_item = self.get_cot(cot.uid)
+            if cot_item is None:
+                self.create_cot(cot)
+            else:
+                self.update_cot(cot.uid, cot)
         except Exception as ex:
             raise ex
         
