@@ -356,12 +356,13 @@ class AtakOfTheCerts:
             print("The directory for storing certificates doesn't exist.")
             print("Creating one at " + config.certsPath)
             os.makedirs(config.certsPath)
+        serial_number = random.getrandbits(64)
 
         ca_key = crypto.PKey()
         ca_key.generate_key(crypto.TYPE_RSA, 2048)
         cert = crypto.X509()
         cert.get_subject().CN = "CA"
-        cert.set_serial_number(0)
+        cert.set_serial_number(serial_number)
         cert.set_version(2)
         cert.gmtime_adj_notBefore(0)
         cert.gmtime_adj_notAfter(expiry_time_secs)
