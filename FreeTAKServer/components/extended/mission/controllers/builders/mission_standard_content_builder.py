@@ -37,7 +37,7 @@ class MissionStandardContentBuilder(Builder):
 
         # set values from mapped object at root
         self.result.creatorUid = enterprise_sync_db.creator_uid
-        self.result.timestamp = enterprise_sync_db.start_time
+        self.result.timestamp = get_dtg(enterprise_sync_db.start_time)
 
         self.result.data.uid = enterprise_sync_db.PrimaryKey
         self.result.data.hash = enterprise_sync_db.hash
