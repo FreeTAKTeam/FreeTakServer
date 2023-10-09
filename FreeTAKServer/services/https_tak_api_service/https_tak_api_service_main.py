@@ -223,14 +223,6 @@ def getDataPackageTool(hash):
     return resp
 """
 
-@app.route('/Marti/sync/search', methods=[const.GET])
-def retrieveData():
-    logger.info('sync search triggered')
-    keyword = request.args.get('keyword')
-    packages = FlaskFunctions().getAllPackages()
-    app.logger.info(f"Data packages in the database: {packages}")
-    return str(packages)
-
 @app.route('/Marti/api/version', methods=[const.GET])
 def returnVersion():
     logger.info('api version triggered')
