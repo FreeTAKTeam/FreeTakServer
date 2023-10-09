@@ -117,7 +117,7 @@ class MissionGeneralController(Controller):
         mission_obj = self.mission_director.construct(mission_db_obj, config_loader)
 
         mission_notification_obj = self.domain_controller.create_mission_notification(config_loader)
-        mission_notification_obj = self.domain_controller.complete_mission_creation_notification(mission_notification_obj, mission_subscription_obj)
+        mission_notification_obj = self.domain_controller.complete_mission_creation_notification(mission_notification_obj, mission_obj.data[0])
         
         final_message = serialize_to_json(mission_obj, self.request, self.execute_sub_action)
         self.response.set_value("mission_subscription", final_message)
