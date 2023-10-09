@@ -364,3 +364,6 @@ class ExCheckChecklistController(Controller):
         self.response.set_value("mission_info", final_message[0])
         
         return final_message[0]
+
+    def add_checklist_to_mission(self):
+        pass
