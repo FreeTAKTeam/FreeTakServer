@@ -216,7 +216,6 @@ class ExCheckTemplateController(Controller):
         mission_data.mapLayers = []
         mission_data.inviteOnly = False
         mission_data.expiration = -1
-        mission_data.uids = []
         mission_data.passwordProtected = False
         template_metadata_list: List[MissionContent]= mission_data.contents
         if len(template_metadata_list)>0 and len(templates)>0:
