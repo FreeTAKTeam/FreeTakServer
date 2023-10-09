@@ -21,7 +21,7 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from FreeTAKServer.services.rest_api_service.controllers.rest_api_communication_controller import RestAPICommunicationController
 
 config = MainConfig.instance()
-page = Blueprint('datapacakge', __name__)
+page = Blueprint('datapackage', __name__)
 
 @page.route('/DataPackageTable', methods=["POST"])
 @auth.login_required()

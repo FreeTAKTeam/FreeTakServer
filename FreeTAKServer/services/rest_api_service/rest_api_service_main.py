@@ -1472,20 +1472,6 @@ def broadcast_datapackage(uid):
     newCoT = SendOtherController(cot, addToDB=False)
     APIPipe.put(newCoT.getObject())
 
-
-@app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
-@auth.login_required()
-def excheck_table():
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return_data = excheck_facade.get_all_templates()
-    if return_data:
-        return return_data, 200
-    else:
-        return '{}'
-
 @app.route('/checkStatus', methods=[restMethods.GET])
 @auth.login_required()
 def check_status():
@@ -1921,12 +1907,13 @@ class RestAPI(DigitalPyService):
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
 
     def register_blueprints(self, app):
-        from .blueprints import geoobject_blueprint, emergency_blueprint, user_management_blueprint, datapackages_blueprint, missions_blueprint
+        from .blueprints import geoobject_blueprint, emergency_blueprint, user_management_blueprint, datapackages_blueprint, missions_blueprint, excheck_blueprint
         app.register_blueprint(geoobject_blueprint.page)
         app.register_blueprint(emergency_blueprint.page)
         app.register_blueprint(user_management_blueprint.page)
         app.register_blueprint(datapackages_blueprint.page)
         app.register_blueprint(missions_blueprint.page)
+        app.register_blueprint(excheck_blueprint.page)
 
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():
