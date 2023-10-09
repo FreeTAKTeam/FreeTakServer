@@ -129,7 +129,7 @@ class MissionLogsController(Controller):
     def complete_mission_log_object(self, mission_log_domain_obj: MissionLog, log_db_obj: Log) -> MissionLog:
         """Completes the mission log object with the data from the database object"""
         mission_log_domain_obj.entryUid = log_db_obj.entryUid
-        mission_log_domain_obj.data = log_db_obj.data
+        mission_log_domain_obj.data = log_db_obj.content
         
         mission_log_domain_obj.dtg = get_dtg(log_db_obj.dtg)
         mission_log_domain_obj.creatorUid = log_db_obj.creatorUid
