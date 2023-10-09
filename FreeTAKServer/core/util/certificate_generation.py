@@ -361,14 +361,24 @@ class AtakOfTheCerts:
         ca_key = crypto.PKey()
         ca_key.generate_key(crypto.TYPE_RSA, 2048)
         cert = crypto.X509()
-        cert.get_subject().CN = "CA"
+        cn = random.getrandbits(64)
+        cert.get_subject().CN = str(cn)
+        cert.get_subject().ST = "Nova Scotia"
+        cert.get_subject().C = "CA"
+        cert.get_subject().O = "FreeTAKServer"
+        cert.get_subject().OU = "Core Dev"
+        cert.get_subject().L = "Halifax"
         cert.set_serial_number(serial_number)
         cert.set_version(2)
+
         cert.gmtime_adj_notBefore(0)
         cert.gmtime_adj_notAfter(expiry_time_secs)
         cert.set_issuer(cert.get_subject())
-        cert.add_extensions([crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
-                                crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')])
+        cert.add_extensions([
+                                crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
+                                crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')
+                            ])
+        
         cert.set_pubkey(ca_key)
         cert.sign(ca_key, "sha256")
 
@@ -432,6 +442,11 @@ class AtakOfTheCerts:
             chain = (ca_pem,)
             cert = crypto.X509()
             cert.get_subject().CN = common_name
+            cert.get_subject().ST = "Nova Scotia"
+            cert.get_subject().C = "CA"
+            cert.get_subject().O = "FreeTAKServer"
+            cert.get_subject().OU = "Core Dev"
+            cert.get_subject().L = "Halifax"
             cert.set_serial_number(serial_number)
             cert.gmtime_adj_notBefore(0)
             cert.gmtime_adj_notAfter(expiry_time_secs)
