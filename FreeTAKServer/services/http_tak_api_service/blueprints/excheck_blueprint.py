@@ -4,6 +4,10 @@ from FreeTAKServer.services.http_tak_api_service.controllers.http_tak_api_commun
 
 page = Blueprint('Marti/api', __name__)
 
+@page.route('/Marti/api/excheck/checklist/<checklist_id>/mission/<mission_id>', methods=['PUT'])
+def add_excheck_to_mission(checklist_id, mission_id):
+    HTTPTakApiCommunicationController().make_request("AddChecklistToMission", "excheck", {"checklist_id": checklist_id, "mission_id": mission_id}, None, True )
+    return
 @page.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
     try:
