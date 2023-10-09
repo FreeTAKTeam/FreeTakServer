@@ -12,7 +12,7 @@ from ..controllers.authentication import auth
 @page.route("/ExCheckTable", methods=["GET"])
 @auth.login_required()
 def excheck_table():
-    return_data = RestAPICommunicationController().make_request("GetAllTemplates", "excheck", {}).get_value("template_info") # type: ignore
+    return_data = RestAPICommunicationController().make_request("GetMission", "mission", {"mission_id": "exchecktemplates"}, None, True).get_value("mission") # type: ignore
     if return_data:
         return return_data, 200
     else:
