@@ -78,11 +78,11 @@ class MissionChangeRecord(CoTNode):
 
     @CoTProperty
     def contentResource(self) -> 'MissionContentData':
-        return self.cot_attributes.get("contentResource", None)
+        return self.cot_attributes.get("MissionContentData", None)
     
     @contentResource.setter
     def contentResource(self, contentResource=None):
-        self.cot_attributes["contentResource"] = contentResource
+        self.cot_attributes["MissionContentData"] = contentResource
 
     @CoTProperty
     def details(self) -> details:

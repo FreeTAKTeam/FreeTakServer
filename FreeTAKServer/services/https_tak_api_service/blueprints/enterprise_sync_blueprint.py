@@ -76,7 +76,7 @@ def retrieveData():
 
 @page.route('/Marti/sync/content', methods=["HEAD"])
 def enterprise_sync_head():
-    contents = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash')}, True).get_value("objectdata"), 200 # type: ignore
+    contents = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": request.args.get('hash')}, None, True).get_value("objectdata") # type: ignore
     if contents == None:
         return '', 404
     else:
@@ -86,7 +86,7 @@ def enterprise_sync_upload():
     filename = request.args.get("filename")
     creatorUid = request.args.get("creatorUid")
     tool = request.args.get("tool", "public")
-    return HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "", {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "tool": tool}, True).get_value("objectid"), 200 # type: ignore
+    return HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "", {"objecthash": request.args.get('hash'), "objectdata": request.files.getlist('assetfile')[0], "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "tool": tool}, None, True).get_value("objectid"), 200 # type: ignore
 
 @page.route('/Marti/sync/content', methods=["GET"])
 def specificPackage():

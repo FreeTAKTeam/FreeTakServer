@@ -185,7 +185,7 @@ class MissionGeneralController(Controller):
         sub_response = self.execute_sub_action("GetMultipleEnterpriseSyncData")
         mission_contents = sub_response.get_value("objectdata")
         for mission_content in mission_contents:
-            self.persistency_controller.create_mission_content(mission_id, hash=mission_content.hash, uid=mission_content.uid)
+            self.persistency_controller.create_mission_content(mission_id=mission_id, id=mission_content.uid)
     
     def get_missions(self, config_loader, *args, **kwargs):
         """get all missions on the server
