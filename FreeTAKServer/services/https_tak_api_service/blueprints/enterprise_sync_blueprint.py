@@ -33,14 +33,14 @@ config = MainConfig.instance()
 @page.route('/Marti/sync/upload', methods=["POST"])
 def enterprise_sync_upload_alt():
     """a new endpoint used by the enterprise sync tool to upload files"""
-    filename = request.args.get("filename")
+    filename = request.args.get("filename") or request.args.get("name")
     creatorUid = request.args.get("creatorUid")
     tool = request.args.get("tool", "public")
     if not request.data:
         data = request.files.getlist('assetfile')[0].stream.read()
     else:
         data = request.data
-    metadata: EnterpriseSyncDataObject = HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": request.args.get('hash'), "tool": tool, "objectdata": data, "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "synctype": "content", "mime_type": request.headers["Content-Type"]}).get_value("objectmetadata") # type: ignore
+    metadata: EnterpriseSyncDataObject = HTTPSTakApiCommunicationController().make_request("SaveEnterpriseSyncData", "enterpriseSync", {"objectuid": request.args.get('hash'), "tool": tool, "objectdata": data, "objkeywords": [filename, creatorUid, "missionpackage"], "objstarttime": "", "synctype": "content", "mime_type": request.headers["Content-Type"], "file_name": filename}).get_value("objectmetadata") # type: ignore
     return {
         "UID": metadata.id,
         "SubmissionDateTime": get_dtg(metadata.start_time),
