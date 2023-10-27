@@ -36,7 +36,8 @@ Also subscribe to this feed to be automatically informed about PIP new versions:
 https://pypi.org/rss/project/freetakserver/releases.xml
 
 ### Public instance
-We support a [public instance](https://www.reddit.com/r/ATAK/wiki/index/freetakserver) of FTS.
+We support a public instance of FTS.
+the IP address is TCP: 137.184.101.250:8087
 - download the configuration [here](https://drive.google.com/file/d/1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli/view?usp=sharing)
 - use the Import manager in ATAK to import the configuration
 - [more details](https://freetakteam.github.io/FreeTAKServer-User-Docs/Usage/Connecting%20ATAK/)
@@ -73,7 +74,6 @@ For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs
   - **Controllers**: Contains FTS business Logic
   - **Models**: Contains all the FTS  object model
   - **Views**:   contains the access to FTS
-
 
 ## Community 
 If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as FreeTAKServer is in continuous development.
