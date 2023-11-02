@@ -6,6 +6,7 @@ from FreeTAKServer.components.extended.mission.controllers.builders.mission_list
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_list_cot_content_builder import MissionListCoTContentBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_list_record_builder import MissionListRecordBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_standard_content_builder import MissionStandardContentBuilder
+from FreeTAKServer.components.extended.mission.controllers.builders.mission_standard_external_data_builder import MissionStandardExternalDataBuilder
 from FreeTAKServer.components.extended.mission.persistence.mission import Mission
 from FreeTAKServer.core.domain.node import Node
 
@@ -46,6 +47,14 @@ class MissionListDirector(Controller):
             mission_list_record_builder.add_object_data(mission)
             mission_list_record = mission_list_record_builder.get_result()
             
+            for external_data in mission.externalData:
+                mission_list_external_data_builder = MissionStandardExternalDataBuilder(self.request, self.response, self.action_mapper, self.configuration)
+                mission_list_external_data_builder.initialize(self.request, self.response)
+                mission_list_external_data_builder.build_empty_object(config_loader, *args, **kwargs)
+                mission_list_external_data_builder.add_object_data(external_data)
+                mission_list_external_data = mission_list_external_data_builder.get_result()
+                mission_list_record.externalData = mission_list_external_data
+
             for cot in mission.cots:
                 mission_list_cot_content_builder = MissionListCoTContentBuilder(self.request, self.response, self.action_mapper, self.configuration)
                 mission_list_cot_content_builder.initialize(self.request, self.response)

@@ -22,6 +22,8 @@ class MissionListRecordBuilder(Builder):
 
     def add_object_data(self, mapped_object: DBMission):
         """adds the data from the mapped object to the mission """
+        if mapped_object == None:
+            return
         self.result.name = mapped_object.name
         self.result.description = mapped_object.description
         self.result.chatRoom = mapped_object.chatRoom
@@ -34,17 +36,24 @@ class MissionListRecordBuilder(Builder):
         self.result.creatorUid = mapped_object.creatorUid
         # TODO: get time dynamically
         self.result.createTime = get_dtg(mapped_object.createTime)
-        # self.result.groups = mapped_object.groups
-        self.result.groups = []
-        # self.result.externalData = mapped_object.externalData
         
+        # self.result.groups = mapped_object.groups
+        
+        self.result.groups = []
+        
+        # self.result.externalData = mapped_object.externalData
         # self.result.feeds = mapped_object.feeds
+
         self.result.feeds = []
+        
         # self.result.mapLayers = mapped_object.mapLayers
+        
         self.result.mapLayers = []
         self.result.inviteOnly = mapped_object.inviteOnly
         self.result.expiration = mapped_object.expiration
+        
         # self.result.uids = mapped_object.uids
+        
         self.result.passwordProtected = mapped_object.passwordProtected
         
     def get_result(self):

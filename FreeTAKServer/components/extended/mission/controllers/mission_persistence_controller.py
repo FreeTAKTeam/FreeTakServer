@@ -1,6 +1,7 @@
 import codecs
 from datetime import datetime
 from typing import List
+from uuid import uuid4
 from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
@@ -471,22 +472,27 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
     
-    def get_external_data(self, mission_id, *args, **kwargs):
+    def get_external_data(self, id, *args, **kwargs):
         try:
-            mission = self.get_mission(mission_id)
-            return mission.external_data
+            external_data = self.ses.query(ExternalData).filter(ExternalData.id == id.lower()).first()
+            return external_data
         except Exception as ex:
             raise ex
         
-    def add_external_data(self, mission_id, name, tool, urlData, notes, uid, urlView, *args, **kwargs):
+    def add_external_data(self, mission_id, name, tool, urlData, notes, uid, urlView, id=None, creator_uid=None, *args, **kwargs):
         try:
             external_data = ExternalData()
+            if id:
+                external_data.id = id
+            else:
+                external_data.id = str(uuid4())
             external_data.name = name
             external_data.tool = tool
             external_data.urlData = urlData
             external_data.notes = notes
             external_data.uid = uid
             external_data.urlView = urlView
+            external_data.creator_uid = creator_uid if creator_uid else ""
             
             mission = self.get_mission(mission_id)
             mission.externalData.append(external_data)

@@ -1,0 +1,535 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http:/freetakteam.fts.org/COT_Excheck_Notification_Update#",
+	"type": "object",
+	"properties":
+	{
+		"COT_Excheck_Notification_Update":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/Event" },
+				{ "$ref": "#/definitions/MissionChange" },
+				{ "$ref": "#/definitions/MissionChanges" },
+				{ "$ref": "#/definitions/content" },
+				{ "$ref": "#/definitions/contentResource" },
+				{ "$ref": "#/definitions/creatorUid" },
+				{ "$ref": "#/definitions/contentUid" },
+				{ "$ref": "#/definitions/detail" },
+				{ "$ref": "#/definitions/expiration" },
+				{ "$ref": "#/definitions/filename" },
+				{ "$ref": "#/definitions/groupVector" },
+				{ "$ref": "#/definitions/hash" },
+				{ "$ref": "#/definitions/isFederatedChange" },
+				{ "$ref": "#/definitions/keywords" },
+				{ "$ref": "#/definitions/mimeType" },
+				{ "$ref": "#/definitions/mission" },
+				{ "$ref": "#/definitions/missionName" },
+				{ "$ref": "#/definitions/name" },
+				{ "$ref": "#/definitions/point" },
+				{ "$ref": "#/definitions/size" },
+				{ "$ref": "#/definitions/submissionTime" },
+				{ "$ref": "#/definitions/submitter" },
+				{ "$ref": "#/definitions/timestamp" },
+				{ "$ref": "#/definitions/tool" },
+				{ "$ref": "#/definitions/type" },
+				{ "$ref": "#/definitions/uid" }
+			]
+		}
+	},
+	"definitions":
+	{
+		"Event" : 
+		{
+			"type": "object",
+			"description" : "represents a TAK event: this class is instantiated with a standard set of values.\n  The opex field is intended to indicate that the event is part of a   live operation, an exercise, or a simulation.  For backward compatibility, absence of the opex indicates \"no statement\", which will be interpreted in   an installation specific manner.\n  \n  opex=\"o-&lt;name&gt;\" or \"e-&lt;nickname&gt;\"  or \"s-&lt;nickname&gt;\",\n  where \"-&lt;name&gt;\" is optional.  That is, it is permissible to   specify only \"o\", \"e\", or \"s\" for the opex value.\n<ul>\n\t<li>  o = operations</li>\n\t<li>  e = exercise</li>\n</ul>\n  s = simulation",
+			"properties":
+			{
+				"detail":
+				{
+					"$ref" : "#/definitions/detail",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"how":
+				{
+					"description" : "Gives a hint about how the coordinates were generated.  It is used specifically to relay a hint about the types of errors that may be expected in the data and to weight the data in systems that fuse  multiple inputs.",
+					"type" : "string",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"point":
+				{
+					"$ref" : "#/definitions/point",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"stale":
+				{
+					"description" : "The \"stale\" attribute defines the ending time of the event's validity interval. The start and stale fields together define an interval in time.\nIt has the same format as time and start.\nending time when an event should no longer be considered valid l (with respect to Zulu time in extended ISO 8601 format)\nIn protobuff is in milliseconds\n\nthe attribute is calculated as following\nString stale = DateUtil.toCotTime(millis + 20L * 1000L);",
+					"type" : "integer",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"start":
+				{
+					"description" : "format - DTG\nThe \"start\" attribute defines the starting time of the event's validity interval. The start and stale fields together define an interval in time.\nIt has the same format as time and stale.\nstarting time of the event's validity interval (with respect to Zulu time in extended ISO 8601 format) \n. As different from the moment in which the element was generated\n\nin protobuff this is expressed in milliseconds",
+					"type" : "integer",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"time":
+				{
+					"description" : "time stamp with respect to Zulu time indicating when an event was generated in extended ISO 8601 format \n\nin ProtoBuff expressed is in milliseconds",
+					"type" : "integer",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"type":
+				{
+					"description" : "Event.type contains the Code for the Center on Target object. It Defines what the Event is about. An event may describe a physical object, a set of raw, unprocessed bits, or a tasking. \n# Hierarchically organized hint about event type (<b>default </b>is  'a-f-G-I' for \"Friendly Ground infrastructure)\nThe \"type\" attribute is a composite of components delimited by the semi-colon character. The first component of this composite attribute is defined below.\n   Future versions of this schema will define other components which we expect   will aid in machine filtering. Despite the exclusion of definitions   for additional components in this version of the schema, users of   this schema should expect and design an optional trailing field  delimited by the semi-colon character. This field can be ignored.\n<ul>\n\t<li>   <font color=\"#a52a2a\"><i>component1</i></font>;<font color=\"#32cd32\">optional field</font></li>\n</ul>\n     The first component (<font color=\"#a52a2a\">component1</font>) is a hierarchically organized hint about type.\n   The intention is that this hierarchy be flexible and extensible and facilitate simple filtering, translation and display.  To  facilitate  filtering, the hierarchy needs to present key  fields in an easily parsed and logical order.  To facilitate  this, this component is a composite of fields separated by the \"-\" punctuation   character, so a valid type would be: x-x-X-X-x.  Using a punctuation for field separation allows arbitrary expansion of the  type space, \n<i>e.g., a-fzp-mlk-gm-...</i>\n   Field meanings are type specific.  That is, the third field of an  \"<u>atom</u>\" type may represent air vs. ground while the same field for a   \"<u>reservation</u>\" type may represent purpose.\n\n<b><u>MEANING of 'a' in the first position</u></b>  \nThe \"Atoms\" portion of the type tree requires some additional explanation past the taxonomy defined below. The \"Atoms\" portion of  the type tree contains CoT defined fields and part of the <b>MIL-STD-2525</b>    type definition. <u>To distinguish MIL-STD-2525 type strings from CoT defined  fields, the MIL-STD-2525 types must be represented in all upper    case</u>. Differentiation of type namespace with upper/lower case   facilitates extension of CoT types and MIL-STD-2525 types without   name space conflict. An example:\n   <font color=\"#008080\">a</font>-<font color=\"#006400\">f</font>-<font color=\"#dc143c\"><b>A-B-C</b></font>-<font color=\"#00ffff\">x</font> \n<ul>\n\t<li>a = Atom</li>\n\t<li><font color=\"#006400\">f</font> = attitude or disposition (friendly in this case)</li>\n</ul>\n<ul>\n\t<li>A-B-C  =the SDIC 2525 separated by dashs</li>\n\t<li><font color=\"#00ffff\">x</font> = COT specific extension</li>\n</ul>\n   The organization of CoT and MIL-STD-2525 types can be determined   from the taxonomy below, but additional details are provided here.\n   The \"Atoms\" portion of the \"type\" tree contains the \"Battle  Dimension\" and  \"Function ID\" fields taken from MIL-STD-2525.\n   \"Battle Dimension\" is a single character taken from MIL-STD-2525 and is located in the position 5. \na-.-<font color=\"#dc143c\"><b>G</b></font>-I-M-N-B\n&nbsp;\n<ul>\n\t<li>P - Space</li>\n\t<li>A - Air</li>\n\t<li>G - Ground</li>\n\t<li>S - Sea Surface</li>\n\t<li>U - Sea Subsurface</li>\n\t<li>SF - Special Operations Forces</li>\n</ul>\n   The typical 2525 representation for \"Function ID\" is three groups of   two characters separated by a space (e.g. \"12 34 56\"). The CoT  schema maps this to a \"-\" delimited list of characters. (e.g. \"1-2-3-4-5-6\").\n   The concatenation of the \"Battle Dimension\" and \"Function ID\" fields    from the MIL-STD-2525 specification represented in the CoT schema   will be as follows:\n   battle dimension-<font color=\"#a52a2a\">func id char1</font>-func id char2- ... -func id char6\n   When an appropriate MIL-STD-2525 type exists, it should be used. If  there is a MIL-STD-2525 representation which is close, but may be   refined, a CoT extension to the 2525 type can be appended.\n   for example: \na-h-X-X-X-X-X-<b>i</b> might represent hostile MIL-STD-2525 type X-X-X-X-X  of   <b>Israeli </b>(the 'i'<b>) </b>manufacture. Again, the<u> CoT extension uses lower case</u>. \n   Conceptually, this extension defines further branching from the nearest MIL-STD-2525 tree point.\n   If no appropriate 2525 representation exists, a type definition can be added to the CoT tree defined here. The resulting definition    would be represented in all lower case. For example\n   a-h-G-p-i\n   might define atoms-hostile-Ground-photon cannon-infrared.\n   The taxonomy currently looks like this: Note that the coding of the  sub fields are determined entirely by the preceding fields!) The  current type tree is defined here. \n       <b>+--- First position, this event describes</b>\n<ul>\n\t<li>       a - Atoms - this event describes an actual \"thing\"</li>\n</ul>\n      <b>     +--- 2nd CoT affiliation of these atoms</b>\n<ul>\n\t<li><b>     </b>        p - Pending</li>\n\t<li>           u - Unknown</li>\n\t<li>           a - Assumed friend</li>\n\t<li>           f - Friend</li>\n\t<li>           n - Neutral</li>\n\t<li>           s - Suspect</li>\n\t<li>           h - Hostile</li>\n\t<li>           j - Joker</li>\n\t<li>           k - Faker</li>\n\t<li>           o - None specified</li>\n\t<li>           x - Other</li>\n</ul>\n<b>               +--- Battle dimension</b>\n<b>               |    Taken from MIL-STD-2525 \"Battle Dimension\" (upper case)</b>\n<ul>\n\t<li><b> </b>P - Space</li>\n</ul>\n<ul>\n\t<li>A - Air</li>\n\t<li>G - Ground</li>\n\t<li>S - Sea Surface</li>\n\t<li>U - Sea Subsurface</li>\n</ul>\n<ul>\n\t<li>SF - Special Operations Forces</li>\n</ul>\n          <b>         +--- Function (dimension specific!)</b>\n<b>              </b><i>See MIL-STD-2525B specification for  function fields (must be upper case)    </i>\n               Any number of char before the first “dash”, it express also the hierarchy\n(Hundreds of options)\n<b>       +--- The event describes ...</b>\n\n<b>    </b>       <b>b - Bits </b>- Events in the \"Bit\" group (pos 1163++ ) carry meta information about raw data sources.  For example, range-doppler  radar returns or SAR imagery represent classes of information that are \"bits\".  However, tracks derived from such sources represent objects on the battlespace and this have event type \"A-...\"\n                  The intention with the \"Bit\" type is to facilitate the identification of germane information products.\n                  This hierarchy is not intended to replace more detailed domain-specific meta information (such as that contained in NITF image headers or the GMTI data formats), rather it is intended to provide a domain-neutral mechanism for rapid filtering of information products.\n\n<b>           +--- Dimension     </b>\nsecond position, Like battle dimension but for 'b' types\n<ul>\n\t<li>        <font color=\"#006400\">   i - Imagery</font></li>\n</ul>\n<ol>\n\t<li>               e - Electro-optical</li>\n\t<li>               i - Infra red</li>\n\t<li>               s - SAR</li>\n\t<li>               v - video</li>\n</ol>\n<ul>\n\t<li>               ...</li>\n\t<li>           r - Radar</li>\n</ul>\n<ol>\n\t<li>            <font color=\"#006400\">   m - MTI data</font></li>\n</ol>\n<ul>\n\t<li>               ...</li>\n\t<li>        <font color=\"#006400\">   d - Sensor detection events</font></li>\n</ul>\n<ol>\n\t<li>               s - Seismic</li>\n\t<li>               d - Doppler</li>\n\t<li>               a - Acoustic</li>\n\t<li>               m - Motion (e.g., IR)</li>\n</ol>\n<ul>\n\t<li>           m - Mapping</li>\n</ul>\n<ol>\n\t<li>               p - Designated point (rally point, etc.)</li>\n\t<li>                   i - initial points</li>\n\t<li>                   r - rally points</li>\n\t<li>                   ...</li>\n</ol>\n\n<b>       r - Reservation/Restriction/References </b>\n                  Events in this category are generally \"notices\" about specific areas.  These events are used for deconfliction and conveyance of significant \"area\" conditions.  Generally, the \"point\" entity will describe a conical region that completely encloses the affected area.  The details entity will provide more specific bounds on precisely the region affected.\n<ul>\n\t<li>           u - Unsafe (hostile capability)</li>\n\t<li>           o - Occupied (e.g., SOF forces on ground)</li>\n\t<li>           c - Contaminated (NBC event)</li>\n\t<li>               c - chemical</li>\n\t<li>                   x - agents, direction,</li>\n\t<li>                   y</li>\n\t<li>                   z</li>\n\t<li>           f - Flight restrictions</li>\n</ul>\n\n<b>       t - Tasking (requests/orders)</b>\nEvents in this category are generalized requests for service.  These may be used to request for data collection, request mesuration of a specific object, order an asset to take action against a specific point.  Generally, the \"details\" entity will identify the general or specific entity being tasked.\n<ul>\n\t<li>           s - Surveillance</li>\n\t<li>           r - Relocate</li>\n\t<li>           e - Engage</li>\n\t<li>           m - Mensurate</li>\n</ul>\n\n<b>      c - Capability (applied to an area)</b>\n<ul>\n\t<li>           s - Surveillance</li>\n\t<li>           r - Rescue</li>\n\t<li>           f - Fires</li>\n\t<li>           d - Direct fires</li>\n\t<li>            i - Indirect fires</li>\n\t<li>           l - Logistics (supply)</li>\n\t<li>            f - Fuel</li>\n</ul>\n               ...\n<b>c - Communications</b>",
+					"type" : "string",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"uid":
+				{
+					"description" : "The \"uid\" attribute is a globally unique name for this specific piece of information.\nSeveral \"events\" may be associated with one UID, but in that case, the latest (ordered by timestamp), \noverwrites all previous events for that UID.\ncan have additional information attached.\n[EventTYPE].[MACHINESENDERID].Nichname.UniqueID\ne.g. -<i>ping </i>means that this event is a ping, \n<i>GeoChat </i>indicates a chat type structure.\nThe <b>UID</b> should be in the following format: GeoChat.&lt;sender uid&gt;.&lt;recipient callsign or name of the group&gt;.&lt;random string for uniqueness&gt;.  Diverging from this format should not cause significant issues; however, the UID is used as a fallback if other information cannot be parsed from the message, so issues may still be experienced.  If uid does not contain any “.” characters, the chat room will default to “All Chat Rooms”.\nGeoChat.ANDROID-7C:91:22:E8:6E:4D.DIPPER.44bf77cd-289e-4ea4-8756-ce295de168ca",
+					"type" : "integer",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"version":
+				{
+					"description" : "Schema version of this event instance (e.g. 2.0)",
+					"type" : "integer",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"MissionChange" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"externalData":{
+					"$ref": "#/definitions/externalData",
+					"minItems": 0,
+					"maxItems": 1
+				},
+				"creatorUid":
+				{
+					"$ref" : "#/definitions/creatorUid",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"contentUid":
+				{
+					"$ref" : "#/definitions/contentUid",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"isFederatedChange":
+				{
+					"$ref" : "#/definitions/isFederatedChange",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"missionName":
+				{
+					"$ref" : "#/definitions/missionName",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"timestamp":
+				{
+					"$ref" : "#/definitions/timestamp",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"type":
+				{
+					"$ref" : "#/definitions/type",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"MissionChanges" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"MissionChange":
+				{
+					"type" : "array",
+					"items" : { "$ref":"#/definitions/MissionChange" }
+				}
+			}
+		},
+		"content" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"externalData":{
+			"type": "object",
+			"properties": {
+				"uid":{
+					"$ref": "#/definitions/uid",
+					"minItems": 1,
+					"maxItems": 1
+				},
+				"name":{
+					"$ref": "#/definitions/name",
+					"minItems": 1,
+					"maxItems": 1
+				},
+				"notes":{
+					"$ref": "#/definitions/notes",
+					"minItems": 1,
+					"maxItems": 1
+				},
+				"tool":{
+					"$ref": "#/definitions/tool",
+					"minItems": 1,
+					"maxItems": 1
+				},
+				"urlData":{
+					"$ref": "#/definitions/urlData",
+					"minItems": 1,
+					"maxItems": 1
+				},
+				"urlView":{
+					"$ref": "#/definitions/urlView",
+					"minItems": 1,
+					"maxItems": 1
+				}
+			}
+		},
+		"contentResource" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"creatorUid":
+				{
+					"$ref" : "#/definitions/creatorUid",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"groupVector": {
+					"$ref": "#/definitions/groupVector",
+					"minItems": 1,
+					"maxItems": 1
+				},
+				"expiration":
+				{
+					"$ref" : "#/definitions/expiration",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"hash":
+				{
+					"$ref" : "#/definitions/hash",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"mimeType":
+				{
+					"type" : "array",
+					"items" : { "$ref":"#/definitions/mimeType" }
+				},
+				"name":
+				{
+					"$ref" : "#/definitions/name",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"size":
+				{
+					"$ref" : "#/definitions/size",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"submissionTime":
+				{
+					"$ref" : "#/definitions/submissionTime",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"submitter":
+				{
+					"$ref" : "#/definitions/submitter",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"uid":
+				{
+					"$ref" : "#/definitions/uid",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"timestamp":
+				{
+					"$ref" : "#/definitions/timestamp",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"creatorUid" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"contentUid" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"detail" : 
+		{
+			"type": "object",
+			"description" : "An optional element used to hold CoT sub-schema. Detail has no special properties.\n<b>   Detail entities...</b>\n  The \"detail\" entity is intended to carry information that is   specific to smaller communities of producers and consumers and     require more intimate knowledge of the operating domain.  For example, mesurated \"target\" events may come from dramatically     different sources and need to propagate dramatically different     \"detail\" information.  A close-air-support mission will augment     target details with initial point and callsign details to     facilitate coordination of weapon delivery.  In contrast, a mission planning system may augment planned targets with target     catalog information and weapon fuzing requirements.  Because the \"details\" portion of the event are of interest only to a subset of subscribers, that entity may be mentioned by reference     when the event is communicated.  This reduces the congestion when events are transmitted over bandwidth limited links and also     prevents the retransmission of static data elements.",
+			"properties":
+			{
+				"mission":
+				{
+					"$ref" : "#/definitions/mission",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"expiration" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"filename" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"groupVector" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"hash" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"timestamp" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"isFederatedChange" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"keywords" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"mimeType" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"mission" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"MissionChanges":
+				{
+					"$ref" : "#/definitions/MissionChanges",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"authorUid":
+				{
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"name":
+				{
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"tool":
+				{
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"type":
+				{
+					"description" : "Types of mission changes: Missions, and Mission content. Content changes will specify either a hash or uid, not both",
+					"type" : "var",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"missionName" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"name" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"point" : 
+		{
+			"type": "object",
+			"properties":
+			{
+				"ce":
+				{
+					"description" : "Circular area around the point defined by lat and lon fields in meters.  Although named ce, this field is intended to define a circular area around the event point, not necessarily an error (e.g. Describing a reservation area is not an \"error\").  \n\nIf it is appropriate for the \"ce\" field to represent an error value (e.g. event describes laser designated target), the value will represent the one sigma point for a zero mean  normal (Guassian) distribution.",
+					"type" : "number",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"hae":
+				{
+					"description" : "Height above Ellipsoid based on WGS-84 ellipsoid (measured in meters) \nHAE acronym for Height above Ellipsoid based on WGS-84 ellipsoid (measured in meters).",
+					"type" : "number",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"lat":
+				{
+					"description" : "Latitude referred to the WGS 84 ellipsoid in degrees",
+					"type" : "number",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"le":
+				{
+					"description" : "Linear Error in meters associated with the HAE field. Although named le, this field is intended to define a height range about the event point, not necessarily an error. This field, along with the ce field allow for the definition of a cylindrical volume about the point. If it is appropriate for the \"le\" field to represent an error (e.g. event describes laser designated target), the value will represent the one sigma point for a zero mean normal (Guassian) distribution.\nA height range about the event point in meters associated with the HAE field. When used to represent error, the value represents the one sigma point for a zero mean normal (Gaussian) distribution.",
+					"type" : "number",
+					"minItems" : 1,
+					"maxItems" : 1
+				},
+				"lon":
+				{
+					"description" : "Longitude referred to the WGS 84 in degrees",
+					"type" : "number",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"size" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"submissionTime" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"submitter" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"timestamp" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+		"tool" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+        "urlData" :
+        {
+            "type": "object",
+            "properties":
+            {
+            }
+        },
+        "urlView" :
+        {
+            "type": "object",
+            "properties":
+            {
+            }
+        },
+		"type" : 
+		{
+			"type": "object",
+			"properties":
+			{
+			}
+		},
+        "notes" :
+        {
+            "type": "object",
+            "properties":
+            {
+            }
+        },
+		"uid" : 
+		{
+			"type": "object",
+			"description" : "special class used in mission only for ID",
+			"properties":
+			{
+			}
+		}
+	}
+}

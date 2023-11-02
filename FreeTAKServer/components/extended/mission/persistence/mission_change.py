@@ -3,12 +3,16 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+
+
 if TYPE_CHECKING:
+    from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
     from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
     from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
+from .mission import Mission
 
 from . import MissionBase
-from .mission import Mission
+
 
 class MissionChange(MissionBase):
     __tablename__ = "mission_change"
@@ -36,3 +40,7 @@ class MissionChange(MissionBase):
     cot_detail_uid = Column(String(100), ForeignKey('MissionCoT.uid'))
 
     cot_detail: 'MissionCoT' = relationship("MissionCoT", back_populates="change")
+
+    external_data_uid = Column(String(100), ForeignKey('external_data.id'))
+
+    external_data: 'ExternalData' = relationship("ExternalData", back_populates="change")

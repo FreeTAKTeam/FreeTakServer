@@ -28,13 +28,15 @@ class MissionExternalDataController(Controller):
         
     def add_mission_external_data(self, mission_id: str, mission_external_data: Dict, config_loader, *args, **kwargs):
         external_data_db = self.persistency_controller.add_external_data(
+            id = mission_external_data["uid"],
             mission_id=mission_id,
             name=mission_external_data["name"],
             tool=mission_external_data["tool"],
             urlData=mission_external_data["urlData"],
             notes=mission_external_data["notes"],
             uid=mission_external_data["uid"],
-            urlView=mission_external_data["urlView"]
+            urlView=mission_external_data["urlView"],
+            creator_uid=mission_external_data["creatorUid"]
         )
         external_data_domain = self.domain_controller.create_external_data_collection(config_loader)
         completed_external_data_collection = self.complete_mission_external_data_collection(external_data_domain, external_data_db, config_loader)

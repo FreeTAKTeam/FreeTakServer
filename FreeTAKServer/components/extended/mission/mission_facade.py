@@ -198,6 +198,10 @@ class Mission(DefaultFacade):
         self.notification_controller.send_content_created_notification(*args, **kwargs)
 
     @DefaultFacade.public
+    def mission_external_data_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_external_data_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
     def mission_log_created_notification(self, *args, **kwargs):
         self.notification_controller.send_log_created_notification(*args, **kwargs)
 

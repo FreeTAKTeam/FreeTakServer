@@ -1,5 +1,8 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from . import MissionChanges
 
 class mission(CoTNode):
     def __init__(self, configuration, model, oid=None):
@@ -42,7 +45,7 @@ class mission(CoTNode):
         self.cot_attributes["authorUid"] = authorUid
 
     @CoTProperty
-    def MissionChanges(self, MissionChanges=None):
+    def MissionChanges(self, MissionChanges=None) -> 'MissionChanges':
         return self.cot_attributes.get("MissionChanges", None)
     
     @MissionChanges.setter

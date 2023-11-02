@@ -365,5 +365,25 @@ class ExCheckChecklistController(Controller):
         
         return final_message[0]
 
-    def add_checklist_to_mission(self):
-        pass
+    def add_checklist_to_mission(self, checklist_id, mission_id, client_uid, *args, **kwargs):
+        self.request.set_value("objectuid", checklist_id)
+        self.request.set_value("use_bytes", True)
+        sub_resp = self.execute_sub_action("GetEnterpriseSyncData")
+        checklist_content = sub_resp.get_value("objectdata")
+        checklist = etree.fromstring(checklist_content)
+        checklist_name = checklist.find("checklistDetails").find("name").text
+        checklist = self.persistency_controller.get_checklist(checklist_id)
+        self.request.set_value("mission_id", mission_id)
+        self.request.set_context("mission")
+        self.request.set_value("mission_external_data", {
+            "name": checklist_name,
+            "uid": checklist.PrimaryKey,
+            "tool": "ExCheck",
+            "notes": client_uid +" added "+checklist_name,
+            "urlData": "https://"+config.DataPackageServiceDefaultIP+":"+str(config.HTTPSTakAPIPort)+"/Marti/api/excheck/checklist/"+checklist.PrimaryKey,
+            "urlView": "https://"+config.DataPackageServiceDefaultIP+":"+str(config.HTTPSTakAPIPort)+"/Marti/api/excheck/checklist/"+checklist.PrimaryKey+"/status",
+            "creatorUid": client_uid
+        })
+        resp = self.execute_sub_action("CreateExternalMissionData")
+
+        return resp.get_value("mission_external_data")

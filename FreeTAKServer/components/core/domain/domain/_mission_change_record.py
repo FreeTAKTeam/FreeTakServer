@@ -6,6 +6,7 @@ from FreeTAKServer.components.extended.mission.domain import details
 
 if TYPE_CHECKING:
     from FreeTAKServer.components.core.domain.domain import MissionContentData
+    from FreeTAKServer.components.core.domain.domain import MissionExternalData
 
 class MissionChangeRecord(CoTNode):
     
@@ -18,6 +19,7 @@ class MissionChangeRecord(CoTNode):
         self.cot_attributes["creatorUid"] = None
         self.cot_attributes["serverTime"] = None
         self.cot_attributes["contentResource"] = None
+        self.cot_attributes["externalData"] = None
         self.cot_attributes["isFederatedChange"] = None
 
     @CoTProperty
@@ -91,3 +93,11 @@ class MissionChangeRecord(CoTNode):
     @details.setter
     def details(self, details=None):
         self.cot_attributes["details"] = details
+
+    @CoTProperty
+    def externalData(self) -> 'MissionExternalData':
+        return self.cot_attributes.get("externalData", None)
+    
+    @externalData.setter
+    def externalData(self, externalData=None):
+        self.cot_attributes["externalData"] = externalData

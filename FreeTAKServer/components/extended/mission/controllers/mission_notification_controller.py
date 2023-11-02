@@ -1,5 +1,6 @@
 from uuid import uuid4
 from typing import TYPE_CHECKING
+from FreeTAKServer.components.extended.mission.controllers.builders.mission_external_data_notification import MissionExternalDataNotificationBuilder
 
 if TYPE_CHECKING:
     from FreeTAKServer.components.core.domain.domain import Event
@@ -97,6 +98,18 @@ class MissionNotificationController(Controller):
         # Serializer called by service manager requires the message value
         self.response.set_value('message', [mission_content_notification])
         
+        self.response.set_value('recipients', "*")
+        self.response.set_action("publish")
+    
+    def send_external_data_created_notification(self, external_data_id: str, config_loader, *args, **kwargs):
+        mission_external_data_db = self.persistence_controller.get_external_data(external_data_id)
+        builder = MissionExternalDataNotificationBuilder(self.request, self.response, self.action_mapper, self.configuration)
+        builder.build_empty_object(config_loader)
+        builder.add_object_data(mission_external_data_db)
+        mission_external_data_notification = builder.get_result()
+
+        # Serializer called by service manager requires the message value
+        self.response.set_value('message', [mission_external_data_notification])
         self.response.set_value('recipients', "*")
         self.response.set_action("publish")
 

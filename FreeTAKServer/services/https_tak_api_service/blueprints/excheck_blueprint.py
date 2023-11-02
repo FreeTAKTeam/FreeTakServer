@@ -85,10 +85,13 @@ def excheck_template_task(templateUid, taskUid):
         return "", 200
 
 
-
-"""
-# TODO: this needs to be moved out to the mission blueprint
-@page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
-def get_checklist_mission(mission_id):
-    return HTTPSTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}).get_value("mission_info")
-"""
+@page.route('/Marti/api/excheck/checklist/<checklist_id>/mission/<mission_id>', methods=['PUT'])
+def add_checklist_to_mission(checklist_id, mission_id):
+    try:
+        client_uid = request.args.get("clientUid", "")
+        HTTPSTakApiCommunicationController().make_request("AddChecklistToMission", "excheck", {"checklist_id": checklist_id, "mission_id": mission_id, "client_uid": client_uid}, None, True)
+        HTTPSTakApiCommunicationController().make_request("MissionExternalDataCreatedNotification", "mission", {"external_data_id": checklist_id}, None, synchronous=False)        
+        return '', 200
+    except Exception as ex:
+        print(ex)
+        return '', 500

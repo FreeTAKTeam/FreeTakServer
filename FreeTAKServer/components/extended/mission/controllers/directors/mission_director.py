@@ -2,6 +2,7 @@ from abc import ABC
 from typing import List, TYPE_CHECKING
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_cot_content_builder import MissionCoTContentBuilder
+from FreeTAKServer.components.extended.mission.controllers.builders.mission_standard_external_data_builder import MissionStandardExternalDataBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_list_builder import MissionListBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_list_cot_content_builder import MissionListCoTContentBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_list_record_builder import MissionListRecordBuilder
@@ -61,6 +62,15 @@ class MissionDirector(Controller):
             mission_content_builder.add_object_data(content)
             mission_content = mission_content_builder.get_result()
             mission_record.contents = mission_content
+
+        for external_data in mission.externalData:
+
+            mission_external_data_builder = MissionStandardExternalDataBuilder(self.request, self.response, self.action_mapper, self.configuration)
+            mission_external_data_builder.initialize(self.request, self.response)
+            mission_external_data_builder.build_empty_object(config_loader, *args, **kwargs)
+            mission_external_data_builder.add_object_data(external_data)
+            mission_external_data = mission_external_data_builder.get_result()
+            mission_record.externalData = mission_external_data
 
         mission_list.data = mission_record
         return mission_list

@@ -153,6 +153,14 @@ class MissionDomainController(Controller):
             mission_change.contentResource.submitter.text = enterprise_sync_db.submitter
             mission_change.contentResource.submissionTime.text = get_dtg(enterprise_sync_db.start_time)
     
+        if mission_change_db.external_data != None:
+            mission_change.externalData.name.text = mission_change_db.external_data.name
+            mission_change.externalData.tool.text = mission_change_db.external_data.tool
+            mission_change.externalData.urlData.text = mission_change_db.external_data.urlData
+            mission_change.externalData.urlView.text = mission_change_db.external_data.urlView
+            mission_change.externalData.notes.text = mission_change_db.external_data.notes
+            mission_change.externalData.uid.text = mission_change_db.external_data.uid
+
         return mission_change
 
 

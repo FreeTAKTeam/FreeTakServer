@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from . import contact
     from . import usericon
     from . import marti
+    from . import mission
 
 class detail(CoTNode):
     """An optional element used to hold CoT sub-schema. empty element"""
@@ -57,7 +58,7 @@ class detail(CoTNode):
         self.cot_attributes["contact"] = contact
 
     @CoTProperty
-    def mission(self):
+    def mission(self) -> 'mission':
         data = self.cot_attributes.get("mission", None)
         if data is None:
             raise AttributeError("attribute 'mission' doesnt exist")

@@ -295,66 +295,13 @@ def get_mission(mission_id):
             return mission_blueprint.get_mission(mission_id)
     except Exception as ex:
         return str(ex), 500
+    
+# TODO re-implement for DP in blueprint
 """
-# TODO remove?
-@app.route('/Marti/api/missions/exchecktemplates/subscription', methods=['PUT'])
-def request_subscription():
-    try:
-        # this endpoint allows for the client to request a new subscription
-        # possibly the uid of the client db also contains create_time and mission_id
-        print(request.args.get('uid'))
-
-        return ('', 200)
-    except Exception as e:
-        print('exception in request_subscription' + str(e))
-"""
-""" 
-@app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
-def missionupdate(templateuid):
-    from flask import request
-    uid = request.args.get('uid')
-    return '', 200
-"""
-"""
-@app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
-def specificPackage():
-    from defusedxml import ElementTree as etree
-    from os import listdir
-    try:
-        if request.method == 'GET' and request.args.get('uid') != None:
-            dp_request = ObjectFactory.get_instance("request")
-            dp_response = ObjectFactory.get_instance("response")
-            enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-            enterprisesync_facade.initialize(dp_request, dp_response)
-            enterprisesync_facade.get_enterprise_sync_data(objectuid = request.args.get('uid'))
-            return dp_response.get_value("objectdata"), 200
-        else:
-            file_hash = sanitize_hash(request.args.get('hash'))
-
-            if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
-                logger.info('marti sync content triggerd')
-                app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
-                file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
-                app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
-                path = PurePath(dp_directory, str(file_hash), file_list[0])
-                app.logger.debug(str(path))
-                return send_file(str(path))
-            else:
-                dp_request = ObjectFactory.get_instance("request")
-                dp_response = ObjectFactory.get_instance("response")
-                enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-                enterprisesync_facade.initialize(dp_request, dp_response)
-                enterprisesync_facade.get_enterprise_sync_data(objecthash = request.args.get('hash'))
-                return dp_response.get_value("objectdata"), 200
-    except Exception as ex:
-        print(ex)
-        return '', 500
-"""
-
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
     return ExCheckController().update_checklist()
-
+"""
 # TODO remove?
 def sanitize_path_input(user_input: str) -> bool:
     """ this function takes a file hash and validates it's

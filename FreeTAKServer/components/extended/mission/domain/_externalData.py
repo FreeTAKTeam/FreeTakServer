@@ -1,10 +1,12 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
+from digitalpy.core.parsing.load_configuration import Configuration
 
-class MissionExternalData(CoTNode):
-    def __init__(self, configuration, model, oid=None):
+class externalData(CoTNode):
+    def __init__(self, configuration: Configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
 
+    
     @CoTProperty
     def name(self) -> str:
         return self.cot_attributes.get("name", None)

@@ -128,3 +128,7 @@ class Excheck(DefaultFacade):
     @DefaultFacade.public
     def get_checklist_mission(self, *args, **kwargs):
         return self.checklist_controller.get_checklist_mission(*args, **kwargs)
+
+    @DefaultFacade.public
+    def add_checklist_to_mission(self, *args, **kwargs):
+        return self.checklist_controller.add_checklist_to_mission(*args, **kwargs)

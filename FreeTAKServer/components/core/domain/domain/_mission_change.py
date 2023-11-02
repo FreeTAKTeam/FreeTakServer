@@ -1,5 +1,10 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import MissionExternalData
+    from . import creatorUid
 
 class MissionChange(CoTNode):
     def __init__(self, configuration, model, oid=None):
@@ -15,6 +20,17 @@ class MissionChange(CoTNode):
     @contentResource.setter
     def contentResource(self, contentResource):
         self.cot_attributes["contentResource"] = contentResource
+
+    @CoTProperty
+    def externalData(self)->'MissionExternalData':
+        data = self.cot_attributes.get("externalData", None)
+        if data is None:
+            raise AttributeError("attribute 'externalData' doesnt exist")
+        return data
+    
+    @externalData.setter
+    def externalData(self, externalData):
+        self.cot_attributes["externalData"] = externalData
 
     @CoTProperty
     def isFederatedChange(self):
@@ -39,7 +55,7 @@ class MissionChange(CoTNode):
         self.cot_attributes["groupVector"] = groupVector
 
     @CoTProperty
-    def creatorUid(self):
+    def creatorUid(self) -> 'creatorUid':
         data = self.cot_attributes.get("creatorUid", None)
         if data is None:
             raise AttributeError("attribute 'creatorUid' doesnt exist")

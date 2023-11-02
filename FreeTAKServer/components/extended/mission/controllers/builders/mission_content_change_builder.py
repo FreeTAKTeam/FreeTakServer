@@ -37,6 +37,14 @@ class MissionContentChangeBuilder(Builder):
         self.result.timestamp = get_dtg(mapped_object.timestamp)
         self.result.contentUid = mapped_object.content_uid
 
+        if mapped_object.external_data_uid != None:
+            self.result.externalData.name = mapped_object.external_data.name
+            self.result.externalData.tool = mapped_object.external_data.tool
+            self.result.externalData.urlData = mapped_object.external_data.urlData
+            self.result.externalData.urlView = mapped_object.external_data.urlView
+            self.result.externalData.notes = mapped_object.external_data.notes
+            self.result.externalData.uid = mapped_object.external_data.uid
+
         if mapped_object.content_resource_uid != None:
             self.request.set_value("objectuid", mapped_object.content_resource_uid)
             self.request.set_value("objecthash", mapped_object.content_resource_uid)
