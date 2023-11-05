@@ -2,6 +2,7 @@ from abc import ABC
 from typing import List, TYPE_CHECKING
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_cot_content_builder import MissionCoTContentBuilder
+from FreeTAKServer.components.extended.mission.controllers.builders.mission_role_builder import MissionRoleBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_standard_external_data_builder import MissionStandardExternalDataBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_list_builder import MissionListBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_list_cot_content_builder import MissionListCoTContentBuilder
@@ -45,7 +46,13 @@ class MissionDirector(Controller):
         mission_record_builder.build_empty_object(config_loader, *args, **kwargs)
         mission_record_builder.add_object_data(mission)
         mission_record = mission_record_builder.get_result()
-        
+
+        mission_role_builder = MissionRoleBuilder(self.request, self.response, self.action_mapper, self.configuration)
+        mission_role_builder.initialize(self.request, self.response)
+        mission_role_builder.build_empty_object(config_loader, *args, **kwargs)
+        mission_role_builder.add_object_data(mission.defaultRole)
+        mission_record.defaultRole = mission_role_builder.get_result()
+
         for cot in mission.cots:
             mission_cot_content_builder = MissionCoTContentBuilder(self.request, self.response, self.action_mapper, self.configuration)
             mission_cot_content_builder.initialize(self.request, self.response)

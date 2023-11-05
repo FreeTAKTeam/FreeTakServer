@@ -85,7 +85,7 @@ class MissionGeneralController(Controller):
         else:
             default_mission_role = self.persistency_controller.get_role(initial_mission_data.get('defaultRole'))
 
-        if initial_mission_data.get('createTime', None) == None:
+        if initial_mission_data.get('createTime', None) == None or get_datetime_from_dtg(str(initial_mission_data.get('createTime'))).year == 1:
             create_time = get_current_datetime()
         else:
             create_time = get_datetime_from_dtg(str(initial_mission_data.get('createTime')))
@@ -120,6 +120,7 @@ class MissionGeneralController(Controller):
         mission_notification_obj = self.domain_controller.complete_mission_creation_notification(mission_notification_obj, mission_obj.data[0])
         
         final_message = serialize_to_json(mission_obj, self.request, self.execute_sub_action)
+        
         self.response.set_value("mission_subscription", final_message)
         
         serialized_mission_notification = self.serialize_to_xml(mission_notification_obj)
@@ -196,6 +197,9 @@ class MissionGeneralController(Controller):
         missions = self.persistency_controller.get_all_public_missions()
         mission_collection = self.mission_list_director.construct(missions, config_loader)
         serialized_mission_collection = serialize_to_json(mission_collection, self.request, self.execute_sub_action) 
+        #serialized_mission_collection = json.loads(serialized_mission_collection)
+        #del serialized_mission_collection["data"][0]["externalData"][0]
+        #serialized_mission_collection = json.dumps(serialized_mission_collection)
         self.response.set_value("missions", serialized_mission_collection)
         return serialized_mission_collection
 

@@ -49,12 +49,12 @@ class MissionListRecordBuilder(Builder):
         # self.result.mapLayers = mapped_object.mapLayers
         
         self.result.mapLayers = []
-        self.result.inviteOnly = mapped_object.inviteOnly
+        self.result.inviteOnly = False if mapped_object.inviteOnly == 0 else True
         self.result.expiration = mapped_object.expiration
         
         # self.result.uids = mapped_object.uids
         
-        self.result.passwordProtected = mapped_object.passwordProtected
+        self.result.passwordProtected = False if mapped_object.passwordProtected == "False" else True
         
     def get_result(self):
         """gets the result of the builder"""

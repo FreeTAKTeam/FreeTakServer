@@ -18,7 +18,7 @@ class MissionData(CoTNode):
         self.cot_attributes["creatorUid"] = None
         self.cot_attributes["createTime"] = None
         self.cot_attributes["groups"] = None
-        self.cot_attributes["externalData"] = None
+        self.cot_attributes["externalData"] = []
         self.cot_attributes["feeds"] = None
         self.cot_attributes["mapLayers"] = None
         self.cot_attributes["defaultRole"] = None

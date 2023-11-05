@@ -126,6 +126,8 @@ MISSION_LIST_COT_CONTENT = "mission_list_cot_content"
 
 MISSION_EXTERNAL_DATA_NOTIFICATION = "mission_external_data_notification"
 
+MISSION_ROLE = "mission_role"
+
 EVENTS = "events"
 
 DETAILS = "details"
