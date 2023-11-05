@@ -27,12 +27,43 @@
 					"$ref" : "#/definitions/MissionContentData",
 					"minItems" : 0,
 					"maxItems" : 1
+				},
+				"externalData":
+                {
+					"$ref" : "#/definitions/MissionExternalData",
+					"minItems" : 0,
+					"maxItems" : 1
 				}
             }
         },
         "MissionContentData":
         {
             "type": "object"
+        },
+		"MissionExternalData": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tool": {
+                    "type": "string"
+                },
+                "urlData": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "urlView": {
+                    "type": "string",
+                    "format": "uri"
+                }
+            }
         }
 	}
 }

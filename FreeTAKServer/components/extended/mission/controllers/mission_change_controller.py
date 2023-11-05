@@ -41,6 +41,7 @@ class MissionChangeController(Controller):
                 creator_uid=creator_uid,
                 content_uid=None,
                 cot_detail_uid=None,
+                external_data_uid=None,
                 content_resource_uid=None
             )
 
@@ -51,7 +52,19 @@ class MissionChangeController(Controller):
                 creator_uid=creator_uid,
                 content_uid=None,
                 cot_detail_uid=None,
+                external_data_uid=None,
                 content_resource_uid=content_uid
+            )
+    
+    def create_mission_simple_content_upload_record(self, mission_content_uid, creator_uid, content):
+        self.persistence_controller.create_mission_change(
+                type = "ADD_CONTENT",
+                mission_uid=mission_content_uid,
+                creator_uid=creator_uid,
+                content_uid=content,
+                cot_detail_uid=None,
+                content_resource_uid=None,
+                external_data_uid=None
             )
         
     def create_mission_cot_record(self, mission_cot_uid, creator_uid, cot_uid):
@@ -61,9 +74,20 @@ class MissionChangeController(Controller):
                 creator_uid=creator_uid,
                 content_uid=None,
                 cot_detail_uid=cot_uid,
-
+                external_data_uid=None,
                 content_resource_uid=None
             )
+        
+    def create_mission_external_data_record(self, mission_uid, creator_uid, external_data_uid):
+        self.persistence_controller.create_mission_change(
+            type="ADD_CONTENT",
+            mission_uid=mission_uid,
+            creator_uid=creator_uid,
+            content_uid=None,
+            cot_detail_uid=None,
+            content_resource_uid=None,
+            external_data_uid=external_data_uid,
+        )
 
     def get_mission_changes(self, mission_id, config_loader, *args, **kwargs):
         change_collection = self.domain_controller.create_mission_collection(config_loader)

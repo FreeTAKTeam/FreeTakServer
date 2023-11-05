@@ -516,11 +516,12 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
-    def create_mission_change(self, type, content_uid, creator_uid, mission_uid, content_resource_uid, cot_detail_uid) -> MissionChange:
+    def create_mission_change(self, type, content_uid, creator_uid, mission_uid, content_resource_uid, cot_detail_uid, external_data_uid) -> MissionChange:
         change = MissionChange()
         change.type = type
         change.content_uid = content_uid
         change.creator_uid = creator_uid
+        change.external_data_uid = external_data_uid
         change.mission = self.get_mission(mission_uid)
         change.content_resource = self.get_mission_content(content_resource_uid)
         change.cot_detail = self.get_mission_cot(cot_detail_uid)

@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 from flask import Blueprint, request
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
@@ -76,8 +77,8 @@ def add_mission_contents(mission_id: str):
 @page.route('/Marti/api/missions/logs/entries', methods=['POST'])
 def add_log_entry():
     request_json = request.get_json() # type: ignore
-    return_data =  HTTPSTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log"), 200
-    HTTPSTakApiCommunicationController().make_request("MissionLogCreatedNotification", "mission", {"log_id": return_data["id"]}, None, synchronous=False)
+    return_data =  HTTPSTakApiCommunicationController().make_request("AddMissionLog", "mission", {"mission_log_data": request_json}, None, True).get_value("log")
+    HTTPSTakApiCommunicationController().make_request("MissionLogCreatedNotification", "mission", {"log_id": json.loads(return_data)["data"][0]["id"]}, None, synchronous=False)
     return return_data, 200
 
 @page.route('/Marti/api/missions/logs/entries', methods=['PUT'])

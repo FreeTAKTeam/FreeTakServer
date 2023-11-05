@@ -2,6 +2,7 @@ import json
 from typing import List, Dict
 from uuid import uuid4
 from FreeTAKServer.components.extended.excheck.domain.mission_info import MissionInfo
+from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_general_controller import MissionGeneralController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
@@ -45,6 +46,7 @@ class MissionLogsController(Controller):
         self.persistency_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
         self.domain_controller = MissionDomainController(request, response, sync_action_mapper, configuration)
         self.general_controller = MissionGeneralController(request, response, sync_action_mapper, configuration)
+        self.changes_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
         
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
@@ -67,6 +69,8 @@ class MissionLogsController(Controller):
             content = mission_log_data.get("content", ""),
             keywords=json.dumps(mission_log_data["keywords"])
         )
+        for mission_name in mission_log_data["missionNames"]:
+            self.changes_controller.create_mission_simple_content_upload_record(mission_name, mission_log_data["creatorUid"], mission_log_data.get("content", ""))
         log_collection_domain_obj = self.domain_controller.create_log_collection(config_loader)
         log_collection_domain_obj.version = "3"
         log_collection_domain_obj.type = "com.bbn.marti.sync.model.LogEntry"

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_CHANGE_RECORD
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
-from FreeTAKServer.components.extended.mission.domain import detail
+from FreeTAKServer.components.extended.mission.domain import detail, externalData
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
 from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from FreeTAKServer.components.core.domain.domain import Event
 
 
-class MissionContentChangeBuilder(Builder):
+class MissionExternalDataChangeBuilder(Builder):
     """Builds a mission cot change object"""
 
     def __init__(self, *args, **kwargs):
@@ -26,7 +26,7 @@ class MissionContentChangeBuilder(Builder):
 
         configuration = config_loader.find_configuration(MISSION_CHANGE_RECORD)
 
-        self.result = super()._create_model_object(configuration, extended_domain={"detail": detail})
+        self.result = super()._create_model_object(configuration, extended_domain={"detail": detail, "MissionExternalData": externalData})
 
     def add_object_data(self, mapped_object: MissionChange):
         """adds the data from the mapped object to the mission """
@@ -36,6 +36,7 @@ class MissionContentChangeBuilder(Builder):
         self.result.serverTime = get_dtg(mapped_object.server_time)
         self.result.timestamp = get_dtg(mapped_object.timestamp)
         self.result.contentUid = mapped_object.content_uid
+        self.result.contentResource = None
 
         if mapped_object.external_data_uid != None:
             self.result.externalData.name = mapped_object.external_data.name
@@ -44,33 +45,6 @@ class MissionContentChangeBuilder(Builder):
             self.result.externalData.urlView = mapped_object.external_data.urlView
             self.result.externalData.notes = mapped_object.external_data.notes
             self.result.externalData.uid = mapped_object.external_data.uid
-        else:
-            self.result.externalData = None
-        if mapped_object.content_resource_uid != None:
-            self.request.set_value("objectuid", mapped_object.content_resource_uid)
-            self.request.set_value("objecthash", mapped_object.content_resource_uid)
-            enterprise_sync_db: 'EnterpriseSyncDataObject' = self.execute_sub_action("GetEnterpriseSyncMetaData").get_value("objectmetadata")
-            
-            self.result.contentResource.uid = enterprise_sync_db.PrimaryKey
-            self.result.contentResource.hash = enterprise_sync_db.hash
-            self.result.contentResource.name = enterprise_sync_db.file_name
-            self.result.contentResource.mimeType = enterprise_sync_db.mime_type
-            self.result.contentResource.size = enterprise_sync_db.length
-            self.result.contentResource.tool = enterprise_sync_db.tool
-            self.result.contentResource.submitter = enterprise_sync_db.submitter
-            
-            keywords = []
-            for keyword in enterprise_sync_db.keywords:
-                keywords.append(keyword.keyword)
-                
-            self.result.contentResource.keywords = keywords
-            self.result.contentResource.expiration = enterprise_sync_db.expiration
-
-        if mapped_object.cot_detail_uid != None:
-            self.request.set_value("cot_id", mapped_object.cot_detail_uid)
-            cot: 'Event' = self.execute_sub_action("GetCoT").get_value("cot")
-            self.result.details.callsign = cot.detail.contact.callsign
-            self.result.details.type = cot.type
 
     def get_result(self):
         """gets the result of the builder"""

@@ -3,6 +3,8 @@ from typing import List, TYPE_CHECKING
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_content_change_builder import MissionContentChangeBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_change_list_builder import MissionChangeListBuilder
+from FreeTAKServer.components.extended.mission.controllers.builders.mission_external_data_change_builder import MissionExternalDataChangeBuilder
+from FreeTAKServer.components.extended.mission.controllers.builders.mission_simple_change_builder import MissionSimpleChangeBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_simple_cot_change_builder import MissionSimpleCoTChangeBuilder
 from FreeTAKServer.components.extended.mission.persistence.mission import Mission
 from FreeTAKServer.core.domain.node import Node
@@ -45,6 +47,7 @@ class MissionChangesDirector(Controller):
                 mission_change_record.add_object_data(change)
                 mission_change = mission_change_record.get_result()
                 mission_change_list.data = mission_change
+                
             elif change.cot_detail_uid != None:
                 mission_change_record = MissionSimpleCoTChangeBuilder(self.request, self.response, self.action_mapper, self.configuration)
                 mission_change_record.initialize(self.request, self.response)
@@ -52,4 +55,21 @@ class MissionChangesDirector(Controller):
                 mission_change_record.add_object_data(change)
                 mission_change = mission_change_record.get_result()
                 mission_change_list.data = mission_change
+
+            elif change.external_data_uid != None:
+                mission_change_record = MissionExternalDataChangeBuilder(self.request, self.response, self.action_mapper, self.configuration)
+                mission_change_record.initialize(self.request, self.response)
+                mission_change_record.build_empty_object(config_loader, *args, **kwargs)
+                mission_change_record.add_object_data(change)
+                mission_change = mission_change_record.get_result()
+                mission_change_list.data = mission_change
+
+            else:
+                mission_change_record = MissionSimpleChangeBuilder(self.request, self.response, self.action_mapper, self.configuration)
+                mission_change_record.initialize(self.request, self.response)
+                mission_change_record.build_empty_object(config_loader, *args, **kwargs)
+                mission_change_record.add_object_data(change)
+                mission_change = mission_change_record.get_result()
+                mission_change_list.data = mission_change
+
         return mission_change_list
