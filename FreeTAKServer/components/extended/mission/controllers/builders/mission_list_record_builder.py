@@ -49,7 +49,7 @@ class MissionListRecordBuilder(Builder):
         # self.result.mapLayers = mapped_object.mapLayers
         
         self.result.mapLayers = []
-        self.result.inviteOnly = False if mapped_object.inviteOnly == 0 else True
+        self.result.inviteOnly = False if int(mapped_object.inviteOnly) == 0 else True
         self.result.expiration = mapped_object.expiration
         
         # self.result.uids = mapped_object.uids
