@@ -18,4 +18,6 @@ class MissionInvitation(MissionBase):
     
     mission_uid: str = Column(String, ForeignKey(Mission.PrimaryKey), primary_key=True) # type: ignore
 
-    subscription: Subscription = relationship("Mission", back_populates="invitation")
+    subscription_uid = Column(String, ForeignKey(Subscription.PrimaryKey))
+
+    subscription : Subscription = relationship(Subscription, back_populates="invitation")

@@ -26,3 +26,5 @@ class Subscription(MissionBase):
     mission_uid = Column(String, ForeignKey(Mission.PrimaryKey))
 
     mission : Mission = relationship(Mission, back_populates="mission_subscriptions")
+
+    invitation = relationship("MissionInvitation", back_populates="subscription")
