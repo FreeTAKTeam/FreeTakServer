@@ -8,6 +8,7 @@ from FreeTAKServer.components.extended.mission.persistence.mission_change import
 
 from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
+from FreeTAKServer.components.extended.mission.persistence.mission_invitation import MissionInvitation
 from FreeTAKServer.core.util.time_utils import get_dtg
 from ..configuration.mission_constants import PERSISTENCE_PATH
 from digitalpy.core.main.controller import Controller
@@ -138,7 +139,39 @@ class MissionPersistenceController(Controller):
             return role
         except Exception as ex:
             raise ex
-    
+        
+    def get_invitations(self, invitee_uid, *args, **kwargs):
+        """this method is used to get an invitation from the database.
+        """
+        try:
+            invitations = self.ses.query(MissionInvitation).filter(MissionInvitation.subscription.clientUid == invitee_uid).all()
+            return invitations
+        except Exception as ex:
+            raise ex
+        
+    def get_invitation_id(self, invitation_id, *args, **kwargs):
+        """this method is used to get an invitation from the database.
+        """
+        try:
+            invitation = self.ses.query(MissionInvitation).filter(MissionInvitation.uid == invitation_id).first()
+            return invitation
+        except Exception as ex:
+            raise ex
+
+    def create_invitation(self, author_uid: str, subscription_uid: str, *args, **kwargs):
+        """this method is used to create a new invitation and save it to the database.
+        """
+        try:
+            invitation = MissionInvitation()
+            invitation.author_uid = author_uid
+            invitation.subscription = self.get_subscription_id(subscription_uid)
+            self.ses.add(invitation)
+            self.ses.commit()
+            return invitation
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+
     def create_subscription(self, subscription_id, mission_id, token, client_uid, role, *args, **kwargs):
         """this method is used to create a new subscription and save it to the database.
         """
@@ -171,6 +204,15 @@ class MissionPersistenceController(Controller):
         """
         try:
             subscription : Subscription = self.ses.query(Subscription).filter(Subscription.mission == mission).filter(Subscription.clientUid == client_uid).first() # type: ignore
+            return subscription
+        except Exception as ex:
+            raise ex
+        
+    def get_subscription_id(self, subscription_id: str, *args, **kwargs) -> Subscription:
+        """this method is used to get a subscription from the database.
+        """
+        try:
+            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.PrimaryKey == subscription_id).first() # type: ignore
             return subscription
         except Exception as ex:
             raise ex

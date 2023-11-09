@@ -128,6 +128,14 @@ MISSION_EXTERNAL_DATA_NOTIFICATION = "mission_external_data_notification"
 
 MISSION_ROLE = "mission_role"
 
+MISSION_INVITATION_LIST = "mission_invitation_list"
+
+MISSION_INVITATION_NOTIFICATION = "mission_invitation_notification"
+
+MISSION_INVITATION = "mission_invitation"
+
+MISSION_PERMISSION = "mission_permission"
+
 EVENTS = "events"
 
 DETAILS = "details"
