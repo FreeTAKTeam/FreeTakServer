@@ -15,12 +15,11 @@ def get_missions():
 
 @page.route('/Marti/api/missions/invitations')
 def get_invitations():
-    return {
-        "version": "3",
-        "type": "MissionInvitation",
-        "data": [],
-        "nodeId": config.nodeID
-    }
+    client_uid = request.args.get("client_uid", None)
+    if client_uid is None:
+        return '', 400
+    out_data = HTTPSTakApiCommunicationController().make_request("GetInvitations", "mission", {"client_uid": client_uid}, None, synchronous=True)
+    return out_data, 200
 
 @page.route('/Marti/api/groups/all')
 def get_groups():
