@@ -128,7 +128,7 @@ class ClientReceptionHandler:
         """
         for _ in range(2):
             xmlstring = self.recv_until(sock).decode()
-            if xmlstring != b'' or xmlstring != '' or xmlstring is not None:
+            if xmlstring != b'' and xmlstring != '' and xmlstring and not None:
                 return xmlstring
         logger.debug("empty string sent from %s, standard disconnect", client)
         self.returnReceivedData(client, b'', queue)
