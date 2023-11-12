@@ -102,7 +102,7 @@ class MissionGeneralController(Controller):
             uids= str(initial_mission_data.get('uids')),
             contents=str(initial_mission_data.get('contents')),
             createTime=create_time,
-            passwordProtected=str(initial_mission_data.get('passwordProtected')),
+            passwordProtected=str(initial_mission_data.get('passwordProtected', 'False')),
             groups=str(initial_mission_data.get('groups')),
             defaultRole=default_mission_role,
             serviceUri=str(initial_mission_data.get('serviceUri')),

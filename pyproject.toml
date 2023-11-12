@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "FreeTAKServer"
-version = "0.2.32"
+version = "0.2.33"
 description = "An open source server for the TAK family of applications."
 authors = ["FreeTAKTeam <FreeTakTeam@gmail.com>"]
 readme = "README.md"
@@ -53,7 +53,7 @@ pillow="9.3.0"
 asyncio="3.4.3"
 xmltodict="*"
 pyzmq="*"
-digitalpy="^0.3.13.2"
+digitalpy="0.3.13.6"
 opentelemetry-sdk="*"
 PyJWT="*"
 FreeTAKServer_UI = {version = "*", optional = true}
