@@ -9,7 +9,7 @@
 			"type": "object",
 			"anyOf":
 			[
-				{ "$ref": "#/definitions/MissionInvitationList" },
+				{ "$ref": "#/definitions/MissionInvitationList" }
 			]
 		}
 	},

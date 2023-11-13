@@ -2,6 +2,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_change_contro
 from FreeTAKServer.components.extended.mission.controllers.mission_cot_controller import MissionCOTController
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_hierarchy_controller import MissionHierarchyController
+from FreeTAKServer.components.extended.mission.controllers.mission_invitation_controller import MissionInvitationController
 from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
 from FreeTAKServer.components.extended.mission.controllers.mission_notification_controller import MissionNotificationController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
@@ -68,10 +69,12 @@ class Mission(DefaultFacade):
         self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
         self.notification_controller = MissionNotificationController(request, response, sync_action_mapper, configuration)
         self.cot_controller = MissionCOTController(request, response, sync_action_mapper, configuration)
+        self.invitations_controller = MissionInvitationController(request, response, sync_action_mapper, configuration)
         self.injected_values["action_mapper"] = action_mapper
 
     def initialize(self, request, response):
         super().initialize(request, response)
+        self.invitations_controller.initialize(request, response)
         self.general_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
         self.subscription_controller.initialize(request, response)
@@ -224,3 +227,7 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def send_cot_created_notification(self, *args, **kwargs):
         self.notification_controller.send_cot_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_invitations(self, *args, **kwargs):
+        self.invitations_controller.get_invitations(*args, **kwargs)

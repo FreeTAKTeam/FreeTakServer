@@ -1822,7 +1822,7 @@ class ManageGeoObjects(BaseView):
 # this will require changing it from using the API Pipe to use the ZManager instead
 
 APPLICATION_PROTOCOL = "xml"
-API_REQUEST_TIMEOUT = 5000
+API_REQUEST_TIMEOUT = 30
 
 
 class RestAPI(DigitalPyService):

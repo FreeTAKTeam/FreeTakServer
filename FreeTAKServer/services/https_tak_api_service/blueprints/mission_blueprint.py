@@ -18,7 +18,7 @@ def get_invitations():
     client_uid = request.args.get("clientUid", None)
     if client_uid is None:
         return '', 400
-    out_data = HTTPSTakApiCommunicationController().make_request("GetInvitations", "mission", {"client_uid": client_uid}, None, synchronous=True)
+    out_data = HTTPSTakApiCommunicationController().make_request("GetInvitations", "mission", {"client_uid": client_uid}, None, synchronous=True).get_value("mission_changes") # type: ignore
     return out_data, 200
 
 @page.route('/Marti/api/groups/all')

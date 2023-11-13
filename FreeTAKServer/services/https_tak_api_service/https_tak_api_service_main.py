@@ -325,7 +325,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 APPLICATION_PROTOCOL = "xml"
-API_REQUEST_TIMEOUT = 5000
+API_REQUEST_TIMEOUT = 30
 
 from eventlet import listen, wrap_ssl, wsgi
 import ssl

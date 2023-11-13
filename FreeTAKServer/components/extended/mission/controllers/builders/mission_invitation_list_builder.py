@@ -2,12 +2,12 @@ from FreeTAKServer.components.core.domain.domain import Event
 
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_INVITATION_LIST
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
-from FreeTAKServer.components.extended.mission.controllers.mission_invitation_controller import MissionInvitationController
 from FreeTAKServer.components.extended.mission.domain.mission_list_cot_content import MissionListCoTContent
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
 from FreeTAKServer.components.core.domain.domain import MissionInfo
 from FreeTAKServer.core.util.time_utils import get_dtg
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
+from FreeTAKServer.components.extended.mission.domain import MissionInvitationList
 
 config = MainConfig.instance()
 
@@ -24,7 +24,7 @@ class MissionInvitationListBuilder(Builder):
         
         configuration = config_loader.find_configuration(MISSION_INVITATION_LIST)
         
-        self.result = super()._create_model_object(configuration)
+        self.result = super()._create_model_object(configuration, extended_domain={"MissionInvitationList": MissionInvitationList})
     
     def add_object_data(self, mapped_object = None):
         """adds the data from the mapped object to the result object"""

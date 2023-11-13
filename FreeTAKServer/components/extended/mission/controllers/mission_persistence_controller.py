@@ -208,6 +208,15 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
+    def get_client_invitations(self, client_uid: str, *args, **kwargs) -> List[MissionInvitation]:
+        """this method is used to get all invitations associated with a client.
+        """
+        try:
+            subscriptions : List[Subscription] = self.ses.query(Subscription).filter(Subscription.clientUid == client_uid).all() # type: ignore
+            return [subscription.invitation for subscription in subscriptions if subscription.invitation != None]
+        except Exception as ex:
+            raise ex
+
     def get_subscription_id(self, subscription_id: str, *args, **kwargs) -> Subscription:
         """this method is used to get a subscription from the database.
         """
