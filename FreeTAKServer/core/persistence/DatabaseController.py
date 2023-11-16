@@ -10,8 +10,6 @@ from sqlalchemy.exc import IntegrityError
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from FreeTAKServer.core.configuration.DatabaseConfiguration import DatabaseConfiguration
 from FreeTAKServer.core.persistence import APIUsersController
-from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_keyword import EnterpriseSyncKeyword
-from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 from FreeTAKServer.components.extended.excheck.persistence import ExCheckController
 from FreeTAKServer.components.extended.excheck.persistence import ExCheckChecklistController
 from FreeTAKServer.core.persistence import APICallController
@@ -83,16 +81,17 @@ class DatabaseController:
         :arg
         """
         engine = create_engine(DatabaseConfiguration().DataBaseConnectionString, echo=False)
-        if engine.dialect.has_table(engine, 'SystemUser') == False:
-            Base.metadata.create_all(engine)
-            tempsession = sessionmaker(bind=engine)()
-            tempsession.add(FreeTAKServer.model.SQLAlchemy.system_user.SystemUser(uid="1", name="admin", password="password", token="token", device_type="mobile"))
-            tempsession.commit()
-            tempsession.close()
-            return engine
-        else:
-            Base.metadata.create_all(engine)
-            return engine
+        with engine.connect() as connection:
+            if not connection.dialect.has_table(connection, "SystemUser"):
+                Base.metadata.create_all(engine)
+                tempsession = sessionmaker(bind=engine)()
+                tempsession.add(FreeTAKServer.model.SQLAlchemy.system_user.SystemUser(uid="1", name="admin", password="password", token="token", device_type="mobile"))
+                tempsession.commit()
+                tempsession.close()
+                return engine
+            else:
+                Base.metadata.create_all(engine)
+                return engine
     def create_Sessionmaker(self):
         SessionMaker = sessionmaker(bind=self.engine)
         return SessionMaker
