@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "FreeTAKServer"
-version = "0.2.35"
+version = "0.2.36"
 description = "An open source server for the TAK family of applications."
 authors = ["FreeTAKTeam <FreeTakTeam@gmail.com>"]
 readme = "README.md"
@@ -20,7 +20,7 @@ bcrypt="3.1.7"
 defusedxml="0.7.1"
 dnspython="2.2.1"
 eventlet="0.33.1"
-Flask="1.1.2"
+Flask="2.3.2"
 Flask-Cors="3.0.9"
 Flask-HTTPAuth="4.2.0"
 Flask-Login="0.6.3"
