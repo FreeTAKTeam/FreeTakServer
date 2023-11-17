@@ -1,0 +1,23 @@
+services:
+  fts:
+    image: freetakserver:latest
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./base-config/:/opt/fts/:rw,Z
+    network_mode: "host"
+
+  ftsui:
+    image: freetakserver-ui:latest
+    pull_policy: build
+    build:
+      context: ../UI/.
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    volumes:
+      - ./ui-config:/home/freetak/data:rw,Z
+    network_mode: "host"
