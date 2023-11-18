@@ -11,6 +11,11 @@ ENV FTS_DATA_PATH = "/opt/fts/"
 
 # Move to the FTS directory, then do the copying and unpacking
 WORKDIR /home/freetak/
+
+# Get digitalpy from git
+RUN git clone https://github.com/FreeTAKTeam/DigitalPy.git digitalpy
+RUN pip install /home/freetak/digitalpy
+
 COPY --chown=freetak:freetak --chmod=774 requirements.txt setup.py README.md docker-run.sh ./
 
 # Install pre-reqs then the base FTS
