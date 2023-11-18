@@ -1,0 +1,36 @@
+name: Tag-triggered Containerization
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  IMAGE_BASE: freetakteam/freetakserver
+  IMAGE_TAG: :${{ github.ref_name }}
+  OC_REGISTRY: ghcr.io
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the container image
+      # can this be converted to podman at some point to be more foss?
+      run: docker build . --file Dockerfile --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_TAG --tag $OC_REGISTRY/$IMAGE_BASE:latest --label "runnumber=${GITHUB_RUN_ID}"
+
+    - name: Log in to registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login $OC_REGISTRY -u $ --password-stdin
+
+    - name: Push image to registry
+      run: |
+        echo IMAGE_BASE=$IMAGE_BASE
+        docker push $OC_REGISTRY/$IMAGE_BASE:$IMAGE_TAG
+        docker push $OC_REGISTRY/$IMAGE_BASE:latest
+
