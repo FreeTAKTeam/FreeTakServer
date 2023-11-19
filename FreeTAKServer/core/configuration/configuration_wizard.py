@@ -149,6 +149,27 @@ def valid_and_safe_path(path):
         )
     )
 
+
+def autogenerate_config():
+    print("Running headless-mode config file generation for containers.\nAll options will be set to default.")
+    yaml_config = get_yaml_config(config.yaml_path)
+
+    add_to_config(data=config.UserConnectionIP, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
+    add_to_config(data=config.UserConnectionIP, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
+    add_to_config(data=config.DBFilePath, path=["FileSystem", "FTS_DB_PATH"], source=yaml_config)
+    add_to_config(path=["FileSystem", "FTS_MAINPATH"], data=config.MainPath, source=yaml_config)
+    add_to_config(path=["FileSystem", "FTS_LOGFILE_PATH"], data=config.LogFilePath, source=yaml_config)
+    add_to_config(path=["System", "FTS_NODE_ID"], data=config.nodeID, source=yaml_config)
+
+    file = open(config.yaml_path, mode="w+")
+    yaml.dump(yaml_config, file)
+    file.close()
+    create_installation_file()
+
+    """ip = get_user_input(question="enter ip", default=MainConfig.ip)
+    MainConfig.ip = ip
+    """
+
 default_yaml_file = f"""
 System:
   #FTS_DATABASE_TYPE: SQLite
