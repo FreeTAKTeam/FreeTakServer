@@ -33,9 +33,9 @@ setup(
         "eventlet==0.33.1",
         "Flask==2.3.2",
         "Flask-Cors==3.0.9",
-        "Flask-HTTPAuth==4.2.0",
+        "Flask-HTTPAuth==4.8.0",
         "Flask-Login==0.6.3",  # Upgrading from 0.5.0 for flask 2.3.2 and Werkzeug 2.3.3
-        "Flask-SocketIO==4.3.1",
+        "Flask-SocketIO==5.3.6",
         "Flask-SQLAlchemy==3.1.1",  # Upgrading from 2.4.4 for flask 2.3.2
         "geographiclib==1.52",
         "geopy==2.2.0",
@@ -50,8 +50,8 @@ setup(
         "protobuf==3.18.3",
         "psutil==5.9.4",
         "pykml==0.2.0",
-        "python-engineio==3.13.2",
-        "python-socketio==4.6.0",
+        "python-engineio==4.8.0",
+        "python-socketio==5.10.0",
         "PyYAML==6.0",
         "ruamel.yaml==0.17.21",
         "ruamel.yaml.clib==0.2.7",
