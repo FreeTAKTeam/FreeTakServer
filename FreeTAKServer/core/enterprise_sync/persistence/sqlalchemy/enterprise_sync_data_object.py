@@ -7,11 +7,12 @@ if TYPE_CHECKING:
     from .enterprise_sync_keyword import EnterpriseSyncKeyword
 
 from sqlalchemy import Integer, String, Column, ForeignKey, DateTime, Sequence
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, Mapped
 
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 
 class EnterpriseSyncDataObject(Base):
+    __allow_unmapped__ = True
     """general object used to track all enterprise sync dataobjects
     so they can be indexed and found in the file system"""
 
@@ -22,7 +23,8 @@ class EnterpriseSyncDataObject(Base):
     hash = Column(String(150))
     length = Column(Integer)
     
-    keywords: List['EnterpriseSyncKeyword'] = relationship("EnterpriseSyncKeyword", back_populates='enterprise_sync_data_object', lazy="immediate")
+    keywords: Mapped['EnterpriseSyncKeyword'] = (
+        relationship("EnterpriseSyncKeyword", back_populates='enterprise_sync_data_object', lazy="immediate"))
     
     start_time: dt = Column(DateTime, default=datetime.datetime.utcnow)
     submitter = Column(String(100), default="anonymous")

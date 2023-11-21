@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import Column, String, ForeignKey, DateTime, Integer
-from datetime import datetime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy.orm import relationship, Mapped
 
 from . import CoTManagementBase
 
@@ -11,8 +10,8 @@ if TYPE_CHECKING:
 class Usericon(CoTManagementBase):
     __tablename__ = "Usericon"
 
-    uid: str = Column(String, ForeignKey("Detail.uid"), primary_key=True)  # type: ignore
+    uid: Mapped[str] = Column(String, ForeignKey("Detail.uid"), primary_key=True)  # type: ignore
 
-    detail: 'Detail' = relationship("Detail", back_populates="usericon")
+    detail: Mapped['Detail'] = relationship("Detail", back_populates="usericon")
 
-    iconsetpath: str = Column(String)  # type: ignore
+    iconsetpath: Mapped[str] = Column(String)  # type: ignore

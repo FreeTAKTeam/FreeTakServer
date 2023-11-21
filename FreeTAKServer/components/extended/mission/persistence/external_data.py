@@ -1,6 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
-from typing import TYPE_CHECKING
+from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy.orm import relationship, Mapped
 
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 
@@ -11,23 +10,23 @@ from . import MissionBase
 class ExternalData(MissionBase):
     __tablename__ = 'external_data'
     
-    id: int = Column(String, primary_key=True) # type: ignore
+    id: Mapped[int] = Column(String, primary_key=True) # type: ignore
     
-    name:str = Column(String) # type: ignore
+    name: Mapped[str] = Column(String) # type: ignore
     
-    tool: str = Column(String) # type: ignore
+    tool: Mapped[str] = Column(String) # type: ignore
     
-    urlData: str = Column(String) # type: ignore
+    urlData: Mapped[str] = Column(String) # type: ignore
     
-    notes: str = Column(String) # type: ignore
+    notes: Mapped[str] = Column(String) # type: ignore
     
-    uid: str = Column(String) # type: ignore
+    uid: Mapped[str] = Column(String) # type: ignore
     
-    urlView: str = Column(String) # type: ignore
+    urlView: Mapped[str] = Column(String) # type: ignore
     
-    mission_uid = Column(String, ForeignKey(Mission.PrimaryKey))
-    mission : Mission = relationship(Mission, back_populates="externalData")
+    mission_uid: Mapped[str] = Column(String, ForeignKey(Mission.PrimaryKey))
+    mission: Mapped['Mission'] = relationship(Mission, back_populates="externalData")
 
-    change: MissionChange = relationship(MissionChange, back_populates="external_data")
+    change: Mapped['MissionChange'] = relationship(MissionChange, back_populates="external_data")
 
-    creator_uid: str = Column(String) # type: ignore
+    creator_uid: Mapped[str] = Column(String) # type: ignore

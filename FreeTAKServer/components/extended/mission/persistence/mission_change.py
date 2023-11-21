@@ -1,8 +1,7 @@
-from sqlalchemy import Column, String, ForeignKey, Boolean, Integer, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey, Integer, DateTime
+from sqlalchemy.orm import relationship, Mapped
 from datetime import datetime
 from typing import TYPE_CHECKING
-
 
 
 if TYPE_CHECKING:
@@ -17,30 +16,30 @@ from . import MissionBase
 class MissionChange(MissionBase):
     __tablename__ = "mission_change"
 
-    PrimaryKey:str = Column(Integer, primary_key=True, autoincrement=True) # type: ignore
+    PrimaryKey: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True) # type: ignore
 
-    type: str = Column(String(100))
+    type: Mapped[str] = Column(String(100))
 
-    content_uid: str = Column(String(100))
+    content_uid: Mapped[str] = Column(String(100))
 
-    creator_uid: str = Column(String(100))
+    creator_uid: Mapped[str] = Column(String(100))
 
-    server_time: datetime = Column(DateTime, default=datetime.utcnow) # type: ignore
+    server_time: Mapped[datetime] = Column(DateTime, default=datetime.utcnow) # type: ignore
 
-    timestamp: datetime = Column(DateTime, default=datetime.utcnow) # type: ignore
+    timestamp: Mapped[datetime] = Column(DateTime, default=datetime.utcnow) # type: ignore
 
-    mission_uid: str = Column(String, ForeignKey(Mission.PrimaryKey)) # type: ignore
+    mission_uid: Mapped[str] = Column(String, ForeignKey(Mission.PrimaryKey)) # type: ignore
 
-    mission : Mission = relationship(Mission, back_populates="changes")
+    mission : Mapped['Mission'] = relationship(Mission, back_populates="changes")
     
-    content_resource_uid = Column(String(100), ForeignKey('mission_content.PrimaryKey'))
+    content_resource_uid: Mapped[str] = Column(String(100), ForeignKey('mission_content.PrimaryKey'))
 
-    content_resource: 'MissionContent' = relationship("MissionContent", back_populates="change")
+    content_resource: Mapped['MissionContent'] = relationship("MissionContent", back_populates="change")
 
-    cot_detail_uid = Column(String(100), ForeignKey('MissionCoT.uid'))
+    cot_detail_uid: Mapped[str] = Column(String(100), ForeignKey('MissionCoT.uid'))
 
-    cot_detail: 'MissionCoT' = relationship("MissionCoT", back_populates="change")
+    cot_detail: Mapped['MissionCoT'] = relationship("MissionCoT", back_populates="change")
 
-    external_data_uid = Column(String(100), ForeignKey('external_data.id'))
+    external_data_uid: Mapped[str] = Column(String(100), ForeignKey('external_data.id'))
 
-    external_data: 'ExternalData' = relationship("ExternalData", back_populates="change")
+    external_data: Mapped['ExternalData'] = relationship("ExternalData", back_populates="change")

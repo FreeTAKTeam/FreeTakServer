@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import Column, String, ForeignKey, DateTime, Integer
-from datetime import datetime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy.orm import relationship, Mapped
 
 from . import CoTManagementBase
 
@@ -11,8 +10,8 @@ if TYPE_CHECKING:
 class Dest(CoTManagementBase):
     __tablename__ = "Dest"
 
-    uid: str = Column(String, ForeignKey("Marti.uid"), primary_key=True)  # type: ignore
+    uid: Mapped[str] = Column(String, ForeignKey("Marti.uid"), primary_key=True)  # type: ignore
 
-    marti: 'Marti' = relationship("Marti", back_populates="dest")
+    marti: Mapped['Marti'] = relationship("Marti", back_populates="dest")
 
-    callsign: str = Column(String)  # type: ignore
+    callsign: Mapped[str] = Column(String)  # type: ignore

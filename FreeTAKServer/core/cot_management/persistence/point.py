@@ -1,8 +1,7 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, String, ForeignKey, DateTime, Integer, Float
-from datetime import datetime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey, Float
+from sqlalchemy.orm import relationship, Mapped
 
 from . import CoTManagementBase
 if TYPE_CHECKING:
@@ -10,16 +9,16 @@ if TYPE_CHECKING:
 
 class Point(CoTManagementBase):
     __tablename__ = "Point"
-    uid: str = Column(String, ForeignKey("Event.uid"), primary_key=True)  # type: ignore
+    uid: Mapped[str] = Column(String, ForeignKey("Event.uid"), primary_key=True)  # type: ignore
 
-    event: 'Event' = relationship("Event", back_populates="point")
+    event: Mapped['Event'] = relationship("Event", back_populates="point")
 
-    lat: float = Column(Float)  # type: ignore
+    lat: Mapped[float] = Column(Float)  # type: ignore
 
-    lon: float = Column(Float)  # type: ignore
+    lon: Mapped[float] = Column(Float)  # type: ignore
 
-    hae: float = Column(Float)  # type: ignore
+    hae: Mapped[float] = Column(Float)  # type: ignore
 
-    ce: float = Column(Float)  # type: ignore
+    ce: Mapped[float] = Column(Float)  # type: ignore
 
-    le: float = Column(Float)  # type: ignore
+    le: Mapped[float] = Column(Float)  # type: ignore

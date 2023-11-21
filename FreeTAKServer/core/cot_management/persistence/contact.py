@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import Column, String, ForeignKey, DateTime, Integer
-from datetime import datetime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy.orm import relationship, Mapped
 
 from . import CoTManagementBase
 
@@ -11,22 +10,22 @@ if TYPE_CHECKING:
 class Contact(CoTManagementBase):
     __tablename__ = "Contact"
 
-    uid: str = Column(String, ForeignKey("Detail.uid"), primary_key=True)  # type: ignore
+    uid: Mapped[str] = Column(String, ForeignKey("Detail.uid"), primary_key=True)  # type: ignore
 
-    callsign: str = Column(String)  # type: ignore
+    callsign: Mapped[str] = Column(String)  # type: ignore
 
-    detail: 'Detail' = relationship("Detail", back_populates="contact")
+    detail: Mapped['Detail'] = relationship("Detail", back_populates="contact")
 
-    iconsetpath: str = Column(String)  # type: ignore
+    iconsetpath: Mapped[str] = Column(String)  # type: ignore
 
-    sipAddress: str = Column(String)  # type: ignore
+    sipAddress: Mapped[str] = Column(String)  # type: ignore
 
-    emailAddress: str = Column(String)  # type: ignore
+    emailAddress: Mapped[str] = Column(String)  # type: ignore
 
-    xmppUsername: str = Column(String)  # type: ignore
+    xmppUsername: Mapped[str] = Column(String)  # type: ignore
 
-    endpoint: str = Column(String)  # type: ignore
+    endpoint: Mapped[str] = Column(String)  # type: ignore
 
-    name: str = Column(String)  # type: ignore
+    name: Mapped[str] = Column(String)  # type: ignore
 
-    phone: str = Column(String)  # type: ignore
+    phone: Mapped[str] = Column(String)  # type: ignore

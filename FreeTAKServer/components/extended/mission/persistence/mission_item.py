@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
 
 from .mission import Mission
 from . import MissionBase
@@ -7,8 +7,8 @@ from . import MissionBase
 class MissionItem(MissionBase):
     __tablename__ = "mission_item"
 
-    PrimaryKey = Column(String(100), primary_key=True)
+    PrimaryKey: Mapped[str] = Column(String(100), primary_key=True)
 
-    mission_uid = Column(String, ForeignKey(Mission.PrimaryKey))
+    mission_uid: Mapped[str] = Column(String, ForeignKey(Mission.PrimaryKey))
 
-    mission = relationship(Mission, back_populates="mission_items")
+    mission: Mapped['Mission'] = relationship(Mission, back_populates="mission_items")

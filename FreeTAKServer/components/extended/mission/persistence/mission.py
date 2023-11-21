@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, List
-from sqlalchemy import Column, DateTime, String, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, DateTime, String, ForeignKey
+from sqlalchemy.orm import relationship, Mapped
 from datetime import datetime
 
 
@@ -17,29 +17,29 @@ from . import MissionBase
 class Mission(MissionBase):
     __tablename__ = "mission"
 
-    PrimaryKey = Column(String(100), primary_key=True)
+    PrimaryKey: Mapped[str] = Column(String(100), primary_key=True)
 
-    name = Column(String(100), default="")
+    name: Mapped[str] = Column(String(100), default="")
     
-    description = Column(String(100), default="")
+    description: Mapped[str] = Column(String(100), default="")
 
-    chatRoom = Column(String(100), default="")
+    chatRoom: Mapped[str] = Column(String(100), default="")
 
-    baseLayer = Column(String(100), default="")
+    baseLayer: Mapped[str] = Column(String(100), default="")
 
-    bbox = Column(String(100), default="")
+    bbox: Mapped[str] = Column(String(100), default="")
 
-    path = Column(String(100), default="")
+    path: Mapped[str] = Column(String(100), default="")
 
-    classification = Column(String(100), default="")
+    classification: Mapped[str] = Column(String(100), default="")
 
-    tool = Column(String(100), default="ExCheck")
+    tool: Mapped[str] = Column(String(100), default="ExCheck")
 
     # keywords = Column(String(100), default=[])
 
-    creatorUid = Column(String(100), default="")
+    creatorUid: Mapped[str] = Column(String(100), default="")
 
-    createTime: datetime = Column(DateTime, default=datetime.utcnow) # type: ignore
+    createTime: Mapped[datetime] = Column(DateTime, default=datetime.utcnow) # type: ignore
 
     # groups = Column(String(100), default=[])
 
@@ -47,40 +47,40 @@ class Mission(MissionBase):
 
     # mapLayers = Column(String(100), default=[])
 
-    defaultRole = relationship("Role", back_populates="missions")
+    defaultRole: Mapped['Role'] = relationship("Role", back_populates="missions")
     
-    defaultRole_id = Column(String(1000), ForeignKey("Role.role_type"))
+    defaultRole_id: Mapped[str] = Column(String(1000), ForeignKey("Role.role_type"))
 
-    ownerRole = Column(String(100))
+    ownerRole: Mapped[str] = Column(String(100))
 
-    inviteOnly = Column(String(100), default=False)
+    inviteOnly: Mapped[str] = Column(String(100), default=False)
 
-    expiration = Column(String(100), default=-1)
+    expiration: Mapped[str] = Column(String(100), default=-1)
 
-    guid = Column(String(100))
+    guid: Mapped[str] = Column(String(100))
 
-    uids = Column(String(100), default="[]")
+    uids: Mapped[str] = Column(String(100), default="[]")
 
-    contents: List['MissionContent'] = relationship("MissionContent", back_populates="mission")
+    contents: Mapped['MissionContent'] = relationship("MissionContent", back_populates="mission")
 
-    token = Column(String(100))
+    token: Mapped[str] = Column(String(100))
 
-    passwordProtected = Column(String(100), default=False)
+    passwordProtected: Mapped[str] = Column(String(100), default=False)
     
-    serviceUri = Column(String(100), default="")
+    serviceUri: Mapped[str] = Column(String(100), default="")
 
-    mission_items = relationship("MissionItem", back_populates="mission")
+    mission_items: Mapped[str] = relationship("MissionItem", back_populates="mission")
 
-    mission_subscriptions = relationship("Subscription", back_populates="mission")
+    mission_subscriptions: Mapped[str] = relationship("Subscription", back_populates="mission")
         
-    externalData: List['ExternalData'] = relationship("ExternalData", back_populates="mission")
+    externalData: Mapped['ExternalData'] = relationship("ExternalData", back_populates="mission")
         
-    logs: List['MissionLog'] = relationship("MissionLog", back_populates="mission")
+    logs: Mapped['MissionLog'] = relationship("MissionLog", back_populates="mission")
     
-    cots: List['MissionCoT'] = relationship("MissionCoT", back_populates="mission")
+    cots: Mapped['MissionCoT'] = relationship("MissionCoT", back_populates="mission")
 
-    changes: List['MissionChange'] = relationship("MissionChange", back_populates="mission")
+    changes: Mapped['MissionChange'] = relationship("MissionChange", back_populates="mission")
     
-    child_missions: List['MissionToMission'] = relationship("MissionToMission", back_populates="parent_mission", foreign_keys="[MissionToMission.parent_mission_id]")
+    child_missions: Mapped['MissionToMission'] = relationship("MissionToMission", back_populates="parent_mission", foreign_keys="[MissionToMission.parent_mission_id]")
     
-    parent_missions: List['MissionToMission'] = relationship("MissionToMission", back_populates="child_mission", foreign_keys="[MissionToMission.child_mission_id]")
+    parent_missions: Mapped['MissionToMission'] = relationship("MissionToMission", back_populates="child_mission", foreign_keys="[MissionToMission.child_mission_id]")
