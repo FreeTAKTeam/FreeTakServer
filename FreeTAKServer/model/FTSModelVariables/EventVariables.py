@@ -75,6 +75,7 @@ class EventVariables:
         cls.TIME = None
         cls.START = None
         cls.STALE = None
+        cls.ACCESS = None
         return cls
 
     @classmethod
