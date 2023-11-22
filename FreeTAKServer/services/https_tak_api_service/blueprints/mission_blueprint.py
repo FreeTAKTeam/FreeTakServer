@@ -243,11 +243,15 @@ def put_mission_invitation(mission_id, type, invitee):
         print(e)
         return {"message": str(e)}, 500
     
-@page.route('/Marti/api/missions/<mission_id>/invite/', methods=["POST"])
+@page.route('/Marti/api/missions/<mission_id>/invite', methods=["POST"])
 def post_mission_invitation(mission_id):
     """post the invitation for a mission"""
     author = request.args.get("creatorUid", "unknown")
     invitedContacts = request.args.get("contacts", None)
+    if request.data != b'':
+        invitedContacts = json.loads(request.data)[0]["invitee"]
+        role = json.loads(request.data)[0]["role"]["type"]
+
     try:
         mission = HTTPSTakApiCommunicationController().make_request("GetMission", "mission", {"mission_id": mission_id}, None, True).get_value("mission")
         if mission == None:
