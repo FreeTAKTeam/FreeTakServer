@@ -1,10 +1,11 @@
 from FreeTAKServer.components.core.domain.domain import Event
+from ...domain import permission as ModelPermission
 
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_PERMISSION
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.domain import details, location
-from FreeTAKServer.components.extended.mission.domain import Permission as MissionPermission
-from FreeTAKServer.components.core.domain.domain import MissionRole
+from FreeTAKServer.components.extended.mission.domain import permission as MissionPermission
+from FreeTAKServer.components.core.domain.domain import role
 from FreeTAKServer.components.extended.mission.persistence.permission import Permission
 from FreeTAKServer.components.extended.mission.persistence.role import Role
 from FreeTAKServer.core.util.time_utils import get_dtg
@@ -22,7 +23,7 @@ class MissionPermissionBuilder(Builder):
 
         configuration = config_loader.find_configuration(MISSION_PERMISSION)
 
-        self.result = super()._create_model_object(configuration, extended_domain={})
+        self.result = super()._create_model_object(configuration, extended_domain={"MissionPermission": ModelPermission})
     
     def add_object_data(self, mapped_object: Permission):
         """adds the data from the mapped object to the result object"""

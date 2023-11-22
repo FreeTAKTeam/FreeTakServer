@@ -8,5 +8,5 @@ from ._externalData import externalData
 from ._tool import tool
 from ._mission_invitation_list import MissionInvitationList
 from ._mission_invitation import MissionInvitation
-from ._permission import Permission
-from ._permissions import Permissions
+from ._permission import permission
+from ._permissions import permissions

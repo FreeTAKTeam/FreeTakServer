@@ -17,7 +17,7 @@
         }
     },
     "definitions": {
-        "role": {
+        "MissionPermission": {
             "type": "object",
             "properties": {
             }

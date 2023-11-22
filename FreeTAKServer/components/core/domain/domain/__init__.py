@@ -19,7 +19,7 @@ from ._mission_external_data import MissionExternalData as MissionExternalData
 from ._mission_info import MissionInfo as MissionInfo
 from ._mission_info_single import MissionInfoSingle as MissionInfoSingle
 from ._mission_log import MissionLog as MissionLog
-from ._mission_role import MissionRole as MissionRole
+from ._role import role as role
 from ._mission_subscription import MissionSubscription as MissionSubscription
 from ._mission_data import MissionData as MissionData
 from ._mission_change_record import MissionChangeRecord as MissionChangeRecord

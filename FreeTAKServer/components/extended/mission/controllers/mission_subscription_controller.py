@@ -5,7 +5,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_persistence_c
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_token_controller import MissionTokenController
 from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
-from FreeTAKServer.components.core.domain.domain import MissionRole
+from FreeTAKServer.components.core.domain.domain import role
 from FreeTAKServer.components.extended.mission.persistence.permission import Permission
 from FreeTAKServer.components.extended.mission.persistence.role_permission import RolePermission
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
@@ -165,7 +165,7 @@ class MissionSubscriptionController(Controller):
             subscription_obj.createTime = get_dtg(subscription.createTime)
             subscription_obj.clientUid = subscription.clientUid
             subscription_obj.username = subscription.username
-            role: MissionRole = subscription_obj.role # type: ignore
+            role: role = subscription_obj.role # type: ignore
             role.permissions = self.get_permissions_as_list(subscription.role.permissions)
             subscriptions_domain_obj.data = subscription_obj
         

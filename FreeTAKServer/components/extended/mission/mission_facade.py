@@ -231,3 +231,7 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def get_invitations(self, *args, **kwargs):
         self.invitations_controller.get_invitations(*args, **kwargs)
+
+    @DefaultFacade.public
+    def send_invitation(self, *args, **kwargs):
+        self.invitations_controller.send_invitation(*args, **kwargs)

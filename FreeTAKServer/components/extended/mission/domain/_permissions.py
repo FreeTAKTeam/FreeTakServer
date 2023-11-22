@@ -5,16 +5,16 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModelVariables.UidVariables import UidVariables as vars
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from . import Permission
+    from . import permission
 
-class Permissions(CoTNode):
+class permissions(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
         
     @CoTProperty
-    def permission(self)-> List['Permission']:
-        return self.get_children_ex(children_type="Permission")
+    def permission(self)-> List['permission']:
+        return self.get_children_ex(children_type="permission")
     
     @permission.setter
-    def MissionChange(self, permission):
+    def permission(self, permission):
         self.add_child(permission)

@@ -3,8 +3,7 @@ import uuid
 from datetime import datetime as dt
 from typing import TYPE_CHECKING, List
 
-if TYPE_CHECKING:
-    from .enterprise_sync_keyword import EnterpriseSyncKeyword
+from .enterprise_sync_keyword import EnterpriseSyncKeyword
 
 from sqlalchemy import Integer, String, Column, ForeignKey, DateTime, Sequence
 from sqlalchemy.orm import relationship, backref
@@ -22,7 +21,7 @@ class EnterpriseSyncDataObject(Base):
     hash = Column(String(150))
     length = Column(Integer)
     
-    keywords: List['EnterpriseSyncKeyword'] = relationship("EnterpriseSyncKeyword", back_populates='enterprise_sync_data_object', lazy="immediate")
+    keywords: List[EnterpriseSyncKeyword] = relationship(EnterpriseSyncKeyword, back_populates='enterprise_sync_data_object', lazy="immediate")
     
     start_time: dt = Column(DateTime, default=datetime.datetime.utcnow)
     submitter = Column(String(100), default="anonymous")

@@ -1,6 +1,6 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from FreeTAKServer.components.core.domain.domain._mission_role import MissionRole
+from FreeTAKServer.components.core.domain.domain._role import role
 from digitalpy.core.parsing.load_configuration import Configuration
 
 class MissionInvitation(CoTNode):
@@ -15,7 +15,7 @@ class MissionInvitation(CoTNode):
         self.cot_attributes["role"] = None
         
     @CoTProperty
-    def role(self) -> MissionRole:
+    def role(self) -> role:
         return self.cot_attributes.get("role", None)
     
     @role.setter

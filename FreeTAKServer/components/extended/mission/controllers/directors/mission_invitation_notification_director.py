@@ -5,6 +5,7 @@ from FreeTAKServer.components.extended.mission.controllers.builders.mission_cont
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_change_list_builder import MissionChangeListBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_external_data_change_builder import MissionExternalDataChangeBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_invitation_notification_builder import MissionInvitationNotificationBuilder
+from FreeTAKServer.components.extended.mission.controllers.builders.mission_permission_builder import MissionPermissionBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_simple_change_builder import MissionSimpleChangeBuilder
 from FreeTAKServer.components.extended.mission.controllers.builders.mission_simple_cot_change_builder import MissionSimpleCoTChangeBuilder
 from FreeTAKServer.components.extended.mission.persistence.mission import Mission
@@ -42,10 +43,10 @@ class MissionInvitationNotificationDirector(Controller):
         mission_invitation_notification = mission_invitation_notification_builder.get_result()
 
         for permission in mission_invitation.subscription.role.permissions:
-            mission_invitation_notification_builder = MissionInvitationNotificationBuilder(self.request, self.response, self.action_mapper, self.configuration)
-            mission_invitation_notification_builder.initialize(self.request, self.response)
-            mission_invitation_notification_builder.build_empty_object(config_loader, *args, **kwargs)
-            mission_invitation_notification_builder.add_object_data(mission_invitation)
-            mission_invitation_notification.detail.mission.role.permissions.permission = permission
+            mission_permission_builder = MissionPermissionBuilder(self.request, self.response, self.action_mapper, self.configuration)
+            mission_permission_builder.initialize(self.request, self.response)
+            mission_permission_builder.build_empty_object(config_loader, *args, **kwargs)
+            mission_permission_builder.add_object_data(permission.permission)
+            mission_invitation_notification.detail.mission.role.permissions.permission = mission_permission_builder.get_result()
 
         return mission_invitation_notification

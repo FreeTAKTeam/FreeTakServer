@@ -223,3 +223,23 @@ def add_mission_content_direct(mission_id):
         "data": [],
         "nodeId": config.nodeID
     }
+
+@page.route('/Marti/api/missions/<mission_id>/invite/<type>/<invitee>', methods=["PUT"])
+def put_mission_invitation(mission_id, type, invitee):
+    """post the invitation for a mission"""
+    author = request.args.get("creatorUid", "unknown")
+    invitedContacts = invitee
+    role = request.args.get("role", None)
+    try:
+        mission = HTTPTakApiCommunicationController().make_request("GetMission", "mission", {"mission_id": mission_id}, None, True).get_value("mission")
+        if mission == None:
+            return '{"message": "mission not found"}', 404
+        default_mission_role = json.loads(mission)["data"][0]["defaultRole"]["type"]
+        if role is None or role == default_mission_role:
+            HTTPTakApiCommunicationController().make_request("SendInvitation", "mission", {"author_uid": author, "mission_id": mission_id, "client_uid": invitedContacts, "role": role}, None, False)
+        else:
+            return '{"message": "invalid role"}', 405
+        return '', 200
+    except Exception as e:
+        print(e)
+        return {"message": str(e)}, 500

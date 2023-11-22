@@ -2,7 +2,7 @@ from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from . import MissionChanges, MissionRole
+    from . import MissionChanges, role
 
 class mission(CoTNode):
     def __init__(self, configuration, model, oid=None):
@@ -11,6 +11,7 @@ class mission(CoTNode):
         self.cot_attributes["type"] = None
         self.cot_attributes["tool"] = None
         self.cot_attributes["authorUid"] = None
+        self.cot_attributes["token"] = None
         
     @CoTProperty
     def name(self):
@@ -53,9 +54,17 @@ class mission(CoTNode):
         self.cot_attributes["MissionChanges"] = MissionChanges
 
     @CoTProperty
-    def role(self, role=None) -> 'MissionRole':
+    def role(self, role=None) -> 'role':
         return self.cot_attributes.get("role", None)
     
     @role.setter
     def role(self, role=None):
         self.cot_attributes["role"] = role
+
+    @CoTProperty
+    def token(self):
+        return self.cot_attributes.get("token", None)
+    
+    @token.setter
+    def token(self, token=None):
+        self.cot_attributes["token"] = token

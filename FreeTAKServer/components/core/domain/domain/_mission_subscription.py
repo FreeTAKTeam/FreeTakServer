@@ -1,6 +1,6 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from ._mission_role import MissionRole
+from ._role import role
 
 class MissionSubscription(CoTNode):
     def __init__(self, configuration, model, oid=None):
@@ -43,9 +43,9 @@ class MissionSubscription(CoTNode):
         self.cot_attributes["createTime"] = createTime
         
     @CoTProperty
-    def role(self) -> MissionRole:
-        return self.cot_attributes.get("MissionRole", None)
+    def role(self) -> role:
+        return self.cot_attributes.get("role", None)
     
     @role.setter
-    def role(self, role: MissionRole=None):
-        self.cot_attributes["MissionRole"] = role
+    def role(self, role: role=None):
+        self.cot_attributes["role"] = role

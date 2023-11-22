@@ -27,7 +27,7 @@ from digitalpy.core.parsing.load_configuration import LoadConfiguration
 from FreeTAKServer.components.core.domain.domain import MissionInfo
 from FreeTAKServer.components.core.domain.domain import MissionData
 from FreeTAKServer.components.core.domain.domain import MissionExternalData
-from FreeTAKServer.components.core.domain.domain import MissionRole
+from FreeTAKServer.components.core.domain.domain import role
 from FreeTAKServer.components.core.domain.domain import MissionContentData
 from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
 from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
@@ -203,7 +203,7 @@ class MissionDomainController(Controller):
                                             "MissionContent": MissionContent, 
                                             "MissionContentData": MissionContentData, 
                                             "MissionExternalData": MissionExternalData, 
-                                            "MissionRole": MissionRole
+                                            "role": role
                                         })
     
     def complete_mission_record_db(self, mission_domain_object: MissionData, mission_db_object: DBMission, config_loader, subscription: DBSubscription = None, **kwargs) -> MissionData: # type: ignore
@@ -332,7 +332,7 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION_LIST)
 
-        return self.create_model_object(configuration, extended_domain={"MissionInfo": MissionInfo, "MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
+        return self.create_model_object(configuration, extended_domain={"MissionInfo": MissionInfo, "MissionSubscription": MissionSubscription, "MissionRole": role})
     
     def create_mission_subscription(self, config_loader, *args, **kwargs) ->MissionInfoSingle:
         """return the domain object used a subscription in a mission"""
@@ -340,7 +340,7 @@ class MissionDomainController(Controller):
 
         configuration = config_loader.find_configuration(MISSION_SUBSCRIPTION)
 
-        return self.create_model_object(configuration, extended_domain={"MissionInfoSingle": MissionInfoSingle, "MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
+        return self.create_model_object(configuration, extended_domain={"MissionInfoSingle": MissionInfoSingle, "MissionSubscription": MissionSubscription, "MissionRole": role})
 
     def create_mission_subscription_data(self, config_loader, *args, **kwargs) -> MissionSubscription:
         """return the domain object used to show all the subscriptions in a mission"""
@@ -350,7 +350,7 @@ class MissionDomainController(Controller):
 
         self.request.set_value("configuration", configuration)
 
-        return self.create_model_object(configuration, extended_domain={"MissionSubscription": MissionSubscription, "MissionRole": MissionRole})
+        return self.create_model_object(configuration, extended_domain={"MissionSubscription": MissionSubscription, "MissionRole": role})
     
     def create_mission_content(self, config_loader, *args, **kwargs) -> MissionContent:
         """return the domain object used a content entry in a mission"""

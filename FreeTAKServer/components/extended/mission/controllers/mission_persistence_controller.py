@@ -158,11 +158,13 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
 
-    def create_invitation(self, author_uid: str, subscription_uid: str, *args, **kwargs):
+    def create_invitation(self, author_uid: str, subscription_uid: str, mission_uid: str, *args, **kwargs):
         """this method is used to create a new invitation and save it to the database.
         """
         try:
             invitation = MissionInvitation()
+            invitation.uid = str(uuid4())
+            invitation.mission_uid = mission_uid.lower()
             invitation.author_uid = author_uid
             invitation.subscription = self.get_subscription_id(subscription_uid)
             self.ses.add(invitation)

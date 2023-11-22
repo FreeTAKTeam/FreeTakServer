@@ -3,16 +3,17 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.extended.mission.domain import Permissions
+    from FreeTAKServer.components.extended.mission.domain import permissions
 
-class MissionRole(CoTNode):
+class role(CoTNode):
     def __init__(self, configuration, model, oid=None):
         super().__init__(self.__class__.__name__, configuration, model, oid)
-        self.cot_attributes["permissions"] = None
         self.cot_attributes["type"] = None
-
+        if self.cot_attributes.get('permissions', None) is None:
+            self.cot_attributes["permissions"] = None
+        
     @CoTProperty
-    def permissions(self)->'Permissions':
+    def permissions(self)->'permissions':
         return self.cot_attributes['permissions']
     
     @permissions.setter
