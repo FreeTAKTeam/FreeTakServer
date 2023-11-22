@@ -243,3 +243,19 @@ def put_mission_invitation(mission_id, type, invitee):
     except Exception as e:
         print(e)
         return {"message": str(e)}, 500
+    
+@page.route('/Marti/api/missions/<mission_id>/invite/', methods=["POST"])
+def post_mission_invitation(mission_id):
+    """post the invitation for a mission"""
+    author = request.args.get("creatorUid", "unknown")
+    invitedContacts = request.args.get("contacts", None)
+    try:
+        mission = HTTPTakApiCommunicationController().make_request("GetMission", "mission", {"mission_id": mission_id}, None, True).get_value("mission")
+        if mission == None:
+            return '{"message": "mission not found"}', 404
+        role = json.loads(mission)["data"][0]["defaultRole"]["type"]
+        HTTPTakApiCommunicationController().make_request("SendInvitation", "mission", {"author_uid": author, "mission_id": mission_id, "client_uid": invitedContacts, "role": role}, None, False)
+        return '', 200
+    except Exception as e:
+        print(e)
+        return {"message": str(e)}, 500
