@@ -2,6 +2,8 @@ from typing import List
 import uuid
 
 from bitarray import bitarray
+from FreeTAKServer.components.extended.excheck.controllers.excheck_checklist_controller import ExCheckChecklistController
+from FreeTAKServer.components.extended.excheck.controllers.excheck_xml_controller import ExCheckXMLController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_domain_controller import ExcheckDomainController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
 from FreeTAKServer.components.extended.excheck.domain.content import content
@@ -21,7 +23,6 @@ from lxml import etree
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
-from .excheck_checklist_controller import ExCheckChecklistController
 from .excheck_persistency_controller import ExCheckPersistencyController
 
 from ..domain.mission import mission
@@ -66,12 +67,14 @@ class ExCheckNotificationController(Controller):
         self.excheck_checklist_controller = ExCheckChecklistController(request, response, sync_action_mapper, configuration)
         self.persistence_controller = ExCheckPersistencyController(request, response, sync_action_mapper, configuration)
         self.domain_controller = ExcheckDomainController(request, response, sync_action_mapper, configuration)
+        self.xml_controller = ExCheckXMLController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.excheck_checklist_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
         self.domain_controller.initialize(request, response)
+        self.xml_controller.initialize(request, response)
 
     def generate_group_vector(self):
         length = 32768
@@ -112,6 +115,28 @@ class ExCheckNotificationController(Controller):
         
         url = config.DataPackageServiceDefaultIP+":"+str(config.HTTPSTakAPIPort)
 
+        task_data = None
+        for task in checklist_element.findall("checklistTasks")[0].findall("checklistTask"):
+            if task.find("uid").text == task_uid:
+                task_data = task
+                break
+        
+        if task_data.find("status").text == "Complete":
+            notes = self.xml_controller.calculate_external_data_update_notes(task_data, checklist_element, changer_uid)  # noqa
+
+            checklist_db = self.persistence_controller.get_checklist_task(task_uid).checklist
+
+            for mission in checklist_db.missions:
+                self.request.set_value("mission_id", mission.mission_uid)
+                self.request.set_value("external_data_id", checklist_db.PrimaryKey)
+                self.request.set_value("notes", notes)
+                self.request.set_context("mission")
+                ret_topics = self.execute_sub_action("SendExternalDataUpdateNotification").get_value("topics")
+                if ret_topics is not None:
+                    if self.response.get_value("topics") is None:
+                        self.response.set_value("topics", [])
+                        self.response.get_value("topics").extend(ret_topics)
+                        
         #notification_string = self.sample_notification(checklist_task_metadata.hash, update_task_model_object.stale, task_uid, update_task_model_object.start, len(checklist_task), checklist_task_obj.checklist_uid, checklist_element.find("checklistDetails").find("name").text, url, checklist_task)
 
         # Serializer called by service manager requires the message value

@@ -205,7 +205,7 @@ class MissionPersistenceController(Controller):
         """this method is used to get a subscription from the database.
         """
         try:
-            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.mission == mission).filter(Subscription.clientUid == client_uid).first() # type: ignore
+            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.mission_uid == mission.PrimaryKey).filter(Subscription.clientUid == client_uid).first() # type: ignore
             return subscription
         except Exception as ex:
             raise ex
@@ -532,6 +532,13 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
+    def get_external_data_by_uid(self, uid: str, mission_uid: str, *args, **kwargs):
+        try:
+            external_data = self.ses.query(ExternalData).filter(ExternalData.uid == uid.lower()).filter(ExternalData.mission_uid == mission_uid.lower()).first()
+            return external_data
+        except Exception as ex:
+            raise ex
+
     def add_external_data(self, mission_id, name, tool, urlData, notes, uid, urlView, id=None, creator_uid=None, *args, **kwargs):
         try:
             external_data = ExternalData()
@@ -557,16 +564,6 @@ class MissionPersistenceController(Controller):
             return external_data
         except Exception as ex:
             self.ses.rollback()
-            raise ex
-        
-    def get_external_data_by_uid(self, mission_id, uid, *args, **kwargs):
-        try:
-            mission = self.get_mission(mission_id)
-            for external_data in mission.externalData:
-                if external_data.uid == uid:
-                    return external_data
-            return None
-        except Exception as ex:
             raise ex
         
     def create_mission_change(self, type, content_uid, creator_uid, mission_uid, content_resource_uid, cot_detail_uid, external_data_uid) -> MissionChange:

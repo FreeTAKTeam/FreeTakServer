@@ -2,6 +2,7 @@ from typing import List
 import uuid
 from FreeTAKServer.components.extended.excheck.controllers.excheck_domain_controller import ExcheckDomainController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
+from FreeTAKServer.components.extended.excheck.controllers.excheck_xml_controller import ExCheckXMLController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_wintak_adapter import ExCheckWintakAdapter
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -17,6 +18,8 @@ import hashlib
 from datetime import datetime as dt
 
 from xml.etree.ElementTree import Element as etElement
+
+from xml import etree as xEtree
 
 from lxml.etree import Element
 from lxml import etree
@@ -60,7 +63,7 @@ class ExCheckChecklistController(Controller):
         self.wintak_adapter.initialize(request, response)
         self.mission_controller.initialize(request, response)
         self.domain_controller.initialize(request, response)
-
+        
     def start_checklist(self, templateuid: str, checklistname: str, checklist_description: str,  config_loader, checklist_content: bytes=b"", *args, **kwargs):
         """record a new checklist in the component
 
@@ -184,7 +187,7 @@ class ExCheckChecklistController(Controller):
 
         return checklist_task_list
 
-    def update_checklist_task(self, checklistuid, checklisttaskuid, checklisttaskdata, *args, **kwargs):
+    def update_checklist_task(self, checklistuid, checklisttaskuid, checklisttaskdata, client_uid="anonymous", *args, **kwargs):
         
         checklisttaskdata = self.wintak_adapter.standardize_task(checklisttaskdata)
 
@@ -203,16 +206,21 @@ class ExCheckChecklistController(Controller):
 
         tasks = checklist_tasks.findall("checklistTask")
 
+        old_task = None
         for task in tasks:
             if task.find("uid").text == checklisttaskuid:
-                checklist_tasks.remove(task)
-                checklist_tasks.append(ElementTree.fromstring(checklisttaskdata))
+                old_task = task
                 break
+
+        checklist_tasks.remove(old_task)
+        checklist_tasks.append(ElementTree.fromstring(checklisttaskdata))
 
         self.request.set_value("synctype", "ExCheckChecklist")
         self.request.set_value("objectdata", ElementTree.tostring(checklist_data_elem))
         self.request.set_value("objectuid", checklistuid)
         self.execute_sub_action("UpdateEnterpriseSyncData")
+
+        
 
         return "done"
     
@@ -385,5 +393,7 @@ class ExCheckChecklistController(Controller):
             "creatorUid": client_uid
         })
         resp = self.execute_sub_action("CreateExternalMissionData")
+
+        self.persistency_controller.add_mission_checklist_mapping(checklist_id, mission_id)
 
         return resp.get_value("mission_external_data")

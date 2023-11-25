@@ -7,9 +7,9 @@ page = Blueprint('Marti/api', __name__)
 @page.route('/Marti/api/excheck/checklist/<checklistid>/task/<taskid>', methods=['PUT'])
 def updatetemplate(checklistid, taskid):
     try:
-        HTTPTakApiCommunicationController().make_request("UpdateChecklistTask", "excheck", {"checklistuid": checklistid, "checklisttaskuid": taskid, "checklisttaskdata": request.data})
-        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, False, "tcp_cot_service")
-        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, False, "ssl_cot_service")
+        HTTPTakApiCommunicationController().make_request("UpdateChecklistTask", "excheck", {"checklistuid": checklistid, "checklisttaskuid": taskid, "checklisttaskdata": request.data}, None, False)
+        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, "tcp_cot_service", False)
+        HTTPTakApiCommunicationController().make_request("ChecklistUpdateNotification", "excheck", {"task_uid": taskid, "changer_uid": "ANDROID-199eeda473669973"}, "ssl_cot_service", False)
         return '', 200
     except Exception as ex:
         print(ex)
@@ -90,7 +90,7 @@ def add_checklist_to_mission(checklist_id, mission_id):
     try:
         client_uid = request.args.get("clientUid", "")
         HTTPTakApiCommunicationController().make_request("AddChecklistToMission", "excheck", {"checklist_id": checklist_id, "mission_id": mission_id, "client_uid": client_uid}, None, True)
-        HTTPTakApiCommunicationController().make_request("MissionExternalDataCreatedNotification", "mission", {"external_data_id": checklist_id}, None, synchronous=False)        
+        HTTPTakApiCommunicationController().make_request("MissionExternalDataCreatedNotification", "mission", {"external_data_id": checklist_id, "mission_id": mission_id}, None, synchronous=False)        
         return '', 200
     except Exception as ex:
         print(ex)

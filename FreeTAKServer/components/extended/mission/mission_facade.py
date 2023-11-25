@@ -235,3 +235,7 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def send_invitation(self, *args, **kwargs):
         self.invitations_controller.send_invitation(*args, **kwargs)
+
+    @DefaultFacade.public
+    def send_external_data_update_notification(self, *args, **kwargs):
+        self.notification_controller.send_external_data_updated_notification(*args, **kwargs)

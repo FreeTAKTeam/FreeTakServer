@@ -90,7 +90,7 @@ def add_checklist_to_mission(checklist_id, mission_id):
     try:
         client_uid = request.args.get("clientUid", "")
         HTTPSTakApiCommunicationController().make_request("AddChecklistToMission", "excheck", {"checklist_id": checklist_id, "mission_id": mission_id, "client_uid": client_uid}, None, True)
-        HTTPSTakApiCommunicationController().make_request("MissionExternalDataCreatedNotification", "mission", {"external_data_id": checklist_id}, None, synchronous=False)        
+        HTTPSTakApiCommunicationController().make_request("MissionExternalDataCreatedNotification", "mission", {"external_data_id": checklist_id, "mission_id": mission_id}, None, synchronous=False)        
         return '', 200
     except Exception as ex:
         print(ex)

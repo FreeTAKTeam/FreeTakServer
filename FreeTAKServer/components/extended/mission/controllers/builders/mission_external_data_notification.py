@@ -48,7 +48,7 @@ class MissionExternalDataNotificationBuilder(Builder):
         self.result.detail.mission.tool = "public"
         
         self.result.detail.mission.MissionChanges.MissionChange[0].creatorUid.text = mapped_object.creator_uid
-        self.result.detail.mission.MissionChanges.MissionChange[0].contentUid.text = mapped_object.id
+        self.result.detail.mission.MissionChanges.MissionChange[0].contentUid.text = mapped_object.uid
         self.result.detail.mission.MissionChanges.MissionChange[0].isFederatedChange.text = "false"
         self.result.detail.mission.MissionChanges.MissionChange[0].missionName.text = mapped_object.mission.name
         self.result.detail.mission.MissionChanges.MissionChange[0].timestamp.text = get_current_dtg()
@@ -59,7 +59,7 @@ class MissionExternalDataNotificationBuilder(Builder):
         self.result.detail.mission.MissionChanges.MissionChange[0].externalData.notes.text = mapped_object.notes
         self.result.detail.mission.MissionChanges.MissionChange[0].externalData.urlData.text = mapped_object.urlData
         self.result.detail.mission.MissionChanges.MissionChange[0].externalData.urlView.text = mapped_object.urlView
-        self.result.detail.mission.MissionChanges.MissionChange[0].externalData.uid.text = mapped_object.id
+        self.result.detail.mission.MissionChanges.MissionChange[0].externalData.uid.text = mapped_object.uid
 
     def get_result(self):
         """gets the result of the builder"""

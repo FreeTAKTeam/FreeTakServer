@@ -102,12 +102,30 @@ class MissionNotificationController(Controller):
         self.response.set_value('recipients', "*")
         self.response.set_action("publish")
     
-    def send_external_data_created_notification(self, external_data_id: str, config_loader, *args, **kwargs):
-        mission_external_data_db = self.persistence_controller.get_external_data(external_data_id)
+    def send_external_data_created_notification(self, external_data_id: str, mission_id: str, config_loader, *args, **kwargs):
+        mission_external_data_db = self.persistence_controller.get_external_data_by_uid(uid=external_data_id, mission_uid=mission_id)
         builder = MissionExternalDataNotificationBuilder(self.request, self.response, self.action_mapper, self.configuration)
         builder.build_empty_object(config_loader)
         builder.add_object_data(mission_external_data_db)
         mission_external_data_notification = builder.get_result()
+
+        # Serializer called by service manager requires the message value
+        self.response.set_value('message', [mission_external_data_notification])
+        self.response.set_value('recipients', "*")
+        self.response.set_action("publish")
+
+    def send_external_data_updated_notification(self, external_data_id: str, mission_id: str, notes: str, config_loader, *args, **kwargs):
+        mission_external_data_db = self.persistence_controller.get_external_data_by_uid(uid=external_data_id, mission_uid=mission_id)
+        builder = MissionExternalDataNotificationBuilder(self.request, self.response, self.action_mapper, self.configuration)
+        builder.build_empty_object(config_loader)
+        builder.add_object_data(mission_external_data_db)
+        mission_external_data_notification = builder.get_result()
+
+        # the key difference between this and the create notification is that the notes are updated and urls have tokens
+        token = uuid4()
+        mission_external_data_notification.detail.mission.MissionChanges.MissionChange[0].externalData.urlData.text += f"?token={token}"
+        mission_external_data_notification.detail.mission.MissionChanges.MissionChange[0].externalData.urlView.text += f"?token={token}"
+        mission_external_data_notification.detail.mission.MissionChanges.MissionChange[0].externalData.notes.text = notes
 
         # Serializer called by service manager requires the message value
         self.response.set_value('message', [mission_external_data_notification])
