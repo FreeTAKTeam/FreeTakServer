@@ -75,6 +75,7 @@ def get_DataPackageTable():
         updated_val['Privacy'] = output[i]['private']
         updated_val['SubmissionDateTime'] = output[i]['start_time']
         updated_val["Name"] = output[i]["file_name"]
+        updated_val["Hash"] = output[i]["hash"]
         return_vals.append(updated_val)
         del (output[i]['_sa_instance_state'])
         #del (output[i]['CreatorUid'])
