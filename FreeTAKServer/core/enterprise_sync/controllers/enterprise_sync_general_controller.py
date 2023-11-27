@@ -146,7 +146,7 @@ class EnterpriseSyncGeneralController(Controller):
         self.filesystem_controller.save_file(data_obj.file_type, objectuid, objectdata)
         self.persistence_controller.update_enterprise_sync_object(filetype=data_obj.file_type, objectuid=objectuid, objecthash=objecthash, logger=logger)
 
-    def update_enterprise_sync_metadata(self, logger, objectuid: str = None, objecthash: str = None, keywords: list = None, length: str=None, mime_type: str=None, file_name: str=None, objstarttime: str = None, *args, **kwargs):
+    def update_enterprise_sync_metadata(self, logger, objectuid: str = None, objecthash: str = None, keywords: list = None, length: str=None, mime_type: str=None, file_name: str=None, objstarttime: str = None, privacy=None, *args, **kwargs):
         """update an enterprise_sync metadata object
 
         Args:
@@ -171,6 +171,8 @@ class EnterpriseSyncGeneralController(Controller):
             updated_values["mime_type"] = mime_type
         if file_name != None:
             updated_values["file_name"] = file_name
+        if privacy != None:
+            updated_values["private"] = privacy
         
         self.persistence_controller.update_enterprise_sync_object(logger, **updated_values)
         
@@ -252,7 +254,7 @@ class EnterpriseSyncGeneralController(Controller):
 
         self.response.set_value("objectmetadata", object_metadata_list)
     
-    def get_enterprise_sync_metadata(self, logger, objectuid: str=None, objecthash: str=None, objectid: int=None, *args, **kwargs):
+    def get_enterprise_sync_metadata(self, logger, objectuid: str=None, objecthash: str=None, objectid: int=None, file_name: str=None, *args, **kwargs):
         """
         Get the object data from multiple enterprise sync objects.
 
@@ -263,6 +265,10 @@ class EnterpriseSyncGeneralController(Controller):
             None
         """
         object_metadata: EnterpriseSyncDataObject = None
+
+        if file_name != None:
+            object_metadata: EnterpriseSyncDataObject = self.persistence_controller.get_enterprise_sync_data_object(logger, file_name=file_name)
+
         if objectuid != None:
             object_metadata: EnterpriseSyncDataObject = self.persistence_controller.get_enterprise_sync_data_object(logger, object_uid=objectuid, object_hash=None)
         

@@ -435,7 +435,7 @@ def addSystemUser(jsondata):
                                                 uid=user_id,
                                                 certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
                 data = openfile.read()
-                RestAPICommunicationController().make_request("SaveEnterpriseSyncData", "", {"file_name":cert_name + '.zip',"objecthash": file_hash, "objectdata": data, "objkeywords": [cert_name + '.zip', user_id, "missionpackage"], "mime_type": "application/zip", "tool": "public", "synctype": "datapackage", "objectuid": file_hash, "length": len(data)}, None, True)
+                RestAPICommunicationController().make_request("SaveEnterpriseSyncData", "", {"file_name":cert_name + '.zip',"objecthash": file_hash, "objectdata": data, "objkeywords": [cert_name + '.zip', user_id, "missionpackage"], "mime_type": "application/zip", "tool": "public", "synctype": "datapackage", "objectuid": file_hash, "length": len(data), "privacy": 1}, None, True)
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
                 now = timer.utcnow()

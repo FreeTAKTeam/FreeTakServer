@@ -56,7 +56,8 @@ def put_DataPackageTable():
             name = dp["Name"]
         else:
             name = None
-        RestAPICommunicationController().make_request("UpdateEnterpriseSyncMetaData", "", {"file_name": name, "keywords": keywords, "private": privacy, "id": dp["PrimaryKey"]}, None, True)
+        pk = RestAPICommunicationController().make_request("GetEnterpriseSyncMetaData", "", {"file_name": dp["PrimaryKey"]}, None, True).get_value('objectmetadata').PrimaryKey
+        RestAPICommunicationController().make_request("UpdateEnterpriseSyncMetaData", "", {"file_name": name, "keywords": keywords, "privacy": privacy, "objectuid": pk}, None, True)
     
     return {"message":"success"}, 200
 
