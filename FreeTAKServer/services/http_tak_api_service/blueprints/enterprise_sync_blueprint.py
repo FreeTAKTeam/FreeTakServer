@@ -131,7 +131,7 @@ def putDataPackageTool(hash):
 
 
 @page.route('/Marti/api/sync/metadata/<hash>/tool', methods=["GET"])
-#@cross_origin(send_wildcard=True)
+@cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
     data: bytes = HTTPTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": hash, "use_bytes": True}, None, True).get_value("objectdata") # type: ignore
     if data == None:

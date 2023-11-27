@@ -137,11 +137,11 @@ def putDataPackageTool(hash):
 @page.route('/Marti/api/sync/metadata/<hash>/tool', methods=["GET"])
 @cross_origin(send_wildcard=True)
 def getDataPackageTool(hash):
-    data: bytes = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": hash}, True).get_value("objectdata") # type: ignore
-    metadata: EnterpriseSyncDataObject = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncMetaData", "", {"objecthash": hash}, True).get_value("objectmetadata") # type: ignore
-    if metadata == None:
-        return '', 404
-    with BytesIO() as file:
-        file.write(data)
-        file.seek(0)
-        return send_file(file, as_attachment=True, mimetype=metadata.mime_type, attachment_filename=metadata.filename)
+    data: bytes = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncData", "", {"objecthash": hash, "use_bytes": True}, None, True).get_value("objectdata") # type: ignore
+    if data == None:
+        return "", 404
+    metadata: EnterpriseSyncDataObject = HTTPSTakApiCommunicationController().make_request("GetEnterpriseSyncMetaData", "", {"objecthash": hash}, None, True).get_value("objectmetadata") # type: ignore
+    file = BytesIO()
+    file.write(data)
+    file.seek(0)
+    return send_file(file, as_attachment=True, mimetype=metadata.mime_type, attachment_filename=metadata.file_name)
