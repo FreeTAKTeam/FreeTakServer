@@ -6,7 +6,7 @@ on:
 
 env:
   IMAGE_BASE: freetakteam/ui
-  IMAGE_TAG: :${{ github.ref_name }}
+  IMAGE_TAG: ${{ github.ref_name }}
   IMAGE_SHA: ${{ github.sha }}
   OC_REGISTRY: ghcr.io
 
