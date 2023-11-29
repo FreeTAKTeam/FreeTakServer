@@ -10,7 +10,8 @@ import pathlib
 config = MainConfig.instance()
 
 def test_start_checklist():
-    setup = ComponentTest(TEST_START_CHECKLIST_SCHEMA, mock_sub_actions=False, include_base_components=True, included_external_components=[pathlib.Path(MainConfig.MAINPATH, "component\\extended\\mission")])
+    setup = ComponentTest(TEST_START_CHECKLIST_SCHEMA, mock_sub_actions=False, include_base_components=True,
+                          included_external_components=[MainConfig.MAIN_PATH / "component" / "extended" / "mission"])
     
     facade = Excheck(ObjectFactory.get_instance("SyncActionMapper"), setup.request, setup.response, None)
 
