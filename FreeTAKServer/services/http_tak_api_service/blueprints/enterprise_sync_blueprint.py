@@ -50,7 +50,8 @@ def retrieveData():
                 "resultCount": len(packages),
                 "results": []
             }
-    for pack in packages:
+    public_packages = [package for package in packages if package.private == 0]
+    for pack in public_packages:
         package_dict["results"].append({
             "UID": str(pack.PrimaryKey),
             "Name": pack.keywords[0].keyword,
