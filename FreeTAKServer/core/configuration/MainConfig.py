@@ -36,7 +36,6 @@ MAIN_PATH = Path(__file__).parent.parent.parent
 USER_PATH = platformdirs.user_data_path(FTS_NAME)
 PERSISTENCE_PATH = platformdirs.site_data_path(FTS_NAME)
 
-
 class MainConfig:
     """
     this is the main configuration file and is the only one which
