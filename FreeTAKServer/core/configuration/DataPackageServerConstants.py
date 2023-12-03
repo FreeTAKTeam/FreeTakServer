@@ -22,5 +22,5 @@ class DataPackageServerConstants:
         self.NodeID = 'FTS'
         #self.VERSIONJSON = '{"version":"3","type":"ServerConfig", "data":{"version": "%s", "api": "3","hostname":"%s"}, "nodeId":"%s"}' % (
         #    self.versionInfo, "0.0.0.0", self.NodeID)
-        self.VERSIONJSON = '{"version":"3","type":"ServerConfig","data":{"version":"2.0.70-FTS-RELEASE","api":"3","hostname":"%s"},"nodeId":"%s"}' % (
+        self.VERSIONJSON = '{"version":"3","type":"ServerConfig","data":{"version":"2.1 RC1-FTS-RELEASE","api":"3","hostname":"%s"},"nodeId":"%s"}' % (
             "0.0.0.0", config.nodeID)

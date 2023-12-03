@@ -11,13 +11,14 @@ ENV FTS_DATA_PATH = "/opt/fts/"
 
 # Move to the FTS directory, then do the copying and unpacking
 WORKDIR /home/freetak/
-COPY --chown=freetak:freetak --chmod=774 requirements.txt setup.py README.md docker-run.sh ./
+COPY --chown=freetak:freetak --chmod=774 README.md pyproject.toml docker-run.sh ./
+COPY --chown=freetak:freetak --chmod=774 FreeTAKServer/ ./FreeTAKServer/
 
 # Install pre-reqs then the base FTS
+# ruamel.yaml is very ornery and has to be force-reinstalled alone
 ENV PATH /home/freetak/.local/bin:$PATH
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install -e /home/freetak/
-COPY --chown=freetak:freetak --chmod=774 . ./
+RUN pip install --upgrade pip ; pip install setuptools wheel poetry ; pip install --force-reinstall "ruamel.yaml<0.18"
+RUN pip install --no-build-isolation --editable .
 
 # Provide a way to edit the configuration from outside the container
 # May need to be updated if the base image changes

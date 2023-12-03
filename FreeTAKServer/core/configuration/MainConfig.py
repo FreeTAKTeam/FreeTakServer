@@ -1,22 +1,41 @@
+# -*- encoding: utf-8 -*-
+"""
+License: MIT
+Copyright (c) 2019 - present
+"""
 import os
 import random
 import string
 import sys
 import re
 import yaml
-currentPath = os.path.dirname(os.path.abspath(__file__))
 
 from pathlib import Path
+import sysconfig
 from uuid import uuid4
+import platformdirs
+
+currentPath = os.path.dirname(os.path.abspath(__file__))
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.1 RC1"
+FTS_NAME = "FreeTAKServer"
+FTS_VERSION = f"{FTS_NAME}-2.1 RC1"
 API_VERSION = "3"
-ROOTPATH = "/"
-MAINPATH = Path(__file__).parent.parent.parent
-USERPATH = rf"{ROOTPATH}usr/local/lib/"
-PERSISTENCE_PATH = r'/opt/fts'
+ROOT_PATH = Path("/")
+ROOTPATH = str(ROOT_PATH)
+# MAIN_PATH = Path(sysconfig.get_path('purelib'))
+
+# Platform specific paths.
+# The linux paths differ from those selected previously.
+# The https://docs.python.org/3/library/os.html#os.system function
+# can be used for finer control.
+# USERPATH = rf"{ROOTPATH}usr/local/lib/"
+# PERSISTENCE_PATH = r'/opt/fts'
+MAIN_PATH = Path(__file__).parent.parent.parent
+USER_PATH = platformdirs.user_data_path(FTS_NAME)
+PERSISTENCE_PATH = platformdirs.site_data_path(FTS_NAME)
+
 
 class MainConfig:
     """
@@ -39,11 +58,11 @@ class MainConfig:
     # create the persistence path if it doesn't exist
     if not os.path.exists(PERSISTENCE_PATH):
         try:
-            os.mkdir(PERSISTENCE_PATH)
+            os.makedirs(PERSISTENCE_PATH)
         except Exception as e:
             print(f"failed to create the fts persistence directory at {PERSISTENCE_PATH} with error: {e}")
             sys.exit(1)
-    
+
     _node_id = str(uuid4())
 
     # All available config vars should be defined here
@@ -52,14 +71,14 @@ class MainConfig:
         "version": {"default": FTS_VERSION, "type": str, "readonly": True},
         "APIVersion": {"default": API_VERSION, "type": str, "readonly": True},
         "SecretKey": {"default": "vnkdjnfjknfl1232#", "type": str},
-        #"nodeID": {"default": f"FreeTAKServer-{_node_id}", "type": str},
+        # "nodeID": {"default": f"FreeTAKServer-{_node_id}", "type": str},
         "nodeID": {"default": ''.join(random.choices(string.ascii_lowercase + string.digits, k=32)), "type": str},
         "OptimizeAPI": {"default": True, "type": bool},
         "DataReceptionBuffer": {"default": 1024, "type": int},
         "MaxReceptionTime": {"default": 4, "type": int},
         "LogLevel": {"default": "info", "type": str},
         "UserPersistencePath": {
-            "default": Path("/opt/user_persistence.txt"),
+            "default": USER_PATH / "user_persistence.txt",
             "type": str,
         },
         # number of milliseconds to wait between each iteration of main loop
@@ -85,63 +104,63 @@ class MainConfig:
         # IP for CLI to access
         "CLIIP": {"default": "127.0.0.1", "type": str},
         "AllowCLIIPs": {"default": ["127.0.0.1"], "type": list},
-        # whether or not to save CoT's to the DB
+        # whether to save CoT's to the DB
         "SaveCoTToDB": {"default": True, "type": bool},
         # this should be set before startup
-        "DBFilePath": {"default": f"{PERSISTENCE_PATH}/FTSDataBase.db", "type": str},
-        "MainPath": {"default": Path(MAINPATH), "type": str},
-        "certsPath": {"default": Path(rf"{PERSISTENCE_PATH}/certs"), "type": str},
-        "EnterpriseSyncPath": {"default": Path(rf"{PERSISTENCE_PATH}/enterprise_sync"), "type": str},
-        "ExCheckMainPath": {"default": Path(rf"{PERSISTENCE_PATH}/ExCheck"), "type": str},
+        "DBFilePath": {"default": PERSISTENCE_PATH / "FTSDataBase.db", "type": str},
+        "MainPath": {"default": MAIN_PATH, "type": str},
+        "certsPath": {"default": PERSISTENCE_PATH / "certs", "type": str},
+        "EnterpriseSyncPath": {"default": PERSISTENCE_PATH / "enterprise_sync", "type": str},
+        "ExCheckMainPath": {"default": PERSISTENCE_PATH / "ExCheck", "type": str},
         "ExCheckFilePath": {
-            "default": Path(rf"{PERSISTENCE_PATH}/ExCheck/template"),
+            "default": PERSISTENCE_PATH / "ExCheck" / "template",
             "type": str,
         },
         "ExCheckChecklistFilePath": {
-            "default": Path(rf"{PERSISTENCE_PATH}/ExCheck/checklist"),
+            "default": PERSISTENCE_PATH / "ExCheck" / "checklist",
             "type": str,
         },
         "DataPackageFilePath": {
-            "default": Path(rf"{PERSISTENCE_PATH}/FreeTAKServerDataPackageFolder"),
+            "default": PERSISTENCE_PATH / "FreeTAKServerDataPackageFolder",
             "type": str,
         },
-        "LogFilePath": {"default": Path(rf"{PERSISTENCE_PATH}/Logs"), "type": str},
+        "LogFilePath": {"default": PERSISTENCE_PATH / "Logs", "type": str},
         "federationKeyPassword": {"default": "defaultpass", "type": str},
-        "keyDir": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.key"), "type": str},
-        "pemDir": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.pem"), "type": str},
-        "testPem": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.key"), "type": str},
-        "testKey": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.pem"), "type": str},
+        "keyDir": {"default": PERSISTENCE_PATH / "certs" / "server.key", "type": str},
+        "pemDir": {"default": PERSISTENCE_PATH / "certs" / "server.pem", "type": str},
+        "testPem": {"default": PERSISTENCE_PATH / "certs" / "server.key", "type": str},
+        "testKey": {"default": PERSISTENCE_PATH / "certs" / "server.pem", "type": str},
         "unencryptedKey": {
-            "default": Path(rf"{PERSISTENCE_PATH}/certs/server.key.unencrypted"),
+            "default": PERSISTENCE_PATH / "certs" / "server.key.unencrypted",
             "type": str,
         },
-        "p12Dir": {"default": Path(rf"{PERSISTENCE_PATH}/certs/server.p12"), "type": str},
-        "CA": {"default": Path(rf"{PERSISTENCE_PATH}/certs/ca.pem"), "type": str},
-        "CAkey": {"default": Path(rf"{PERSISTENCE_PATH}/certs/ca.key"), "type": str},
+        "p12Dir": {"default": PERSISTENCE_PATH / "certs" / "server.p12", "type": str},
+        "CA": {"default": PERSISTENCE_PATH / "certs" / "ca.pem", "type": str},
+        "CAkey": {"default": PERSISTENCE_PATH / "certs" / "ca.key", "type": str},
         "federationCert": {
-            "default": Path(rf"{PERSISTENCE_PATH}/certs/server.pem"),
+            "default": PERSISTENCE_PATH / "certs" / "server.pem",
             "type": str,
         },
         "federationKey": {
-            "default": Path(rf"{PERSISTENCE_PATH}/certs/server.key"),
+            "default": PERSISTENCE_PATH / "certs" / "server.key",
             "type": str,
         },
         "password": {"default": "supersecret", "type": str},
         "websocketkey": {"default": "YourWebsocketKey", "type": str},
-        "CRLFile": {"default": Path(rf"{PERSISTENCE_PATH}/certs/FTS_CRL.json"), "type": str},
+        "CRLFile": {"default": PERSISTENCE_PATH / "certs" / "FTS_CRL.json", "type": str},
         # set to None if you don't want a message sent
         "ConnectionMessage": {
             "default": f"Welcome to FreeTAKServer {FTS_VERSION}. The Parrot is not dead. It’s just resting",
             "type": str,
         },
         "DataBaseType": {"default": "SQLite", "type": str},
-        # location to backup client packages
+        # location to back up client packages
         "ClientPackages": {
-            "default": Path(rf"{PERSISTENCE_PATH}/certs/clientPackages"),
+            "default": PERSISTENCE_PATH / "certs" / "clientPackages",
             "type": str,
         },
         "CoreComponentsPath": {
-            "default": Path(rf"{MAINPATH}/core"),
+            "default": MAIN_PATH / "core",
             "type": str,
         },
         "CoreComponentsImportRoot": {
@@ -149,7 +168,7 @@ class MainConfig:
             "type": str,
         },
         "InternalComponentsPath": {
-            "default": Path(rf"{MAINPATH}/components/core"),
+            "default": MAIN_PATH / "components" / "core",
             "type": str,
         },
         "InternalComponentsImportRoot": {
@@ -157,7 +176,7 @@ class MainConfig:
             "type": str,
         },
         "ExternalComponentsPath": {
-            "default": Path(rf"{MAINPATH}/components/extended"),
+            "default": MAIN_PATH / "components" / "extended",
             "type": str,
         },
         "ExternalComponentsImportRoot": {
@@ -186,7 +205,7 @@ class MainConfig:
         "IntegrationManagerPublisherPort": {"default": 19034, "type": int},
         # address from which to publish messages by the integration manager
         "IntegrationManagerPublisherAddress": {"default": "127.0.0.1", "type": str},
-        "yaml_path": {"default": f"{PERSISTENCE_PATH}/FTSConfig.yaml", "type": str},
+        "yaml_path": {"default": PERSISTENCE_PATH / "FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
         # radius of emergency within-which users will receive it
         "EmergencyRadius": {"default": 10, "type": int},
@@ -376,8 +395,8 @@ class MainConfig:
                 cls._instance.set(var_name, value=metadata["default"], override_ro=True)
 
             # if config_file not specified, check env or use default location
-            if config_file == None:
-                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["yaml_path"]))
+            if config_file is None:
+                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["yaml_path"]["default"]))
 
             # overlay the yaml config if found
             if os.path.exists(config_file):
@@ -431,9 +450,8 @@ class MainConfig:
                         self.set(var_name, value=value)
 
     def validate_and_sanitize_path(self, path):
-
         # sanitize and validate any path specified in config
-        sanitized_path = ROOTPATH + os.path.relpath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
+        sanitized_path = os.path.abspath(os.path.normpath(os.path.join(os.sep, path)), os.sep)
 
         if not os.access(sanitized_path, os.F_OK) or not os.access(sanitized_path, os.W_OK):
             raise ValueError
@@ -472,14 +490,13 @@ class MainConfig:
 
     # test if the config var should allow being set
     def _readonly(self, name):
-        if (
-            "readonly" in MainConfig._defaults[name]
-            and MainConfig._defaults[name]["readonly"]
-        ):
-            return True
-        return False
+        if "readonly" not in MainConfig._defaults[name]:
+            return False
+        if not MainConfig._defaults[name]["readonly"]:
+            return False
+        return True
 
-    # helper function to return the type of a config var
+    # helper function to return the type of the config var
     def _var_type(self, name):
         return MainConfig._defaults[name]['type']
 
@@ -497,4 +514,8 @@ class MainConfig:
     def __setitem__(self, name, value):
         self.set(name, value)
 
-    first_start = os.environ.get("FTS_FIRST_START", "true").lower() in ('true', 't', '1', 'yes', 'y') and not os.path.exists(f"{PERSISTENCE_PATH}/installation.json")
+    first_start = (os.environ.get("FTS_FIRST_START", "true").lower() in
+                   ('true', 't', '1', 'yes', 'y') and
+                   not os.path.exists(
+                       os.path.dirname(os.path.realpath(__file__)) +
+                       os.sep + "installation.json"))

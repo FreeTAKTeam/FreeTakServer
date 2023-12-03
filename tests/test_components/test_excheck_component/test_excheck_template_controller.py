@@ -13,7 +13,8 @@ config = MainConfig.instance()
 
 @patch("FreeTAKServer.core.enterprise_sync.controllers.enterprise_sync_database_controller.EnterpriseSyncDatabaseController.create_enterprise_sync_data_object")
 def test_start_checklist(create_enterprise_sync_data_object_mock):
-    setup = ComponentTest(TEST_CREATE_TEMPLATE, mock_sub_actions=False, include_base_components=True, included_external_components=[pathlib.Path(MainConfigClass.MAINPATH, "component\\extended\\mission")])
+    setup = ComponentTest(TEST_CREATE_TEMPLATE, mock_sub_actions=False,  include_base_components=True,
+                          included_external_components=[MainConfigClass.MAIN_PATH / "component" / "extended" / "mission"])
     
     facade = Excheck(ObjectFactory.get_instance("SyncActionMapper"), setup.request, setup.response, None)
 
