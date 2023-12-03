@@ -1,11 +1,14 @@
 import codecs
 from datetime import datetime
 from typing import List
+from uuid import uuid4
 from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
 from FreeTAKServer.components.extended.mission.persistence.log import Log
+from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 
 from FreeTAKServer.components.extended.mission.persistence.mission_content import MissionContent
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
+from FreeTAKServer.components.extended.mission.persistence.mission_invitation import MissionInvitation
 from FreeTAKServer.core.util.time_utils import get_dtg
 from ..configuration.mission_constants import PERSISTENCE_PATH
 from digitalpy.core.main.controller import Controller
@@ -25,7 +28,11 @@ from ..persistence.mission_log import MissionLog
 from ..persistence.log import Log
 from ..persistence.mission import Mission
 from ..persistence.mission_to_mission import MissionToMission
+from ..persistence.mission_content import MissionContent
+from ..persistence.mission_cot import MissionCoT
+from ..persistence.mission_change import MissionChange
 from ..persistence import MissionBase
+
 from ..configuration.mission_constants import PERSISTENCE_PATH, DB_PATH, PERMISSIONS
 
 class MissionPersistenceController(Controller):
@@ -132,7 +139,41 @@ class MissionPersistenceController(Controller):
             return role
         except Exception as ex:
             raise ex
-    
+        
+    def get_invitations(self, invitee_uid, *args, **kwargs):
+        """this method is used to get an invitation from the database.
+        """
+        try:
+            invitations = self.ses.query(MissionInvitation).filter(MissionInvitation.subscription.clientUid == invitee_uid).all()
+            return invitations
+        except Exception as ex:
+            raise ex
+        
+    def get_invitation_id(self, invitation_id, *args, **kwargs):
+        """this method is used to get an invitation from the database.
+        """
+        try:
+            invitation = self.ses.query(MissionInvitation).filter(MissionInvitation.uid == invitation_id).first()
+            return invitation
+        except Exception as ex:
+            raise ex
+
+    def create_invitation(self, author_uid: str, subscription_uid: str, mission_uid: str, *args, **kwargs):
+        """this method is used to create a new invitation and save it to the database.
+        """
+        try:
+            invitation = MissionInvitation()
+            invitation.uid = str(uuid4())
+            invitation.mission_uid = mission_uid.lower()
+            invitation.author_uid = author_uid
+            invitation.subscription = self.get_subscription_id(subscription_uid)
+            self.ses.add(invitation)
+            self.ses.commit()
+            return invitation
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+
     def create_subscription(self, subscription_id, mission_id, token, client_uid, role, *args, **kwargs):
         """this method is used to create a new subscription and save it to the database.
         """
@@ -140,7 +181,7 @@ class MissionPersistenceController(Controller):
             subscription = Subscription()
             if subscription_id:
                 subscription.PrimaryKey = subscription_id
-            subscription.mission_uid = mission_id
+            subscription.mission_uid = mission_id.lower()
             subscription.token = token
             subscription.clientUid = client_uid
             subscription.role = role
@@ -164,7 +205,25 @@ class MissionPersistenceController(Controller):
         """this method is used to get a subscription from the database.
         """
         try:
-            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.mission == mission).filter(Subscription.clientUid == client_uid).first() # type: ignore
+            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.mission_uid == mission.PrimaryKey).filter(Subscription.clientUid == client_uid).first() # type: ignore
+            return subscription
+        except Exception as ex:
+            raise ex
+        
+    def get_client_invitations(self, client_uid: str, *args, **kwargs) -> List[MissionInvitation]:
+        """this method is used to get all invitations associated with a client.
+        """
+        try:
+            subscriptions : List[Subscription] = self.ses.query(Subscription).filter(Subscription.clientUid == client_uid).all() # type: ignore
+            return [subscription.invitation for subscription in subscriptions if subscription.invitation != None]
+        except Exception as ex:
+            raise ex
+
+    def get_subscription_id(self, subscription_id: str, *args, **kwargs) -> Subscription:
+        """this method is used to get a subscription from the database.
+        """
+        try:
+            subscription : Subscription = self.ses.query(Subscription).filter(Subscription.PrimaryKey == subscription_id).first() # type: ignore
             return subscription
         except Exception as ex:
             raise ex
@@ -202,7 +261,7 @@ class MissionPersistenceController(Controller):
             mission_item = MissionItem()
             mission_item.PrimaryKey = mission_item_id
             mission_item.MissionItemData = mission_item_data
-            mission_item.mission_uid = mission_id
+            mission_item.mission_uid = mission_id.lower()
             self.ses.add(mission_item)
             self.ses.commit()
         except Exception as ex:
@@ -221,7 +280,7 @@ class MissionPersistenceController(Controller):
     def create_mission_content(self, mission_id: str, id: str) -> MissionContent:
         try:
             mission_content = MissionContent()
-            mission_content.mission_uid = mission_id
+            mission_content.mission_uid = mission_id.lower()
             mission_content.PrimaryKey = id
             self.ses.add(mission_content)
             self.ses.commit()
@@ -237,13 +296,13 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
 
-    def create_mission(self, mission_id, name, description, uids, contents, createTime, passwordProtected, groups, defaultRole, serviceUri, classification, *args, **kwargs):
+    def create_mission(self, mission_id: str, name, description, uids, contents, createTime, passwordProtected, groups, defaultRole, serviceUri, classification, tool, *args, **kwargs):
         """this method is used to create a new mission, save it to the database and return the mission information
         to the client in json format, it uses the mission persistence controller to access the database.
         """
         try:
             mission = Mission()
-            mission.PrimaryKey = mission_id
+            mission.PrimaryKey = mission_id.lower()
             mission.name = name
             mission.description = description
             #mission.uids = uids
@@ -253,6 +312,7 @@ class MissionPersistenceController(Controller):
             mission.defaultRole = defaultRole
             mission.serviceUri = serviceUri
             mission.classification = classification
+            mission.tool = tool
             self.ses.add(mission)
             self.ses.commit()
             return mission
@@ -264,7 +324,7 @@ class MissionPersistenceController(Controller):
         """this method is used to get a mission from the database and return it to the client in json format.
         """
         try:
-            mission: Mission = self.ses.query(Mission).filter(Mission.PrimaryKey == mission_id).first() # type: ignore
+            mission: Mission = self.ses.query(Mission).filter(Mission.PrimaryKey == mission_id.lower()).first() # type: ignore
             return mission
         except Exception as ex:
             raise ex
@@ -305,7 +365,7 @@ class MissionPersistenceController(Controller):
         
     def update_mission(self, mission_id: str, content: MissionContent = None, cot: MissionCoT = None, *args, **kwargs): #type: ignore
         try:
-            mission: Mission = self.get_mission(mission_id)
+            mission: Mission = self.get_mission(mission_id.lower())
             
             if content != None:
                 mission.contents.append(content)
@@ -324,6 +384,12 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
+    def get_all_public_missions(self, *args, **kwargs) -> List[Mission]:
+        try:
+            return self.ses.query(Mission).filter(Mission.tool=="public").all()
+        except Exception as ex:
+            raise ex
+
     def create_mission_log(self, id, content, creatorUid, entryUid, mission, servertime, dtg, created, contentHashes, keywords, *args, **kwargs):
         """create a mission log record in the database"""
         try:
@@ -344,11 +410,11 @@ class MissionPersistenceController(Controller):
             self.ses.rollback()
             raise ex
         
-    def create_mission_cot(self, mission_id, uid):
+    def create_mission_cot(self, mission_id, uid, *args, **kwargs):
         try:
             mission_cot = MissionCoT()
             mission_cot.uid = uid
-            mission_cot.mission_uid = mission_id
+            mission_cot.mission_uid = mission_id.lower()
             self.ses.add(mission_cot)
             self.ses.commit()
             return mission_cot
@@ -367,7 +433,7 @@ class MissionPersistenceController(Controller):
         """get all mission logs since a specific time"""
         try:
             
-            mission_logs = self.ses.query(MissionLog).join(Log, MissionLog.log_id == Log.id).filter(MissionLog.mission_uid == mission_id).filter(Log.created >= start).filter(Log.created <= end).all()
+            mission_logs = self.ses.query(MissionLog).join(Log, MissionLog.log_id == Log.id).filter(MissionLog.mission_uid == mission_id.lower()).filter(Log.created >= start).filter(Log.created <= end).all()
             return mission_logs
         except Exception as ex:
             raise ex
@@ -379,7 +445,7 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
-    def create_log(self, uid, mission_ids, content, dtg, servertime, creatorUid, created, keywords, id) -> Log:
+    def create_log(self, uid, mission_ids, content, dtg, servertime, creatorUid, created, keywords, id, contentHashes, contentUid) -> Log:
         try:
             log = Log()
             log.id = id
@@ -390,7 +456,9 @@ class MissionPersistenceController(Controller):
             log.dtg = dtg
             log.created = created
             log.keywords = keywords
-            
+            log.contentHashes = contentHashes
+            log.creatorUid = contentUid
+
             for mission_id in mission_ids:
                 mission = self.get_mission(mission_id)
                 mission_log = MissionLog()
@@ -457,22 +525,34 @@ class MissionPersistenceController(Controller):
         except Exception as ex:
             raise ex
     
-    def get_external_data(self, mission_id, *args, **kwargs):
+    def get_external_data(self, id, *args, **kwargs):
         try:
-            mission = self.get_mission(mission_id)
-            return mission.external_data
+            external_data = self.ses.query(ExternalData).filter(ExternalData.id == id.lower()).first()
+            return external_data
         except Exception as ex:
             raise ex
         
-    def add_external_data(self, mission_id, name, tool, urlData, notes, uid, urlView, *args, **kwargs):
+    def get_external_data_by_uid(self, uid: str, mission_uid: str, *args, **kwargs):
+        try:
+            external_data = self.ses.query(ExternalData).filter(ExternalData.uid == uid.lower()).filter(ExternalData.mission_uid == mission_uid.lower()).first()
+            return external_data
+        except Exception as ex:
+            raise ex
+
+    def add_external_data(self, mission_id, name, tool, urlData, notes, uid, urlView, id=None, creator_uid=None, *args, **kwargs):
         try:
             external_data = ExternalData()
+            if id:
+                external_data.id = id
+            else:
+                external_data.id = str(uuid4())
             external_data.name = name
             external_data.tool = tool
             external_data.urlData = urlData
             external_data.notes = notes
             external_data.uid = uid
             external_data.urlView = urlView
+            external_data.creator_uid = creator_uid if creator_uid else ""
             
             mission = self.get_mission(mission_id)
             mission.externalData.append(external_data)
@@ -486,13 +566,25 @@ class MissionPersistenceController(Controller):
             self.ses.rollback()
             raise ex
         
-    def get_external_data_by_uid(self, mission_id, uid, *args, **kwargs):
-        try:
-            mission = self.get_mission(mission_id)
-            for external_data in mission.externalData:
-                if external_data.uid == uid:
-                    return external_data
-            return None
-        except Exception as ex:
-            raise ex
-        
+    def create_mission_change(self, type, content_uid, creator_uid, mission_uid, content_resource_uid, cot_detail_uid, external_data_uid) -> MissionChange:
+        change = MissionChange()
+        change.type = type
+        change.content_uid = content_uid
+        change.creator_uid = creator_uid
+        change.external_data_uid = external_data_uid
+        change.mission = self.get_mission(mission_uid)
+        change.content_resource = self.get_mission_content(content_resource_uid)
+        change.cot_detail = self.get_mission_cot(cot_detail_uid)
+        self.ses.add(change)
+        self.ses.commit()
+        return change
+    
+    def get_mission_cot(self, cot_uid):
+        return self.ses.query(MissionCoT).filter(MissionCoT.uid == cot_uid).first()
+    
+    def get_mission_cots(self, mission_id) -> List[MissionCoT]:
+        mission = self.get_mission(mission_id)
+        return mission.cots
+
+    def get_mission_change(self, content_uid) -> MissionChange:
+        return self.ses.query(MissionChange).filter(MissionChange.content_resource_uid == content_uid).first()

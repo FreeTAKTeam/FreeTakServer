@@ -194,18 +194,24 @@ def getDataPackageTool(hash):
     return resp
 """
 
-@app.route('/Marti/sync/search', methods=[const.GET])
-def retrieveData():
-    logger.info('sync search triggered')
-    keyword = request.args.get('keyword')
-    packages = FlaskFunctions().getAllPackages()
-    app.logger.info(f"Data packages in the database: {packages}")
-    return str(packages)
+
 
 @app.route('/Marti/api/version', methods=[const.GET])
 def returnVersion():
     logger.info('api version triggered')
     return const.versionInfo
+
+@app.route('/Marti/api/missions/<mission_id>', methods=['GET'])
+def get_mission(mission_id):
+    try:
+        # this endpoint returns the mission data for a specific mission
+        is_excheck: bool = False
+        if is_excheck:
+            return excheck_blueprint.get_checklist_mission(mission_id)
+        else:
+            return mission_blueprint.get_mission(mission_id)
+    except Exception as ex:
+        return str(ex), 500
 
 """
 @app.route('/Marti/sync/missionquery', methods=const.HTTPMETHODS)
@@ -269,7 +275,7 @@ def check_changes():
         print('exception in check changes' + str(e))
 
 
-
+"""
 @app.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
     try:
@@ -293,21 +299,8 @@ def ExCheckTemplatesAlt():
     except Exception as ex:
         print(ex)
         return '', 500
-
-@app.route('/Marti/api/excheck/template', methods=['POST'])
-def template():
-    try:
-        dp_request = ObjectFactory.get_instance("request")
-        dp_response = ObjectFactory.get_instance("response")
-        excheck_facade = ObjectFactory.get_instance("ExCheck")
-        excheck_facade.initialize(dp_request, dp_response)
-        excheck_facade.create_template(request.data)
-        return 'template created successfully', 200
-        # return ExCheckController().template(PIPE)
-    except Exception as ex:
-        print(ex)
-        return '', 500
-    
+"""
+"""
 @app.route('/Marti/api/excheck/<subscription>/start', methods=['POST'])
 def startList(subscription):
     try:
@@ -319,7 +312,7 @@ def startList(subscription):
     except Exception as ex:
         print(ex)
         return '', 500
-
+"""
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
     return ExCheckController().update_checklist()
@@ -361,7 +354,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 APPLICATION_PROTOCOL = "xml"
-API_REQUEST_TIMEOUT = 5000
+API_REQUEST_TIMEOUT = 30
 
 import time
 

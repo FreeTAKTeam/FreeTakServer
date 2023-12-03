@@ -28,6 +28,7 @@ class Event(FTSProtocolObject):
         self.uid = None
         self.type = None
         self.how = None
+        self.access = None
 
         self.detail = None
         self.point = None
@@ -63,7 +64,7 @@ class Event(FTSProtocolObject):
     @staticmethod
     def Connection(version=vars.connection().VERSIONNUM, uid=vars.connection().UID, type=vars.connection().TYPE,
                   how=vars.connection().HOW, time=vars.connection().TIME, start=vars.connection().START,
-                  stale=vars.connection().STALE):
+                  stale=vars.connection().STALE, access=vars.connection().ACCESS):
         event = Event()
         event.setdetail(Detail.Connection())
         event.setpoint(Point())
@@ -74,6 +75,7 @@ class Event(FTSProtocolObject):
         event.settime(time)
         event.setstart(start)
         event.setstale(stale)
+        event.setaccess(access)
         return event
 
     @staticmethod
@@ -409,9 +411,17 @@ class Event(FTSProtocolObject):
         
     # how setter
     def sethow(self, how=0):  
-        self.how = how 
+        self.how = how
 
-        # uid getter
+    # access getter
+    def getaccess(self):
+        return self.access
+
+    # access setter
+    def setaccess(self, access=0):
+        self.access = access
+
+            # uid getter
     def getuid(self): 
         return self.uid 
     

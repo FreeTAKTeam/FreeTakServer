@@ -105,12 +105,10 @@ class ReceiveConnections:
             try:    
                 ssl_client = SSLSocketController().wrap_client_socket(client)
             except ssl.SSLError as ex:
-                self.disconnect_socket(client, ssl_client)
                 logger.warning('ssl error thrown in connection attempt ' + str(ex))
                 return -1
 
             except asyncio.TimeoutError as ex:
-                self.disconnect_socket(client, ssl_client)
                 logger.warning('timeout error thrown in connection attempt '+str(ex))
                 return -1
 

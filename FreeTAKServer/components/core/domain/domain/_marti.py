@@ -1,9 +1,13 @@
+from typing import TYPE_CHECKING, List
+
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModel.Dest import Dest as DestObject
 from digitalpy.core.parsing.load_configuration import Configuration
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
+if TYPE_CHECKING:
+    from . import dest
 
 # TODO: modify to call dest with static method
 class counter:
@@ -25,7 +29,7 @@ class marti(
         # self.__firstrun = True
 
     @CoTProperty
-    def dest(self):
+    def dest(self) -> List['dest']:
         return self.get_children_ex(children_type="dest")
 
     @dest.setter

@@ -10,7 +10,7 @@ class CoTNode(Node, FTSProtocolObject):
         # a dictionary containing the attributes of all cots
         self.cot_attributes = {}
         # an xml object containing the contents of a given CoT without corresponding domain definition
-        self.xml = etree.Element(self.__class__.__name__)
+        self.xml: etree.ElementTree = etree.Element(self.__class__.__name__)
         self.text = ""
         super().__init__(node_type, configuration, model, oid)
 

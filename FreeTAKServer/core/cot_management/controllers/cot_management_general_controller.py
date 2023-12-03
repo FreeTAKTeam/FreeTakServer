@@ -7,6 +7,9 @@
 # Original author: Giu Platania
 # 
 #######################################################
+from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
+from FreeTAKServer.core.cot_management.controllers.cot_management_persistence_controller import CoTManagementPersistenceController
+from FreeTAKServer.core.domain.node import Node
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -24,15 +27,17 @@ class COTManagementGeneralController(Controller):
         self,
         request: Request,
         response: Response,
-        sync_action_mapper: ActionMapper,
+    sync_action_mapper: ActionMapper,
         configuration: Configuration,
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
         self.private_cot_controller = CoTManagementPrivateCoTController(request, response, sync_action_mapper, configuration)
+        self.persistence_controller = CoTManagementPersistenceController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.private_cot_controller.initialize(request, response)
+        self.persistence_controller.initialize(request, response)
 
     def share_privately(self, cot_id: str, recipient_id: str):
         """Shares a specific COT privately with another user.
@@ -73,7 +78,7 @@ class COTManagementGeneralController(Controller):
         # broadcast the COT message to all registered listeners
         self.broadcast(cot_message)
     
-    def handle_default_cot(self, config_loader, **kwargs):
+    def handle_default_cot(self, config_loader, action_mapper, **kwargs):
         """forward cots without a distinct handler
         """
         self.request.set_value("object_class_name", BASE_OBJECT_NAME)
@@ -103,9 +108,59 @@ class COTManagementGeneralController(Controller):
         self.request.set_value('recipients', recipients)
 
         # validate the users in the recipients list
-        response = self.execute_sub_action("ValidateUsers")
+        users_validated_response = self.execute_sub_action("ValidateUsers")
 
-        for key, value in response.get_values().items():
+        self.cot_event_chain_of_command(response.get_value("model_object"), self.request.get_value("dictionary"), action_mapper)
+
+        for key, value in users_validated_response.get_values().items():
             self.response.set_value(key, value)
         
         self.response.set_action("publish")
+
+    def cot_event_chain_of_command(self, cot_model_object: CoTNode, cot_dict: str, action_mapper: ActionMapper, *args, **kwargs):
+        """this method will handle different events which may or may not be associated with a CoT
+        making the relevant (async) requests if it is, these events should be based on the contents of the CoT
+        as anything type related should be handled in the routing phase and should not reach this point
+        """
+        # if the CoT is being sent to a mission and the CoT is a video alias
+        missions = []
+        if cot_model_object.detail is not None:
+            missions = [d.mission for d in cot_model_object.detail.marti.dest if d.mission is not None]
+        if len(missions)>0:
+
+            self.persistence_controller.create_or_update_cot(cot_model_object)
+
+            self.request.set_value("xml_dict", cot_dict)
+            cot_xml = self.execute_sub_action("DictToXML").get_value("xml")
+
+            if cot_model_object.type == "b-i-v":
+                self.request.set_value("mission_ids", missions)
+                self.request.set_value("uid", cot_model_object.uid)
+                self.request.set_context("mission")
+                self.request.set_action("CreateMissionCOT")
+                self.request.set_format("pickled")
+                action_mapper.process_action(self.request, self.response, False, protocol="XML")
+                
+            # if the CoT is being sent to a mission and the CoT is a geofence
+            elif cot_model_object.type == "u-d-c-c":
+                self.request.set_value("mission_ids", missions)
+                self.request.set_value("cot_type", cot_model_object.type)
+                self.request.set_value("callsign", cot_model_object.detail.contact.callsign)
+                self.request.set_value("uid", cot_model_object.uid)
+                self.request.set_value("lat", cot_model_object.point.lat)
+                self.request.set_value("lon", cot_model_object.point.lon)
+                self.request.set_value("iconset_path", cot_model_object.detail.usericon.iconsetpath)
+                self.request.set_value("xml_content", cot_xml)
+                self.request.set_context("mission")
+                self.request.set_action("CreateMissionGeoFence")
+                self.request.set_format("pickled")
+                action_mapper.process_action(self.request, self.response, False, protocol="XML")
+            
+            # generic handler for all other CoTs being sent to a mission
+            else:
+                self.request.set_value("mission_ids", missions)
+                self.request.set_value("uid", cot_model_object.uid)
+                self.request.set_context("mission")
+                self.request.set_action("CreateMissionCOT")
+                self.request.set_format("pickled")
+                action_mapper.process_action(self.request, self.response, False, protocol="XML")

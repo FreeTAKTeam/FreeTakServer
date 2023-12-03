@@ -48,11 +48,11 @@
                     "format": "date-time"
                 },
                 "role": {
-                    "$ref": "#/definitions/MissionRole"
+                    "$ref": "#/definitions/role"
                 }
             }
         },
-        "MissionRole": {
+        "role": {
             "type": "object",
             "properties": {
             }

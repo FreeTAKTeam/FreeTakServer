@@ -1,9 +1,9 @@
 from typing import Dict
-from FreeTAKServer.components.extended.mission.domain.mission_external_data import MissionExternalData
-from FreeTAKServer.components.extended.mission.domain.mission_info import MissionInfo
+from FreeTAKServer.components.core.domain.domain import MissionExternalData
+from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
-from FreeTAKServer.components.extended.mission.domain.mission_info_single import MissionInfoSingle
+from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
 from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
 from FreeTAKServer.core.util.serialization_utils import serialize_to_json
 from digitalpy.core.main.controller import Controller
@@ -21,12 +21,14 @@ class MissionExternalDataController(Controller):
         super().__init__(request, response, sync_action_mapper, configuration)
         self.persistency_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
         self.domain_controller = MissionDomainController(request, response, sync_action_mapper, configuration)
-        
+        self.changes_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
+
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.persistency_controller.initialize(request, response)
         self.domain_controller.initialize(request, response)
-        
+        self.changes_controller.initialize(request, response)
+
     def add_mission_external_data(self, mission_id: str, mission_external_data: Dict, config_loader, *args, **kwargs):
         external_data_db = self.persistency_controller.add_external_data(
             mission_id=mission_id,
@@ -35,8 +37,12 @@ class MissionExternalDataController(Controller):
             urlData=mission_external_data["urlData"],
             notes=mission_external_data["notes"],
             uid=mission_external_data["uid"],
-            urlView=mission_external_data["urlView"]
+            urlView=mission_external_data["urlView"],
+            creator_uid=mission_external_data["creatorUid"]
         )
+
+        self.changes_controller.create_mission_external_data_record(mission_id, mission_external_data["creatorUid"], external_data_db.id)
+
         external_data_domain = self.domain_controller.create_external_data_collection(config_loader)
         completed_external_data_collection = self.complete_mission_external_data_collection(external_data_domain, external_data_db, config_loader)
         

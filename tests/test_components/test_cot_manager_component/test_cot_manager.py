@@ -21,7 +21,7 @@ def test_connection(mock_load, mock_dump):
     mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
 
     # instantiate the facade
-    facade = CotManagement(None, setup.request, setup.response, None)
+    facade = CotManagement(None, None, setup.request, setup.response, None)
 
     # initialize the facade
     facade.initialize(setup.request, setup.response)
@@ -45,7 +45,7 @@ def test_get_repeated_messages(mock_load, mock_dump):
     mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
 
     # instantiate the facade
-    facade = CotManagement(None, setup.request, setup.response, None)
+    facade = CotManagement(None, None, setup.request, setup.response, None)
 
     # initialize the facade
     facade.initialize(setup.request, setup.response)
@@ -69,7 +69,7 @@ def test_create_repeated_message(mock_load, mock_dump):
     mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
 
     # instantiate the facade
-    facade = CotManagement(None, setup.request, setup.response, None)
+    facade = CotManagement(None, None, setup.request, setup.response, None)
 
     # initialize the facade
     facade.initialize(setup.request, setup.response)
@@ -93,7 +93,7 @@ def test_delete_repeated_message(mock_load, mock_dump):
     mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
 
     # instantiate the facade
-    facade = CotManagement(None, setup.request, setup.response, None)
+    facade = CotManagement(None, None, setup.request, setup.response, None)
 
     # initialize the facade
     facade.initialize(setup.request, setup.response)
@@ -116,7 +116,7 @@ def test_delete_non_existent_repeated_message(mock_load, mock_dump):
     mock_load.return_value = {str(setup.mock_node.get_oid()): setup.mock_node}
 
     # instantiate the facade
-    facade = CotManagement(None, setup.request, setup.response, None)
+    facade = CotManagement(None, None, setup.request, setup.response, None)
 
     # initialize the facade
     facade.initialize(setup.request, setup.response)

@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http:/freetakteam.fts.org/COT_Excheck_Notification_Update#",
+	"type": "object",
+	"properties":
+	{
+        "events":
+        {
+            "type": "object",
+            "anyOf":[
+                {"$ref": "#/definitions/events"}
+            ]
+        }
+    },
+    "definitions":
+    {
+        "events":
+        {
+            "type": "object",
+            "description": "The events of the mission",
+            "properties": {}
+        }
+    }
+}

@@ -2,10 +2,11 @@ import json
 from typing import List, Dict
 from uuid import uuid4
 from FreeTAKServer.components.extended.excheck.domain.mission_info import MissionInfo
+from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_general_controller import MissionGeneralController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
-from FreeTAKServer.components.extended.mission.domain.mission_log import MissionLog
+from FreeTAKServer.components.core.domain.domain import MissionLog
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 from FreeTAKServer.components.extended.mission.persistence.mission_log import MissionLog as DBMissionLog
 from FreeTAKServer.core.domain.node import Node
@@ -45,6 +46,7 @@ class MissionLogsController(Controller):
         self.persistency_controller = MissionPersistenceController(request, response, sync_action_mapper, configuration)
         self.domain_controller = MissionDomainController(request, response, sync_action_mapper, configuration)
         self.general_controller = MissionGeneralController(request, response, sync_action_mapper, configuration)
+        self.changes_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
         
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
@@ -53,19 +55,30 @@ class MissionLogsController(Controller):
         self.general_controller.initialize(request, response)
         
     def add_mission_log(self, mission_log_data: Dict, config_loader, *args, **kwargs):
+        """Add a mission log to the database"""
         log_db_obj = self.persistency_controller.create_log(
             id = str(uuid4()),
-            uid = mission_log_data["entryUid"], 
+            uid = mission_log_data.get("entryUid", str(uuid4())), 
             mission_ids=mission_log_data["missionNames"], 
             dtg=get_datetime_from_dtg(mission_log_data["dtg"]), 
             creatorUid=mission_log_data["creatorUid"], 
             servertime=get_current_datetime(), 
             created=get_current_datetime(), 
-            content=json.dumps(mission_log_data["contentHashes"]), 
-            keywords=json.dumps(mission_log_data["keywords"]))
+            contentHashes=json.dumps(mission_log_data.get("contentHashes", [])), 
+            contentUid=json.dumps(mission_log_data.get("contentUid", [])),
+            content = mission_log_data.get("content", ""),
+            keywords=json.dumps(mission_log_data["keywords"])
+        )
+        for mission_name in mission_log_data["missionNames"]:
+            self.changes_controller.create_mission_simple_content_upload_record(mission_name, mission_log_data["creatorUid"], mission_log_data.get("content", ""))
+        log_collection_domain_obj = self.domain_controller.create_log_collection(config_loader)
+        log_collection_domain_obj.version = "3"
+        log_collection_domain_obj.type = "com.bbn.marti.sync.model.LogEntry"
+        log_collection_domain_obj.nodeId = config.nodeID
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
-        serialized_message = serialize_to_json(completed_obj, self.request, self.execute_sub_action)
+        log_collection_domain_obj.data = completed_obj
+        serialized_message = serialize_to_json(log_collection_domain_obj, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_message)
         return serialized_message
@@ -91,7 +104,7 @@ class MissionLogsController(Controller):
         logs = [mission_log.log for mission_log in logs]
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
+        serialized_collection = serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("logs", serialized_collection)
         return serialized_collection
@@ -108,11 +121,11 @@ class MissionLogsController(Controller):
                 mission_ids=mission_log_data.get("missionNames"), 
                 dtg=dtg, 
                 creatorUid=mission_log_data.get("creatorUid"), 
-                content=json.dumps(mission_log_data.get("contentHashes")), 
-                keywords=json.dumps(mission_log_data.get("keywords")))
+                content=json.dumps(mission_log_data.get("contentHashes", [])), 
+                keywords=json.dumps(mission_log_data.get("keywords", [])))
         log_domain_obj = self.domain_controller.create_log(config_loader)
         completed_obj = self.complete_mission_log_object(log_domain_obj, log_db_obj)
-        serialized_message = self.general_controller.serialize_to_json(completed_obj, self.request, self.execute_sub_action)
+        serialized_message = serialize_to_json(completed_obj, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_message)
         return serialized_message
@@ -120,12 +133,14 @@ class MissionLogsController(Controller):
     def complete_mission_log_object(self, mission_log_domain_obj: MissionLog, log_db_obj: Log) -> MissionLog:
         """Completes the mission log object with the data from the database object"""
         mission_log_domain_obj.entryUid = log_db_obj.entryUid
+        mission_log_domain_obj.data = log_db_obj.content
         
         mission_log_domain_obj.dtg = get_dtg(log_db_obj.dtg)
         mission_log_domain_obj.creatorUid = log_db_obj.creatorUid
         mission_log_domain_obj.servertime = get_dtg(log_db_obj.servertime)
         mission_log_domain_obj.created = get_dtg(log_db_obj.created)
-        mission_log_domain_obj.contentHashes = json.loads(log_db_obj.content)
+        mission_log_domain_obj.contentHashes = json.loads(log_db_obj.contentHashes)
+        mission_log_domain_obj.content = log_db_obj.content
         mission_log_domain_obj.keywords = json.loads(log_db_obj.keywords)
         mission_log_domain_obj.id = log_db_obj.id
 
@@ -157,7 +172,7 @@ class MissionLogsController(Controller):
         log_collection_obj = self.domain_controller.create_log_collection(config_loader)
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
+        serialized_collection = serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("logs", serialized_collection)
         return serialized_collection
@@ -167,7 +182,7 @@ class MissionLogsController(Controller):
         log_collection_obj = self.domain_controller.create_log_collection(config_loader)
         completed_collection = self.complete_log_collection_object(log_collection_obj, logs, config_loader)
         
-        serialized_collection = self.general_controller.serialize_to_json(completed_collection, self.request, self.execute_sub_action)
+        serialized_collection = serialize_to_json(completed_collection, self.request, self.execute_sub_action)
         
         self.response.set_value("log", serialized_collection)
         return serialized_collection

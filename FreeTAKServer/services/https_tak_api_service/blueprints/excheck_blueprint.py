@@ -49,7 +49,7 @@ def startList(subscription):
 @page.route('/Marti/api/excheck/template', methods=['POST'])
 def template():
     try:
-        HTTPSTakApiCommunicationController().make_request("CreateTemplate", "excheck", {"templatedata": request.data}, None, False)
+        HTTPSTakApiCommunicationController().make_request("CreateTemplate", "excheck", {"templatedata": request.data, "creator_uid": request.args.get("creatorUid", request.args.get("clientUid", ""))}, None, False)
         return "done", 200
     except Exception as ex:
         print(ex)
@@ -63,17 +63,35 @@ def get_template(templateUid):
         print(ex)
         return '', 500
 
-@page.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
+"""@page.route('/Marti/api/missions/exchecktemplates', methods=['GET'])
 @page.route('/Marti/api/missions/ExCheckTemplates', methods=['GET'])
 def ExCheckTemplates():
     try:
-        return HTTPSTakApiCommunicationController().make_request("GetAllTemplates", "excheck", {}).get_value("template_info")
+        return_val = HTTPSTakApiCommunicationController().make_request("GetAllTemplates", "excheck", {}, None, True).get_value("template_info"), 200
+        return return_val
     except Exception as ex:
         print(ex)
         return '', 500
-"""
-# TODO: this needs to be moved out to the mission blueprint
-@page.route('/Marti/api/missions/<mission_id>', methods=['GET'])
+""" 
 def get_checklist_mission(mission_id):
-    return HTTPSTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}).get_value("mission_info")
-"""
+    return HTTPSTakApiCommunicationController().make_request("GetChecklistMission", "excheck", {"checklist_id": mission_id}, None, True).get_value("mission_info")
+
+@page.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
+def excheck_template_task(templateUid, taskUid):
+    if request.method == "GET":
+        return HTTPSTakApiCommunicationController().make_request("GetExcheckTemplateTask", "excheck", {templateUid, taskUid, request.data}).get_value("task_data")
+    elif request.method == "POST":
+        HTTPSTakApiCommunicationController().make_request("CreateExcheckTemplateTask", "excheck", {templateUid, taskUid, request.data}, None, False)
+        return "", 200
+
+
+@page.route('/Marti/api/excheck/checklist/<checklist_id>/mission/<mission_id>', methods=['PUT'])
+def add_checklist_to_mission(checklist_id, mission_id):
+    try:
+        client_uid = request.args.get("clientUid", "")
+        HTTPSTakApiCommunicationController().make_request("AddChecklistToMission", "excheck", {"checklist_id": checklist_id, "mission_id": mission_id, "client_uid": client_uid}, None, True)
+        HTTPSTakApiCommunicationController().make_request("MissionExternalDataCreatedNotification", "mission", {"external_data_id": checklist_id, "mission_id": mission_id}, None, synchronous=False)        
+        return '', 200
+    except Exception as ex:
+        print(ex)
+        return '', 500

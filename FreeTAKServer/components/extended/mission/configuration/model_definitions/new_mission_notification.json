@@ -117,7 +117,7 @@
 				"mission":
 				{
 					"$ref" : "#/definitions/mission",
-					"minItems" : 0,
+					"minItems" : 1,
 					"maxItems" : 1
 				}
 			}

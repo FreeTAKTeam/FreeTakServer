@@ -1,3 +1,4 @@
+from FreeTAKServer.components.extended.excheck.persistence.sqlalchemy.checklist_mission import ChecklistMission
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -13,6 +14,7 @@ from ..persistence.sqlalchemy.excheck_template_task import ExCheckTemplateTask
 from ..persistence.sqlalchemy.excheck_template import ExCheckTemplate
 from ..persistence.sqlalchemy.excheck_checklist import ExCheckChecklist
 from ..persistence.sqlalchemy.excheck_checklist_task import ExCheckChecklistTask
+from ..persistence.sqlalchemy.checklist_mission import ChecklistMission
 from ..persistence.sqlalchemy import ExcheckBase
 from ..configuration.excheck_constants import DB_PATH
 
@@ -29,6 +31,9 @@ class ExCheckPersistencyController(Controller):
         super().__init__(request, response, sync_action_mapper, configuration)
         self.ses = self.create_db_session()
         
+    def initialize(self, request: Request, response: Response):
+        super().initialize(request, response)
+
     def create_db_session(self) -> Session:
         """open a new session in the database
 
@@ -69,6 +74,23 @@ class ExCheckPersistencyController(Controller):
             checklist = ExCheckChecklist()
             checklist.PrimaryKey = checklistuid
             self.ses.add(checklist)
+            self.ses.commit()
+        except Exception as ex:
+            self.ses.rollback()
+            raise ex
+
+    def add_mission_checklist_mapping(self, checklist_uid:str, mission_id: str, *args, **kwargs):
+        """add a mapping between a checklist and a mission
+
+        Args:
+            checklist_uid (str): _description_
+            mission_id (str): _description_
+        """
+        try:
+            mapping = ChecklistMission()
+            mapping.checklist_uid = checklist_uid
+            mapping.mission_uid = mission_id
+            self.ses.add(mapping)
             self.ses.commit()
         except Exception as ex:
             self.ses.rollback()

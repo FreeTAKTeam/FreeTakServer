@@ -105,3 +105,37 @@ MISSION_SUBSCRIPTION_SIMPLE_LIST = "mission_subscription_simple_list"
 MISSION_EXTERNAL_DATA = "mission_external_data"
 
 MISSION_EXTERNAL_DATA_COLLECTION = "mission_external_data"
+
+MISSION_CHANGE_RECORD = "mission_change_record"
+
+MISSION_CONTENT_DATA = "mission_content_data"
+
+MISSION_CONTENT_NOTIFICATION= "mission_content_notification"
+
+MISSION_CHANGES_OBJ = "mission_changes_obj"
+
+MISSION_CHANGE_NOTIFICATION = "mission_change_notification"
+
+MISSION_COT_CHANGE = "mission_cot_change"
+
+MISSION_SIMPLE_COT_CHANGE = "mission_simple_cot_change"
+
+MISSION_COT_CONTENT = "mission_cot_content"
+
+MISSION_LIST_COT_CONTENT = "mission_list_cot_content"
+
+MISSION_EXTERNAL_DATA_NOTIFICATION = "mission_external_data_notification"
+
+MISSION_ROLE = "mission_role"
+
+MISSION_INVITATION_LIST = "mission_invitation_list"
+
+MISSION_INVITATION_NOTIFICATION = "mission_invitation_notification"
+
+MISSION_INVITATION = "mission_invitation"
+
+MISSION_PERMISSION = "mission_permission"
+
+EVENTS = "events"
+
+DETAILS = "details"

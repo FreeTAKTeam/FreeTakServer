@@ -718,7 +718,7 @@ class TCPCoTServiceMain(DigitalPyService):
         try:
             for data_object in clientDataOutput:
                 try:
-                    self.logger.debug(f"begginning processing {data_object.xmlString}")
+                    logger.debug(f"begginning processing {data_object.xmlString}")
                     # Skip this iteration if the data is invalid
                     if data_object == -1:
                         continue

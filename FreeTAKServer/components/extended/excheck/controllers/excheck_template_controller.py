@@ -1,5 +1,8 @@
 from typing import List
 import uuid
+from xml.etree.ElementTree import Element
+from FreeTAKServer.components.extended.excheck.controllers.excheck_domain_controller import ExcheckDomainController
+from FreeTAKServer.core.util.time_utils import get_current_dtg
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
@@ -12,16 +15,16 @@ import hashlib
 
 from lxml import etree
 
-from lxml.etree import Element
+from lxml.etree import Element as lxmlElement
 
 from datetime import datetime as dt
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
-from ..domain.mission_info import MissionInfo
-from ..domain.mission_data import MissionData
-from ..domain.mission_item import MissionItem
-from ..domain.mission_item_metadata import MissionItemMetaData
+from FreeTAKServer.components.core.domain.domain import MissionInfo
+from FreeTAKServer.components.core.domain.domain import MissionData
+from FreeTAKServer.components.core.domain.domain import MissionContentData
+from FreeTAKServer.components.core.domain.domain import MissionContent
 
 from .excheck_persistency_controller import ExCheckPersistencyController
 
@@ -47,18 +50,44 @@ class ExCheckTemplateController(Controller):
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
         self.persistency_controller = ExCheckPersistencyController(request, response, sync_action_mapper, configuration)
+        self.domain_controller = ExcheckDomainController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
         self.persistency_controller.initialize(request, response)
+        self.domain_controller.initialize(request, response)
 
-    def create_template(self, templatedata: str, *args, **kwargs):
+    def create_template_mission(self):
+        """create a new mission for the templates"""
+        self.request.set_value("mission_id", "exchecktemplates")
+        self.request.set_value("mission_data", b"")
+        self.request.set_value("mission_data_args",  {
+            'defaultRole': "MISSION_OWNER",
+            'tool': "ExCheck",
+            'downloaded': False,
+            'connected': True,
+            'isSubscribed': True,
+            'autoPublish': False,
+            'description': "",
+            'uids': [],
+            'contents': [],
+            'createTime': get_current_dtg(),
+            'passwordProtected': False,
+            'groups': [],
+            'serviceUri': ''})
+        self.request.set_value("creatorUid", "ExCheck")
+        self.request.set_context("mission")
+        self.execute_sub_action("PutMission")
+
+    def create_template(self, templatedata: str, creator_uid:str, *args, **kwargs):
         """record a new template in the component
 
         Args:
             templateuid (str): the uid of the new template
             templatedata (str): the content of the template
         """
+        if isinstance(templatedata, str):
+            templatedata = templatedata.encode("utf-8")
         parsed_template = etree.fromstring(templatedata)
         
         template_uid = parsed_template.find("checklistDetails").find("uid").text
@@ -69,7 +98,7 @@ class ExCheckTemplateController(Controller):
 
         for checklist_task in parsed_template.find("checklistTasks").findall("checklistTask"):
             if checklist_task.find("number") == None:
-                num_elem = Element("number")
+                num_elem = lxmlElement("number")
                 num_elem.text = b'0'
                 checklist_task.append(num_elem)
 
@@ -81,48 +110,19 @@ class ExCheckTemplateController(Controller):
                                                 parsed_template.find("checklistDetails").find("description").text,
                                                 parsed_template.find("checklistDetails").find("creatorCallsign").text])
         self.request.set_value("tool", "ExCheck")
+        self.request.set_value("creator_uid", creator_uid)
         self.request.set_value("mime_type", "application/xml")        
         self.request.set_value("objstarttime", self.get_time())
 
-        self.execute_sub_action("SaveEnterpriseSyncData")
+        save_metadata = self.execute_sub_action("SaveEnterpriseSyncData").get_value("objectmetadata")
 
-    def get_mission_info_object(self, config_loader):
-       
-        self.request.set_value("object_class_name", BASE_OBJECT_NAME)
+        self.request.set_value("mission_id", "exchecktemplates")
 
-        configuration = config_loader.find_configuration(TEMPLATE_CONTENT)
+        self.request.set_value("hashes", [save_metadata.hash])
 
-        self.request.set_value("configuration", configuration)
+        self.request.set_context("mission")
 
-        self.request.set_value("extended_domain", {"MissionData": MissionData, "MissionInfo": MissionInfo, "MissionItemMetaData": MissionItemMetaData, "MissionItem": MissionItem})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
-
-    def get_template_metadata_object(self, config_loader):
-
-        self.request.set_value("object_class_name", "MissionItemMetaData")
-
-        configuration = config_loader.find_configuration(TEMPLATE_METADATA)
-
-        self.request.set_value("configuration", configuration)
-
-        self.request.set_value("extended_domain", {"MissionItemMetaData": MissionItemMetaData, "MissionItem": MissionItem})
-
-        self.request.set_value(
-            "source_format", self.request.get_value("source_format")
-        )
-        self.request.set_value("target_format", "node")
-
-        response = self.execute_sub_action("CreateNode")
-
-        return response.get_value("model_object")
+        self.execute_sub_action("AddMissionContents")
 
     def get_template(self, templateuid: str, config_loader, *args, **kwargs) -> str:
         """get the contents of a template based on its UID
@@ -173,7 +173,7 @@ class ExCheckTemplateController(Controller):
             except Exception as ex:
                 logger.error("error adding template \n template: %s exception: %s", template, ex)
         
-        mission_info = self.get_mission_info_object(config_loader)
+        mission_info = self.domain_controller.get_mission_info_object(config_loader)
 
         self._serialize_to_mission_info(mission_info, complete_templates, template_metadata, config_loader, template_lengths)
 
@@ -212,18 +212,16 @@ class ExCheckTemplateController(Controller):
         # TODO: get time dynamically
         mission_data.createTime = "2023-02-22T16:06:26.979Z"
         mission_data.groups = []
-        mission_data.externalData = []
         mission_data.feeds = []
         mission_data.mapLayers = []
         mission_data.inviteOnly = False
         mission_data.expiration = -1
-        mission_data.uids = []
         mission_data.passwordProtected = False
-        template_metadata_list: List[MissionItemMetaData]= mission_data.contents
+        template_metadata_list: List[MissionContent]= mission_data.contents
         if len(template_metadata_list)>0 and len(templates)>0:
             self._serialize_template_metadata(template_metadata_list[0], templates[0], template_metadata_objs[0], template_lengths[0])
             for index in range(1, len(templates)):
-                template_metadata: MissionItemMetaData = self.get_template_metadata_object(config_loader)
+                template_metadata: MissionContent = self.domain_controller.get_template_metadata_object(config_loader)
                 mission_data.contents = template_metadata
                 self._serialize_template_metadata(template_metadata, templates[index], template_metadata_objs[index], template_lengths[index])
 
@@ -235,7 +233,7 @@ class ExCheckTemplateController(Controller):
         self._serialize_template_content(template, template_str, template_metadata, template_metadata_obj, template_len)
 
     def _serialize_template_content(self, template, template_str, template_metadata, template_metadata_obj, template_len):
-        template_content: MissionItem = template_metadata.data
+        template_content: MissionContentData = template_metadata.data
         template_details = template.find("checklistDetails")
 
         template_content.filename = template_details.find("uid").text+".xml"
