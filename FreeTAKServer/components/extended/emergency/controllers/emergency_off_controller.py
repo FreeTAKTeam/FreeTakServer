@@ -44,6 +44,9 @@ class EmergencyOffController(DefaultBusinessRuleController):
             internal_action_mapper=emergency_action_mapper,
         )
         self.emergency_general_controller = EmergencyGeneralController(request, response, sync_action_mapper, configuration)
+
+    def initialize(self, request, response):
+        super().initialize(request, response)
         self.emergency_general_controller.initialize(request, response)
 
     def execute(self, method=None):

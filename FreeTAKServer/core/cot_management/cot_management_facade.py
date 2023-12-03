@@ -1,4 +1,7 @@
+from FreeTAKServer.core.cot_management.controllers.cot_management_data_controller import COTManagementDataController
+from FreeTAKServer.core.cot_management.controllers.cot_management_persistence_controller import CoTManagementPersistenceController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
+from digitalpy.core.zmanager.impl.async_action_mapper import AsyncActionMapper
 
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_controller import CotManagementRepeaterController
 from FreeTAKServer.core.cot_management.controllers.cot_management_geo_object_controller import CotManagementGeoObjectController
@@ -33,6 +36,7 @@ class CotManagement(DefaultFacade):
         request,
         response,
         configuration,
+        action_mapper: AsyncActionMapper=None,
         tracing_provider_instance=None,
     ):
         super().__init__(
@@ -64,13 +68,15 @@ class CotManagement(DefaultFacade):
         self.repeater_controller = CotManagementRepeaterController(request, response, sync_action_mapper, configuration)
         self.geo_object_controller = CotManagementGeoObjectController(request, response, sync_action_mapper, configuration)
         self.general_controller = COTManagementGeneralController(request, response, sync_action_mapper, configuration)
+        self.data_controller = COTManagementDataController(request, response, sync_action_mapper, configuration)
+        self.injected_values["action_mapper"] = action_mapper
 
-    
     def initialize(self, request, response):
         super().initialize(request, response)
         self.repeater_controller.initialize(request, response)
         self.geo_object_controller.initialize(request, response)
         self.general_controller.initialize(request, response)
+        self.data_controller.initialize(request, response)
 
     def execute(self, method):
         try:
@@ -111,3 +117,7 @@ class CotManagement(DefaultFacade):
     @DefaultFacade.public
     def default_cot_processor(self, *args, **kwargs):
         self.general_controller.handle_default_cot(**kwargs)
+
+    @DefaultFacade.public
+    def get_cot(self, *args, **kwargs):
+        self.data_controller.get_saved_cot(**kwargs)

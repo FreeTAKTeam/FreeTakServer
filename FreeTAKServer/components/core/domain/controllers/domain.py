@@ -51,18 +51,18 @@ class Domain(Controller):
         if id is None:
             id = str(uuid.uuid1())
         # allow the domain to be extended
-        self.domain = self._extend_domain(self.domain, kwargs.get('extended_domain', {}))
+        domaindict = self._extend_domain(self.domain, kwargs.get('extended_domain', {}))
         # retrieve the original object class
-        object_class = getattr(self.domain, object_class_name)
+        object_class = domaindict[object_class_name]
         # instantiate an oid for the instance
         oid = ObjectFactory.get_instance("ObjectId", {"id": id, "type": object_class_name})
         # instantiate the object class
-        object_class_instance = object_class(configuration, self.domain, oid=oid)
+        object_class_instance = object_class(configuration, domaindict, oid=oid)
         # set the module object
         self.response.set_value("model_object", object_class_instance)
         return object_class_instance
 
-    def _extend_domain(self, domain: ModuleType, extended_domain: dict) -> ModuleType:
+    def _extend_domain(self, domain: ModuleType, extended_domain: dict) -> dict:
         """this method is responsible for adding domain extensions from a given component
 
         Args:
@@ -72,9 +72,10 @@ class Domain(Controller):
         Returns:
             ModuleType: an updated domain
         """
+        domaindict = domain.__dict__.copy()
         for key, value in extended_domain.items():
-            setattr(domain, key, value)
-        return domain
+            domaindict[key] = value
+        return domaindict
 
     def delete_child(self, node: Node, child_id: str, **kwargs):
         """delete a child node

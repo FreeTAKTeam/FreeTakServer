@@ -1,6 +1,8 @@
 from typing import List
 import uuid
+from FreeTAKServer.components.extended.excheck.controllers.excheck_domain_controller import ExcheckDomainController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_template_controller import ExCheckTemplateController
+from FreeTAKServer.components.extended.excheck.controllers.excheck_xml_controller import ExCheckXMLController
 from FreeTAKServer.components.extended.excheck.controllers.excheck_wintak_adapter import ExCheckWintakAdapter
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
@@ -16,6 +18,8 @@ import hashlib
 from datetime import datetime as dt
 
 from xml.etree.ElementTree import Element as etElement
+
+from xml import etree as xEtree
 
 from lxml.etree import Element
 from lxml import etree
@@ -50,6 +54,7 @@ class ExCheckChecklistController(Controller):
         self.template_controller = ExCheckTemplateController(request, response, sync_action_mapper, configuration)
         self.wintak_adapter = ExCheckWintakAdapter(request, response, sync_action_mapper, configuration)
         self.mission_controller = ExCheckMissionController(request, response, sync_action_mapper, configuration)
+        self.domain_controller = ExcheckDomainController(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
@@ -57,7 +62,8 @@ class ExCheckChecklistController(Controller):
         self.persistency_controller.initialize(request, response)
         self.wintak_adapter.initialize(request, response)
         self.mission_controller.initialize(request, response)
-
+        self.domain_controller.initialize(request, response)
+        
     def start_checklist(self, templateuid: str, checklistname: str, checklist_description: str,  config_loader, checklist_content: bytes=b"", *args, **kwargs):
         """record a new checklist in the component
 
@@ -114,6 +120,8 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("objectuid", checklist_uuid)
         self.request.set_value("objkeywords", ["Template"])
         self.request.set_value("objstarttime", start_time)
+        self.request.set_value("tool", "ExCheck")
+        self.request.set_value("mime_type", "application/xml")
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
@@ -122,6 +130,34 @@ class ExCheckChecklistController(Controller):
         # for checklist_task in checklist_task_list:
         #     checklist_tasks.append(checklist_task)
         checklist_string = etree.tostring(parsed_checklist, xml_declaration=True, encoding='UTF-8')
+
+        self.request.set_value("mission_id", checklist_uuid)
+        self.request.set_value("mission_data", b'')
+        self.request.set_value("mission_data_args", {
+            'defaultRole': "MISSION_OWNER",
+            'tool': 'ExCheck',
+            'downloaded': False,
+            'connected': True,
+            'isSubscribed': True,
+            'autoPublish': False,
+            'description': checklist_description,
+            'uids': [],
+            'contents': [
+                {
+
+                }
+            ],
+            'createTime': start_time,
+            'passwordProtected': False,
+            'groups': [],
+            'serviceUri': '',
+            'classification': 'UNCLASSIFIED'})
+        self.request.set_value("creatorUid", "ExCheck")
+
+        self.request.set_context("mission")
+
+        self.execute_sub_action("PutMission")
+
         self.response.set_value("checklist", checklist_string)
         return checklist_string
     
@@ -151,7 +187,7 @@ class ExCheckChecklistController(Controller):
 
         return checklist_task_list
 
-    def update_checklist_task(self, checklistuid, checklisttaskuid, checklisttaskdata, *args, **kwargs):
+    def update_checklist_task(self, checklistuid, checklisttaskuid, checklisttaskdata, client_uid="anonymous", *args, **kwargs):
         
         checklisttaskdata = self.wintak_adapter.standardize_task(checklisttaskdata)
 
@@ -170,16 +206,21 @@ class ExCheckChecklistController(Controller):
 
         tasks = checklist_tasks.findall("checklistTask")
 
+        old_task = None
         for task in tasks:
             if task.find("uid").text == checklisttaskuid:
-                checklist_tasks.remove(task)
-                checklist_tasks.append(ElementTree.fromstring(checklisttaskdata))
+                old_task = task
                 break
+
+        checklist_tasks.remove(old_task)
+        checklist_tasks.append(ElementTree.fromstring(checklisttaskdata))
 
         self.request.set_value("synctype", "ExCheckChecklist")
         self.request.set_value("objectdata", ElementTree.tostring(checklist_data_elem))
         self.request.set_value("objectuid", checklistuid)
         self.execute_sub_action("UpdateEnterpriseSyncData")
+
+        
 
         return "done"
     
@@ -307,14 +348,15 @@ class ExCheckChecklistController(Controller):
         self.request.set_value("objectuid", taskuid)
         self.request.set_value("objkeywords", ["Task"])
         self.request.set_value("objstarttime", self.get_time())
-
+        self.request.set_value("tool", "ExCheck")
+        self.request.set_value("mime_type", "application/xml")
 
         self.execute_sub_action("SaveEnterpriseSyncData")
 
         self.persistency_controller.create_checklist_task(checklistuid, taskuid)
 
     def get_checklist_mission(self, checklist_id, config_loader, *args, **kwargss):
-        mission_info = self.mission_controller.get_mission_info_object(config_loader)
+        mission_info = self.domain_controller.get_mission_info_object(config_loader)
         checklist_db_obj = self.persistency_controller.get_checklist(checklist_id)
         
         mission_uids = [checklist_task.PrimaryKey for checklist_task in checklist_db_obj.tasks]
@@ -330,3 +372,28 @@ class ExCheckChecklistController(Controller):
         self.response.set_value("mission_info", final_message[0])
         
         return final_message[0]
+
+    def add_checklist_to_mission(self, checklist_id, mission_id, client_uid, *args, **kwargs):
+        self.request.set_value("objectuid", checklist_id)
+        self.request.set_value("use_bytes", True)
+        sub_resp = self.execute_sub_action("GetEnterpriseSyncData")
+        checklist_content = sub_resp.get_value("objectdata")
+        checklist = etree.fromstring(checklist_content)
+        checklist_name = checklist.find("checklistDetails").find("name").text
+        checklist = self.persistency_controller.get_checklist(checklist_id)
+        self.request.set_value("mission_id", mission_id)
+        self.request.set_context("mission")
+        self.request.set_value("mission_external_data", {
+            "name": checklist_name,
+            "uid": checklist.PrimaryKey,
+            "tool": "ExCheck",
+            "notes": client_uid +" added "+checklist_name,
+            "urlData": "https://"+config.DataPackageServiceDefaultIP+":"+str(config.HTTPSTakAPIPort)+"/Marti/api/excheck/checklist/"+checklist.PrimaryKey,
+            "urlView": "https://"+config.DataPackageServiceDefaultIP+":"+str(config.HTTPSTakAPIPort)+"/Marti/api/excheck/checklist/"+checklist.PrimaryKey+"/status",
+            "creatorUid": client_uid
+        })
+        resp = self.execute_sub_action("CreateExternalMissionData")
+
+        self.persistency_controller.add_mission_checklist_mapping(checklist_id, mission_id)
+
+        return resp.get_value("mission_external_data")

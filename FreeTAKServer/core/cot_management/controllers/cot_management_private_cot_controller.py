@@ -31,6 +31,8 @@ class CoTManagementPrivateCoTController(Controller):
             is to be sent to all clients
         """
         recipients = []
+        if model_object == None:
+            print("empty object")
         # validate the Marti tag exists
         if not hasattr(model_object.detail, "marti") or len(model_object.detail.marti.dest)<1 or model_object.detail.marti.dest[0].callsign == None:
             return "*"

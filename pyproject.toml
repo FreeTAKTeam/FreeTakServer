@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "FreeTAKServer"
-version = "0.2.1.1"
+version = "0.2.1.a1"
 description = "An open source server for the TAK family of applications."
 authors = ["FreeTAKTeam <FreeTakTeam@gmail.com>"]
 readme = "README.md"
@@ -8,6 +8,7 @@ packages = [
     {include = "FreeTAKServer"}
     ]
 include = ["FreeTAKServer/**/*.json", "FreeTAKServer/**/*.py", "FreeTAKServer/**/*.ini", "FreeTAKServer/**/*.conf"]
+
 [tool.poetry.dependencies]
 python = "^3.11"
 bitarray="*"
@@ -52,18 +53,16 @@ pillow="9.3.0"
 asyncio="3.4.3"
 xmltodict="*"
 pyzmq="*"
-digitalpy="^0.3.13.2"
+digitalpy="0.3.13.7"
 opentelemetry-sdk="*"
 PyJWT="*"
-FreeTAKServer_UI = {version = "*", optional = true}
+FreeTAKServer_UI = {version = "0.2.1.1", optional = true}
 pytak = {version = "5.4.1", optional = true}
 pytest = {version = "7.2.0", optional = true}
 pytest-asyncio = {version = "0.20.1", optional = true}
-
 [tool.poetry.extras]
 ui = ["FreeTAKServer_UI"]
 dev = ["pytak", "pytest", "pytest-asyncio"]
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

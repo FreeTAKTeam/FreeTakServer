@@ -17,7 +17,7 @@ class Subscription(MissionBase):
     
     role: Role = relationship("Role")
     
-    role_id = Column(String(1000), ForeignKey("role.role_type"))
+    role_id = Column(String(1000), ForeignKey("Role.role_type"))
     
     token: str = Column(String(1000)) # type: ignore
 
@@ -26,3 +26,5 @@ class Subscription(MissionBase):
     mission_uid = Column(String, ForeignKey(Mission.PrimaryKey))
 
     mission : Mission = relationship(Mission, back_populates="mission_subscriptions")
+
+    invitation = relationship("MissionInvitation", back_populates="subscription")

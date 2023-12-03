@@ -1,9 +1,11 @@
 from sqlalchemy import Column
+from FreeTAKServer.components.extended.excheck.persistence.sqlalchemy.checklist_mission import ChecklistMission
 from FreeTAKServer.model.SQLAlchemy.Root import Base
 from sqlalchemy import String
 from sqlalchemy import DateTime
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 class ExCheckChecklist(Base):
     __tablename__ = "ExCheckChecklist"
@@ -16,3 +18,4 @@ class ExCheckChecklist(Base):
     uid = Column(String(100))
     filename = Column(String(100))
     template_id = Column(Integer, ForeignKey('ExCheck.PrimaryKey'))
+    related_missions = Column(String(100))

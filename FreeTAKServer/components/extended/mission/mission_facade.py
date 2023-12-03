@@ -1,10 +1,15 @@
+from FreeTAKServer.components.extended.mission.controllers.mission_change_controller import MissionChangeController
+from FreeTAKServer.components.extended.mission.controllers.mission_cot_controller import MissionCOTController
 from FreeTAKServer.components.extended.mission.controllers.mission_external_data_controller import MissionExternalDataController
 from FreeTAKServer.components.extended.mission.controllers.mission_hierarchy_controller import MissionHierarchyController
+from FreeTAKServer.components.extended.mission.controllers.mission_invitation_controller import MissionInvitationController
 from FreeTAKServer.components.extended.mission.controllers.mission_logs_controller import MissionLogsController
+from FreeTAKServer.components.extended.mission.controllers.mission_notification_controller import MissionNotificationController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_subscription_controller import MissionSubscriptionController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 from .controllers.mission_general_controller import MissionGeneralController
+from digitalpy.core.zmanager.impl.async_action_mapper import AsyncActionMapper
 
 from .configuration.mission_constants import (
     ACTION_MAPPING_PATH,
@@ -26,6 +31,7 @@ class Mission(DefaultFacade):
         request,
         response,
         configuration,
+        action_mapper: AsyncActionMapper=None,
         tracing_provider_instance=None,
     ):
         super().__init__(
@@ -60,19 +66,29 @@ class Mission(DefaultFacade):
         self.logs_controller = MissionLogsController(request, response, sync_action_mapper, configuration)
         self.hierarchy_controller = MissionHierarchyController(request, response, sync_action_mapper, configuration)
         self.external_data_controller = MissionExternalDataController(request, response, sync_action_mapper, configuration)
+        self.change_controller = MissionChangeController(request, response, sync_action_mapper, configuration)
+        self.notification_controller = MissionNotificationController(request, response, sync_action_mapper, configuration)
+        self.cot_controller = MissionCOTController(request, response, sync_action_mapper, configuration)
+        self.invitations_controller = MissionInvitationController(request, response, sync_action_mapper, configuration)
+        self.injected_values["action_mapper"] = action_mapper
 
     def initialize(self, request, response):
         super().initialize(request, response)
+        self.invitations_controller.initialize(request, response)
         self.general_controller.initialize(request, response)
         self.persistence_controller.initialize(request, response)
         self.subscription_controller.initialize(request, response)
         self.logs_controller.initialize(request, response)
         self.hierarchy_controller.initialize(request, response)
         self.external_data_controller.initialize(request, response)
-    
+        self.change_controller.initialize(request, response)
+        self.notification_controller.initialize(request, response)
+        self.cot_controller.initialize(request, response)
+        
     def execute(self, method):
         try:
             if hasattr(self, method):
+                print("executing method "+method)
                 getattr(self, method)(**self.request.get_values())
             else:
                 self.request.set_value("logger", self.logger)
@@ -171,3 +187,55 @@ class Mission(DefaultFacade):
     @DefaultFacade.public
     def add_mission_external_data(self, *args, **kwargs):
         self.external_data_controller.add_mission_external_data(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_mission_changes(self, *args, **kwargs):
+        self.change_controller.get_mission_changes(*args, **kwargs)
+
+    @DefaultFacade.public
+    def mission_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_mission_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def mission_content_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_content_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def mission_external_data_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_external_data_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def mission_log_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_log_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def create_mission_cot(self, *args, **kwargs):
+        self.cot_controller.create_mission_cot(*args, **kwargs)
+    
+    @DefaultFacade.public
+    def create_mission_geofence(self, *args, **kwargs):
+        self.cot_controller.create_mission_geofence(*args, **kwargs)
+
+    @DefaultFacade.public
+    def create_mission_video_alias(self, *args, **kwargs):
+        self.cot_controller.create_mission_video_alias(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_mission_cots(self, *args, **kwargs):
+        self.cot_controller.get_mission_cots(*args, **kwargs)
+
+    @DefaultFacade.public
+    def send_cot_created_notification(self, *args, **kwargs):
+        self.notification_controller.send_cot_created_notification(*args, **kwargs)
+
+    @DefaultFacade.public
+    def get_invitations(self, *args, **kwargs):
+        self.invitations_controller.get_invitations(*args, **kwargs)
+
+    @DefaultFacade.public
+    def send_invitation(self, *args, **kwargs):
+        self.invitations_controller.send_invitation(*args, **kwargs)
+
+    @DefaultFacade.public
+    def send_external_data_update_notification(self, *args, **kwargs):
+        self.notification_controller.send_external_data_updated_notification(*args, **kwargs)

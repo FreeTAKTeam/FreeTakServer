@@ -223,14 +223,6 @@ def getDataPackageTool(hash):
     return resp
 """
 
-@app.route('/Marti/sync/search', methods=[const.GET])
-def retrieveData():
-    logger.info('sync search triggered')
-    keyword = request.args.get('keyword')
-    packages = FlaskFunctions().getAllPackages()
-    app.logger.info(f"Data packages in the database: {packages}")
-    return str(packages)
-
 @app.route('/Marti/api/version', methods=[const.GET])
 def returnVersion():
     logger.info('api version triggered')
@@ -277,12 +269,7 @@ def home():
     @app.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
 """
 
-@app.route('/Marti/api/excheck/template/<templateUid>/task/<taskUid>', methods=['GET', 'PUT','DELETE','POST'])
-def excheck_template_task(templateUid, taskUid):
-    if request.method == "GET":
-        return ExCheckController().get_excheck_template_task(templateUid, taskUid, request.data)
-    elif request.method == "POST":
-        return ExCheckController().create_excheck_template_task(templateUid, taskUid, request.data)
+
 
 @app.route('/Marti/api/missions/exchecktemplates/changes', methods=['GET'])
 def check_changes():
@@ -297,66 +284,24 @@ def check_changes():
     except Exception as e:
         print('exception in check changes' + str(e))
 
-"""
-# TODO remove?
-@app.route('/Marti/api/missions/exchecktemplates/subscription', methods=['PUT'])
-def request_subscription():
+@app.route('/Marti/api/missions/<mission_id>', methods=['GET'])
+def get_mission(mission_id):
     try:
-        # this endpoint allows for the client to request a new subscription
-        # possibly the uid of the client db also contains create_time and mission_id
-        print(request.args.get('uid'))
-
-        return ('', 200)
-    except Exception as e:
-        print('exception in request_subscription' + str(e))
-"""
-""" 
-@app.route('/Marti/api/missions/<templateuid>/subscription', methods=['DELETE', 'PUT'])
-def missionupdate(templateuid):
-    from flask import request
-    uid = request.args.get('uid')
-    return '', 200
-"""
-"""
-@app.route('/Marti/sync/content', methods=const.HTTPMETHODS)
-def specificPackage():
-    from defusedxml import ElementTree as etree
-    from os import listdir
-    try:
-        if request.method == 'GET' and request.args.get('uid') != None:
-            dp_request = ObjectFactory.get_instance("request")
-            dp_response = ObjectFactory.get_instance("response")
-            enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-            enterprisesync_facade.initialize(dp_request, dp_response)
-            enterprisesync_facade.get_enterprise_sync_data(objectuid = request.args.get('uid'))
-            return dp_response.get_value("objectdata"), 200
+        # this endpoint returns the mission data for a specific mission
+        is_excheck: bool = False
+        if is_excheck:
+            return excheck_blueprint.get_checklist_mission(mission_id)
         else:
-            file_hash = sanitize_hash(request.args.get('hash'))
-
-            if os.path.exists(str(PurePath(Path(dp_directory), Path(file_hash)))):
-                logger.info('marti sync content triggerd')
-                app.logger.debug(str(PurePath(Path(dp_directory), Path(file_hash))))
-                file_list = os.listdir(str(PurePath(Path(dp_directory), Path(file_hash))))
-                app.logger.debug(PurePath(Path(const.DATAPACKAGEFOLDER), Path(file_hash), Path(file_list[0])))
-                path = PurePath(dp_directory, str(file_hash), file_list[0])
-                app.logger.debug(str(path))
-                return send_file(str(path))
-            else:
-                dp_request = ObjectFactory.get_instance("request")
-                dp_response = ObjectFactory.get_instance("response")
-                enterprisesync_facade = ObjectFactory.get_instance("EnterpriseSync")
-                enterprisesync_facade.initialize(dp_request, dp_response)
-                enterprisesync_facade.get_enterprise_sync_data(objecthash = request.args.get('hash'))
-                return dp_response.get_value("objectdata"), 200
+            return mission_blueprint.get_mission(mission_id)
     except Exception as ex:
-        print(ex)
-        return '', 500
+        return str(ex), 500
+    
+# TODO re-implement for DP in blueprint
 """
-
 @app.route('/Marti/api/excheck/checklist/', methods=["POST"])
 def update_checklist():
     return ExCheckController().update_checklist()
-
+"""
 # TODO remove?
 def sanitize_path_input(user_input: str) -> bool:
     """ this function takes a file hash and validates it's
@@ -380,7 +325,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 APPLICATION_PROTOCOL = "xml"
-API_REQUEST_TIMEOUT = 5000
+API_REQUEST_TIMEOUT = 30
 
 from eventlet import listen, wrap_ssl, wsgi
 import ssl

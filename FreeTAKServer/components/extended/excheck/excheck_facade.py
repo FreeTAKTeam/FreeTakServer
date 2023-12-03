@@ -85,6 +85,10 @@ class Excheck(DefaultFacade):
         except Exception as e:
             self.logger.fatal(str(e))
             
+    def register(self, *args, **kwargs):
+        super().register(*args, **kwargs)
+        self.template_controller.create_template_mission()
+
     @DefaultFacade.public
     def create_template(self, *args, **kwargs):
         return self.template_controller.create_template(*args, **kwargs)
@@ -124,3 +128,7 @@ class Excheck(DefaultFacade):
     @DefaultFacade.public
     def get_checklist_mission(self, *args, **kwargs):
         return self.checklist_controller.get_checklist_mission(*args, **kwargs)
+
+    @DefaultFacade.public
+    def add_checklist_to_mission(self, *args, **kwargs):
+        return self.checklist_controller.add_checklist_to_mission(*args, **kwargs)

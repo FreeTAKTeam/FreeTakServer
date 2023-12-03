@@ -2,6 +2,7 @@
 *.log.*
 *.db
 DataPackages/
+persistence/enterprise_sync/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -417,3 +418,7 @@ persistence/enterprise_sync/ExCheckTemplate/82fce4b6-b264-4f45-877f-90be75212ea9
 persistence/enterprise_sync/datapackage/4d77e09cde4aea432ab2ab60407b52f2127aab586938bbe58d16689807d8bce4.txt
 persistence/installation.json
 persistence/FTSConfig.yaml
+persistence/installation.json
+poetry.lock
+persistence/FTSConfig.yaml
+pyproject.toml

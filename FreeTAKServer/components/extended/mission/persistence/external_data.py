@@ -1,13 +1,17 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from typing import TYPE_CHECKING
+
+from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
+
+from .mission import Mission
 
 from . import MissionBase
-from .mission import Mission
 
 class ExternalData(MissionBase):
     __tablename__ = 'external_data'
     
-    id: int = Column(Integer, primary_key=True, autoincrement=True) # type: ignore
+    id: int = Column(String, primary_key=True) # type: ignore
     
     name:str = Column(String) # type: ignore
     
@@ -23,3 +27,7 @@ class ExternalData(MissionBase):
     
     mission_uid = Column(String, ForeignKey(Mission.PrimaryKey))
     mission : Mission = relationship(Mission, back_populates="externalData")
+
+    change: MissionChange = relationship(MissionChange, back_populates="external_data")
+
+    creator_uid: str = Column(String) # type: ignore

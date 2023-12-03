@@ -1,7 +1,5 @@
 from flask import Flask, request, jsonify, session, send_file, views
-from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
-from flask_httpauth import HTTPTokenAuth
 from flask_login import current_user, LoginManager
 import threading
 from functools import wraps
@@ -17,6 +15,8 @@ import qrcode
 import io
 from typing import Dict, List
 import time
+from FreeTAKServer.services.rest_api_service.controllers.rest_api_communication_controller import RestAPICommunicationController
+
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.main.object_factory import ObjectFactory
@@ -56,14 +56,13 @@ from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.core.serializers.SqlAlchemyObjectController import SqlAlchemyObjectController
 from FreeTAKServer.components.extended.excheck.controllers.ExCheckController import ExCheckController
 from .views.connections_view_controller import ManageConnections
+from .controllers.authentication import auth
 
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
-auth = HTTPTokenAuth(scheme='Bearer')
 app.config['SQLALCHEMY_DATABASE_URI'] = DatabaseConfiguration().DataBaseConnectionString
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 CORS(app)
 socketio = SocketIO(app, async_handlers=True, async_mode="eventlet")
 socketio.init_app(app, cors_allowed_origins="*")
@@ -91,33 +90,10 @@ defaultValues.default_values()
 loggingConstants = LoggingConstants(log_name="FTS-RestAPI_Service")
 logger = CreateLoggerController("FTS-RestAPI_Service", logging_constants=loggingConstants).getLogger()
 
-#TODO Change everything about this
-def init_config():
-    global dbController
-
-    dbController = DatabaseController()
-    dbController.session = db.session
-
 
 @app.errorhandler(404)
 def page_not_found(e):
     return 'this endpoint does not exist'
-
-
-@auth.verify_token
-def verify_token(token):
-    if token:
-        output = dbController.query_APIUser(query=f'token = "{token}"')
-        if output:
-            return output[0].Username
-        else:
-            output = dbController.query_systemUser(query=f'token = "{token}"')
-            if output:
-                output = output[0]
-                r = request
-                dbController.create_APICall(user_id=output.uid, timestamp=dt.datetime.now(), content=request.data,
-                                            endpoint=request.base_url)
-                return output.name
 
 
 def socket_auth(session=None):
@@ -280,6 +256,7 @@ def systemUsers(empty=None):
 
     emit('systemUsersUpdate', json.dumps(jsondata))
 
+
 @app.route('/ManageSystemUser/getAll', methods=["GET"])
 @auth.login_required
 def getSystemUsersRest():
@@ -291,6 +268,7 @@ def getSystemUsersRest():
     except Exception as e:
         logger.error(str(e))
         return "An error occured attempting to retrieve user(s).", 500
+
 
 def get_system_users():
     systemUserArray = DatabaseController().query_systemUser()
@@ -315,6 +293,7 @@ def systemUsers(empty=None):
 
     emit('systemUsersUpdate', json.dumps(jsondata))
 
+
 @app.route('/ManageSystemUser/getSystemUser', methods=["GET"])
 @auth.login_required
 def getSystemUserRest():
@@ -325,7 +304,8 @@ def getSystemUserRest():
         return json.dumps(jsondata), 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to retrieve user.", 500
+        return "An error occurred attempting to retrieve user.", 500
+
 
 def get_system_user(jsondata):
     systemUserArray = DatabaseController().query_by_systemUser(**jsondata)
@@ -354,6 +334,7 @@ def updateSystemUserWebsocket(jsondata):
         logger.error(str(e))
         return "An error occured attempting to update user.", 500
 
+
 @app.route('/ManageSystemUser/putSystemUser', methods=["PUT"])
 @auth.login_required
 def updateSystemUserRest():
@@ -361,10 +342,11 @@ def updateSystemUserRest():
     """
     try:
         updateSystemUser(request.json)
-        return 'user updated', 200
+        return {'message': 'user updated'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to update user.", 500
+        return {"message": "An error occured attempting to update user."}, 500
+
 
 def updateSystemUser(jsondata):
     """ this function updates an existing system user entry in the database. User id must be provided if user with specified id doesn't
@@ -373,6 +355,8 @@ def updateSystemUser(jsondata):
         jsondata: dict
     Returns: None
     """
+    from .controllers.persistency import dbController
+
     for systemuser in jsondata['systemUsers']:
         update_column = {}
 
@@ -395,8 +379,10 @@ def addSystemUserWebsocket(jsondata):
         addSystemUser(json.loads(jsondata))
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to add user(s) to the system.", 500
+        return {"message": "An error occured attempting to add user(s) to the system."}, 500
 
+
+'''
 @app.route('/ManageSystemUser/postSystemUser', methods=["POST"])
 @auth.login_required
 def addSystemUserRest():
@@ -407,10 +393,13 @@ def addSystemUserRest():
     except Exception as e:
         logger.error(str(e))
         return "An error occured attempting to add user(s) to the system.", 500
+'''
+
 
 def addSystemUser(jsondata):
     """ method which adds new system user
     """
+    from .controllers.persistency import dbController
     errors = []
     for systemuser in jsondata['systemUsers']:
         try:
@@ -424,9 +413,11 @@ def addSystemUser(jsondata):
                 # create certs
                 certificate_generation.AtakOfTheCerts().bake(common_name=cert_name)
                 if systemuser["DeviceType"].lower() == "wintak":
-                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12',  server_address=config.UserConnectionIP)
+                    certificate_generation.generate_wintak_zip(user_filename=cert_name + '.p12',
+                                                               server_address=config.UserConnectionIP)
                 elif systemuser["DeviceType"].lower() == "mobile":
-                    certificate_generation.generate_standard_zip(user_filename=cert_name+'.p12',  server_address=config.UserConnectionIP)
+                    certificate_generation.generate_standard_zip(user_filename=cert_name + '.p12',
+                                                                 server_address=config.UserConnectionIP)
                 else:
                     raise Exception("invalid device type, must be either mobile or wintak")
                 # add DP
@@ -440,8 +431,9 @@ def addSystemUser(jsondata):
                 dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
                 openfile = open(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
                                 mode='rb')
+
                 file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-                openfile.close()
+                openfile.seek(0)
                 newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
                 os.mkdir(newDirectory)
                 shutil.copy(str(PurePath(Path(str(config.ClientPackages), cert_name + '.zip'))),
@@ -451,9 +443,20 @@ def addSystemUser(jsondata):
                                                 SubmissionUser='server',
                                                 CreatorUid='server-uid', Size=fileSize, Privacy=1)
                 dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                token=systemuser["Token"], password=systemuser["Password"],
-                                                uid=user_id,
-                                                certificate_package_name=cert_name + '.zip', device_type = systemuser["DeviceType"])
+                                               token=systemuser["Token"], password=systemuser["Password"],
+                                               uid=user_id,
+                                               certificate_package_name=cert_name + '.zip',
+                                               device_type=systemuser["DeviceType"])
+                data = openfile.read()
+                RestAPICommunicationController().make_request(
+                    "SaveEnterpriseSyncData", "",
+                    {"file_name": cert_name + '.zip', "objecthash": file_hash,
+                     "objectdata": data,
+                     "objkeywords": [cert_name + '.zip', user_id, "missionpackage"],
+                     "mime_type": "application/zip", "tool": "public",
+                     "synctype": "datapackage", "objectuid": file_hash,
+                     "length": len(data), "privacy": 1},
+                    None, True)
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
                 now = timer.utcnow()
@@ -477,8 +480,8 @@ def addSystemUser(jsondata):
             else:
                 # in the event no certificate is to be generated simply create a system user
                 dbController.create_systemUser(name=systemuser["Name"], group=systemuser["Group"],
-                                                token=systemuser["Token"], password=systemuser["Password"],
-                                                uid=user_id, device_type = systemuser["DeviceType"])
+                                               token=systemuser["Token"], password=systemuser["Password"],
+                                               uid=user_id, device_type=systemuser["DeviceType"])
         except Exception as e:
             logger.error(str(e))
             if isinstance(systemuser, dict) and "Name" in systemuser:
@@ -487,11 +490,12 @@ def addSystemUser(jsondata):
                 errors.append(f"operation failed for user. missing name parameter.")
 
     if len(errors) == 0:
-        return "all users created", 201
-    elif len(errors)<len(jsondata['systemUsers']):
-        return ", ".join(errors), 201
+        return {"message": "all users created"}, 201
+    elif len(errors) < len(jsondata['systemUsers']):
+        return {"message": ", ".join(errors)}, 201
     else:
-        return "all users failed to create "+", ".join(errors), 500
+        return {"message": "all users failed to create " + ", ".join(errors)}, 500
+
 
 @socketio.on("removeSystemUser")
 @socket_auth(session=session)
@@ -502,7 +506,8 @@ def removeSystemUserWebsocket(jsondata):
         removeSystemUser(json.loads(jsondata))
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to remove the user(s).", 500
+        return {"message": "An error occurred attempting to remove the user(s)."}, 500
+
 
 @app.route('/ManageSystemUser/deleteSystemUser', methods=["DELETE"])
 @auth.login_required
@@ -511,32 +516,35 @@ def removeSystemUserRest():
     """
     try:
         removeSystemUser(request.json)
-        return 'user deleted', 200
+        return {"message": 'user deleted'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occured attempting to remove the user(s).", 500
+        return {"message": "An error occurred attempting to remove the user(s)."}, 500
+
 
 def removeSystemUser(jsondata):
     """ iterates through a list of system users and removes them in addition to revoking and
     deleting their certificates.
     """
+    from .controllers.persistency import dbController
     from FreeTAKServer.core.util.certificate_generation import revoke_certificate
     for systemUser in jsondata["systemUsers"]:
         uid = systemUser["uid"]
         systemUser = dbController.query_systemUser(query=f'uid = "{uid}"')[0]
         na = systemUser.name
-        revoke_certificate(username=na+uid)
+        revoke_certificate(username=na + uid)
         certificate_package_name = systemUser.certificate_package_name
         dbController.remove_systemUser(f'uid = "{uid}"')
         obj = dbController.query_datapackage(f'Name = "{certificate_package_name}"')
         # TODO: make this coherent with constants
         currentPath = config.DataPackageFilePath
-        shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
+        shutil.rmtree(str(currentPath / obj[0].Hash))
         dbController.remove_datapackage(f'Hash = "{obj[0].Hash}"')
-        os.remove(config.certsPath + f"/{na}{uid}.pem")
-        os.remove(config.certsPath + f"/{na}{uid}.key")
-        os.remove(config.certsPath + f"/{na}{uid}.p12")
-    return '', 200
+        os.remove(config.certsPath / f"{na}{uid}.pem")
+        os.remove(config.certsPath / f"{na}{uid}.key")
+        os.remove(config.certsPath / f"{na}{uid}.p12")
+    return {"message": 'user removed'}, 200
+
 
 @socketio.on("events")
 @socket_auth(session=session)
@@ -545,8 +553,10 @@ def events(empty=None):
     # socketio.emit(json.dumps([current_notifications.logErrors, current_notifications.emergencys]))
     emit("eventsUpdate", {"events": current_notifications.logErrors + current_notifications.emergencys})
 
-@app.route('/GenerateQR', methods=["GET"])
+
+# @app.route('/GenerateQR', methods=["GET"])
 def generate_qr():
+    from .controllers.persistency import dbController
     datapackage_id = request.args.get('datapackage_id')
     dp = dbController.query_datapackage(query=f"PrimaryKey={datapackage_id}")[0]
     qr = qrcode.QRCode(
@@ -561,10 +571,11 @@ def generate_qr():
     img_io.seek(0)
     return send_file(img_io, mimetype='image/jpeg')
 
+
 @app.route('/ManageNotification/getNotification', methods=["GET"])
 def notification():
     current_notifications = Notification()
-    return json.dumps({"logErrors": current_notifications.logErrors, "emergencys": current_notifications.emergencys})
+    return json.dumps({"logErrors": current_notifications.logErrors, "emergencies": current_notifications.emergencys})
 
 
 def getlogErrors():
@@ -607,6 +618,7 @@ def getlogErrors():
 
 
 def getemergencys():
+    from .controllers.persistency import dbController
     output = dbController.query_ActiveEmergency()
     for i in range(0, len(output)):
         try:
@@ -650,7 +662,7 @@ def SendGeoChat():
         rawcot.clientInformation = None
         object = SendGeoChatController(rawcot)
         APIPipe.put(object.getObject())
-        return '200', 200
+        return {"message": 'geochat sent'}, 200
     except Exception as e:
         logger.error(str(e))
 
@@ -671,7 +683,7 @@ def postPresence():
         jsonobj = JsonController().serialize_presence_post(jsondata)
         Presence = SendPresenceController(jsonobj).getCoTObject()
         APIPipe.put(Presence)
-        return Presence.modelObject.getuid(), 200
+        return {"message": Presence.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
         return "An error occurred managing presence.", 500
@@ -687,7 +699,7 @@ def putPresence():
         jsonobj = JsonController().serialize_presence_post(jsondata)
         Presence = UpdatePresenceController(jsonobj).getCoTObject()
         APIPipe.put(Presence)
-        return Presence.modelObject.getuid(), 200
+        return {"message": Presence.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
         return "An error occurred managing presence.", 500
@@ -709,16 +721,17 @@ def postRoute():
         jsonobj = JsonController().serialize_route_post(jsondata)
         Route = SendRouteController(jsonobj).getCoTObject()
         APIPipe.put(Route)
-        return Route.modelObject.getuid(), 200
+        return {"message": Route.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred managing route.", 500
+        return {"message": "An error occurred managing route."}, 500
 
 
 @app.route("/ManageCoT/getZoneCoT", methods=[restMethods.GET])
 @auth.login_required
 def getZoneCoT():
     try:
+        from .controllers.persistency import dbController
         from math import sqrt, degrees, cos, sin, radians, atan2
         from sqlalchemy import or_, and_
         jsondata = request.get_json(force=True)
@@ -782,8 +795,7 @@ def getZoneCoT():
         return json.dumps(output)
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving zone CoT.", 500
-
+        return {"message": "An error occurred retrieving zone CoT."}, 500
 
 
 @app.route("/ManageGeoObject")
@@ -796,6 +808,7 @@ def ManageGeoObject():
 @auth.login_required
 def getGeoObject():
     try:
+        from .controllers.persistency import dbController
         from math import sqrt, degrees, cos, sin, radians, atan2
         from sqlalchemy import or_, and_
         # jsondata = request.get_json(force=True)
@@ -868,7 +881,7 @@ def getGeoObject():
             ))])
 
         else:
-            return "unsupported coordinates"
+            return {"message": "unsupported coordinates"}, 500
 
         """                 and_(
                             Point.lon < 0,
@@ -935,10 +948,10 @@ def getGeoObject():
 
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving geo object.", 500
+        return {"message": "An error occurred retrieving geo object."}, 500
 
 
-#@app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
+# @app.route("/ManageGeoObject/postGeoObject", methods=[restMethods.POST])
 @auth.login_required
 def postGeoObject():
     try:
@@ -963,10 +976,10 @@ def postGeoObject():
         APIPipe.put(simpleCoTObject)
         print(simpleCoTObject.xmlString)
         print('put in queue')
-        return simpleCoTObject.modelObject.getuid(), 200
+        return {"message": simpleCoTObject.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding geo object.", 500
+        return {"message": "An error occurred adding geo object."}, 500
 
 
 @app.route("/ManageGeoObject/putGeoObject", methods=["PUT"])
@@ -982,12 +995,12 @@ def putGeoObject():
             simpleCoTObject.modelObject.setuid(jsondata["uid"])
             simpleCoTObject.setXmlString(XMLCoTController().serialize_model_to_CoT(simpleCoTObject.modelObject))
             APIPipe.put(simpleCoTObject)
-            return simpleCoTObject.modelObject.getuid(), 200
+            return {"message": simpleCoTObject.modelObject.getuid()}, 200
         else:
             raise Exception("uid is a required parameter")
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred updating geo object.", 500
+        return {"message": "An error occurred updating geo object."}, 500
 
 
 @app.route("/ManageVideoStream")
@@ -1009,6 +1022,7 @@ def getVideoStream():
         from json import dumps
         from urllib import parse
         from FreeTAKServer.model.SQLAlchemy.CoTTables.Sensor import Sensor
+        from .controllers.persistency import dbController
 
         output = dbController.query_video()
         return_value = {"video_stream": {}}
@@ -1026,7 +1040,7 @@ def getVideoStream():
         return dumps(return_value), 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving video stream.", 500
+        return {"message": "An error occurred retrieving video stream."}, 500
 
 
 @app.route("/ManageVideoStream/deleteVideoStream", methods=[restMethods.DELETE])
@@ -1038,10 +1052,10 @@ def deleteVideoStream():
         jsonobj = JsonController().serialize_video_stream_delete(jsondata)
         EmergencyObject = SendDeleteVideoStreamController(jsonobj).getCoTObject()
         APIPipe.put(EmergencyObject)
-        return 'success', 200
+        return {"message": 'success'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred deleting video stream.", 500
+        return {"message": "An error occurred deleting video stream."}, 500
 
 
 @app.route("/ManageVideoStream/postVideoStream", methods=["POST"])
@@ -1051,6 +1065,8 @@ def postVideoStream():
     the db and sends a CoT to all connected clients containing stream information."""
     from FreeTAKServer.model.FTSModel.Event import Event
     from lxml.etree import tostring  # pylint: disable=no-name-in-module; name is in module
+    from .controllers.persistency import dbController
+
     try:
         jsondata = request.get_json(force=True)
 
@@ -1066,18 +1082,18 @@ def postVideoStream():
                 xmlString = tostring(XmlSerializer().from_fts_object_to_format(modelObject))
                 modelObject.xmlString = xmlString
                 APIPipe.put(modelObject)
-                return "entry already exists in db " + str(video.PrimaryKey) + " resending existing entry", 201
+                return { "message": f"entry already exists in db {video.PrimaryKey} resending existing entry"}, 201
 
         simpleCoTObject = SendVideoStreamController(jsondata).getCoTObject()
         print("putting in queue")
         APIPipe.put(simpleCoTObject)
         print(simpleCoTObject.xmlString)
         print('put in queue')
-        return simpleCoTObject.modelObject.getuid(), 200
+        return {"message": simpleCoTObject.modelObject.getuid()}, 200
 
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding video stream.", 500
+        return {"message": "An error occurred adding video stream."}, 500
 
 
 """@app.route("/ManageGeoObject/getGeoObject", methods=[restMethods.GET])
@@ -1105,10 +1121,11 @@ def postChatToAll():
         jsonobj = JsonController().serialize_chat_post(jsondata)
         ChatObject = SendChatController(jsonobj).getCoTObject()
         APIPipe.put(ChatObject)
-        return 'success', 200
+        return {"message": 'success'}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred sending chat.", 500
+        return {"message": "An error occurred sending chat."}, 500
+
 
 @app.route("/Sensor")
 @auth.login_required
@@ -1138,10 +1155,10 @@ def postDroneSensor():
             SPISensor = SendSPISensorController(jsonobjSPI).getCoTObject()
             APIPipe.put(SPISensor)
             return json.dumps({"uid": DroneObject.modelObject.getuid(), "SPI_uid": SPISensor.modelObject.getuid()}), 200
-        return DroneObject.modelObject.getuid(), 200
+        return {"message": DroneObject.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding drone sensor.", 500
+        return {"message": "An error occurred adding drone sensor."}, 500
 
 
 @app.route("/Sensor/postSPI", methods=["POST"])
@@ -1154,10 +1171,10 @@ def postSPI():
         jsonobj = JsonController().serialize_spi_post(jsondata)
         SPIObject = SendSPISensorController(jsonobj).getCoTObject()
         APIPipe.put(SPIObject)
-        return SPIObject.modelObject.getuid(), 200
+        return {"message": SPIObject.modelObject.getuid()}, 200
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred adding SPI details.", 500
+        return {"message": "An error occurred adding SPI details."}, 500
 
 
 @app.route("/MapVid", methods=["POST"])
@@ -1168,13 +1185,14 @@ def mapvid():
     jsonobj = JsonController().serialize_imagery_video(jsondata)
     ImagerVideoObject = SendImageryVideoController(jsonobj).getCoTObject()
     APIPipe.put(ImagerVideoObject)
-    return 200
+    return {"message": "success"}, 200
 
 
 @app.route("/AuthenticateUser", methods=["GET"])
 @auth.login_required
 def authenticate_user():
     try:
+        from .controllers.persistency import dbController
         print('request made')
         username = request.args.get("username")
         password = request.args.get("password")
@@ -1202,12 +1220,13 @@ def authenticate_user():
             print('done defining dict')
             return_data = json.dumps({"uid": json_user["uid"]})
             print('returning data ' + str(return_data))
-            return return_data
+            return return_data, 200
         else:
             return None
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred authenticating user.", 500
+        return {"message": "An error occurred authenticating user."}, 500
+
 
 # @app.route("/ConnectionMessage", methods=[restMethods.POST])
 def ConnectionMessage():
@@ -1225,25 +1244,26 @@ def ConnectionMessage():
         object = SendChatController(rawcot).getCoTObject()
         object.type = "connmessage"
         APIPipe.put(object.SendGeoChat)
-        return '200', 200
+        return {"message": "success"}, 200
     except Exception as e:
         logger.error(str(e))
 
 
 @app.route("/APIUser", methods=[restMethods.GET, restMethods.POST, restMethods.DELETE])
 def APIUser():
+    from .controllers.persistency import dbController
     if request.remote_addr in config.AllowedCLIIPs:
         try:
             if request.method == restMethods.POST:
                 json = request.get_json()
                 dbController.create_APIUser(Username=json['username'], Token=json['token'])
-                return 'success', 200
+                return {"message": 'success'}, 200
 
             elif request.method == restMethods.DELETE:
                 json = request.get_json()
                 username = json['username']
                 dbController.remove_APIUser(query=f'Username = "{username}"')
-                return 'success', 200
+                return {"message": 'success'}, 200
 
             elif request.method == restMethods.GET:
                 output = dbController.query_APIUser()
@@ -1256,9 +1276,9 @@ def APIUser():
 
         except Exception as e:
             logger.error(str(e))
-            return "An error occurred updating api user record.", 500
+            return {"message": "An error occurred updating api user record."}, 500
     else:
-        return 'endpoint can only be accessed by approved IPs', 401
+        return {"message": 'endpoint can only be accessed by approved IPs'}, 401
 
 
 @app.route("/RecentCoT", methods=[restMethods.GET])
@@ -1287,16 +1307,18 @@ def Clients():
             dumps = json.dumps(returnValue)
             return dumps
         else:
-            return 'endpoint can only be accessed by approved IPs', 401
+            return {"message": 'endpoint can only be accessed by approved IPs'}, 401
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred retrieving client details.", 500
+        return {"message": "An error occurred retrieving client details."}, 500
 
 
 @app.route('/FederationTable', methods=[restMethods.GET, restMethods.POST, "PUT", restMethods.DELETE])
 @auth.login_required()
 def FederationTable():
     try:
+        from .controllers.persistency import dbController
+
         import random
         if request.method == restMethods.GET:
             output = dbController.query_ActiveFederation()
@@ -1321,7 +1343,7 @@ def FederationTable():
                     CommandPipe.put((id, "CREATE"))
                 else:
                     pass
-            return '', 200
+            return {"message": ''}, 200
 
         elif request.method == "PUT":
             jsondata = json.loads(request.data)
@@ -1345,7 +1367,7 @@ def FederationTable():
                             pass
                     else:
                         pass
-            return '', 200
+            return {"message": ''}, 200
 
         elif request.method == "DELETE":
             jsondata = json.loads(request.data)
@@ -1357,11 +1379,11 @@ def FederationTable():
                 else:
                     pass
                 dbController.remove_Federation(f'id = "{fed["id"]}"')
-            return '', 200
+            return {"message": ''}, 200
 
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred accessing federation details.", 500
+        return {"message": "An error occurred accessing federation details."}, 500
 
 
 @app.route('/ManageKML/postKML', methods=[restMethods.POST])
@@ -1369,7 +1391,7 @@ def FederationTable():
 def create_kml():
     # Make a connection to the MainConfig object
     config = MainConfig.instance()
-
+    from .controllers.persistency import dbController
     try:
         from pykml.factory import KML_ElementMaker as KML
         from pykml import parser
@@ -1448,7 +1470,7 @@ def create_kml():
         # broacast DP
         broadcast_datapackage(uid)
 
-        return "successful", 200
+        return {"message": "successful"}, 200
     except Exception as e:
         logger.error(str(e))
 
@@ -1479,151 +1501,6 @@ def broadcast_datapackage(uid):
     APIPipe.put(newCoT.getObject())
 
 
-@app.route('/DataPackageTable', methods=[restMethods.GET, restMethods.POST, restMethods.DELETE, "PUT"])
-@auth.login_required()
-def DataPackageTable():
-    from pathlib import Path
-
-    # Make a connection to the MainConfig object
-    config = MainConfig.instance()
-
-    if request.method == "GET":
-        output = dbController.query_datapackage()
-        for i in range(0, len(output)):
-            output[i] = output[i].__dict__
-            del (output[i]['_sa_instance_state'])
-            del (output[i]['CreatorUid'])
-            del (output[i]['MIMEType'])
-            del (output[i]['uid'])
-        return jsonify(json_list=output), 200
-
-    elif request.method == "DELETE":
-        jsondata = json.loads(request.data)
-        Hashes = jsondata['DataPackages']
-        for hash in Hashes:
-            Hash = hash['hash']
-            print(Hash)
-            obj = dbController.query_datapackage(f'Hash = "{Hash}"')
-            print(obj)
-            # TODO: make this coherent with constants
-            currentPath = config.DataPackageFilePath
-            shutil.rmtree(f'{str(currentPath)}/{obj[0].Hash}')
-            dbController.remove_datapackage(f'Hash = "{Hash}"')
-        return '200', 200
-
-    elif request.method == "POST":
-        try:
-            import string
-            import random
-            from pathlib import PurePath, Path
-            import hashlib
-            from zipfile import ZipFile
-            from defusedxml import ElementTree as etree
-            import uuid
-            from lxml.etree import SubElement, Element  # pylint: disable=no-name-in-module
-            dp_directory = str(PurePath(Path(config.DataPackageFilePath)))
-            letters = string.ascii_letters
-            # uid = ''.join(random.choice(letters) for i in range(4))
-            # uid = 'uid-' + str(uid)
-            uid = str(uuid.uuid4())
-            filename = request.args.get('filename')
-            creatorUid = request.args.get('creatorUid')
-            file = request.files.getlist('assetfile')[0]
-            with ZipFile(file, mode='a') as zip:
-                print(zip.infolist())
-                if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
-                    manifestXML = Element("MissionPackageManifest", version="2")
-                    config = SubElement(manifestXML, "Configuration")
-                    SubElement(config, "Parameter", name="uid", value=uid)
-                    SubElement(config, "Parameter", name="name", value=filename)
-
-                    contents = SubElement(manifestXML, "Contents")
-                    for fileName in zip.namelist():
-                        SubElement(contents, "Content", ignore="false", zipEntry=str(fileName))
-                    # manifest = zip.open('MANIFEST\\manifest.xml', mode="w")
-                    zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
-                    print(zip.namelist())
-                    file.seek(0)
-                else:
-                    pass
-
-            tempuid = str(uuid.uuid4())
-            app.logger.info(f"Data Package hash = {str(tempuid)}")
-            directory = Path(dp_directory, tempuid)
-            if not Path.exists(directory):
-                os.mkdir(str(directory))
-            file.seek(0)
-            filepath = str(PurePath(Path(directory), Path(filename)))
-            file.save(filepath)
-            openfile = open(str(PurePath(Path(str(directory), filename))), mode='rb')
-            file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-            openfile.close()
-            newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
-            os.rename(str(PurePath(Path(directory))), newDirectory)
-            fileSize = Path(str(newDirectory), filename).stat().st_size
-            if creatorUid == None:
-                callsign = str(dbController.query_user(query=f'uid = "server-uid"', column=[
-                    'callsign']))  # fetchone() gives a tuple, so only grab the first element
-                dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser='server',
-                                                CreatorUid='server-uid', Size=fileSize)
-            else:
-                callsign = str(dbController.query_user(query=f'uid = f"{creatorUid}"', column=[
-                    'callsign']))  # fetchone() gives a tuple, so only grab the first element
-                dbController.create_datapackage(uid=uid, Name=filename, Hash=file_hash, SubmissionUser=callsign,
-                                                CreatorUid=creatorUid, Size=fileSize)
-            return 'successful', 200
-        except Exception as e:
-            logger.error(str(e))
-            return "An error occurred accessing datapackage details.", 500
-
-    elif request.method == "PUT":
-        updatedata = json.loads(request.data)
-        DataPackages = updatedata['DataPackages']
-        for dp in DataPackages:
-            updateDict = {}
-            if 'Privacy' in dp:
-                updateDict["Privacy"] = int(dp["Privacy"])
-            if "Keywords" in dp:
-                updateDict["Keywords"] = dp["Keywords"]
-            if "Name" in dp:
-                updateDict["Name"] = dp["Name"]
-            dbController.update_datapackage(query=f'PrimaryKey = {dp["PrimaryKey"]}', column_value=updateDict)
-        return "success", 200
-
-
-@app.route("/MissionTable", methods=['GET', 'POST', 'DELETE'])
-@auth.login_required()
-def mission_table():
-    try:
-        if request.method == "GET":
-            import random
-
-            jsondata = {
-                "version": "3",
-                "type": "Mission",
-                "data": [],
-                "nodeId": "6ff99444fa124679a3943ee90308a44c9d794c02-e5a5-42b5-b4c8-625203ea1287"
-            }
-            return json.dumps(jsondata)
-        elif request.method == "POST":
-            return b'', 200
-        elif request.method == "DELETE":
-            return b'', 200
-    except Exception as e:
-        logger.error(str(e))
-        return "An error occurred accessing mission details.", 500
-
-
-@app.route("/ExCheckTable", methods=["GET", "POST", "DELETE"])
-@auth.login_required()
-def excheck_table():
-    dp_request = ObjectFactory.get_instance("request")
-    dp_response = ObjectFactory.get_instance("response")
-    excheck_facade = ObjectFactory.get_instance("ExCheck")
-    excheck_facade.initialize(dp_request, dp_response)
-    return excheck_facade.get_all_templates(), 200
-
-
 @app.route('/checkStatus', methods=[restMethods.GET])
 @auth.login_required()
 def check_status():
@@ -1635,10 +1512,10 @@ def check_status():
             out = ApplyFullJsonController().serialize_model_to_json(FTSServerStatusObject)
             return json.dumps(out), 200
         else:
-            return 'endpoint can only be accessed by approved IPs', 401
+            return {"message": 'endpoint can only be accessed by approved IPs'}, 401
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred accessing server status details.", 500
+        return {"message": "An error occurred accessing server status details."}, 500
 
 
 @app.route('/manageAPI/getHelp', methods=[restMethods.GET])
@@ -1652,7 +1529,7 @@ def help():
         return json.dumps(message)
     except Exception as e:
         logger.error(str(e))
-        return "An error occurred accessing helper details.", 500
+        return {"message": "An error occurred accessing helper details."}, 500
 
 
 # @app.route('/changeStatus', methods=[restMethods.POST])
@@ -1742,10 +1619,10 @@ def changeStatus(jsonmessage):
         FTSObject.TCPDataPackageService.TCPDataPackageServiceIP = ip
         CommandPipe.put([functionNames.Status, FTSObject])
         out = CommandPipe.get()
-        return '200', 200
+        return {"message": 'success'}, 200
 
     except Exception as e:
-        return '500', 500
+        return {"message": '500'}, 500
 
 
 def submitData(dataRaw):
@@ -1772,6 +1649,7 @@ def emitUpdates(Updates):
     socketio.emit('up', json.dumps(returnValue), broadcast=True)
     return 1
 
+
 @app.route('/v2/<context>/<action>', methods=[restMethods.GET, restMethods.POST])
 @auth.login_required
 def api_routing(context, action):
@@ -1789,7 +1667,7 @@ def api_routing(context, action):
     Returns:
         dict: the values of the response returned by the component
     """
-    synchronous = request.args.get("synchronous", True) # all requests are by default synchronous
+    synchronous = request.args.get("synchronous", True)  # all requests are by default synchronous
     service_id = request.args.get("service_id")
     values = request.get_json()
     rest_api_service = ObjectFactory.get_instance("RestAPIService")
@@ -1810,6 +1688,7 @@ def api_routing(context, action):
         response = rest_api_service.retrieve_response(internal_request.get_id())
         return response.get_values()
 
+
 # TODO: move this out of the rest_api_service and into it's own file in views
 # this will require changing it from using the API Pipe to use the ZManager instead
 import json
@@ -1828,16 +1707,16 @@ from FreeTAKServer.core.parsers.JsonController import JsonController
 from FreeTAKServer.services.rest_api_service.views.base_view import BaseView
 from FreeTAKServer.services.rest_api_service.views.emergency_view import ManageEmergency
 
+
 class ManageGeoObjects(BaseView):
     """this class is responsible for creating the flask views required for managing
     geo objects in FTS
     """
     decorators = [auth.login_required]
-    
+
     def __init__(self, *args, **kwargs) -> None:
         endpoints: Dict[str, callable] = {
             "GetRepeatedMessages": self.get_repeated_messages,
-            "postGeoObject": self.post_geo_object,
             "DeleteRepeatedMessages": self.delete_repeated_messages,
         }
         super().__init__(endpoints)
@@ -1861,11 +1740,11 @@ class ManageGeoObjects(BaseView):
             message = response.get_value("message")
             for i in range(len(message)):
                 output["messages"][str(message_nodes[i].uid)] = message[i].decode()
-            
+
             return json.dumps(output)
 
         except Exception as e:
-            return str(e), 500
+            return {"message": str(e)}, 500
 
     def post_geo_object(self):
         """this method is responsible for creating publishing and saving a geoobject to the repeater
@@ -1873,11 +1752,12 @@ class ManageGeoObjects(BaseView):
             str: the uid of the generated object
         """
         try:
+            print("received request")
             # jsondata = {'longitude': '12.345678', 'latitude': '34.5677889', 'attitude': 'friend', 'geoObject': 'Ground', 'how': 'nonCoT', 'name': 'testing123'}
             jsondata = request.get_json(force=True)
             # conver the json body to an object
             jsonobj = JsonController().serialize_geoobject_post(jsondata)
-            
+
             # check if the message it expected to be repeated
             if "distance" in jsondata:
                 start_point = Point(jsonobj.getlatitude(), jsonobj.getlongitude())
@@ -1903,32 +1783,31 @@ class ManageGeoObjects(BaseView):
                 pass
             model_object.type = COTTYPE
             model_object.how = jsonobj.gethow()
-            
-            model_object.start = None # set to default val
+
+            model_object.start = None  # set to default val
             model_object.time = None  # set to default val
             if jsonobj.gettimeout() != '' and jsonobj.gettimeout() != None:
                 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
                 timer = dt.datetime
                 now = timer.utcnow()
                 add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
-                stale = now+add
+                stale = now + add
                 model_object.stale = stale.strftime(DATETIME_FMT)
             else:
-                model_object.stale = None # set to default val
+                model_object.stale = None  # set to default val
             #    DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
             #    timer = dt.datetime
             #    now = timer.utcnow()
             #    zulu = now.strftime(DATETIME_FMT)
             #    add = datetime.timedelta(seconds=int(jsonobj.gettimeout()))
             #    stale_part = dt.datetime.strptime(zulu, DATETIME_FMT) + add
-            #model_object.stale = stale_part
+            # model_object.stale = stale_part
             model_object.point.lat = jsonobj.getlatitude()
             model_object.point.lon = jsonobj.getlongitude()
             model_object.detail.contact.callsign = jsonobj.getname()
 
             # if the message should be repeated then make a request to repeat it
             if jsonobj.getrepeat():
-               
                 # make request to persist the model object to be re-sent
                 response = self.make_request("CreateRepeatedMessage", {"message": [model_object]})
 
@@ -1936,22 +1815,22 @@ class ManageGeoObjects(BaseView):
             APIPipe.put(simpleCoTObject)
             print(simpleCoTObject.xmlString)
             print('put in queue')
-            return simpleCoTObject.modelObject.getuid(), 200
+            return {"message": simpleCoTObject.modelObject.getuid()}, 200
         except Exception as e:
             logger.error(str(e))
-            return "An error occurred adding geo object.", 500
-    
+            return {"message": "An error occurred adding geo object."}, 500
+
     def delete_repeated_messages(self):
         """delete an existing repeated message
         Returns:
-            str: whether or not the operation was sucessful
+            str: whether the operation was successful
         """
         try:
             # get and blowup id list
             ids: List[str] = request.args.get("ids").split(",")
             response = self.make_request("DeleteRepeatedMessage", {"ids": ids})
             if response.get_value("success"):
-                delete_objs = []  
+                delete_objs = []
                 for id in ids:
                     # TODO move strings out to constants
                     response = self.make_request("DeleteGeoObject", {"uid": id})
@@ -1960,35 +1839,35 @@ class ManageGeoObjects(BaseView):
                     model_obj.type = "t-x-d-d"
                     model_obj.uid = id
                     model_obj.how = "h-g"
-                    model_obj.start = None # set to default val
+                    model_obj.start = None  # set to default val
                     model_obj.time = None  # set to default val
-                    model_obj.stale = None # set to default val
+                    model_obj.stale = None  # set to default val
                     delete_objs.append(model_obj)
                 self.make_request("publish", {"recipients": "*", "message": delete_objs}, False)
-                return 'operation successful', 200
+                return {"message": 'operation successful'}, 200
             else:
-                return 'operation failed', 500
+                return {"message": 'operation failed'}, 500
         except Exception as e:
             return str(e), 500
+
 
 # TODO: move this out of the rest_api_service and into it's own file in views
 # this will require changing it from using the API Pipe to use the ZManager instead
 
-ManageEmergency.decorators.append(auth.login_required)
-app.add_url_rule('/ManageEmergency/<method>', view_func=ManageEmergency.as_view('/ManageEmergency/<method>'), methods=["POST", "GET","DELETE"])
-app.add_url_rule('/ManageGeoObject/<method>', view_func=ManageGeoObjects.as_view('/ManageGeoObject/<method>'), methods=["POST", "GET","DELETE"])
-
 APPLICATION_PROTOCOL = "xml"
-API_REQUEST_TIMEOUT = 5000
+API_REQUEST_TIMEOUT = 30
+
 
 class RestAPI(DigitalPyService):
-    
     # a dictionary containing the request_id and response objects for all received requests
     # to prevent confusion between endpoints
     responses: Dict[str, Response] = {}
 
-    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
-        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol,
+                 integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str,
+                 formatter: Formatter):
+        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address,
+                         integration_manager_port, integration_manager_protocol, formatter)
 
     def get_response_in_responses(self, id):
         # check if the response has already been received
@@ -1996,7 +1875,7 @@ class RestAPI(DigitalPyService):
             # pop item so dictionary doesn't fill up
             response = self.responses.pop(id)
             return response
-        
+
     def retrieve_response(self, id: str):
         """wait to retrieve a response from the broker this is mainly
         to prevent cases where multiple requests are being processed 
@@ -2028,7 +1907,7 @@ class RestAPI(DigitalPyService):
                     self.responses[response.get_id()] = response
                 else:
                     return response
-                    
+
                 # check if the response has already been received
                 existing_response = self.get_response_in_responses(id)
                 if existing_response is not None:
@@ -2047,17 +1926,30 @@ class RestAPI(DigitalPyService):
 
     def start(self, APIPipea, CommandPipea, IP, Port, starttime, factory):
         print('running api')
+
         super().start()
         self.initialize_connections(APPLICATION_PROTOCOL)
         ObjectFactory.configure(factory)
-        init_config()
+        from .controllers import persistency
+        persistency.init_config(app)
         global APIPipe, CommandPipe, StartTime
         StartTime = starttime
         APIPipe = APIPipea
         CommandPipe = CommandPipea
+        self.register_blueprints(app)
         socketio.run(app, host=IP, port=Port)
         # try below if something breaks
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
+
+    def register_blueprints(self, app):
+        from .blueprints import geoobject_blueprint, emergency_blueprint, user_management_blueprint, \
+            datapackages_blueprint, missions_blueprint, excheck_blueprint
+        app.register_blueprint(geoobject_blueprint.page)
+        app.register_blueprint(emergency_blueprint.page)
+        app.register_blueprint(user_management_blueprint.page)
+        app.register_blueprint(datapackages_blueprint.page)
+        app.register_blueprint(missions_blueprint.page)
+        app.register_blueprint(excheck_blueprint.page)
 
     def serializeJsonToModel(self, model, Json):
         for key, value in Json.items():

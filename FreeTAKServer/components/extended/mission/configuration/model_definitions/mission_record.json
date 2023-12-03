@@ -23,17 +23,8 @@
 			"description" : "",
 			"properties":
 			{
-				"contents":
-				{
-					"type" : "array",
-					"items" : { "$ref":"#/definitions/MissionContent" }
-				},
-				"externalData":
-				{
-					"$ref": "#/definitions/MissionExternalData",
-					"minItems" : 1,
-					"maxItems" : 1
-				}
+				
+				
 			}
 		},
 		"MissionExternalData":{

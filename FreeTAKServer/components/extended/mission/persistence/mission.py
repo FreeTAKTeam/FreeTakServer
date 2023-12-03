@@ -6,6 +6,7 @@ from datetime import datetime
 
 if TYPE_CHECKING:
     from .mission_content import MissionContent
+    from .mission_change import MissionChange
     from .mission_cot import MissionCoT
     from .mission_log import MissionLog
     from .mission_to_mission import MissionToMission
@@ -46,9 +47,9 @@ class Mission(MissionBase):
 
     # mapLayers = Column(String(100), default=[])
 
-    defaultRole = relationship("Role")
+    defaultRole = relationship("Role", back_populates="missions")
     
-    defaultRole_id = Column(String(1000), ForeignKey("role.role_type"))
+    defaultRole_id = Column(String(1000), ForeignKey("Role.role_type"))
 
     ownerRole = Column(String(100))
 
@@ -77,6 +78,8 @@ class Mission(MissionBase):
     logs: List['MissionLog'] = relationship("MissionLog", back_populates="mission")
     
     cots: List['MissionCoT'] = relationship("MissionCoT", back_populates="mission")
+
+    changes: List['MissionChange'] = relationship("MissionChange", back_populates="mission")
     
     child_missions: List['MissionToMission'] = relationship("MissionToMission", back_populates="parent_mission", foreign_keys="[MissionToMission.parent_mission_id]")
     

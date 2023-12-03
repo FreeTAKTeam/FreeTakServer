@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://example.com/message#",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string"
+        },
+        "type": {
+            "type": "string"
+        },
+        "data": {
+            "$ref": "#/definitions/MissionInfoSingle"
+        },
+        "nodeId": {
+            "type": "string"
+        }
+    },
+    "definitions": {
+        "MissionPermission": {
+            "type": "object",
+            "properties": {
+            }
+        }
+    }
+}

@@ -14,11 +14,6 @@ from xml.etree.ElementTree import Element
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
-from ..domain.mission_info import MissionInfo
-from ..domain.mission_data import MissionData
-from ..domain.mission_item import MissionItem
-from ..domain.mission_item_metadata import MissionItemMetaData
-
 from .excheck_persistency_controller import ExCheckPersistencyController
 
 from ..configuration.excheck_constants import (
