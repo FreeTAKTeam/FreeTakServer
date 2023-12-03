@@ -54,11 +54,12 @@ def retrieveData():
     keyword = request.args.get('keyword', "missionpackage")
     tool = request.args.get('tool', "public")
     packages: List[EnterpriseSyncDataObject] = HTTPSTakApiCommunicationController().make_request("GetMultipleEnterpriseSyncMetaData", "", {"tool": tool, "keyword": keyword}, None, True).get_value("objectmetadata") # type: ignore
+    public_packages = [package for package in packages if package.private == 0]
     package_dict = {
-                "resultCount": len(packages),
+                "resultCount": len(public_packages),
                 "results": []
             }
-    for pack in packages:
+    for pack in public_packages:
         package_dict["results"].append({
             "UID": str(pack.PrimaryKey),
             "Name": pack.keywords[0].keyword,

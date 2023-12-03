@@ -1,3 +1,4 @@
+import tempfile
 from flask import Flask, request, jsonify, session, send_file, views
 from flask_socketio import SocketIO, emit
 from flask_login import current_user, LoginManager
@@ -1435,9 +1436,9 @@ def create_kml():
             os.mkdir(str(directory))
         filepath = str(PurePath(Path(directory), Path(name)))
         data_stringified = etree.tostring(main)
-        with open(filepath, mode="wb+") as file:
+        with tempfile.TemporaryFile(mode="wb+") as file:
 
-            with ZipFile(file, mode='a') as zip:
+            with ZipFile(file, mode='w') as zip:
                 print(zip.infolist())
                 uidtemp = uuid.uuid4()
                 if "MANIFEST/manifest.xml" not in [member.filename for member in zip.infolist()]:
@@ -1453,22 +1454,30 @@ def create_kml():
                     zip.writestr('MANIFEST\\manifest.xml', etree.tostring(manifestXML))
 
                     print(zip.namelist())
-                    file.seek(0)
+                    
                 else:
                     pass
+            file.seek(0)
+            file_data = file.read()
+            file_hash = str(hashlib.sha256(file_data).hexdigest())
+            fileSize = len(file_data)
+            uid = str(uuid.uuid4())
+            dbController.create_datapackage(uid=uid, Name=name, Hash=file_hash, SubmissionUser='server',
+                                            CreatorUid='server-uid', Size=fileSize)
 
-        openfile = open(str(PurePath(Path(str(directory), name))), mode='rb')
-        file_hash = str(hashlib.sha256(openfile.read()).hexdigest())
-        openfile.close()
-        newDirectory = str(PurePath(Path(dp_directory), Path(file_hash)))
-        os.rename(str(PurePath(Path(directory))), newDirectory)
-        fileSize = Path(str(newDirectory), name).stat().st_size
-        uid = str(uuid.uuid4())
-        dbController.create_datapackage(uid=uid, Name=name, Hash=file_hash, SubmissionUser='server',
-                                        CreatorUid='server-uid', Size=fileSize)
+            RestAPICommunicationController().make_request(
+                        "SaveEnterpriseSyncData", "",
+                        {"file_name": name, "objecthash": file_hash,
+                        "objectdata": file_data,
+                        "objkeywords": [name, "server", "missionpackage"],
+                        "mime_type": "application/zip", "tool": "public",
+                        "synctype": "datapackage", "objectuid": file_hash,
+                        "length": fileSize, "privacy": 1},
+                        None, True)
 
+        
         # broacast DP
-        broadcast_datapackage(uid)
+        # broadcast_datapackage(uid)
 
         return {"message": "successful"}, 200
     except Exception as e:
