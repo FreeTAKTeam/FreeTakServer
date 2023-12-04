@@ -14,21 +14,13 @@ from digitalpy.core.component_management.impl.component_registration_handler imp
 
 class ComponentTest(DigitalPy):
 
-    def __init__(self, test_schema, mock_sub_actions=True,
-                 include_base_components=False, included_external_components=None) -> None:
-        """
-        Args:
-            test_schema: a json object
-            mock_sub_actions: boolean
-            include_base_components: boolean
-            included_external_components: an array of absolute paths
-        """
+    def __init__(self, test_schema, mock_sub_actions= True, include_base_components=False) -> None:
         ComponentRegistrationHandler.clear()
         super().__init__()
 
         self.test_obj = self.parse_schema(test_schema)
 
-        # instantiate request and response objects
+        # instnatiate request and response objects
         self.request, self.response = self.get_request_response_from_test_obj()
 
         if mock_sub_actions:
