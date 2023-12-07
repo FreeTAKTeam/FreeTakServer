@@ -1,25 +1,83 @@
 import json
+import pathlib
 import uuid
 from unittest.mock import MagicMock, Mock
 
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
+
+from digitalpy.core.main.DigitalPy import DigitalPy
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.impl.default_request import DefaultRequest
 from digitalpy.core.zmanager.impl.default_response import DefaultResponse
+from digitalpy.core.component_management.impl.component_registration_handler import ComponentRegistrationHandler
 
 
-class ComponentTest():
+class ComponentTest(DigitalPy):
 
-    def __init__(self, test_schema) -> None:
+    def __init__(self, test_schema, mock_sub_actions= True, include_base_components=False) -> None:
+        ComponentRegistrationHandler.clear()
+        super().__init__()
+
         self.test_obj = self.parse_schema(test_schema)
 
         # instnatiate request and response objects
         self.request, self.response = self.get_request_response_from_test_obj()
 
-        # mock the execute sub action method in the controller class
-        self.mock_controller_execute_sub_action(self.response)
+        if mock_sub_actions:
+            # mock the execute sub action method in the controller class
+            self.mock_controller_execute_sub_action(self.response)
+
+        if include_base_components:
+            # register the base components
+            self.register_core_components()
 
         # get a mock node object
         self.mock_node = self.get_mock_node()
+
+    def register_core_components(self):
+        """this method is responsible for registering all FTS components"""
+        config = MainConfig.instance()
+
+        self.configuration.add_configuration(
+            str(
+                pathlib.PurePath(
+                    str(config.MainPath),
+                    "configuration",
+                    "routing",
+                    "action_mapping.ini",
+                )
+            ),
+        )
+
+        super().register_components()
+        
+        # register the internal components
+        internal_components = ComponentRegistrationHandler.discover_components(
+            component_folder_path=pathlib.PurePath(
+                config.InternalComponentsPath
+            ),
+        )
+
+        for internal_component in internal_components:
+            ComponentRegistrationHandler.register_component(
+                internal_component,
+                config.InternalComponentsImportRoot,
+                self.configuration,
+            )
+
+        # register the core components
+        core_components = ComponentRegistrationHandler.discover_components(
+            component_folder_path=pathlib.PurePath(
+                config.CoreComponentsPath
+            ),
+        )
+
+        for core_component in core_components:
+            ComponentRegistrationHandler.register_component(
+                core_component,
+                config.CoreComponentsImportRoot,
+                self.configuration,
+            )
 
     def mock_controller_execute_sub_action(self, sub_response = Mock()):
         Controller.execute_sub_action = Mock(return_value=sub_response)
@@ -82,13 +140,13 @@ class ComponentTest():
         for key, value in self.test_obj['request']['values'].items():
             if isinstance(value, list):
                 self.test_obj['request']['values'][key] = self.r_convert_values_to_node(value)
-            elif isinstance(value, dict) and value['is_node']:
+            elif isinstance(value, dict) and value.get('is_node', False):
                 self.test_obj['request']['values'][key] = self.get_mock_node_from_obj(value, value.get('oid', self.get_mock_oid()))
 
         for key, value in self.test_obj['response']['values'].items():
             if isinstance(value, list):
                 self.test_obj['response']['values'][key] = self.r_convert_values_to_node(value)
-            elif isinstance(value, dict) and value['is_node']:
+            elif isinstance(value, dict) and value.get('is_node', False):
                 self.test_obj['response']['values'][key] = self.get_mock_node_from_obj(value, value.get('oid', self.get_mock_oid()))
 
         # set request action and values

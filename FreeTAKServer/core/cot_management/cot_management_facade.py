@@ -1,7 +1,11 @@
+from FreeTAKServer.core.cot_management.controllers.cot_management_data_controller import COTManagementDataController
+from FreeTAKServer.core.cot_management.controllers.cot_management_persistence_controller import CoTManagementPersistenceController
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
+from digitalpy.core.zmanager.impl.async_action_mapper import AsyncActionMapper
 
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_controller import CotManagementRepeaterController
 from FreeTAKServer.core.cot_management.controllers.cot_management_geo_object_controller import CotManagementGeoObjectController
+from FreeTAKServer.core.cot_management.controllers.cot_management_general_controller import COTManagementGeneralController
 from FreeTAKServer.core.cot_management.configuration.cot_management_constants import (
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
@@ -28,10 +32,11 @@ class CotManagement(DefaultFacade):
     """
     def __init__(
         self,
-        cot_management_action_mapper,
+        sync_action_mapper,
         request,
         response,
         configuration,
+        action_mapper: AsyncActionMapper=None,
         tracing_provider_instance=None,
     ):
         super().__init__(
@@ -43,8 +48,8 @@ class CotManagement(DefaultFacade):
             logger_configuration=LOGGING_CONFIGURATION_PATH,
             # the package containing the base classes
             base=base,
-            # the component specific action mapper (passed by constructor)
-            action_mapper=cot_management_action_mapper,
+            # the general action mapper (passed by constructor)
+            action_mapper=sync_action_mapper,
             # the request object (passed by constructor)
             request=request,
             # the response object (passed by constructor)
@@ -60,11 +65,20 @@ class CotManagement(DefaultFacade):
             # the path to the manifest file
             manifest_path=MANIFEST_PATH,
         )
-        self.repeater_controller = CotManagementRepeaterController(request, response, cot_management_action_mapper, configuration)
-        self.geo_object_controller = CotManagementGeoObjectController(request, response, cot_management_action_mapper, configuration)
+        self.repeater_controller = CotManagementRepeaterController(request, response, sync_action_mapper, configuration)
+        self.geo_object_controller = CotManagementGeoObjectController(request, response, sync_action_mapper, configuration)
+        self.general_controller = COTManagementGeneralController(request, response, sync_action_mapper, configuration)
+        self.data_controller = COTManagementDataController(request, response, sync_action_mapper, configuration)
+        self.injected_values["action_mapper"] = action_mapper
+
+    def initialize(self, request, response):
+        super().initialize(request, response)
+        self.repeater_controller.initialize(request, response)
+        self.geo_object_controller.initialize(request, response)
+        self.general_controller.initialize(request, response)
+        self.data_controller.initialize(request, response)
 
     def execute(self, method):
-        
         try:
             if hasattr(self, method):
                 getattr(self, method)(**self.request.get_values())
@@ -76,12 +90,7 @@ class CotManagement(DefaultFacade):
                 self.response.set_values(response.get_values())
         except Exception as e:
             self.logger.fatal(str(e))
-
-    def initialize(self, request, response):
-        super().initialize(request, response)
-        self.repeater_controller.initialize(request, response)
-        self.geo_object_controller.initialize(request, response)
-
+            
     @DefaultFacade.public
     def connection(self, *args, **kwargs):
         self.repeater_controller.connected_user(*args, **kwargs)
@@ -104,3 +113,11 @@ class CotManagement(DefaultFacade):
     @DefaultFacade.public
     def delete_geo_object(self, *args, **kwargs):
         self.geo_object_controller.delete_geo_object(*args, **kwargs)
+
+    @DefaultFacade.public
+    def default_cot_processor(self, *args, **kwargs):
+        self.general_controller.handle_default_cot(**kwargs)
+
+    @DefaultFacade.public
+    def get_cot(self, *args, **kwargs):
+        self.data_controller.get_saved_cot(**kwargs)

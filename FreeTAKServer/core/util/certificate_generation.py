@@ -134,7 +134,7 @@ def send_data_package(server: str, dp_name: str = "user.zip") -> bool:
             print("Something went wrong uploading DataPackage!")
             return False
 
-def generate_standard_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
+def generate_standard_zip(server_address: str = None, server_filename: str = "", user_filename: str = "Client.p12",
                  cert_password: str = config.password, ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
@@ -145,6 +145,9 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
     :param cert_password: The password for the certificate files
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
+    if server_filename == "":
+        server_filename = config.UserConnectionIP.replace(".", "-")+"_"+config.version.replace(".","-")+"_"+config.nodeID+".p12"
+
     pref_file_template = Template("""<?xml version='1.0' encoding='ASCII' standalone='yes'?>
     <preferences>
         <preference version="1" name="cot_streams">
@@ -204,10 +207,12 @@ def generate_standard_zip(server_address: str = None, server_filename: str = "se
         zipf.write('manifest.xml')
         zipf.write(user_filename)
         zipf.write(server_filename)
+
+
     os.remove('fts.pref')
     os.remove('manifest.xml')
 
-def generate_wintak_zip(server_address: str = None, server_filename: str = "server.p12", user_filename: str = "Client.p12",
+def generate_wintak_zip(server_address: str = None, server_filename: str = "", user_filename: str = "Client.p12",
                  cert_password: str = config.password, ssl_port: str = "8089") -> None:
     """
     A Function to generate a Client connection Data Package (DP) from a server and user p12 file in the current
@@ -218,6 +223,8 @@ def generate_wintak_zip(server_address: str = None, server_filename: str = "serv
     :param cert_password: The password for the certificate files
     :param ssl_port: The port used for SSL CoT, defaults to 8089
     """
+    if server_filename == "":
+        server_filename = config.UserConnectionIP.replace(".", "-")+"_"+config.version.replace(".","-")+"_"+config.nodeID+".p12"
     pref_file_template = Template("""<?xml version='1.0' standalone='yes'?>
     <preferences>
         <preference version="1" name="cot_streams">
@@ -349,18 +356,29 @@ class AtakOfTheCerts:
             print("The directory for storing certificates doesn't exist.")
             print("Creating one at " + config.certsPath)
             os.makedirs(config.certsPath)
+        serial_number = random.getrandbits(64)
 
         ca_key = crypto.PKey()
         ca_key.generate_key(crypto.TYPE_RSA, 2048)
         cert = crypto.X509()
-        cert.get_subject().CN = "CA"
-        cert.set_serial_number(0)
+        cn = random.getrandbits(64)
+        cert.get_subject().CN = str(cn)
+        cert.get_subject().ST = "Nova Scotia"
+        cert.get_subject().C = "CA"
+        cert.get_subject().O = "FreeTAKServer"
+        cert.get_subject().OU = "Core Dev"
+        cert.get_subject().L = "Halifax"
+        cert.set_serial_number(serial_number)
         cert.set_version(2)
+
         cert.gmtime_adj_notBefore(0)
         cert.gmtime_adj_notAfter(expiry_time_secs)
         cert.set_issuer(cert.get_subject())
-        cert.add_extensions([crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
-                                crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')])
+        cert.add_extensions([
+                                crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
+                                crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')
+                            ])
+        
         cert.set_pubkey(ca_key)
         cert.sign(ca_key, "sha256")
 
@@ -424,6 +442,11 @@ class AtakOfTheCerts:
             chain = (ca_pem,)
             cert = crypto.X509()
             cert.get_subject().CN = common_name
+            cert.get_subject().ST = "Nova Scotia"
+            cert.get_subject().C = "CA"
+            cert.get_subject().O = "FreeTAKServer"
+            cert.get_subject().OU = "Core Dev"
+            cert.get_subject().L = "Halifax"
             cert.set_serial_number(serial_number)
             cert.gmtime_adj_notBefore(0)
             cert.gmtime_adj_notAfter(expiry_time_secs)

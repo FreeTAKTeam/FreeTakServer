@@ -1,5 +1,5 @@
 """this module contains only the DomainMetricsController class"""
-from digitalpy.component.impl.default_meter_controller import MeterController
+from digitalpy.core.main.impl.default_meter_controller import MeterController
 from ..configuration.domain_constants import COMPONENT_NAME, METRICS_ADDRESS
 
 

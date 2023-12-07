@@ -98,6 +98,8 @@ Certs:
     @mock.patch('builtins.open',
                 create=True,
                 new=mock.mock_open(read_data=yaml_config))
+    @mock.patch('os.path.exists', mock.Mock(return_value=True))
+    @mock.patch('os.access', mock.Mock(return_value=True))
     def test_yaml_config(self):
         config = MainConfig.instance(config_file='/dev/null')
 
@@ -115,6 +117,8 @@ Certs:
     @mock.patch.dict(os.environ, {'FTS_SSLCOT_PORT': '10000'}) # int test
     @mock.patch.dict(os.environ, {'FTS_COT_TO_DB': '1'})            # bool test
     @mock.patch.dict(os.environ, {'FTS_PERSISTENCE_PATH': '/tmp/fts'})         # str test
+    @mock.patch('os.path.exists', mock.Mock(return_value=True))
+    @mock.patch('os.access', mock.Mock(return_value=True))
     def test_yaml_config_with_env_override(self):
         config = MainConfig.instance(config_file='/dev/null')
 

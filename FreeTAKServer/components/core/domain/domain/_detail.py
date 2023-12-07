@@ -7,10 +7,14 @@
 # Original author: Corvo
 #
 #######################################################
-
+from typing import TYPE_CHECKING
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-
+if TYPE_CHECKING:
+    from . import contact
+    from . import usericon
+    from . import marti
+    from . import mission
 
 class detail(CoTNode):
     """An optional element used to hold CoT sub-schema. empty element"""
@@ -21,7 +25,7 @@ class detail(CoTNode):
         super().__init__(self.__class__.__name__, configuration, model)
 
     @CoTProperty
-    def marti(self):
+    def marti(self) -> 'marti':
         data = self.cot_attributes.get("marti", None)
         if data is None:
             raise AttributeError("attribute 'marti' doesnt exist")
@@ -43,7 +47,7 @@ class detail(CoTNode):
         self.cot_attributes["link"] = link
 
     @CoTProperty
-    def contact(self):
+    def contact(self) -> 'contact':
         data = self.cot_attributes.get("contact", None)
         if data is None:
             raise AttributeError("attribute 'contact' doesnt exist")
@@ -52,6 +56,17 @@ class detail(CoTNode):
     @contact.setter
     def contact(self, contact):
         self.cot_attributes["contact"] = contact
+
+    @CoTProperty
+    def mission(self) -> 'mission':
+        data = self.cot_attributes.get("mission", None)
+        if data is None:
+            raise AttributeError("attribute 'mission' doesnt exist")
+        return data
+
+    @mission.setter
+    def mission(self, mission):
+        self.cot_attributes["mission"] = mission
 
     @CoTProperty
     def emergency(self):
@@ -74,3 +89,14 @@ class detail(CoTNode):
     @remarks.setter
     def remarks(self, remarks):
         self.cot_attributes["remarks"] = remarks
+    
+    @CoTProperty
+    def usericon(self) -> 'usericon':
+        data = self.cot_attributes.get("usericon", None)
+        if data is None:
+            raise AttributeError("attribute 'usericon' doesnt exist")
+        return data
+    
+    @usericon.setter
+    def usericon(self, usericon):
+        self.cot_attributes["usericon"] = usericon

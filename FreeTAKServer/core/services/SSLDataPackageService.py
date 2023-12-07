@@ -1,4 +1,5 @@
 import ssl
+from digitalpy.core.main.object_factory import ObjectFactory
 
 from eventlet import listen, wrap_ssl, wsgi
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
@@ -17,7 +18,7 @@ loggingConstants = LoggingConstants(log_name="FTS-SSL_DataPackage_Service")
 logger = CreateLoggerController("FTS-SSL_DataPackage_Service", logging_constants=loggingConstants).getLogger()
 
 class SSLDataPackageService(FlaskFunctions):
-    def startup(self, ip, port, pipe):
+    def startup(self, ip, port, pipe, factory):
         try:
             global IP, HTTPPORT
             init_config()
@@ -25,6 +26,7 @@ class SSLDataPackageService(FlaskFunctions):
             IP = ip
             HTTPPORT = port
             PIPE = pipe
+            ObjectFactory.configure(factory)
             # Make sure the data package directory exists
             # Create the relevant database tables
             print(const.IP)

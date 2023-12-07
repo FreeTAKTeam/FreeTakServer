@@ -14,6 +14,41 @@ class RestEnumerations:
         'Blue': 'Blue'
     }
 
+    simplified_squad_types = {
+        "Sniper": "a-.-G-U-C-I-d",
+        "Medic": "a-.-G-U-i-m-etf",
+        "Recon": "a-.-G-U-C-R",
+        "LMG": "a-.-G-E-W-R",
+        "Grenadier": "a-.-G-E-W-Z",
+        "anti Tank": "a-.-G-U-C-A-A",
+        "AA": "a-.-G-U-C-D",
+        "Engineer": "a-.-G-U-C-E",
+        "Mortar": "a-.-G-E-W-O"
+    }
+
+    ems_nicknames = {
+        "Vehicle": "a-.-G-E-V-C",
+        "Ambulance": "a-.-G-E-V-m",
+        "Emergency Station": "a-.-G-I-i-e",
+        "Police Station": "a-.-G-I-i-l",
+        "gas Station": "a-.-G-I-R-P",
+        "Power Station": "a-.-G-I-U-E",
+        "Telco Station": "a-.-G-I-U-T",
+        "Hospital": "a-.-G-I-X-H",
+        "Resources": "a-.-G-U-i",
+        "Food": "b-r-.-O-O-O",
+        "Police": "a-.-G-U-i-l-cct",
+        "Incident": "a-.-X-i-o",
+        "SAR": "a-.-A-M-F-Q-H",
+        "Medevac": "a-.-G-U-C-V-R-E",
+        "Alarm": "b-l",
+        "Disorder": "b-l-l-l-cd",
+        "Refugees": "b-r-.-O-I-R",
+        "Riot": "b-r-.-O-I-V"
+    }
+
+    
+
     SquadTypes = {
         "Gnd Combat Infantry Rifleman": "a-.-G-U-C-I",
         "Gnd Combat Infantry grenadier": "a-.-G-E-W-Z",
@@ -34,11 +69,29 @@ class RestEnumerations:
         "Ground": "a-.-G"
     }
 
+    IncidentTypeNicknames = {
+        "geo incident": "a-.-X-i-g",
+        "avalanche": "a-.-X-i-g-a",
+        "earthquake": "a-.-X-i-g-e",
+        "landslide": "a-.-X-i-g-l",
+        "subsistance": "a-.-X-i-g-s",
+        "volcano": "a-.-X-i-g-v",
+        "eruption": "a-.-X-i-g-v-e",
+        "drought": "a-.-X-i-m-d",
+        "cyclone": "a-.-X-i-m-c",
+        "tsunami": "a-.-X-i-m-n",
+        "fire": "a-.-X-i-f",
+        "medical incident": "a-.-X-i-h",
+        "vehicle accident": "a-.-X-i-t-v-a"
+    }
+
     supportedTypeEnumerations = {}
     
     supportedTypeEnumerations.update(otherTypes)
     supportedTypeEnumerations.update(SquadTypes)
-
+    supportedTypeEnumerations.update(simplified_squad_types)
+    supportedTypeEnumerations.update(ems_nicknames)
+    supportedTypeEnumerations.update(IncidentTypeNicknames)
     """
     used when creating an emergency
     """
@@ -48,6 +101,8 @@ class RestEnumerations:
         "Geo-fence Breached": "b-a-g",
         "In Contact": "b-a-o-opn",
     }
+
+    supportedTypeEnumerations.update(emergencyTypes)
 
     """
     used to define how the message is sent
@@ -89,17 +144,17 @@ class RestEnumerations:
     inserted into COTTYPE
     '''
     attitude = {
-        "friend": "a-f-",
-        "friendly": "a-f-",
-        "hostile": "a-h-",
-        "unknown": "a-u-",
-        "pending": "a-p-",
-        "assumed": "a-a-",
-        "neutral": "a-n-",
-        "suspect": "a-s-",
-        "joker": "a-j-",
-        "faker": "a-k-",
-        "atoms": "a-"}
+        "friend": "-f-",
+        "friendly": "-f-",
+        "hostile": "-h-",
+        "unknown": "-u-",
+        "pending": "-p-",
+        "assumed": "-a-",
+        "neutral": "-n-",
+        "suspect": "-s-",
+        "joker": "-j-",
+        "faker": "-k-",
+    }
 
     '''
     the base types without an id
@@ -623,7 +678,6 @@ class RestEnumerations:
         "Airborne command post": "a-.-A-M-F-Q-D",
         "Attack": "a-.-A-M-F-Q-A",
         "Fighter": "a-.-A-M-F-Q-F",
-        "Medevac": "a-.-A-M-F-Q-O",
         "Patrol": "a-.-A-M-F-Q-P",
         "Combat search &amp; rescue (CSAR)": "a-.-A-M-F-Q-H",
         "Special operations forces (SOF)": "a-.-A-M-F-Q-M",
@@ -644,7 +698,6 @@ class RestEnumerations:
         "Backhoe": "a-.-G-E-V-E-H",
         "Ferry transporter": "a-.-G-E-V-E-F",
         "Crane loading device": "a-.-G-E-V-S-C",
-        "Ambulance": "a-.-G-E-V-U-A",
         "Tow truck": "a-.-G-E-V-U-T",
         "Medium": "a-.-S-C-A-L-S-M",
         "Tank": "a-.-S-C-A-L-S-T",
@@ -949,7 +1002,6 @@ class RestEnumerations:
         "App control- Sync (subscribe)": "t-x-a-s-c",
         "Filter": "t-x-a-f",
         "Open": "t-x-a-o",
-        "Medevac": "t-x-v-m",
         "Reply": "y",
         "Ack": "y-a",
         "Rcvd": "y-a-r",
@@ -1103,3 +1155,5 @@ class RestEnumerations:
         "DRUG VEHICLE": "b-r-.-O-I-D",
         "INTERNAL SECURITY FORCE": "b-r-.-O-I-F",
         "NON-COT OBJECT": "b-x.*"}
+    
+    supportedTypeEnumerations.update(geoObject)

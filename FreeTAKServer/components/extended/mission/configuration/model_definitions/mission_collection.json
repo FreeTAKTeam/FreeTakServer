@@ -1,0 +1,29 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://iec.ch/TC57/mission_collection#",
+	"type": "object",
+	"properties":
+	{
+		"mission_collection":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/MissionInfo" },
+				{ "$ref": "#/definitions/MissionData" }
+			]
+		}
+	},
+	"definitions":
+	{
+		"MissionInfo" : 
+		{
+			"type": "object",
+			"description" : "",
+			"properties":
+			{
+				
+			}
+		}
+	}
+}

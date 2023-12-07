@@ -48,6 +48,13 @@ class ExCheckController:
         except Exception as e:
             self.logger.error(str(e))
 
+    def get_excheck_item(self, hash, uid):
+        if hash == None:
+            hash_val = "*"
+        if uid == None:
+            uid_val = "*"
+        return templateSerializer().convert_object_to_json(DatabaseController().query_ExCheck(query=f"uid={uid_val} and hash={hash_val}"))
+
     def template(self, pipe):
         try:
             # this is where the client will post the xmi of a template
@@ -138,7 +145,7 @@ class ExCheckController:
 
         excheckobj = self.dbController.query_ExCheck(f'ExCheckData.uid = "{subscription}"', verbose=True)[0]
         self.dbController.create_Excheckchecklist(
-            startTime=datetime.datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S.%fZ'),
+            startTime=datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S.%fZ'),
             creatorUid=request.args.get('clientUid'),
             description=request.args.get('description'),
             callsign=request.args.get('callsign'),

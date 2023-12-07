@@ -9,7 +9,6 @@ from digitalpy.core.domain.node import Node
 from typing import List, Union
 
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence import CotManagementRepeaterPersistence
-from FreeTAKServer.core.cot_management.controllers.cot_management_geo_object_controller import CotManagementGeoObjectController
 # used for type hinting
 from FreeTAKServer.components.core.domain.domain import Event
 
@@ -20,15 +19,13 @@ class CotManagementRepeaterController(Controller):
         self,
         request: Request,
         response: Response,
-        cot_management_action_mapper: ActionMapper,
+        sync_action_mapper: ActionMapper,
         configuration: Configuration,
     ) -> None:
-        super().__init__(request, response, cot_management_action_mapper, configuration)
-        self.persistency_controller = CotManagementRepeaterPersistence(request, response, cot_management_action_mapper, configuration)
-        self.geo_object_cotroller = CotManagementGeoObjectController(request, response, cot_management_action_mapper, configuration)
+        super().__init__(request, response, sync_action_mapper, configuration)
+        self.persistency_controller = CotManagementRepeaterPersistence(request, response, sync_action_mapper, configuration)
 
     def initialize(self, request, response):
-        self.geo_object_cotroller.initialize(request, response)
         self.request = request
         self.response = response
 

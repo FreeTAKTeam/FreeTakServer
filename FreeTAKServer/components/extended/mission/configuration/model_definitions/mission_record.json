@@ -1,0 +1,57 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"id": "http://iec.ch/TC57/emergency_alert#",
+	"type": "object",
+	"properties":
+	{
+		"emergency_alert":
+		{
+			"type": "object",
+			"anyOf":
+			[
+				{ "$ref": "#/definitions/MissionData" },
+				{ "$ref": "#/definitions/MissionContent" },
+				{ "$ref": "#/definitions/MissionContentData" }
+			]
+		}
+	},
+	"definitions":
+	{
+    "MissionData" : 
+		{
+			"type": "object",
+			"description" : "",
+			"properties":
+			{
+				
+				
+			}
+		},
+		"MissionExternalData":{
+			"type": "object",
+			"description": "",
+			"properties": {
+				
+			}
+		},
+		"MissionContent" : 
+		{
+			"type": "object",
+			"description" : "",
+			"properties":
+			{
+				"data":
+				{
+					"$ref" : "#/definitions/MissionContentData",
+					"minItems" : 1,
+					"maxItems" : 1
+				}
+			}
+		},
+		"MissionContentData":{
+			"type": "object",
+			"description": "",
+			"properties": {}
+		}
+	}
+}

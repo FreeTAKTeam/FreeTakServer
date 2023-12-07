@@ -1,0 +1,151 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://iec.ch/TC57/Mission Invite#",
+    "title": "Event",
+    "type": "object",
+    "description": "represents a TAK event: this class is instantiated with a standard set of values.\n  The opex field is intended to indicate that the event is part of a   live operation, an exercise, or a simulation.  For backward compatibility, absence of the opex indicates \"no statement\", which will be interpreted in   an installation specific manner.\n  \n  opex=\"o-&lt;name&gt;\" or \"e-&lt;nickname&gt;\"  or \"s-&lt;nickname&gt;\",\n  where \"-&lt;name&gt;\" is optional.  That is, it is permissible to   specify only \"o\", \"e\", or \"s\" for the opex value.\n<ul>\n\t<li>  o = operations</li>\n\t<li>  e = exercise</li>\n</ul>\n  s = simulation",
+    "properties": {
+    },
+    "definitions": {
+      "Event":{
+        "type": "object",
+        "properties": {
+          "access": {
+            "description": "Specifies access controls that should be applied to the event",
+            "type": "string",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "detail": {
+            "$ref": "#/definitions/detail",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "how": {
+            "description": "Gives a hint about how the coordinates were generated.  It is used specifically to relay a hint about the types of errors that may be expected in the data and to weight the data in systems that fuse  multiple inputs.",
+            "type": "string",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "point": {
+            "$ref": "#/definitions/point",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "stale": {
+            "description": "The \"stale\" attribute defines the ending time of the event's validity interval. The start and stale fields together define an interval in time.\nIt has the same format as time and start.\nending time when an event should no longer be considered valid l (with respect to Zulu time in extended ISO 8601 format)\nIn protobuff is in milliseconds\n\nthe attribute is calculated as following\nString stale = DateUtil.toCotTime(millis + 20L * 1000L);",
+            "type": "integer",
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      },
+      "detail": {
+        "type": "object",
+        "description": "An optional element used to hold CoT sub-schema. Detail has no special properties.\n<b>   Detail entities...</b>\n  The \"detail\" entity is intended to carry information that is   specific to smaller communities of producers and consumers and     require more intimate knowledge of the operating domain.  For example, mesurated \"target\" events may come from dramatically     different sources and need to propagate dramatically different     \"detail\" information.  A close-air-support mission will augment     target details with initial point and callsign details to     facilitate coordination of weapon delivery.  In contrast, a mission planning system may augment planned targets with target     catalog information and weapon fuzing requirements.  Because the \"details\" portion of the event are of interest only to a subset of subscribers, that entity may be mentioned by reference     when the event is communicated.  This reduces the congestion when events are transmitted over bandwidth limited links and also     prevents the retransmission of static data elements.",
+        "properties": {
+          "mission": {
+            "$ref": "#/definitions/mission",
+            "minItems": 0,
+            "maxItems": 1
+          }
+        }
+      },
+      "mission": {
+        "type": "object",
+        "description": "the main class representing a Mission",
+        "properties": {
+          "authorUid": {
+            "type": "var",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "name": {
+            "description": "the name of the mission",
+            "type": "var",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "role": {
+            "$ref": "#/definitions/role",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "token": {
+            "description": "JSON Web Token (JWT).\nA JWT is composed of three parts:\n\nHeader: The header typically consists of two parts: the type of the token, which is JWT, and the signing algorithm being used, such as HMAC SHA256 or RSA.\n\nPayload: The second part of the token is the payload, which contains the claims. Claims are statements about an entity (typically, the user) and additional data. There are three types of claims: registered, public, and private claims.\n\nSignature: To create the signature part you have to take the encoded header, the encoded payload, a secret, the algorithm specified in the header, and sign that.",
+            "type": "integer",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "tool": {
+            "description": "the tool used to create this Mission or the context (goven by the COT)",
+            "type": "var",
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      },
+      "permission": {
+        "type": "object",
+        "properties": {
+          
+        }
+      },
+      "permissions": {
+        "type": "object",
+        "properties": {
+          "permission": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/permission"
+            }
+          }
+        }
+      },
+      "point": {
+        "type": "object",
+        "properties": {
+          "ce": {
+            "description": "Circular area around the point defined by lat and lon fields in meters.  Although named ce, this field is intended to define a circular area around the event point, not necessarily an error (e.g. Describing a reservation area is not an \"error\").  \n\nIf it is appropriate for the \"ce\" field to represent an error value (e.g. event describes laser designated target), the value will represent the one sigma point for a zero mean  normal (Guassian) distribution.",
+            "type": "number",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "hae": {
+            "description": "Height above Ellipsoid based on WGS-84 ellipsoid (measured in meters) \nHAE acronym for Height above Ellipsoid based on WGS-84 ellipsoid (measured in meters).",
+            "type": "number",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "lat": {
+            "description": "Latitude referred to the WGS 84 ellipsoid in degrees",
+            "type": "number",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "le": {
+            "description": "Linear Error in meters associated with the HAE field. Although named le, this field is intended to define a height range about the event point, not necessarily an error. This field, along with the ce field allow for the definition of a cylindrical volume about the point. If it is appropriate for the \"le\" field to represent an error (e.g. event describes laser designated target), the value will represent the one sigma point for a zero mean normal (Guassian) distribution.\nA height range about the event point in meters associated with the HAE field. When used to represent error, the value represents the one sigma point for a zero mean normal (Gaussian) distribution.",
+            "type": "number",
+            "minItems": 1,
+            "maxItems": 1
+          },
+          "lon": {
+            "description": "Longitude referred to the WGS 84 in degrees",
+            "type": "number",
+            "minItems": 1,
+            "maxItems": 1
+          }
+        }
+      },
+      "role": {
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "$ref": "#/definitions/permissions",
+            "minItems": 0,
+            "maxItems": 1
+          }
+        }
+      }
+    }
+  }

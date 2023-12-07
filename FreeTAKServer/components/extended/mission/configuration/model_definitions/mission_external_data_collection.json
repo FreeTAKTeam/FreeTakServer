@@ -1,0 +1,54 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://example.com/message#",
+    "type": "object",
+    "properties": {
+        "message": {
+            "$ref": "#/definitions/MissionInfoSingle"
+        }
+    },
+    "definitions": {
+        "MissionInfoSingle": {
+            "type": "object",
+            "properties": {
+                "version": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/MissionExternalData"
+                },
+                "nodeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "MissionExternalData": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tool": {
+                    "type": "string"
+                },
+                "urlData": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "uid": {
+                    "type": "string"
+                },
+                "urlView": {
+                    "type": "string",
+                    "format": "uri"
+                }
+            }
+        }
+    }
+}

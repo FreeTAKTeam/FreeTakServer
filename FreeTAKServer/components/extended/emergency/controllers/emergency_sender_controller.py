@@ -18,11 +18,12 @@ class EmergencySenderController(Controller):
     # internal action mapper is used so that the serialize_emergency controller can be reached
     def __init__(
         self,
+        sync_action_mapper: ActionMapper,
         request: Request,
         response: Response,
-        emergency_action_mapper: ActionMapper,
         configuration: Configuration,
-        sync_action_mapper: ActionMapper,
+        emergency_action_mapper: ActionMapper,
+        
     ):
         super().__init__(request, response, emergency_action_mapper, configuration)
         self.emergency_general_controller = EmergencyGeneralController(request, response, sync_action_mapper, configuration)
