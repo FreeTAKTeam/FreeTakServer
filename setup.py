@@ -65,7 +65,7 @@ setup(
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
-        "digitalpy>=0.3.13.2",
+        "digitalpy>=0.3.13.7",
         "opentelemetry-sdk",
         "PyJWT"
     ],
