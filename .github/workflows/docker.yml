@@ -28,6 +28,7 @@ jobs:
 
     - name: Push image to registry
       run: |
+        SANITIZED_TAG="$(echo ${IMAGE_TAG//[^[:alnum:]]/_} | tr '[:upper:]' '[:lower:]' )"
         docker push $REGISTRY_URL:$SANITIZED_TAG
         docker push $REGISTRY_URL:$IMAGE_SHA
 
