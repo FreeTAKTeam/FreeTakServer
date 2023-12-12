@@ -5,8 +5,9 @@ on:
   push:
 
 env:
-  IMAGE_BASE: freetakteam/ui
+  IMAGE_BASE: freetakteam
   IMAGE_TAG: ${{ github.ref_name }}
+  SANITIZED_TAG: ${IMAGE_TAG//_/-}
   IMAGE_SHA: ${{ github.sha }}
   OC_REGISTRY: ghcr.io
 
