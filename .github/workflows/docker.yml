@@ -7,7 +7,6 @@ on:
 env:
   IMAGE_BASE: freetakteam/freetakserver
   IMAGE_TAG: ${{ github.ref_name }}
-  SANITIZED_TAG: ${IMAGE_TAG//_/-}
   IMAGE_SHA: ${{ github.sha }}
   OC_REGISTRY: ghcr.io
 
@@ -19,7 +18,9 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the container image
       # can this be converted to podman at some point to be more foss?
-      run: docker build . --file Dockerfile --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_TAG --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_SHA --label "runnumber=${GITHUB_RUN_ID}"
+      run: |
+        SANITIZED_TAG="$(echo "${IMAGE_TAG//[^[:alnum:]]/_}" | tr '[:upper:]' '[:lower:]' | )"
+        docker build . --file Dockerfile --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_TAG --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_SHA --label "runnumber=${GITHUB_RUN_ID}"
 
     - name: Log in to registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login $OC_REGISTRY -u $ --password-stdin
