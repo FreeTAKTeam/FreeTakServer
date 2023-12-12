@@ -27,6 +27,6 @@ jobs:
     - name: Push image to registry
       run: |
         echo IMAGE_BASE=$IMAGE_BASE
-        docker push $OC_REGISTRY/$IMAGE_BASE:$IMAGE_TAG
+        docker push $OC_REGISTRY/$IMAGE_BASE:$SANITIZED_TAG
         docker push $OC_REGISTRY/$IMAGE_BASE:$IMAGE_SHA
 
