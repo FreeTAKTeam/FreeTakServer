@@ -5,7 +5,7 @@ on:
   push:
 
 env:
-  IMAGE_BASE: freetakteam
+  IMAGE_BASE: freetakteam/freetakserver
   IMAGE_TAG: ${{ github.ref_name }}
   SANITIZED_TAG: ${IMAGE_TAG//_/-}
   IMAGE_SHA: ${{ github.sha }}
