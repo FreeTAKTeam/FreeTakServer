@@ -20,7 +20,7 @@ jobs:
       # can this be converted to podman at some point to be more foss?
       run: |
         SANITIZED_TAG="$(echo ${IMAGE_TAG//[^[:alnum:]]/_} | tr '[:upper:]' '[:lower:]' )"
-        docker build . --file Dockerfile --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_TAG --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_SHA --label "runnumber=${GITHUB_RUN_ID}"
+        docker build . --file Dockerfile --tag $OC_REGISTRY/$IMAGE_BASE:$SANITIZED_TAG --tag $OC_REGISTRY/$IMAGE_BASE:$IMAGE_SHA --label "runnumber=${GITHUB_RUN_ID}"
 
     - name: Log in to registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login $OC_REGISTRY -u $ --password-stdin
