@@ -99,5 +99,5 @@ class EnterpriseSync(DefaultFacade):
         self.general_controller.get_all_enterprise_sync_metadata(*args, **kwargs)
 
     @DefaultFacade.public
-    def delete_enterpire_sync_data(self, *args, **kwargs):
+    def delete_enterprise_sync_data(self, *args, **kwargs):
         self.general_controller.delete_enterprise_sync_data(*args, **kwargs)
