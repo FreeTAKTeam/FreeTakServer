@@ -23,28 +23,27 @@ setup(
     include_package_data=True,
     install_requires=[
         "bitarray",
-        "blinker>=1.6.2",  # Required for flask 2.3.2
-        "click==8.1.3",  # Bumping from 8.0.4 for flask 2.3.2
+        "click==8.0.4",
         "colorama==0.4.4",
         "cryptography==36.0.2",
         "bcrypt==3.1.7",
         "defusedxml==0.7.1",
         "dnspython==2.2.1",
         "eventlet==0.33.1",
-        "Flask==2.3.2",
+        "Flask==1.1.2",
         "Flask-Cors==3.0.9",
         "Flask-HTTPAuth==4.2.0",
-        "Flask-Login==0.6.3",  # Upgrading from 0.5.0 for flask 2.3.2 and Werkzeug 2.3.3
+        "Flask-Login==0.5.0",
         "Flask-SocketIO==4.3.1",
-        "Flask-SQLAlchemy==3.1.1",  # Upgrading from 2.4.4 for flask 2.3.2
+        "Flask-SQLAlchemy==2.4.4",
         "geographiclib==1.52",
         "geopy==2.2.0",
         "greenlet==2.0.2",
-        "itsdangerous==2.1.2",  # Upgrading from 2.0.1 for flask 2.3.2
+        "itsdangerous==2.0.1",
         "testresources==2.0.1",
-        "Jinja2==3.1.2",  # Upgrading from 2.11.2 for flask 2.3.2
+        "Jinja2==2.11.2",
         "lxml",
-        "MarkupSafe==2.1.1",  # Upgrading from 2.0.1 for Flask 2.3.2 and Werkzeug 2.3.3
+        "MarkupSafe==2.0.1",
         "monotonic==1.6",
         "pathlib2==2.3.7.post1",
         "protobuf==3.18.3",
@@ -56,9 +55,9 @@ setup(
         "ruamel.yaml==0.17.21",
         "ruamel.yaml.clib==0.2.7",
         "six==1.16.0",
-        "SQLAlchemy==2.0.16",  # Upgrading from 1.3.20 for flask 2.3.2
+        "SQLAlchemy==1.3.20",
         "tabulate==0.8.7",
-        "Werkzeug==2.3.3",  # Upgrading from 2.0.3 for flask 2.3.2
+        "Werkzeug==2.0.3",
         "WTForms==2.3.3",
         "pyOpenSSL==22.0.0",
         "qrcode==7.3.1",
@@ -66,7 +65,7 @@ setup(
         "asyncio==3.4.3",
         "xmltodict",
         "pyzmq",
-        "digitalpy>=0.3.13.2",
+        "digitalpy>=0.3.13.7",
         "opentelemetry-sdk",
         "PyJWT"
     ],
