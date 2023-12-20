@@ -11,7 +11,7 @@ from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_d
 from FreeTAKServer.core.util.time_utils import get_current_datetime
 
 from tests.test_components.misc import ComponentTest
-from tests.test_components.test_mission_component.mission_model_test_utils import add_test_mission_content, create_cot, create_enterprise_sync_metadata, create_test_mission, create_log, add_log_to_mission
+from tests.test_components.test_mission_component.mission_model_test_utils import add_test_mission_content, create_mission_cot, create_enterprise_sync_metadata, create_test_mission, create_log, add_log_to_mission
 from tests.test_components.test_mission_component.test_mission_notification_controller_schemas import TEST_COT_CREATED_NOTIFICATION_SCHEMA, TEST_NEW_MISSION_SCHEMA
 from digitalpy.core.main.object_factory import ObjectFactory
 
@@ -110,7 +110,7 @@ def test_cot_created_notification(get_mission_cot_mock):
 
     mission = create_test_mission()
 
-    cot = create_cot()
+    cot = create_mission_cot()
 
     mission.cots.append(cot)
     

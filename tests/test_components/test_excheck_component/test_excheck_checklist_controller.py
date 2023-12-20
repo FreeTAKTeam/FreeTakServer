@@ -2,7 +2,7 @@ from unittest.mock import patch
 from FreeTAKServer.components.extended.excheck.excheck_facade import Excheck
 from tests.test_components.misc import ComponentTest
 from tests.test_components.test_excheck_component.test_excheck_checklist_controller_schemas import TEST_START_CHECKLIST_SCHEMA
-from tests.test_components.test_mission_component.mission_model_test_utils import create_cot
+from tests.test_components.test_mission_component.mission_model_test_utils import create_mission_cot
 from digitalpy.core.main.object_factory import ObjectFactory
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 import pathlib

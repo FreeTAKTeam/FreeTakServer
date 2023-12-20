@@ -1,11 +1,11 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from FreeTAKServer.core.cot_management.cot_management_facade import CotManagement
 from tests.test_components.misc import ComponentTest
 from digitalpy.core.main.object_factory import ObjectFactory
 from tests.test_components.test_cot_manager_component.test_cot_manager_general_controller_schema import TEST_MISSION_COT
 
-
-def test_handle_default_cot():
+@patch("FreeTAKServer.core.cot_management.controllers.cot_management_persistence_controller.CoTManagementPersistenceController.create_or_update_cot")
+def test_handle_default_cot(create_or_update_cot_mock):
     setup = ComponentTest(TEST_MISSION_COT, mock_sub_actions=False, include_base_components=True)
 
     async_action_mapper_mock = MagicMock()
