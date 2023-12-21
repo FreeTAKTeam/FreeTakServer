@@ -405,6 +405,8 @@ def test_create_geo_object(mock_load):
     # instnatiate request and response objects
     request, response = instantiate_request_response("CreateGeoObject")
 
+    request.set_value("dictionary", {})
+
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
 
@@ -418,7 +420,7 @@ def test_create_geo_object(mock_load):
     facade.create_geo_object(**request.get_values())
 
     # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
-    assert response.get_action() == "CreateNode"
+    assert response.get_action() == "publish"
     # assert the message object_class_name is correct
     assert_response_val('object_class_name', str, "Event", response)
     # assert the configuration is of correct type
@@ -429,6 +431,8 @@ def test_create_geo_object_execute(mock_load):
 
     # instnatiate request and response objects
     request, response = instantiate_request_response("CreateGeoObject")
+
+    request.set_value("dictionary", {})
 
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
@@ -443,7 +447,7 @@ def test_create_geo_object_execute(mock_load):
     facade.execute("create_geo_object")
 
     # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
-    assert response.get_action() == "CreateNode"
+    assert response.get_action() == "publish"
     # assert the message object_class_name is correct
     assert_response_val('object_class_name', str, "Event", response)
     # assert the configuration is of correct type
@@ -452,6 +456,8 @@ def test_create_geo_object_execute(mock_load):
 def test_delete_geo_object():
         # instnatiate request and response objects
     request, response = instantiate_request_response("DeleteGeoObject")
+
+    request.set_value("dictionary", {})
 
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
@@ -466,15 +472,17 @@ def test_delete_geo_object():
     facade.delete_geo_object(**request.get_values())
 
     # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
-    assert response.get_action() == "CreateNode"
+    assert response.get_action() == "publish"
     # assert the message object_class_name is correct
     assert_response_val('object_class_name', str, "Event", response)
     # assert the configuration is of correct type
     assert isinstance(response.get_value("configuration"), Configuration)
 
 def test_delete_geo_object_execute():
-        # instnatiate request and response objects
+    # instnatiate request and response objects
     request, response = instantiate_request_response("DeleteGeoObject")
+
+    request.set_value("dictionary", {})
 
     # mock the execute sub action method in the controller class
     mock_controller_execute_sub_action(response)
@@ -489,7 +497,7 @@ def test_delete_geo_object_execute():
     facade.execute("delete_geo_object")
 
     # assert that the next action is GetRepeatedMessages thus resulting in no further actions being called
-    assert response.get_action() == "CreateNode"
+    assert response.get_action() == "publish"
     # assert the message object_class_name is correct
     assert_response_val('object_class_name', str, "Event", response)
     # assert the configuration is of correct type

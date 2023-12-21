@@ -49,6 +49,13 @@ class ComponentTest(DigitalPy):
             ),
         )
 
+        # tests should inject the default action mapper instead of the async action mapper
+        self.configuration.set_value(
+            key="__class",
+            value=f"digitalpy.core.zmanager.impl.default_action_mapper.DefaultActionMapper",
+            section="ActionMapper",
+        )
+
         super().register_components()
         
         # register the internal components

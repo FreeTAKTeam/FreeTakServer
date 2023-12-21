@@ -27,12 +27,12 @@ class EnterpriseSyncDatabaseController(Controller):
     def initialize(self, request: Request, response: Response):
         super().initialize(request, response)
     
-    def delete_enterprise_sync_object(self, objecthash:str=None, objectuid:str=None, *args, **kwargs):
+    def delete_enterprise_sync_object(self, object_hash:str=None, object_uid:str=None, *args, **kwargs):
         db_controller = DatabaseController()
-        if objecthash != None:
-            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == objecthash).first()
-        elif objectuid != None:
-            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == objectuid).first()
+        if object_hash != None:
+            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.hash == object_hash).first()
+        elif object_uid != None:
+            data_obj = db_controller.session.query(EnterpriseSyncDataObject).filter(EnterpriseSyncDataObject.PrimaryKey == object_uid).first()
         else:
             raise Exception("no object uid or hash provided")
         db_controller.session.delete(data_obj)
@@ -144,13 +144,16 @@ class EnterpriseSyncDatabaseController(Controller):
             logger.error("error thrown getting all enterprise sync objs: %s", ex)
             db_controller.session.rollback()
 
-    def get_multiple_enterprise_sync_data_objec(self,  logger, tool: str="*", keyword: str="*", *args, **kwargs):
+    def get_multiple_enterprise_sync_data_objec(self,  logger, tool: str=None, keyword: str=None, *args, **kwargs):
         try:
             db_controller = DatabaseController()
-            data_objs = db_controller.session.query(EnterpriseSyncDataObject)\
-            .join(EnterpriseSyncKeyword)\
-            .filter(EnterpriseSyncDataObject.tool == tool, EnterpriseSyncKeyword.keyword == keyword).all()
-            return data_objs
+            data_objs_query = db_controller.session.query(EnterpriseSyncDataObject)\
+            .join(EnterpriseSyncKeyword)
+            if tool != None:
+                data_objs_query = data_objs_query.filter(EnterpriseSyncDataObject.tool == tool)
+            if keyword != None:
+                data_objs_query = data_objs_query.filter(EnterpriseSyncKeyword.keyword == keyword)
+            return data_objs_query.all()
         except Exception as ex:
             logger.error("error thrown getting enterprise sync objs by tool: %s", ex)
             db_controller.session.rollback()

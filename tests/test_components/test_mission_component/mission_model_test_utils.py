@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock
 from FreeTAKServer.components.extended.mission.persistence.log import Log
 from FreeTAKServer.components.extended.mission.persistence.mission import Mission as MissionDBObj
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
@@ -8,7 +9,7 @@ from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_d
 from FreeTAKServer.core.util.time_utils import get_current_datetime
 
 def create_test_mission():
-    mission = MissionDBObj()
+    mission = MagicMock(MissionDBObj)
 
     mission.name = "test_mission"
 
@@ -25,7 +26,7 @@ def create_test_mission():
     return mission
 
 def create_enterprise_sync_metadata():
-    enterprise_sync_metadata = EnterpriseSyncDataObject()
+    enterprise_sync_metadata = MagicMock(EnterpriseSyncDataObject)
 
     enterprise_sync_metadata.start_time = get_current_datetime()
 
@@ -54,7 +55,7 @@ def create_enterprise_sync_metadata():
     return enterprise_sync_metadata
 
 def add_test_mission_content(mission: MissionDBObj):
-    mission_content = MissionContent()
+    mission_content = MagicMock(MissionContent)
 
     mission_content.PrimaryKey = "test_mission_content_id"
 
@@ -106,7 +107,7 @@ def create_log():
     return log
 
 def add_log_to_mission(mission: MissionDBObj, log: Log):
-    mission_log = MissionLog()
+    mission_log = MagicMock(MissionLog)
 
     mission_log.mission = mission
 
@@ -116,8 +117,8 @@ def add_log_to_mission(mission: MissionDBObj, log: Log):
 
     log.missions.append(mission_log)
 
-def create_cot():
-    cot = MissionCoT()
+def create_mission_cot():
+    cot = MagicMock(MissionCoT)
 
     cot.callsign = "test_callsign"
 
@@ -136,3 +137,6 @@ def create_cot():
     cot.create_time = get_current_datetime()
 
     return cot
+
+def create_event_db():
+    
