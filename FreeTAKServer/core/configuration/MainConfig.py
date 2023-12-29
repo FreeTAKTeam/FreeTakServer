@@ -189,7 +189,7 @@ class MainConfig:
         "yaml_path": {"default": f"{PERSISTENCE_PATH}/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
         # radius of emergency within-which users will receive it
-        "EmergencyRadius": {"default": 10, "type": int},
+        "EmergencyRadius": {"default": 0, "type": int},
         # set the persistence path
         "persistencePath": {"default": PERSISTENCE_PATH, "type": str}
     }
