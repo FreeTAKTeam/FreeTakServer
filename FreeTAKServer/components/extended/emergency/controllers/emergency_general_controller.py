@@ -75,10 +75,13 @@ class EmergencyGeneralController(Controller):
 
         # check that the distance between the user and the emergency is less than 10km
         # TODO: this hardcoded distance should be added to the business rules
-        return (
-            distance.geodesic(
-                (connection_location.lat, connection_location.lon),
-                (emergency.point.lat, emergency.point.lon),
-            ).km
-            < config.EmergencyRadius
-        )
+        if config.EmergencyRadius==0:
+            return True
+        else:
+            return (
+                distance.geodesic(
+                    (connection_location.lat, connection_location.lon),
+                    (emergency.point.lat, emergency.point.lon),
+                ).km
+                < config.EmergencyRadius
+            )
