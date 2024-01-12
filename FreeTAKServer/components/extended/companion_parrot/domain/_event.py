@@ -1,4 +1,4 @@
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration
 import uuid
 from datetime import datetime as dt
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
@@ -6,7 +6,7 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 
 
 class Event(CoTNode):
-    def __init__(self, configuration: Configuration, model):
+    def __init__(self, configuration: ModelConfiguration, model):
         super().__init__(self.__class__.__name__, configuration, model)
         self.cot_attributes["version"] = None
         self.cot_attributes["uid"] = None

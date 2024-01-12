@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, List
 
 from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from FreeTAKServer.model.FTSModel.Dest import Dest as DestObject
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
@@ -20,7 +20,7 @@ class marti(
 ):  # ignore this because the class name must match that of the CoT ignore pylint: disable=invalid-name
     __counter = counter()
 
-    def __init__(self, configuration: Configuration, model):
+    def __init__(self, configuration: ModelConfiguration, model):
         # self.__dest = [DestObject(self.__counter)]
         # self.__tempdest = self.__dest
         super().__init__(self.__class__.__name__, configuration, model)

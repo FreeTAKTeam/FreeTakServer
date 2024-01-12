@@ -12,10 +12,10 @@ from FreeTAKServer.model.FTSModelVariables.UsericonVariables import UsericonVari
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration
 
 class usericon(CoTNode):
-    def __init__(self, configuration: Configuration, model):
+    def __init__(self, configuration: ModelConfiguration, model):
         
         super().__init__(self.__class__.__name__, configuration, model)
         self.cot_attributes["iconsetpath"] = None

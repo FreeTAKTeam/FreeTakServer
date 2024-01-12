@@ -177,7 +177,8 @@ class FTS(DigitalPy):
                     FTSServiceStartupConfigObject.RestAPIService.RestAPIServiceIP,
                     FTSServiceStartupConfigObject.RestAPIService.RestAPIServicePort,
                     self.StartupTime,
-                    ObjectFactory.get_instance("factory")
+                    ObjectFactory.get_instance("factory"),
+                    ObjectFactory.get_instance("tracingprovider")
                 ),
             )
             self.receive_Rest.start()
@@ -748,7 +749,7 @@ class FTS(DigitalPy):
         except:
             return -1
 
-    def configure(self, FTSServiceStartupConfigObject: FTSObj):
+    def configure_fts(self, FTSServiceStartupConfigObject: FTSObj):
         """Set or modify the configuration of the application
 
         Args:
@@ -876,7 +877,7 @@ class FTS(DigitalPy):
 
         _configure_integration_manager(self, FTSServiceStartupConfigObject)
 
-    def register_components(self, FTSServiceStartupConfigObject: FTSObj):
+    def register_fts_components(self, FTSServiceStartupConfigObject: FTSObj):
         """this method is responsible for registering all FTS components"""
         super().register_components()
 
@@ -1533,49 +1534,48 @@ class FTS(DigitalPy):
                 StartupObject.SSLCoTService.SSLCoTServiceStatus = "start"
                 StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
-                self.configure(StartupObject)
-                self.register_components(StartupObject)
-                self.start_services()
+                self.configure_fts(StartupObject)
+                self.register_fts_components(StartupObject)
                 self.start_rest_api_service(StartupObject)
                 self.start_all(StartupObject)
-
-            start_timer = time.time() - 60
-            threading.Thread(target=self.checkPipes).start()
-            while True:
-                try:
-                    if time.time() > start_timer + 15:
-                        start_timer = time.time()
-                        logger.debug(str(self.user_dict))
-                        logger.debug(
-                            f"number of CoT messages received by services: {str(self.data_from_services)}"
-                        )
-                        self.data_from_services = 0
-                except Exception as e:
-                    logger.error(
-                        "the periodic debug message has thrown an error " + str(e)
-                    )
-                try:
-                    self.user_dict = self.receive_data_froCoT_service_thread(
-                        self.service_tcp_user_queue_send,
-                        self.user_dict,
-                        self.core_tcp_user_queue_send,
-                    )
-                except Exception as e:
-                    logger.error(
-                        "error thrown receiving clients from tcp CoT pipe " + str(e)
-                    )
-                try:
-                    self.user_dict = self.receive_data_froCoT_service_thread(
-                        self.service_ssl_user_queue_send,
-                        self.user_dict,
-                        self.core_ssl_user_queue_send,
-                    )
-                except Exception as e:
-                    logger.error(
-                        "error thrown receiving clients from SSL CoT pipe " + str(e)
-                    )
+                self.start()
+                
         except Exception as e:
             logger.error("exception in the startup of FTS " + str(e))
+
+    def start(self):
+        threading.Thread(target=self.checkPipes).start()
+        super().start()
+
+    def event_loop(self):
+        """the main event loop of the FTS server core"""
+        try:
+            start_timer = time.time() - 60
+            if time.time() > start_timer + 15:
+                start_timer = time.time()
+                logger.debug(str(self.user_dict))
+                logger.debug(
+                    "number of CoT messages received by services: %s",
+                    str(self.data_from_services)
+                )
+                self.data_from_services = 0
+        except Exception as ex:
+            logger.error(
+                "the periodic debug message has thrown an error %s",
+                str(ex)
+            )
+            logger.error("error thrown receiving clients from tcp CoT pipe %s", str(ex))
+        try:
+            self.user_dict = self.receive_data_froCoT_service_thread(
+                self.service_ssl_user_queue_send,
+                self.user_dict,
+                self.core_ssl_user_queue_send,
+            )
+        except Exception as ex:
+            logger.error(
+                "error thrown receiving clients from SSL CoT pipe %s", str(ex)
+            )
+        
 
 
 import time
