@@ -9,7 +9,7 @@
 			"type": "object",
 			"anyOf":
 			[
-				{ "$ref": "#/definitions/Event" },
+				{ "$ref": "#/definitions/event" },
 				{ "$ref": "#/definitions/Marti" },
 				{ "$ref": "#/definitions/Precisionlocation" },
 				{ "$ref": "#/definitions/color" },
@@ -26,7 +26,7 @@
 	},
 	"definitions":
 	{
-		"Event" : 
+		"event" : 
 		{
 			"type": "object",
 			"description" : "represents a TAK event: this class is instantiated with a standard set of values.\n  The opex field is intended to indicate that the event is part of a   live operation, an exercise, or a simulation.  For backward compatibility, absence of the opex indicates \"no statement\", which will be interpreted in   an installation specific manner.\n  \n  opex=\"o-&lt;name&gt;\" or \"e-&lt;nickname&gt;\"  or \"s-&lt;nickname&gt;\",\n  where \"-&lt;name&gt;\" is optional.  That is, it is permissible to   specify only \"o\", \"e\", or \"s\" for the opex value.\n<ul>\n\t<li>  o = operations</li>\n\t<li>  e = exercise</li>\n</ul>\n  s = simulation\n",

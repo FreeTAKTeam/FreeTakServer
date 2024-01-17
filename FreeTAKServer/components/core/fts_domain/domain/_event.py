@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 DEFAULT_STALE_TIME = 60
-class Event(CoTNode):
+class event(CoTNode):
     # TODO: fix emergency methods
     # Event.py
     """Python implementation of the Class Event

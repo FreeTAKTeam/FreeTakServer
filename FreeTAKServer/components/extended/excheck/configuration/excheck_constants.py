@@ -61,4 +61,4 @@ MANIFEST_PATH = str(
 
 BASE_OBJECT_NAME = "MissionInfo"
 
-EVENT = "Event"
+EVENT = "event"

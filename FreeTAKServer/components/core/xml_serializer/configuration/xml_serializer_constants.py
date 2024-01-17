@@ -54,7 +54,7 @@ PERSISTENCE_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "persistence/xml_serializer.json")
 )
 
-BASE_OBJECT_NAME = "Event"
+BASE_OBJECT_NAME = "event"
 
 XML_SERIALIZER = "xml_serializer"
 

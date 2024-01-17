@@ -7,13 +7,13 @@
             "type": "object",
             "anyOf": [
                 {
-                    "$ref": "#/definitions/Event"
+                    "$ref": "#/definitions/event"
                 }
             ]
         }
     },
     "definitions": {
-        "Event": {
+        "event": {
             "type": "object",
             "description": "represents a TAK event: this class is instantiated with a standard set of values.",
             "properties": {

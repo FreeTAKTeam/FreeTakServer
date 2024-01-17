@@ -70,7 +70,7 @@ MANIFEST_PATH = str(
 )
 
 
-BASE_OBJECT_NAME = "Event"
+BASE_OBJECT_NAME = "event"
 
 EMERGENCY_OFF = "emergency_delete"
 

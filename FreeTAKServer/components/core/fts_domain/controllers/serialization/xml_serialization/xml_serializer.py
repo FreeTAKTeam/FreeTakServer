@@ -52,7 +52,7 @@ class XmlSerializer(SerializerAbstract):
     def serialize_model_to_CoT(self, modelObject, tagName="event", level=0):
         from lxml.etree import Element  # pylint: disable=no-name-in-module
 
-        if modelObject.__class__.__name__ == "Event":
+        if modelObject.__class__.__name__ == "event":
             request = ObjectFactory.get_new_instance("request")
             request.set_action("ConvertHumanReadableToMachineReadable")
             request.set_context("MEMORY")
@@ -225,7 +225,7 @@ class XmlSerializer(SerializerAbstract):
         """
         # this function is responsible for converting the base type from
         # human readable back to machine readable
-        if FTSObject.__class__.__name__ == "Event":
+        if FTSObject.__class__.__name__ == "event":
             request = ObjectFactory.get_new_instance("request")
             request.set_action("ConvertHumanReadableToMachineReadable")
             request.set_context("MEMORY")

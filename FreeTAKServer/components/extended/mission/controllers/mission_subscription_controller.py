@@ -4,8 +4,8 @@ from FreeTAKServer.components.extended.excheck.domain.mission_info import Missio
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_token_controller import MissionTokenController
-from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
-from FreeTAKServer.components.core.domain.domain import role
+from FreeTAKServer.components.core.fts_domain.domain import MissionInfoSingle
+from FreeTAKServer.components.core.fts_domain.domain import role
 from FreeTAKServer.components.extended.mission.persistence.permission import Permission
 from FreeTAKServer.components.extended.mission.persistence.role_permission import RolePermission
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription

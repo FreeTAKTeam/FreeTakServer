@@ -1,15 +1,15 @@
 from uuid import uuid4
-from FreeTAKServer.components.core.domain.domain import Event
+from FreeTAKServer.components.core.fts_domain.domain import event
 
 from ...domain import MissionInvitationList
 from ...domain import permissions as ModelPermissions, permission as ModelPermission
 
-from FreeTAKServer.components.core.domain.domain._role import role
+from FreeTAKServer.components.core.fts_domain.domain._role import role
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_INVITATION_NOTIFICATION
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.domain.mission_list_cot_content import MissionListCoTContent
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
-from FreeTAKServer.components.core.domain.domain import MissionInfo
+from FreeTAKServer.components.core.fts_domain.domain import MissionInfo
 from FreeTAKServer.components.extended.mission.persistence.mission_invitation import MissionInvitation
 from FreeTAKServer.core.util.time_utils import get_dtg
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
@@ -21,11 +21,11 @@ class MissionInvitationNotificationBuilder(Builder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.result: Event = None
+        self.result: event = None
 
     def build_empty_object(self, config_loader, *args, **kwargs):
         """Builds a mission list change object"""
-        self.request.set_value("object_class_name", "Event")
+        self.request.set_value("object_class_name", "event")
         
         configuration = config_loader.find_configuration(MISSION_INVITATION_NOTIFICATION)
         
