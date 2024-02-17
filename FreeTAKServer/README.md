@@ -9,7 +9,7 @@ it's free and open source (released under the Eclipse Public License).
 
 ## User Documentation
 
-For documentation on installation and usage visit https://freetakteam.github.io/FreeTAKServer-User-Docs/
+For documentation on installation and usage visit <https://freetakteam.github.io/FreeTAKServer-User-Docs/>
 
 ## Supported Use cases
 
@@ -22,7 +22,7 @@ It intends to support all the major use cases of the original TAK server.
 
 This code is currently in _Early Production Stage_.
 Check out our roadmap [@FreeTakServer#25](https://github.com/FreeTAKTeam/FreeTakServer/issues/25) to see what is planned
-If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as TAKFreeServer is in contionous development.
+If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as TAKFreeServer is in continuos development.
 
 ### Donate back
 
@@ -48,13 +48,13 @@ we support a [public instance](https://www.reddit.com/r/ATAK/wiki/index/freetaks
 - download the configuration [here](https://drive.google.com/file/d/1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli/view?usp=sharing)
 - use the Import manager in ATAK to import the configuration
 
-### Tell us what you think!
+### Tell us what you think
 
 to discuss with the developer team
 Use the reddit server
-https://www.reddit.com/r/ATAK/
+<https://www.reddit.com/r/ATAK/>
 and the Discord chat
-https://discordapp.com/invite/XEPyhHA
+<https://discordapp.com/invite/XEPyhHA>
 
 ## Architecture
 
@@ -73,7 +73,7 @@ under /docs, you can find various documents including an UML model of the Domain
 
 ## Installing and using FreeTakServer
 
-For documentation on installation and usage visit https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/PyPi/Linux/Install/
+For documentation on installation and usage visit <https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/PyPi/Linux/Install/>
 
 ### Windows
 
@@ -113,7 +113,7 @@ pip install FreeTAKServer --upgrade
 ```
 
 subscribe to this feed to be automatically informed about new versions:
-https://pypi.org/rss/project/freetakserver/releases.xml
+<https://pypi.org/rss/project/freetakserver/releases.xml>
 
 ### client2client datapackages
 
@@ -139,5 +139,5 @@ If you run it at home and port forward on router doesn't work, check if you rece
   - **TAKLinuxService**: a demon for linux OS
   - **TakWinService**: a service for the windows OS
 - Docs: Useful documentation regarding COTS and different logs to understand how those are implemented
-- Model: a UML model in Sparx EnterpriseArchitect format (see https://sparxsystems.com/products/ea/trial/request.html).
+- Model: a UML model in Sparx EnterpriseArchitect format (see <https://sparxsystems.com/products/ea/trial/request.html>).
 - Old: Legacy versions
