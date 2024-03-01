@@ -51,7 +51,7 @@ setup(
         "pykml==0.2.0",
         "python-engineio==3.13.2",
         "python-socketio==4.6.0",
-        "PyYAML==6.0",
+        "PyYAML==6.0.1",
         "ruamel.yaml==0.17.21",
         "ruamel.yaml.clib==0.2.7",
         "six==1.16.0",
