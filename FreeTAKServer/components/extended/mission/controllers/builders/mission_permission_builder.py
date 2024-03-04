@@ -1,11 +1,11 @@
-from FreeTAKServer.components.core.domain.domain import Event
+from FreeTAKServer.components.core.fts_domain.domain import event
 from ...domain import permission as ModelPermission
 
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_PERMISSION
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.domain import details, location
 from FreeTAKServer.components.extended.mission.domain import permission as MissionPermission
-from FreeTAKServer.components.core.domain.domain import role
+from FreeTAKServer.components.core.fts_domain.domain import role
 from FreeTAKServer.components.extended.mission.persistence.permission import Permission
 from FreeTAKServer.components.extended.mission.persistence.role import Role
 from FreeTAKServer.core.util.time_utils import get_dtg

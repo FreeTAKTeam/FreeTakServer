@@ -5,7 +5,7 @@ from FreeTAKServer.components.core.abstract_component.cot_property import CoTPro
 from FreeTAKServer.components.extended.mission.domain import details
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.core.domain.domain import MissionContentData
+    from FreeTAKServer.components.core.fts_domain.domain import MissionContentData
     from FreeTAKServer.components.extended.mission.domain import externalData
 
 class MissionChangeRecord(CoTNode):

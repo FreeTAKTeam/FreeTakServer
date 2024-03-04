@@ -7,12 +7,12 @@ from FreeTAKServer.components.extended.mission.domain import detail, notes, exte
 from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
-from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
+from FreeTAKServer.components.core.fts_domain.domain import MissionChangeRecord
 from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 from FreeTAKServer.core.util.time_utils import get_current_dtg
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.core.domain.domain import Event
+    from FreeTAKServer.components.core.fts_domain.domain import event
 
 
 class MissionExternalDataNotificationBuilder(Builder):
@@ -24,11 +24,11 @@ class MissionExternalDataNotificationBuilder(Builder):
 
     def build_empty_object(self, config_loader, *args, **kwargs):
         """Builds a mission change object"""
-        self.request.set_value("object_class_name", "Event")
+        self.request.set_value("object_class_name", "event")
 
         configuration = config_loader.find_configuration(MISSION_EXTERNAL_DATA_NOTIFICATION)
 
-        self.result: Event = super()._create_model_object(configuration, extended_domain={"notes": notes, "externalData": externalData, "tool": tool, "urlData": urlData, "urlView": urlView})
+        self.result: event = super()._create_model_object(configuration, extended_domain={"notes": notes, "externalData": externalData, "tool": tool, "urlData": urlData, "urlView": urlView})
 
     def add_object_data(self, mapped_object: ExternalData):
         """adds the data from the mapped object to the mission """

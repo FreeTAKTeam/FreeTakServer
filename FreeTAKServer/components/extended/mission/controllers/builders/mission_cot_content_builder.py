@@ -1,10 +1,10 @@
-from FreeTAKServer.components.core.domain.domain import Event
+from FreeTAKServer.components.core.fts_domain.domain import event
 
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_COT_CONTENT
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.domain import details, location
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
-from FreeTAKServer.components.core.domain.domain import MissionContent
+from FreeTAKServer.components.core.fts_domain.domain import MissionContent
 from FreeTAKServer.core.util.time_utils import get_dtg
 
 class MissionCoTContentBuilder(Builder):
@@ -25,7 +25,7 @@ class MissionCoTContentBuilder(Builder):
     def add_object_data(self, mapped_object: MissionCoT):
         """adds the data from the mapped object to the result object"""
         self.request.set_value("cot_id", mapped_object.uid)
-        cot: 'Event' = self.execute_sub_action("GetCoT").get_value("cot")
+        cot: 'event' = self.execute_sub_action("GetCoT").get_value("cot")
         # set hardcoded values
         self.result.creatorUid = ""
 

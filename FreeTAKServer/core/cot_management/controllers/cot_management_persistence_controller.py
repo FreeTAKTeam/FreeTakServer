@@ -10,7 +10,7 @@ from FreeTAKServer.core.cot_management.persistence.marti import Marti
 from FreeTAKServer.core.cot_management.persistence.usericon import Usericon
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.core.domain.domain import Event
+    from FreeTAKServer.components.core.fts_domain.domain import event
 
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.core.cot_management.persistence import CoTManagementBase
@@ -63,7 +63,7 @@ class CoTManagementPersistenceController(Controller):
         return SessionClass()
 
     # TODO add logic to update dests
-    def update_cot(self, cot_id: str, cot: 'Event'):
+    def update_cot(self, cot_id: str, cot: 'event'):
         cot_item = self.get_cot(cot_id)
         if cot_item is None:
             raise ValueError("Invalid COT provided.")
@@ -119,7 +119,7 @@ class CoTManagementPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
-    def create_or_update_cot(self, cot: 'Event'):
+    def create_or_update_cot(self, cot: 'event'):
         try:
             cot_item = self.get_cot(cot.uid)
             if cot_item is None:
@@ -129,7 +129,7 @@ class CoTManagementPersistenceController(Controller):
         except Exception as ex:
             raise ex
         
-    def create_cot(self, cot: 'Event'):
+    def create_cot(self, cot: 'event'):
         try:
             cot_item = DBEvent()
             cot_item.uid = cot.uid

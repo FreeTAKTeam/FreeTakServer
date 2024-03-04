@@ -6,7 +6,7 @@ COMPONENT_NAME = "cotmanager"
 
 CONFIGURATION_FORMAT = "json"
 
-BASE_OBJECT_NAME = "Event"
+BASE_OBJECT_NAME = "event"
 
 CURRENT_COMPONENT_PATH = pathlib.Path(__file__).parent.parent.absolute()
 

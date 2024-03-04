@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
-from FreeTAKServer.components.core.domain.domain import MissionInfoSingle
+from FreeTAKServer.components.core.fts_domain.domain import MissionInfoSingle
 
-from FreeTAKServer.components.core.domain.domain import MissionLog
+from FreeTAKServer.components.core.fts_domain.domain import MissionLog
 from FreeTAKServer.components.extended.excheck.domain.mission_changes import MissionChanges
 from FreeTAKServer.components.extended.mission.controllers.mission_director import Director
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
@@ -13,8 +13,8 @@ if TYPE_CHECKING:
     
     from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 
-from FreeTAKServer.components.core.domain.domain import Event
-from FreeTAKServer.components.core.domain.domain import MissionSubscription
+from FreeTAKServer.components.core.fts_domain.domain import event
+from FreeTAKServer.components.core.fts_domain.domain import MissionSubscription
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
 from digitalpy.core.main.controller import Controller
@@ -24,15 +24,15 @@ from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
 from digitalpy.core.parsing.load_configuration import LoadConfiguration
 
-from FreeTAKServer.components.core.domain.domain import MissionInfo
-from FreeTAKServer.components.core.domain.domain import MissionData
-from FreeTAKServer.components.core.domain.domain import MissionExternalData
-from FreeTAKServer.components.core.domain.domain import role
-from FreeTAKServer.components.core.domain.domain import MissionContentData
-from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
-from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
-from FreeTAKServer.components.core.domain.domain import MissionContent
-from FreeTAKServer.components.core.domain.domain import mission as DomainMissionCot
+from FreeTAKServer.components.core.fts_domain.domain import MissionInfo
+from FreeTAKServer.components.core.fts_domain.domain import MissionData
+from FreeTAKServer.components.core.fts_domain.domain import MissionExternalData
+from FreeTAKServer.components.core.fts_domain.domain import role
+from FreeTAKServer.components.core.fts_domain.domain import MissionContentData
+from FreeTAKServer.components.core.fts_domain.domain import MissionChangeRecord
+from FreeTAKServer.components.core.fts_domain.domain import MissionChangeRecord
+from FreeTAKServer.components.core.fts_domain.domain import MissionContent
+from FreeTAKServer.components.core.fts_domain.domain import mission as DomainMissionCot
 
 from ..persistence.mission import Mission as DBMission
 from ..persistence.mission_content import MissionContent as DBMissionContent
@@ -127,7 +127,7 @@ class MissionDomainController(Controller):
     
         return mission_change_record
 
-    def complete_mission_change_notification(self, mission_change_notification: Event, mission_change_db: 'MissionChange', config_loader, *args, **kwargs) -> MissionChangeRecord:
+    def complete_mission_change_notification(self, mission_change_notification: event, mission_change_db: 'MissionChange', config_loader, *args, **kwargs) -> MissionChangeRecord:
         """complete a mission change record from a db object"""
         mission_change = mission_change_notification.detail.mission.MissionChanges.MissionChange[0]
         mission_change.type.text = mission_change_db.type
@@ -259,14 +259,14 @@ class MissionDomainController(Controller):
 
     def create_mission_notification(self, config_loader,*args, **kwargs):
         """create a new mission notification object"""
-        self.request.set_value("object_class_name", "Event")
+        self.request.set_value("object_class_name", "event")
 
         configuration = config_loader.find_configuration(MISSION_NOTIFICATION)
 
         return self.create_model_object(configuration)
 
     def create_mission_change_notification(self, config_loader, *args, **kwargs):
-        self.request.set_value("object_class_name", "Event")
+        self.request.set_value("object_class_name", "event")
 
         configuration = config_loader.find_configuration(MISSION_CHANGE_NOTIFICATION)
 
@@ -302,7 +302,7 @@ class MissionDomainController(Controller):
         mission_content_data_domain.expiration = mission_content_db.expiration
         return mission_content_data_domain
 
-    def complete_mission_creation_notification(self, mission_notification: Event, mission: MissionData, *args, **kwargs) -> Event:
+    def complete_mission_creation_notification(self, mission_notification: event, mission: MissionData, *args, **kwargs) -> event:
         """complete a mission creation notification object based on a mission domain object
 
         Args:
@@ -413,7 +413,7 @@ class MissionDomainController(Controller):
 
         return detailobj
 
-    def complete_mission_cot_notification(self, notification_details: details, cot_record: Event, *args, **kwargs):
+    def complete_mission_cot_notification(self, notification_details: details, cot_record: event, *args, **kwargs):
         notification_details.callsign = cot_record.detail.contact.callsign
         notification_details.type = cot_record.type
         notification_details.iconsetPath = cot_record.detail.usericon.iconsetpath

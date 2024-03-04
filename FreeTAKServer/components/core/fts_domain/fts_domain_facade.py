@@ -1,6 +1,6 @@
 from digitalpy.core.component_management.impl.default_facade import DefaultFacade
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
-from FreeTAKServer.components.core.domain.configuration.domain_constants import (
+from FreeTAKServer.components.core.fts_domain.configuration.domain_constants import (
     ACTION_MAPPING_PATH,
     LOGGING_CONFIGURATION_PATH,
     INTERNAL_ACTION_MAPPING_PATH,
@@ -14,7 +14,7 @@ from . import base
 config = MainConfig.instance()
 
 
-class Domain(DefaultFacade):
+class FtsDomain(DefaultFacade):
     """This is the facade class for the domain component, it is responsible
     for handling all public routing and forwards all requests to the internal routing
     """

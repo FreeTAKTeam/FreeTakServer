@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_EXTERNAL_DATA
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.persistence.external_data import ExternalData
-from FreeTAKServer.components.core.domain.domain import MissionExternalData
+from FreeTAKServer.components.core.fts_domain.domain import MissionExternalData
 from FreeTAKServer.core.util.time_utils import get_dtg
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.core.domain.domain import Event
+    from FreeTAKServer.components.core.fts_domain.domain import event
 
 
 class MissionStandardExternalDataBuilder(Builder):

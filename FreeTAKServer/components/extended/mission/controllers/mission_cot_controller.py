@@ -14,7 +14,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_external_data
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import (
     MissionPersistenceController,
 )
-from FreeTAKServer.components.core.domain.domain import mission
+from FreeTAKServer.components.core.fts_domain.domain import mission
 from FreeTAKServer.core.util.serialization_utils import serialize_to_json
 from FreeTAKServer.core.util.time_utils import (
     get_datetime_from_dtg,
@@ -32,7 +32,7 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from lxml import etree
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.core.domain.domain import Event
+    from FreeTAKServer.components.core.fts_domain.domain import event
 
 config = MainConfig.instance()
 
@@ -73,11 +73,11 @@ class MissionCOTController(Controller):
 
         events = self.domain_controller.create_events(config_loader)
 
-        self.request.set_value("object_class_name", "Event")
+        self.request.set_value("object_class_name", "event")
         
         for cot in mission_cots:
             self.request.set_value("cot_id", cot.uid)
-            cot_obj: 'Event' = self.execute_sub_action("GetCoT").get_value("cot")
+            cot_obj: 'event' = self.execute_sub_action("GetCoT").get_value("cot")
             
             self.request.set_value("node", cot_obj)
 

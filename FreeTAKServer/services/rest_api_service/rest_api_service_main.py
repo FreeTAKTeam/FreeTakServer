@@ -24,6 +24,7 @@ from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.parsing.formatter import Formatter
+from digitalpy.core.telemetry.tracing_provider import TracingProvider
 
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 
@@ -1841,7 +1842,16 @@ class RestAPI(DigitalPyService):
     responses: Dict[str, Response] = {}
 
     def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
-        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+        super().__init__(service_id, 
+                         subject_address, 
+                         subject_port, 
+                         subject_protocol, 
+                         integration_manager_address, 
+                         integration_manager_port, 
+                         integration_manager_protocol, 
+                         formatter,
+                         network=None,
+                         protocol=APPLICATION_PROTOCOL)
 
     def get_response_in_responses(self, id):
         # check if the response has already been received
@@ -1898,12 +1908,12 @@ class RestAPI(DigitalPyService):
         super().stop()
         socketio.stop()
 
-    def start(self, APIPipea, CommandPipea, IP, Port, starttime, factory):
+    def start(self, APIPipea, CommandPipea, IP, Port, starttime, object_factory, tracing_provider: TracingProvider, host: str = "", port: int = 0):
         print('running api')
         
-        super().start()
+        super().start(object_factory=object_factory, tracing_provider=tracing_provider)
         self.initialize_connections(APPLICATION_PROTOCOL)
-        ObjectFactory.configure(factory)
+        ObjectFactory.configure(object_factory)
         from .controllers import persistency
         persistency.init_config(app)
         global APIPipe, CommandPipe, StartTime
