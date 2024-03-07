@@ -31,9 +31,11 @@ from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from flask_cors import CORS, cross_origin
 
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, send_file, escape, make_response
+from flask import Flask, request, send_file, make_response
 from flask.logging import default_handler
 from werkzeug.utils import secure_filename
+
+from markupsafe import escape
 
 # Make a connection to the MainConfig object for all routines below
 config = MainConfig.instance()
