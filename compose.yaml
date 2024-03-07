@@ -1,5 +1,5 @@
 services:
-  fts:
+  freetakserver:
     image: freetakserver:latest
     pull_policy: build
     restart: unless-stopped
@@ -7,8 +7,21 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./base-config/:/opt/fts/:rw,Z
-    network_mode: "host"
+      - free-tak-core-db:/opt/fts/
+    ports:
+      # DataPackagePort
+      - 8080:8080
+      # CoTPort
+      - 8087:8087
+      # SSLCoTPort
+      - 8089:8089
+      # SSLDataPackagePort
+      - 8443:8443
+      # FederationPort
+      #- 9000:9000
+      # APIPort - Don't expose by default
+      #- 19023:19023
+
     environment:
         # The ChangeMe section
         FTS_FED_PASSWORD: "defaultpass"
@@ -54,3 +67,6 @@ services:
         FTS_MAINLOOP_DELAY: 100
         FTS_EMERGENCY_RADIUS: 0 # radius of emergency within-which users will receive it
         FTS_LOG_LEVEL: "info"
+
+volumes:
+  free-tak-core-db:
