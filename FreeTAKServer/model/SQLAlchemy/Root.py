@@ -10,7 +10,10 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, String, Integer
 
-Base = declarative_base()
+class Base:
+    __allow_unmapped__ = True
+
+Base = declarative_base(cls=Base)
 
 class Root:
     uid = Column(String(100))
