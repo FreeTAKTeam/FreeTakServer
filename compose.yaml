@@ -1,0 +1,56 @@
+services:
+  fts:
+    image: freetakserver:latest
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./base-config/:/opt/fts/:rw,Z
+    network_mode: "host"
+    environment:
+        # The ChangeMe section
+        FTS_FED_PASSWORD: "defaultpass"
+        FTS_CLIENT_CERT_PASSWORD: "password"
+        FTS_SECRET_KEY: "vnkdjnfjknfl1232#"
+        FTS_NODE_ID: "fl5m8j5txlgdtfv8wi96zf8tt0howddo"
+        FTS_CONNECTION_MESSAGE: "Welcome to FreeTAKServer. The Parrot is not dead. It’s just resting"
+
+        # Networking
+        FTS_COT_PORT: 8087
+        FTS_SSLCOT_PORT: 8089
+        FTS_API_PORT: 19023
+        FTS_FED_PORT: 9000
+
+        FTS_DP_ADDRESS: 127.0.0.1
+        FTS_USER_ADDRESS: 127.0.0.1
+        FTS_API_ADDRESS: 0.0.0.0
+
+        FTS_ROUTING_PROXY_SUBSCRIBE_PORT: 19030
+        FTS_ROUTING_PROXY_SUBSCRIBE_IP: 127.0.0.1
+
+        FTS_ROUTING_PROXY_PUBLISHER_PORT: 19032
+        FTS_ROUTING_PROXY_PUBLISHER_IP: 127.0.0.1
+
+        FTS_ROUTING_PROXY_SERVER_PORT: 19031
+        FTS_ROUTING_PROXY_SERVER_IP: 127.0.0.1
+
+        FTS_INTEGRATION_MANAGER_PULLER_PORT: 19033 # port to receive worker responses by the integration manager
+        FTS_INTEGRATION_MANAGER_PULLER_ADDRESS: 127.0.0.1 # address to receive worker responses by the integration manager
+
+        FTS_INTEGRATION_MANAGER_PUBLISHER_PORT: 19034 # port from which to publish messages by the integration manager
+        FTS_INTEGRATION_MANAGER_PUBLISHER_ADDRESS: 127.0.0.1 # address from which to publish messages by the integration manager
+
+        # Misc Settings
+        FTS_OPTIMIZE_API: True
+        FTS_DATA_RECEPTION_BUFFER: 1024
+        FTS_MAX_RECEPTION_TIME: 4
+        FTS_NUM_ROUTING_WORKERS: 3
+        FTS_COT_TO_DB: True
+        # number of milliseconds to wait between each iteration of main loop
+        # decreasing will increase CPU usage and server performance
+        # increasing will decrease CPU usage and server performance
+        FTS_MAINLOOP_DELAY: 100
+        FTS_EMERGENCY_RADIUS: 0 # radius of emergency within-which users will receive it
+        FTS_LOG_LEVEL: "info"
