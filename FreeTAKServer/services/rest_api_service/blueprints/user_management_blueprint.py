@@ -24,8 +24,9 @@ page = Blueprint('user_management', __name__)
 
 @page.route('/GenerateQR', methods=['GET'])
 def generate_qr():
-    datapackage_id = request.args.get('datapackage_id')
-    dp = RestAPICommunicationController().make_request("GetEnterpriseSyncMetaData", "", {"id": datapackage_id}).get_value("objectmetadata")
+    datapackage_hash = request.args.get('datapackage_hash')
+    resp = RestAPICommunicationController().make_request("GetEnterpriseSyncMetaData", "", {"objecthash": datapackage_hash})
+    dp = resp.get_value("objectmetadata")
     qr = qrcode.QRCode(
         version=1,
         box_size=10,
