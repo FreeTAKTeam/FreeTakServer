@@ -1901,6 +1901,9 @@ class RestAPI(DigitalPyService):
     def start(self, APIPipea, CommandPipea, IP, Port, starttime, factory):
         print('running api')
         
+        #ObjectFactory.configure(factory)
+        #tracing_provider = ObjectFactory.get_instance("TracingProvider")
+        #super().start(factory, tracing_provider)
         super().start()
         self.initialize_connections(APPLICATION_PROTOCOL)
         ObjectFactory.configure(factory)
