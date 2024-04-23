@@ -39,7 +39,7 @@ from FreeTAKServer.core.configuration.CreateLoggerController import CreateLogger
 from FreeTAKServer.core.services.federation.federation import (
     FederationServerService,
 )
-from FreeTAKServer.services.federation_client_service.federation_client_service_main import (
+from FreeTAKServer.core.services.federation.FederationClientService import (
     FederationClientServiceController,
 )
 from FreeTAKServer.core.services.SSLCoTServiceController import (
