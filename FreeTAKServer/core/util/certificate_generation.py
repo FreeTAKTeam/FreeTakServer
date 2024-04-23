@@ -19,6 +19,8 @@ import pathlib
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 from werkzeug.utils import secure_filename
 
+from cryptography.hazmat.primitives.serialization import pkcs12 
+
 try:
     import requests
 except ImportError:
@@ -454,11 +456,16 @@ class AtakOfTheCerts:
             cert.set_pubkey(self.key)
             cert.set_version(2)
             cert.sign(ca_key, "sha256")
+
+            # p12Cert = pkcs12.PKCS12Certificate(cert, None)
+            # p12 = pkcs12.PKCS12KeyAndCertificates(self, self.key, p12Cert, tuple(chain))
+            
             p12 = crypto.PKCS12()
             p12.set_privatekey(self.key)
             p12.set_certificate(cert)
             p12.set_ca_certificates(tuple(chain))
             p12data = p12.export(passphrase=bytes(self.CERTPWD, encoding='UTF-8'))
+
             with open(p12path, 'wb') as p12file:
                 p12file.write(p12data)
 
