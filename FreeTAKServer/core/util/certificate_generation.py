@@ -374,51 +374,40 @@ class AtakOfTheCerts:
         from cryptography.hazmat.primitives import hashes, serialization 
 
         one_day = datetime.timedelta(1,0,0)
-        builder = x509.CertificateBuilder()
-        builder = builder.subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'FTS')]))
-        builder = builder.issuer_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'Core Dev')]))
-        builder = builder.not_valid_before(datetime.datetime.today() - one_day)
-        builder = builder.not_valid_after(datetime.datetime.today() + (one_day * 30)) # Set this to a custom time?
-        builder = builder.serial_number(x509.random_serial_number())
+        ca_builder = x509.CertificateBuilder()
+        ca_builder = ca_builder.subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'FTS')]))
+        ca_builder = ca_builder.issuer_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'Core Dev')]))
+        ca_builder = ca_builder.not_valid_before(datetime.datetime.today() - one_day)
+        ca_builder = ca_builder.not_valid_after(datetime.datetime.today() + (one_day * 30)) # Set this to a custom time?
+        ca_builder = ca_builder.serial_number(x509.random_serial_number())
         
-        builder = builder.add_extension(
+        ca_builder = ca_builder.add_extension(
             x509.BasicConstraints(ca=False, path_length=None), critical= True, )
-        builder = builder.add_extension(
+        ca_builder = ca_builder.add_extension(
             x509.KeyUsage(False, False, False, False, False, True, True, False, False), critical=True 
         )
-        cert = builder.sign(private_key=ca_private_key, algorithm=hashes.SHA256(),)
+        cert = ca_builder.sign(private_key=ca_private_key, algorithm=hashes.SHA256(),)
         
-        cn = random.getrandbits(64)
-        # cert.get_subject().CN = str(cn)
-        # cert.get_subject().ST = "Nova Scotia"
-        # cert.get_subject().C = "CA"
-        # cert.get_subject().O = "FreeTAKServer"
-        # cert.get_subject().OU = "Core Dev"
-        # cert.get_subject().L = "Halifax"
-        # cert.set_serial_number(serial_number)
-        # cert.set_version(2)
+        # Dumping the private key to the private key file. 
+        with open(self.cakeypath, "wb") as key_file: 
+            key_dump = ca_private_key.private_bytes (
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS12,
+                encryption_algorithm=serialization.BestAvailableEncryption(self.CERTPWD.encode('utf-8')) # needs a bytes argument. bytes(selfcertpwd)
+            )
+            key_file.write(key_dump)
 
-        # cert.gmtime_adj_notBefore(0)
-        # cert.gmtime_adj_notAfter(expiry_time_secs)
-        # cert.set_issuer(cert.get_subject())
-        # cert.add_extensions([
-        #                         crypto.X509Extension(b'basicConstraints', False, b'CA:TRUE'),
-        #                         crypto.X509Extension(b'keyUsage', False, b'keyCertSign, cRLSign')
-        #                     ])
+        # f = open(self.capempath, "wb")
+        # f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+        # f.close()
         
-        # cert.set_pubkey(ca_key)
-        # cert.sign(ca_key, "sha256")
-
-        f = open(self.cakeypath, "wb")
-        f.write(serialization.load_pem_private_key(ca_private_key, None) )
-        f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, ca_key))
-        f.close()
-
-        f = open(self.capempath, "wb")
-        f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
-        f.close()
-
-        # append empty crl
+        # Dumping the certificate to the certificate file. 
+        ''' Not Exactly sure if this correct functionality'''
+        with open(self.capempath, "wb") as cert_file: 
+            cert_dump = cert.public_bytes(encoding=serialization.Encoding.PEM)
+            cert_file.write(cert_dump)
+        
+        # append and build empty crl
         crl = crypto.CRL()
         crl.sign(cert, ca_key, b"sha256")
 
