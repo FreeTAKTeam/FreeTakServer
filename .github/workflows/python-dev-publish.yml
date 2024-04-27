@@ -33,6 +33,7 @@ jobs:
         poetry build
         poetry config repositories.test-pypi https://test.pypi.org/legacy/
         poetry config pypi-token.test-pypi ${{secrets.TEST_PYPI_KEY}}
+        poetry publish -r test-pypi
     - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
       uses: GuillaumeFalourd/clone-github-repo-action@v2
       with:
