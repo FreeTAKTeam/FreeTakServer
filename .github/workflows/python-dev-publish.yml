@@ -13,37 +13,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
-    name: upload release to PyPI
-    runs-on: ubuntu-latest
-    # Specifying a GitHub environment is optional, but strongly encouraged
-    environment: 
-      name: dev
-    permissions:
-      # IMPORTANT: this permission is mandatory for trusted publishing
-      id-token: write
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.sha }}
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.11'
-      # retrieve your distributions here
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build setuptools poetry
-      - name: Build
-        run: poetry build
-
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-
   deploy:
     runs-on: ubuntu-latest
 
@@ -54,6 +23,19 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build setuptools poetry
+    - name: Build and publish
+      continue-on-error: true
+      env:
+        POETRY_REPOSITORIES_DEV_URL: http://test.pypi.org/legacy
+        POETRY_HTTP_BASIC_DEV_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        POETRY_HTTP_BASIC_DEV_PASSWORD: ${{ secrets.TEST_PYPI_KEY }}
+      run: |
+        poetry build
+        poetry publish --repository dev
     - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
       uses: GuillaumeFalourd/clone-github-repo-action@v2
       with:
