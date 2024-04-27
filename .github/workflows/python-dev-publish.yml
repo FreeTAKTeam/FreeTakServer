@@ -30,7 +30,7 @@ jobs:
     - name: Build and publish
       continue-on-error: true
       env:
-        POETRY_REPOSITORIES_DEV_URL: http://test.pypi.org/legacy
+        POETRY_REPOSITORIES_DEV_URL: http://test.pypi.org/legacy/
         POETRY_HTTP_BASIC_DEV_USERNAME: ${{ secrets.PYPI_USERNAME }}
         POETRY_HTTP_BASIC_DEV_PASSWORD: ${{ secrets.TEST_PYPI_KEY }}
       run: |
