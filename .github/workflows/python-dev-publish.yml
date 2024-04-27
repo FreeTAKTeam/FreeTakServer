@@ -29,13 +29,11 @@ jobs:
         pip install build setuptools poetry
     - name: Build and publish
       continue-on-error: true
-      env:
-        POETRY_REPOSITORIES_DEV_URL: http://${{ secrets.DEV_PYPI_ADDRESS }}:8080
-        POETRY_HTTP_BASIC_DEV_USERNAME: ${{ secrets.DEV_PYPI_USERNAME }}
-        POETRY_HTTP_BASIC_DEV_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
       run: |
         poetry build
-        poetry publish --repository dev
+        poetry config repositories.test-pypi https://test.pypi.org/legacy/
+        poetry config pypi-token.test-pypi ${{secrets.TEST_PYPI_KEY}}
+        poetry publish -r test-pypi
     - name: Clone GuillaumeFalourd/poc-github-actions PUBLIC repository
       uses: GuillaumeFalourd/clone-github-repo-action@v2
       with:
