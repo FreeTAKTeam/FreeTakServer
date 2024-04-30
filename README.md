@@ -62,10 +62,8 @@ For installation of FTS, its dependencies, its usage, and information relating t
 
 ## Community
 
-If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as FreeTAKServer is in continuous development.
+If you have any issues don't hesitate to [open an issue](https://github.com/FreeTAKTeam/FreeTakServer/issues), as FreeTAKServer is in continuous development.
 To discuss with the developer team you may use:
-
-To discuss with the developer team:
 
 - Visit the ATAK subreddit
   <https://www.reddit.com/r/ATAK/>
