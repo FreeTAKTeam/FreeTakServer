@@ -103,7 +103,7 @@ You can also support the project by buying one of our [t-shirts](http://tee.pub/
 
 [![Star History Chart](https://api.star-history.com/svg?repos=FreeTAKTeam/FreeTakServer,tkuester/taky,TAK-Product-Center/Server&type=Date)](https://star-history.com/#FreeTAKTeam/FreeTakServer&tkuester/taky&TAK-Product-Center/Server&Date)
 
-# Open Source Notes
+## Open Source Notes
 
 FTS was made possible by the following Open Source projects.
 We'd like to thank the following individuals and organizations for providing crucial support and making FTS possible.
