@@ -53,8 +53,10 @@ To discuss with the developer team:
 
 - Visit the ATAK subreddit
   <https://www.reddit.com/r/ATAK/>
-- or join the Discord chat
+- or join the ATAK Discord
   <https://discordapp.com/invite/XEPyhHA>
+- or join the FreeTakServer Discord
+  <https://discord.gg/VSukyY5wfD>
 
 ## Architecture
 
