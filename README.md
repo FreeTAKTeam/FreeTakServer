@@ -45,7 +45,7 @@ the IP address is TCP: 137.184.101.250:8087
 
 - download the configuration [here](https://drive.google.com/file/d/1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli/view?usp=sharing)
 - use the Import manager in ATAK to import the configuration
-- [more details](https://freetakteam.github.io/FreeTAKServer-User-Docs/Usage/Connecting%20ATAK/)
+- [more details](https://freetakteam.github.io/FreeTAKServer-User-Docs/Usage/Connecting_ATAK/)
 
 ### Tell us what you think
 
