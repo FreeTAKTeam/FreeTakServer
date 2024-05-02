@@ -386,6 +386,7 @@ class AtakOfTheCerts:
         ca_builder = ca_builder.add_extension(
             x509.KeyUsage(False, False, False, False, False, True, True, False, False), critical=True 
         )
+        ca_builder = ca_builder.public_key(ca_public_key)
         cert = ca_builder.sign(private_key=ca_private_key, algorithm=hashes.SHA256(),)
         
         # Dumping the private key to the private key file. 
@@ -408,12 +409,36 @@ class AtakOfTheCerts:
             cert_file.write(cert_dump)
         
         # append and build empty crl
-        crl = crypto.CRL()
-        crl.sign(cert, ca_key, b"sha256")
 
-        with open(config.CRLFile, 'wb') as f:
-            f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
+        # crl.sign(cert, ca_key, b"sha256")
 
+        # Building the an empty Certificate Revocation List (CRL)
+        crl_builder = x509.CertificateRevocationListBuilder()
+        crl_builder = crl_builder.issuer_name(x509.Name([
+            x509.NameAttribute(NameOID.COMMON_NAME, 'FTS'),
+        ]))
+        crl_builder = crl_builder.last_update(datetime.datetime.today())
+        crl_builder = crl_builder.next_update(datetime.datetime.today() + one_day)
+        
+        # Adding a revoked certificate to the crl. 
+        # revoked_cert = x509.RevokedCertificateBuilder().serial_number(
+        #     333
+        # ).revocation_date(
+        #     datetime.datetime.today()
+        # ).build()
+        # crl_builder = crl_builder.add_revoked_certificate(revoked_cert)
+
+        crl = crl_builder.sign(
+            private_key=ca_private_key, algorithm=hashes.SHA256(),
+        )
+        
+        # with open(config.CRLFile, 'wb') as f:
+        #     f.write(crl.export(cert=cert, key=ca_key, digest=b"sha256"))
+
+        # with open(config.CRLFile, 'wb') as crl_file: 
+        #     crl_file.write()
+
+        # What does this section of code do ?
         delete = 0
         with open(self.capempath, "r") as f:
             lines = f.readlines()
