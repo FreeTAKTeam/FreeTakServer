@@ -3,7 +3,7 @@ import random
 import string
 import sys
 import re
-import yaml
+import ruamel.yaml as yaml
 currentPath = os.path.dirname(os.path.abspath(__file__))
 
 from pathlib import Path
@@ -415,7 +415,8 @@ class MainConfig:
     def read_yaml_config(self, yaml_path):
         try:
             content = open(yaml_path).read()
-            yamlConfig = yaml.safe_load(content)
+            yaml_loader = yaml.YAML(typ='safe')
+            yamlConfig = yaml_loader.load(content)
         except OSError as e:
             raise e
 
