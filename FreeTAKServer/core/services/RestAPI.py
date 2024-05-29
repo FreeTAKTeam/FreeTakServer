@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, send_file, escape
+from flask import Flask, request, jsonify, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from flask_httpauth import HTTPTokenAuth
@@ -19,6 +19,8 @@ import io
 from typing import Dict, List
 import zmq
 import time
+
+from markupsafe import escape
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
 from digitalpy.core.main.object_factory import ObjectFactory

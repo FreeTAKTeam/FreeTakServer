@@ -141,4 +141,4 @@ def getDataPackageTool(hash):
     file = BytesIO()
     file.write(data)
     file.seek(0)
-    return send_file(file, as_attachment=True, mimetype=metadata.mime_type, attachment_filename=metadata.file_name)
+    return send_file(file, as_attachment=True, mimetype=metadata.mime_type, download_name=metadata.file_name)

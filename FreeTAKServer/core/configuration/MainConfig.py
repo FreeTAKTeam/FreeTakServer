@@ -11,7 +11,7 @@ from uuid import uuid4
 
 # the version information of the server (recommended to leave as default)
 
-FTS_VERSION = "FreeTAKServer-2.1 RC1"
+FTS_VERSION = "FreeTAKServer-2.2.1"
 API_VERSION = "3"
 ROOTPATH = "/"
 MAINPATH = Path(__file__).parent.parent.parent
@@ -189,7 +189,7 @@ class MainConfig:
         "yaml_path": {"default": f"{PERSISTENCE_PATH}/FTSConfig.yaml", "type": str},
         "ip": {"default": _ip, "type": str},
         # radius of emergency within-which users will receive it
-        "EmergencyRadius": {"default": 10, "type": int},
+        "EmergencyRadius": {"default": 0, "type": int},
         # set the persistence path
         "persistencePath": {"default": PERSISTENCE_PATH, "type": str}
     }
@@ -377,7 +377,7 @@ class MainConfig:
 
             # if config_file not specified, check env or use default location
             if config_file == None:
-                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["yaml_path"]))
+                config_file = str(os.environ.get('FTS_CONFIG_PATH', MainConfig._defaults["yaml_path"]["default"]))
 
             # overlay the yaml config if found
             if os.path.exists(config_file):

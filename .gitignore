@@ -421,4 +421,3 @@ persistence/FTSConfig.yaml
 persistence/installation.json
 poetry.lock
 persistence/FTSConfig.yaml
-pyproject.toml

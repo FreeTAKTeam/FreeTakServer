@@ -158,13 +158,13 @@ class CoTManagementPersistenceController(Controller):
             cot_item.detail.usericon = Usericon()
             cot_item.detail.usericon.iconsetpath = cot.detail.usericon.iconsetpath
             
-            dest_vals = []
+            cot_item.detail.marti = Marti()
+
             for dest in cot.detail.marti.dest:
                 db_dest = Dest()
-                dest_vals.append(Dest())
                 db_dest.callsign = dest.callsign
-            cot_item.detail.marti = Marti()
-            cot_item.detail.marti.dest = dest_vals
+                db_dest.marti = cot_item.detail.marti
+
             self.ses.add(cot_item)
             self.ses.commit()
         except Exception as ex:
