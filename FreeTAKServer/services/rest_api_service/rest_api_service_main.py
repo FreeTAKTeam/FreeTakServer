@@ -25,6 +25,8 @@ from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.parsing.formatter import Formatter
 from digitalpy.core.telemetry.tracing_provider import TracingProvider
+from digitalpy.core.service_management.controllers.service_management_main import ServiceManagementMain
+from digitalpy.core.network.network_interface import NetworkInterface
 
 from FreeTAKServer.core.configuration.CreateLoggerController import CreateLoggerController
 
@@ -1841,17 +1843,11 @@ class RestAPI(DigitalPyService):
     # to prevent confusion between endpoints
     responses: Dict[str, Response] = {}
 
-    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
-        super().__init__(service_id, 
-                         subject_address, 
-                         subject_port, 
-                         subject_protocol, 
-                         integration_manager_address, 
-                         integration_manager_port, 
-                         integration_manager_protocol, 
-                         formatter,
-                         network=None,
-                         protocol=APPLICATION_PROTOCOL)
+    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter,
+                 network: NetworkInterface, protocol: str, service_desc: ServiceManagementMain):
+        
+        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter,
+                         None, protocol, service_desc)
 
     def get_response_in_responses(self, id):
         # check if the response has already been received
@@ -1924,6 +1920,10 @@ class RestAPI(DigitalPyService):
         socketio.run(app, host=IP, port=Port)
         # try below if something breaks
         # socketio.run(app, host='0.0.0.0', port=10984, debug=True, use_reloader=False)
+
+    def event_loop(self):
+        responses = self.broker_receive(blocking=True)
+        self.response_handler(responses=responses)
 
     def register_blueprints(self, app):
         from .blueprints import geoobject_blueprint, emergency_blueprint, user_management_blueprint, datapackages_blueprint, missions_blueprint, excheck_blueprint

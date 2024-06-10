@@ -16,6 +16,7 @@ from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.component_management.impl.component_registration_handler import ComponentRegistrationHandler
 from digitalpy.core.zmanager.subject import Subject
 from digitalpy.core.main.DigitalPy import DigitalPy
+from digitalpy.core.service_management.controllers.service_management_main import ServiceManagementMain
 
 from FreeTAKServer.core.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
@@ -111,6 +112,7 @@ class FTS(DigitalPy):
         :return:
         """
         try:
+            # define configureation for the tcp cot service
             self.configuration.set_value(
                 key="subject_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}",
@@ -154,6 +156,24 @@ class FTS(DigitalPy):
                 section="RestAPIService"
             )
 
+            # TODO: this service should be instantiated via the service manager, this section is a temporary fix
+            self.configuration.set_value(
+                key="port",
+                value="RestAPIService",
+                section="RestAPIService"
+            )
+            self.configuration.set_value(key="default_status", value="Running", section="RestAPIService")
+            self.configuration.set_value(key="name", value="rest_api", section="RestAPIService")
+            self.configuration.set_value(key="description", value="the basic rest api exposed by freetakserver", section="RestAPIService")
+            self.configuration.set_value(key="port", value=19023, section="RestAPIService")
+            self.configuration.set_value(key="host", value="0.0.0.0", section="RestAPIService")
+            self.configuration.set_value(key="service_id", value="FreeTAKServer-rest_api", section="RestAPIService")
+            self.configuration.set_value(key="protocol", value="JSON", section="RestAPIService")
+            self.configuration.set_value(key="network", value="", section="RestAPIService")
+            self.configuration.set_value(key="blueprint_path", value="blueprints/", section="RestAPIService")
+            self.configuration.set_value(key="blueprint_import_base", value="digitalpy.blueprints", section="RestAPIService")
+            rest_service_description = ServiceManagementMain._create_service_description("RestAPIService")
+
             self.RestAPIPipe = Queue()
             restapicommandsthread = Queue()
             restapicommandsmain = Queue()
@@ -168,7 +188,7 @@ class FTS(DigitalPy):
             self.receive_Rest = threading.Thread(
                 target=self.receive_Rest_commands, args=(self.receive_Rest_stopper,)
             )
-            rest_api_service = ObjectFactory.get_instance("RestAPIService")
+            rest_api_service = ObjectFactory.get_instance("RestAPIService", dynamic_configuration={"service_desc": rest_service_description})
             self.RestAPIProcess = multiprocessing.Process(
                 target=rest_api_service.start,
                 args=(
