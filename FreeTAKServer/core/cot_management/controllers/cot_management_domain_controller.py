@@ -7,7 +7,7 @@ from digitalpy.core.parsing.load_configuration import LoadConfiguration
 
 from lxml import etree
 
-from FreeTAKServer.components.core.domain.domain import Event
+from FreeTAKServer.components.core.fts_domain.domain import event
 
 from ..persistence.detail import Detail as DBDetail
 from ..persistence.event import Event as DBEvent
@@ -28,15 +28,15 @@ class CoTManagementDomainController(Controller):
         getattr(self, method)(**self.request.get_values())
         return self.response
     
-    def create_standard_xml(self, config_loader, *args, **kwargs) -> Event:
-        self.request.set_value("object_class_name", "Event")
+    def create_standard_xml(self, config_loader, *args, **kwargs) -> event:
+        self.request.set_value("object_class_name", "event")
         
         configuration = config_loader.find_configuration(BASE_OBJECT)
 
         return self.create_model_object(configuration, extended_domain = {})
 
 
-    def complete_standard_xml(self, event: Event, db_event: DBEvent):
+    def complete_standard_xml(self, event: event, db_event: DBEvent):
         """
         This method completes the standard XML for an event object.
         """

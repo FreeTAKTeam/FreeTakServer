@@ -62,4 +62,4 @@ MANIFEST_PATH = str(
     pathlib.PurePath(CURRENT_COMPONENT_PATH, "configuration/manifest.ini")
 )
 
-BASE_OBJECT_NAME = "Event"
+BASE_OBJECT_NAME = "event"

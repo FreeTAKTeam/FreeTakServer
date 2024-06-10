@@ -4,7 +4,7 @@ from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.action_mapper import ActionMapper
 from digitalpy.core.digipy_configuration.configuration import Configuration
-from digitalpy.core.parsing.load_configuration import Configuration as LoadConf
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as LoadConf
 from digitalpy.core.domain.node import Node
 from .domain import Domain
 from lxml import etree

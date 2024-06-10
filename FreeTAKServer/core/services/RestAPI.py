@@ -23,6 +23,9 @@ import time
 from markupsafe import escape
 
 from digitalpy.core.service_management.digitalpy_service import DigitalPyService
+from digitalpy.core.service_management.controllers.service_management_main import ServiceManagementMain
+from digitalpy.core.network.network_interface import NetworkInterface
+
 from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.request import Request
@@ -1871,8 +1874,10 @@ API_REQUEST_TIMEOUT = 5000
 class RestAPI(DigitalPyService, FlaskView):
     route_base = '/'
 
-    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter):
-        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter)
+    def __init__(self, service_id: str, subject_address: str, subject_port: int, subject_protocol, integration_manager_address: str, integration_manager_port: int, integration_manager_protocol: str, formatter: Formatter,
+                 network: NetworkInterface, protocol: str, service_desc: ServiceManagementMain):
+        super().__init__(service_id, subject_address, subject_port, subject_protocol, integration_manager_address, integration_manager_port, integration_manager_protocol, formatter,
+                         network, protocol, service_desc)
         # a dictionary cotaining the request_id and response objects for all received requests
         # to prevent confusion between endpoints
         self.responses: Dict[str, Response] = {}

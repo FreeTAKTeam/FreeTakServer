@@ -93,7 +93,9 @@ class TCPCoTServiceMain(DigitalPyService):
             integration_manager_address,
             integration_manager_port,
             integration_manager_protocol,
-            formatter
+            formatter,
+            network=None,
+            protocol=APPLICATION_PROTOCOL
         )
         self.logger = logger
 

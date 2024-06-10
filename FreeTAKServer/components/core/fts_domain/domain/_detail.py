@@ -21,8 +21,8 @@ class detail(CoTNode):
 
     __index = -1
 
-    def __init__(self, configuration, model):
-        super().__init__(self.__class__.__name__, configuration, model)
+    def __init__(self, configuration, model, oid=None):
+        super().__init__(self.__class__.__name__, configuration, model, oid)
 
     @CoTProperty
     def marti(self) -> 'marti':

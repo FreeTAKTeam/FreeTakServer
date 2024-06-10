@@ -10,7 +10,7 @@ from FreeTAKServer.components.extended.mission.controllers.mission_external_data
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_token_controller import MissionTokenController
-from FreeTAKServer.components.core.domain.domain import mission
+from FreeTAKServer.components.core.fts_domain.domain import mission
 from FreeTAKServer.components.extended.mission.persistence.subscription import Subscription
 from FreeTAKServer.core.domain.node import Node
 from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
@@ -137,7 +137,7 @@ class MissionGeneralController(Controller):
 
     def create_new_mission_notification(self, mission_id, creator_uid, config_loader, *args, **kwargs):
         """create a new mission notification object"""
-        self.request.set_value("object_class_name", "Event")
+        self.request.set_value("object_class_name", "event")
 
         configuration = config_loader.find_configuration(MISSION_NOTIFICATION)
 

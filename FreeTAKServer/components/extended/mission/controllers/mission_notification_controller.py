@@ -4,7 +4,7 @@ from FreeTAKServer.components.extended.mission.controllers.builders.mission_exte
 from FreeTAKServer.components.extended.mission.controllers.directors.mission_invitation_notification_director import MissionInvitationNotificationDirector
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.core.domain.domain import Event
+    from FreeTAKServer.components.core.fts_domain.domain import event
 
 from FreeTAKServer.components.extended.mission.controllers.mission_domain_controller import MissionDomainController
 from FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller import MissionPersistenceController
@@ -145,7 +145,7 @@ class MissionNotificationController(Controller):
     def send_cot_created_notification(self, mission_cot_id: str, config_loader, *args, **kwargs):
         mission_cot_db: MissionCoT = self.persistence_controller.get_mission_cot(mission_cot_id)
         self.request.set_value("cot_id", mission_cot_db.uid)
-        cot_element: Event = self.execute_sub_action("GetCoT").get_value("cot")
+        cot_element: event = self.execute_sub_action("GetCoT").get_value("cot")
         
         mission_cot_notification = self.domain_controller.create_mission_change_notification(config_loader)
         mission_cot_notification.detail.mission.MissionChanges.MissionChange[0].contentResource = None

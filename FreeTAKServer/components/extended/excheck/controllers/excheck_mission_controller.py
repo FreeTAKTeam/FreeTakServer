@@ -16,10 +16,10 @@ from lxml import etree
 
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
-from FreeTAKServer.components.core.domain.domain import MissionInfo
-from FreeTAKServer.components.core.domain.domain import MissionData
-from FreeTAKServer.components.core.domain.domain import MissionContent
-from FreeTAKServer.components.core.domain.domain import MissionContentData
+from FreeTAKServer.components.core.fts_domain.domain import MissionInfo
+from FreeTAKServer.components.core.fts_domain.domain import MissionData
+from FreeTAKServer.components.core.fts_domain.domain import MissionContent
+from FreeTAKServer.components.core.fts_domain.domain import MissionContentData
 
 from .excheck_persistency_controller import ExCheckPersistencyController
 

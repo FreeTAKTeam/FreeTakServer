@@ -1,10 +1,10 @@
-from FreeTAKServer.components.core.domain.domain import Event
+from FreeTAKServer.components.core.fts_domain.domain import event
 
 from FreeTAKServer.components.extended.mission.configuration.mission_constants import MISSION_COLLECTION
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.domain.mission_list_cot_content import MissionListCoTContent
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
-from FreeTAKServer.components.core.domain.domain import MissionInfo
+from FreeTAKServer.components.core.fts_domain.domain import MissionInfo
 from FreeTAKServer.core.util.time_utils import get_dtg
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 
