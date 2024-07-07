@@ -1,17 +1,26 @@
 # FreeTAKServer [![Downloads](https://pepy.tech/badge/freetakserver)](https://pepy.tech/project/freetakserver) ![PyPI](https://img.shields.io/pypi/v/FreeTAKServer) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/FreeTAKTeam/FreeTakServer)
 
-![the Parrot is not dead](https://user-images.githubusercontent.com/60719165/226138056-a2b1076c-fd4c-4488-b330-55e57f9ecc78.png)
+<img src="https://user-images.githubusercontent.com/60719165/226138056-a2b1076c-fd4c-4488-b330-55e57f9ecc78.png" alt="the Parrot is not dead" width="300" height="300">
+
 
 Welcome to the FreeTakServer (FTS) git repository.
 
 FTS is a Python3 implementation of a TAK Server for devices like [ATAK](https://play.google.com/store/apps/details?id=com.atakmap.app.civ), [WinTAK](https://1drv.ms/u/s!AtMVrrXVTu4YgSanKtSHIslxfRu5?e=ftVio7), and ITAK, it is cross-platform and runs from a multi node installation on AWS down to the Android edition.
-It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/).
+It's free and open source (released under the [Eclipse Public License](https://www.eclipse.org/legal/epl-2.0/)).
 
-## User Documentation
+- [Use Cases](#use-cases)
+- [Documentation](#documentation)
+- [Requirements](#requirements)
+- [Community](#community)
+- [Project Status](#project-status)
+  - [Public instance](#public-instance)
+  - [Tell us what you think](#tell-us-what-you-think)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- [Donate](#donate)
+- [Open Source Notes](#open-source-notes)
 
 ![FTS UI 1.8](https://user-images.githubusercontent.com/60719165/118400921-0731e180-b63a-11eb-976e-c38ee052a013.png)
-
-For documentation on installation and usage visit our [FreeTAKServer Documentation page](https://freetakteam.github.io/FreeTAKServer-User-Docs/)
 
 ## Use Cases
 
@@ -27,44 +36,12 @@ It intends to support all the major use cases of the original TAK server.
 - SSL Encryption
 - KML generation
 - Command Line Interface
-- [Extensive REST API](https://freetakteam.github.io/FreeTAKServer-User-Docs/API/REST_APIDoc/) for integrations and extensions
-
-![some use cases](https://github.com/Tapawingo/TAKlib/blob/master/docs/FreeTakServer%20specs/FreeTak%20Use%20Case%20model.png?raw=true)
-
-## Project Status
-
-This code is currently in _Production Stage_.
-Check out our roadmap [@FreeTakServer#25](https://github.com/FreeTAKTeam/FreeTakServer/issues/25) to see what is planned
-Also subscribe to this feed to be automatically informed about PIP new versions:
-<https://pypi.org/rss/project/freetakserver/releases.xml>
-
-### Public instance
-
-We support a public instance of FTS.
-the IP address is TCP: 137.184.101.250:8087
-
-- download the configuration [here](https://drive.google.com/file/d/1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli/view?usp=sharing)
-- use the Import manager in ATAK to import the configuration
-- [more details](https://freetakteam.github.io/FreeTAKServer-User-Docs/Usage/Connecting_ATAK/)
-
-### Tell us what you think
-
-To discuss with the developer team:
-
-- Visit the ATAK subreddit
-  <https://www.reddit.com/r/ATAK/>
-- or join the ATAK Discord
-  <https://discordapp.com/invite/XEPyhHA>
-- or join the FreeTakServer Discord
-  <https://discord.gg/VSukyY5wfD>
-
-## Architecture
-
-TAKFreeServer uses a MVC pattern, the concept of a COT (Cursor On Target) is described in a set of Domain classes, generated from the UML model using a Model Driven Architecture approach.
+- [Extensive REST API](https://freetakteam.github.io/FreeTAKServer-User-Docs/API/REST_API_Doc/) for integrations and extensions
+![some use cases](https://user-images.githubusercontent.com/60719165/193834333-ea041722-e3ea-46f9-9eb6-7417c19807ea.png)
 
 ## Documentation
 
-See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for various information including an UML model of the Domain classes involved in a COT event.
+For documentation on installation and usage visit our [FreeTAKServer Documentation page](https://freetakteam.github.io/FreeTAKServer-User-Docs/)
 
 ## Requirements
 
@@ -78,9 +55,37 @@ See [user docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for vari
   - `setuptools`
   - `Flask-SQLAlchemy`
 
-## Installing and using FreeTakServer
+## Community
 
-For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Linux/1_Install/).
+If you have any issues don't hesitate to [bring it up](https://github.com/FreeTAKTeam/FreeTakServer/issues), as FreeTAKServer is in continuous development.
+To discuss with the ATAK community you may use:
+
+- The [official FreeTakServer Discord](https://discord.gg/VSukyY5wfD)
+- The [public ATAK Discord Server](https://discordapp.com/invite/XEPyhHA)
+- The [subreddit](https://www.reddit.com/r/ATAK/)
+
+## Project Status
+
+This code is currently in _Production Stage_.
+Check out our roadmap [@FreeTakServer#25](https://github.com/FreeTAKTeam/FreeTakServer/issues/25) to see what is planned
+Also subscribe to this feed to be automatically informed about PIP new versions:
+<https://pypi.org/rss/project/freetakserver/releases.xml>
+
+### Public instance
+
+We support a public instance of FTS.
+the IP address is TCP: `137.184.101.250:8087`
+
+- download the configuration [here](https://drive.google.com/file/d/1IK1LfPN13EWikHaMyOuDDwIerNGz-Wli/view?usp=sharing)
+- use the Import manager in ATAK to import the configuration
+- [more details](https://freetakteam.github.io/FreeTAKServer-User-Docs/Usage/Connecting_ATAK/)
+
+### Tell us what you think
+
+To discuss with the developer team:
+
+- Join the FreeTakServer Discord
+  <https://discord.gg/VSukyY5wfD>
 
 ## Project Structure
 
@@ -89,13 +94,9 @@ For installation [go here](https://freetakteam.github.io/FreeTAKServer-User-Docs
   - **Models**: Contains all the FTS object model
   - **Views**: contains the access to FTS
 
-## Community
+## Architecture
 
-If you have any issues don't hesitate to [bring it up](https://github.com/Tapawingo/FreeTakServer/issues), as FreeTAKServer is in continuous development.
-To discuss with the developer team you may use:
-
-- The [subreddit](https://www.reddit.com/r/ATAK/)
-- The [public ATAK Discord Server](https://discordapp.com/invite/XEPyhHA)
+TAKFreeServer uses a MVC pattern, the concept of a [COT (Cursor On Target)](https://freetakteam.github.io/FreeTAKServer-User-Docs/About/architecture/cot_domain/) is described in a set of Domain classes, generated from the UML model using a Model Driven Architecture approach.
 
 ## Donate
 
@@ -135,3 +136,4 @@ We'd like to thank the following individuals and organizations for providing cru
 - [Bootstrap4](https://getbootstrap.com/)
 - [pyopenssl](https://pypi.org/project/pyOpenSSL/)
 - [Flask Dashboard Black by AppSeed](https://github.com/app-generator/flask-black-dashboard)
+
