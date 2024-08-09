@@ -9,9 +9,9 @@ from digitalpy.core.logic.impl.default_business_rule_controller import (
     DefaultBusinessRuleController,
 )
 from digitalpy.core.telemetry.tracer import Tracer
-from digitalpy.core.parsing.load_configuration import Configuration, ConfigurationEntry
+from digitalpy.core.parsing.load_configuration import ModelConfiguration, ConfigurationEntry
 
-from FreeTAKServer.components.core.domain.domain._event import Event
+from FreeTAKServer.components.core.fts_domain.domain._event import event
 from ..domain import emergency
 
 from ..configuration.emergency_constants import (

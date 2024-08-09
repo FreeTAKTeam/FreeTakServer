@@ -2,7 +2,7 @@ from FreeTAKServer.components.extended.mission.configuration.mission_constants i
 from FreeTAKServer.components.extended.mission.controllers.builders.builder import Builder
 from FreeTAKServer.components.extended.mission.domain import detail
 from FreeTAKServer.components.extended.mission.persistence.mission import Mission as DBMission
-from FreeTAKServer.components.core.domain.domain import MissionData
+from FreeTAKServer.components.core.fts_domain.domain import MissionData
 from FreeTAKServer.core.util.time_utils import get_dtg
 
 class MissionListRecordBuilder(Builder):

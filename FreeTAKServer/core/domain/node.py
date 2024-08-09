@@ -2,7 +2,7 @@ import uuid
 import re
 from typing import Dict, Any
 from digitalpy.core.persistence.impl.default_persistent_object import DefaultPersistentObject
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration
 from digitalpy.core.domain.object_id import ObjectId
 from digitalpy.core.persistence.persistent_object import PersistentObject
 from digitalpy.core.persistence.persistent_object_proxy import PersistentObjectProxy
@@ -31,7 +31,7 @@ class Node(DefaultPersistentObject):
     def __init__(
         self,
         node_type,
-        configuration: Configuration,
+        configuration: ModelConfiguration,
         model,
         oid: ObjectId = None,
         initial_data=None,
@@ -44,7 +44,7 @@ class Node(DefaultPersistentObject):
         self._relationship_definition = configuration.elements[self.__class__.__name__]
         self._add_relationships(configuration, model)
 
-    def _add_relationships(self, configuration: Configuration, model) -> None:
+    def _add_relationships(self, configuration: ModelConfiguration, model) -> None:
         for (
             relationship_name,
             relationship_def,

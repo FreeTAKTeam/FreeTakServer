@@ -16,6 +16,7 @@ from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.component_management.impl.component_registration_handler import ComponentRegistrationHandler
 from digitalpy.core.zmanager.subject import Subject
 from digitalpy.core.main.DigitalPy import DigitalPy
+from digitalpy.core.service_management.controllers.service_management_main import ServiceManagementMain
 
 from FreeTAKServer.core.configuration.CreateStartupFilesController import (
     CreateStartupFilesController,
@@ -111,6 +112,7 @@ class FTS(DigitalPy):
         :return:
         """
         try:
+            # define configureation for the tcp cot service
             self.configuration.set_value(
                 key="subject_address",
                 value=f"{FTSServiceStartupConfigObject.RoutingProxyService.RoutingProxySubscriberIP}",
@@ -154,6 +156,24 @@ class FTS(DigitalPy):
                 section="RestAPIService"
             )
 
+            # TODO: this service should be instantiated via the service manager, this section is a temporary fix
+            self.configuration.set_value(
+                key="port",
+                value="RestAPIService",
+                section="RestAPIService"
+            )
+            self.configuration.set_value(key="default_status", value="Running", section="RestAPIService")
+            self.configuration.set_value(key="name", value="rest_api", section="RestAPIService")
+            self.configuration.set_value(key="description", value="the basic rest api exposed by freetakserver", section="RestAPIService")
+            self.configuration.set_value(key="port", value=19023, section="RestAPIService")
+            self.configuration.set_value(key="host", value="0.0.0.0", section="RestAPIService")
+            self.configuration.set_value(key="service_id", value="FreeTAKServer-rest_api", section="RestAPIService")
+            self.configuration.set_value(key="protocol", value="JSON", section="RestAPIService")
+            self.configuration.set_value(key="network", value="", section="RestAPIService")
+            self.configuration.set_value(key="blueprint_path", value="blueprints/", section="RestAPIService")
+            self.configuration.set_value(key="blueprint_import_base", value="digitalpy.blueprints", section="RestAPIService")
+            rest_service_description = ServiceManagementMain._create_service_description("RestAPIService")
+
             self.RestAPIPipe = Queue()
             restapicommandsthread = Queue()
             restapicommandsmain = Queue()
@@ -168,7 +188,7 @@ class FTS(DigitalPy):
             self.receive_Rest = threading.Thread(
                 target=self.receive_Rest_commands, args=(self.receive_Rest_stopper,)
             )
-            rest_api_service = ObjectFactory.get_instance("RestAPIService")
+            rest_api_service = ObjectFactory.get_instance("RestAPIService", dynamic_configuration={"service_desc": rest_service_description})
             self.RestAPIProcess = multiprocessing.Process(
                 target=rest_api_service.start,
                 args=(
@@ -177,7 +197,8 @@ class FTS(DigitalPy):
                     FTSServiceStartupConfigObject.RestAPIService.RestAPIServiceIP,
                     FTSServiceStartupConfigObject.RestAPIService.RestAPIServicePort,
                     self.StartupTime,
-                    ObjectFactory.get_instance("factory")
+                    ObjectFactory.get_instance("factory"),
+                    ObjectFactory.get_instance("tracingprovider")
                 ),
             )
             self.receive_Rest.start()
@@ -748,7 +769,7 @@ class FTS(DigitalPy):
         except:
             return -1
 
-    def configure(self, FTSServiceStartupConfigObject: FTSObj):
+    def configure_fts(self, FTSServiceStartupConfigObject: FTSObj):
         """Set or modify the configuration of the application
 
         Args:
@@ -876,7 +897,7 @@ class FTS(DigitalPy):
 
         _configure_integration_manager(self, FTSServiceStartupConfigObject)
 
-    def register_components(self, FTSServiceStartupConfigObject: FTSObj):
+    def register_fts_components(self, FTSServiceStartupConfigObject: FTSObj):
         """this method is responsible for registering all FTS components"""
         super().register_components()
 
@@ -1533,49 +1554,48 @@ class FTS(DigitalPy):
                 StartupObject.SSLCoTService.SSLCoTServiceStatus = "start"
                 StartupObject.SSLCoTService.SSLCoTServiceIP = SSLCoTIP
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
-                self.configure(StartupObject)
-                self.register_components(StartupObject)
-                self.start_services()
+                self.configure_fts(StartupObject)
+                self.register_fts_components(StartupObject)
                 self.start_rest_api_service(StartupObject)
                 self.start_all(StartupObject)
-
-            start_timer = time.time() - 60
-            threading.Thread(target=self.checkPipes).start()
-            while True:
-                try:
-                    if time.time() > start_timer + 15:
-                        start_timer = time.time()
-                        logger.debug(str(self.user_dict))
-                        logger.debug(
-                            f"number of CoT messages received by services: {str(self.data_from_services)}"
-                        )
-                        self.data_from_services = 0
-                except Exception as e:
-                    logger.error(
-                        "the periodic debug message has thrown an error " + str(e)
-                    )
-                try:
-                    self.user_dict = self.receive_data_froCoT_service_thread(
-                        self.service_tcp_user_queue_send,
-                        self.user_dict,
-                        self.core_tcp_user_queue_send,
-                    )
-                except Exception as e:
-                    logger.error(
-                        "error thrown receiving clients from tcp CoT pipe " + str(e)
-                    )
-                try:
-                    self.user_dict = self.receive_data_froCoT_service_thread(
-                        self.service_ssl_user_queue_send,
-                        self.user_dict,
-                        self.core_ssl_user_queue_send,
-                    )
-                except Exception as e:
-                    logger.error(
-                        "error thrown receiving clients from SSL CoT pipe " + str(e)
-                    )
+                self.start()
+                
         except Exception as e:
             logger.error("exception in the startup of FTS " + str(e))
+
+    def start(self):
+        threading.Thread(target=self.checkPipes).start()
+        super().start()
+
+    def event_loop(self):
+        """the main event loop of the FTS server core"""
+        try:
+            start_timer = time.time() - 60
+            if time.time() > start_timer + 15:
+                start_timer = time.time()
+                logger.debug(str(self.user_dict))
+                logger.debug(
+                    "number of CoT messages received by services: %s",
+                    str(self.data_from_services)
+                )
+                self.data_from_services = 0
+        except Exception as ex:
+            logger.error(
+                "the periodic debug message has thrown an error %s",
+                str(ex)
+            )
+            logger.error("error thrown receiving clients from tcp CoT pipe %s", str(ex))
+        try:
+            self.user_dict = self.receive_data_froCoT_service_thread(
+                self.service_ssl_user_queue_send,
+                self.user_dict,
+                self.core_ssl_user_queue_send,
+            )
+        except Exception as ex:
+            logger.error(
+                "error thrown receiving clients from SSL CoT pipe %s", str(ex)
+            )
+        
 
 
 import time

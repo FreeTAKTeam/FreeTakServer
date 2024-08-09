@@ -5,12 +5,12 @@ from FreeTAKServer.components.extended.mission.controllers.builders.builder impo
 from FreeTAKServer.components.extended.mission.domain import detail
 from FreeTAKServer.components.extended.mission.persistence.mission_change import MissionChange
 from FreeTAKServer.components.extended.mission.persistence.mission_cot import MissionCoT
-from FreeTAKServer.components.core.domain.domain import MissionChangeRecord
+from FreeTAKServer.components.core.fts_domain.domain import MissionChangeRecord
 from FreeTAKServer.core.enterprise_sync.persistence.sqlalchemy.enterprise_sync_data_object import EnterpriseSyncDataObject
 from FreeTAKServer.core.util.time_utils import get_dtg
 
 if TYPE_CHECKING:
-    from FreeTAKServer.components.core.domain.domain import Event
+    from FreeTAKServer.components.core.fts_domain.domain import event
 
 
 class MissionContentChangeBuilder(Builder):
@@ -68,7 +68,7 @@ class MissionContentChangeBuilder(Builder):
 
         if mapped_object.cot_detail_uid != None:
             self.request.set_value("cot_id", mapped_object.cot_detail_uid)
-            cot: 'Event' = self.execute_sub_action("GetCoT").get_value("cot")
+            cot: 'event' = self.execute_sub_action("GetCoT").get_value("cot")
             self.result.details.callsign = cot.detail.contact.callsign
             self.result.details.type = cot.type
 

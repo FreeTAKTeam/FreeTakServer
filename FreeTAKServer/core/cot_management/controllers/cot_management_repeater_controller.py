@@ -10,7 +10,7 @@ from typing import List, Union
 
 from FreeTAKServer.core.cot_management.controllers.cot_management_repeater_persistence import CotManagementRepeaterPersistence
 # used for type hinting
-from FreeTAKServer.components.core.domain.domain import Event
+from FreeTAKServer.components.core.fts_domain.domain import event
 
 class CotManagementRepeaterController(Controller):
     """this class is responsible for handling the business logic regarding the repeated messages
@@ -77,7 +77,7 @@ class CotManagementRepeaterController(Controller):
         for key, value in self.request.get_values().items():
             self.response.set_value(key, value)
             
-    def create_repeated_messages(self, message: List[Event], **kwargs):
+    def create_repeated_messages(self, message: List[event], **kwargs):
         """add a message to be repeated
 
         Args:

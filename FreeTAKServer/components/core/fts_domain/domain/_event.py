@@ -1,4 +1,4 @@
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration
 from .model_constants import EventVariables as vars
 import uuid
 from typing import TYPE_CHECKING
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%fZ"
 DEFAULT_STALE_TIME = 60
-class Event(CoTNode):
+class event(CoTNode):
     # TODO: fix emergency methods
     # Event.py
     """Python implementation of the Class Event
@@ -29,7 +29,7 @@ class Event(CoTNode):
 
     # default constructor
 
-    def __init__(self, configuration: Configuration, model, oid=None):
+    def __init__(self, configuration: ModelConfiguration, model, oid=None):
 
         super().__init__(self.__class__.__name__, configuration, model, oid)
         # modify the xml object to be event instead of Event

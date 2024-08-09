@@ -79,7 +79,7 @@ class SSLCoTServiceMain(DigitalPyService):
         integration_manager_address,
         integration_manager_port,
         integration_manager_protocol,
-        formatter: Formatter,
+        formatter: Formatter
     ):
         super().__init__(
             service_id,
@@ -89,7 +89,9 @@ class SSLCoTServiceMain(DigitalPyService):
             integration_manager_address,
             integration_manager_port,
             integration_manager_protocol,
-            formatter
+            formatter,
+            network=None,
+            protocol=APPLICATION_PROTOCOL
         )
         self.logger = logger
 

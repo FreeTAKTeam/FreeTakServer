@@ -8,7 +8,7 @@ from ..configuration.emergency_constants import (
     DEST_CLASS,
 )
 
-from FreeTAKServer.components.core.domain.domain._event import Event
+from FreeTAKServer.components.core.fts_domain.domain._event import event
 from FreeTAKServer.core.configuration.MainConfig import MainConfig
 import pickle
 from geopy import distance
@@ -59,7 +59,7 @@ class EmergencyGeneralController(Controller):
         response = self.execute_sub_action("ConvertHumanReadableToMachineReadable")
         model_object.type = response.get_value("machine_readable_type")
 
-    def filter_by_distance(self, emergency: Event):
+    def filter_by_distance(self, emergency: event):
         """filter who receives this emergency based on their distance from the emergency"""
         if config.EmergencyRadius==0:
             self.request.set_value('recipients', "*")
@@ -69,7 +69,7 @@ class EmergencyGeneralController(Controller):
                 if self.validate_user_distance(emergency, connection_obj):
                     self.request.get_value('recipients').append(str(connection_obj.get_oid()))
             
-    def validate_user_distance(self, emergency: Event, connection):
+    def validate_user_distance(self, emergency: event, connection):
         connection_model_object = connection.model_object
         connection_location = connection_model_object.point
 

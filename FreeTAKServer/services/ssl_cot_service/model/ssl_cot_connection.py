@@ -4,7 +4,7 @@ import copy
 from digitalpy.core.IAM.model.connection import Connection
 
 # direct import only to type hinting on line 20
-from FreeTAKServer.components.core.domain.domain import Event
+from FreeTAKServer.components.core.fts_domain.domain import event
 
 from ..configuration.ssl_cot_service_constants import SERVICE_NAME, XML
 
@@ -13,7 +13,7 @@ class SSLCoTConnection(Connection):
         super().__init__("ssl_cot_connection", oid)
         self._service_id = SERVICE_NAME
         self._protocol = XML
-        self._model_object: Event = None
+        self._model_object: event = None
         self._sock: socket = None
     
     @property
@@ -21,7 +21,7 @@ class SSLCoTConnection(Connection):
         return self._model_object
 
     @model_object.setter
-    def model_object(self, model_obj: Event):
+    def model_object(self, model_obj: event):
         self._model_object = model_obj
 
     @property
