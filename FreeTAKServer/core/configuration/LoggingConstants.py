@@ -1,29 +1,22 @@
 import os
 from pathlib import PurePath, Path
+from FreeTAKServer.core.configuration.MainConfig import MainConfig
+config = MainConfig.instance()
+
 class LoggingConstants:
     def __init__(self, log_name = "FTS"):
         #main logging config
-        # if on a unix type system with /var/log put the logs there
-        if os.path.isdir('/var/log') and os.access('/var/log', os.W_OK):
-            self.PARENTPATH = '/var'
-            self.LOGDIRECTORY = 'log'
-        else:
-            # determine the log path the old way under the execution path
-            self.CURRENTPATH = os.path.dirname(os.path.realpath(__file__))
-            self.CURRENTPATH = PurePath(self.CURRENTPATH)
-            self.PARENTPATH = str(self.CURRENTPATH.parents[0])
-            self.LOGDIRECTORY = 'logs'
 
-            # ensure directory exists
-            Path(PurePath(self.PARENTPATH, self.LOGDIRECTORY)).mkdir(parents=True, exist_ok=True)
+        # ensure directory exists
+        Path(PurePath(config.LogFilePath)).mkdir(parents=True, exist_ok=True)
 
         self.LOGFORMAT = '%(levelname)s : %(asctime)s : %(filename)s:%(lineno)d : %(message)s'
         self.LOGNAME = log_name
 
-        self.ERRORLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_error.log"))
-        self.DEBUGLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_debug.log"))
-        self.INFOLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_info.log"))
-        self.HTTPLOG = str(PurePath(self.PARENTPATH, f"{self.LOGDIRECTORY}/{self.LOGNAME}_http.log"))
+        self.ERRORLOG = str(PurePath(f"{config.LogFilePath}/{self.LOGNAME}_error.log"))
+        self.DEBUGLOG = str(PurePath(f"{config.LogFilePath}/{self.LOGNAME}_debug.log"))
+        self.INFOLOG = str(PurePath(f"{config.LogFilePath}/{self.LOGNAME}_info.log"))
+        self.HTTPLOG = str(PurePath(f"{config.LogFilePath}/{self.LOGNAME}_http.log"))
         self.DELIMITER = ' ? '
         self.MAXFILESIZE = 100000000
         self.BACKUPCOUNT = 5
