@@ -85,7 +85,7 @@ def ask_user_for_config():
         else:
             print('invalid database type')
     config.DBFilePath = database_path
-    add_to_config(data=database_path, path=["FileSystem", "FTS_DB_PATH"], source=yaml_config)
+    add_to_config(data=database_path, path=["Filesystem", "FTS_DB_PATH"], source=yaml_config)
 
     main_path = get_user_input(question="enter the preferred main path", default=config.MainPath)
     while not valid_and_safe_path(main_path):
@@ -93,14 +93,14 @@ def ask_user_for_config():
         main_path = get_user_input(question="enter the preferred main path", default=config.MainPath)
 
     config.MainPath = main_path
-    add_to_config(path=["FileSystem", "FTS_MAINPATH"], data= main_path, source= yaml_config)
+    add_to_config(path=["Filesystem", "FTS_MAINPATH"], data= main_path, source= yaml_config)
 
     log_path = get_user_input(question="enter the preferred log file path", default=config.LogFilePath)
     while not valid_and_safe_path(log_path):
         print("Invalid path. Path does not exist or insufficient permissions exist.")
         log_path = get_user_input(question="enter the preferred log file path", default=config.LogFilePath)
 
-    add_to_config(path=["FileSystem", "FTS_LOGFILE_PATH"], data=log_path, source=yaml_config)
+    add_to_config(path=["Filesystem", "FTS_LOGFILE_PATH"], data=log_path, source=yaml_config)
 
     add_to_config(path=["System", "FTS_NODE_ID"], data=config.nodeID, source=yaml_config)
 
@@ -156,9 +156,9 @@ def autogenerate_config():
 
     add_to_config(data=config.UserConnectionIP, path=["Addresses", "FTS_DP_ADDRESS"], source=yaml_config)
     add_to_config(data=config.UserConnectionIP, path=["Addresses", "FTS_USER_ADDRESS"], source=yaml_config)
-    add_to_config(data=config.DBFilePath, path=["FileSystem", "FTS_DB_PATH"], source=yaml_config)
-    add_to_config(path=["FileSystem", "FTS_MAINPATH"], data=config.MainPath, source=yaml_config)
-    add_to_config(path=["FileSystem", "FTS_LOGFILE_PATH"], data=config.LogFilePath, source=yaml_config)
+    add_to_config(data=config.DBFilePath, path=["Filesystem", "FTS_DB_PATH"], source=yaml_config)
+    add_to_config(path=["Filesystem", "FTS_MAINPATH"], data=config.MainPath, source=yaml_config)
+    add_to_config(path=["Filesystem", "FTS_LOGFILE_PATH"], data=config.LogFilePath, source=yaml_config)
     add_to_config(path=["System", "FTS_NODE_ID"], data=config.nodeID, source=yaml_config)
 
     file = open(config.yaml_path, mode="w+")
@@ -185,7 +185,7 @@ Addresses:
   #FTS_API_PORT: 19023
   #FTS_FED_PORT: 9000
   #FTS_API_ADDRESS: 0.0.0.0
-FileSystem:
+Filesystem:
   FTS_DB_PATH: /opt/fts/FreeTAKServer.db
   #FTS_COT_TO_DB: True
   FTS_PERSISTENCE_PATH: /opt/fts/

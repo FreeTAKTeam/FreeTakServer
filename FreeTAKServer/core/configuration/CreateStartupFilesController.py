@@ -9,7 +9,7 @@ class CreateStartupFilesController:
     def __init__(self):
         self.file_dir = os.path.dirname(os.path.realpath(__file__))
         self.dp_directory = PurePath(self.file_dir, DataPackageServerConstants().DATAPACKAGEFOLDER)
-        self.logs_directory = PurePath(LoggingConstants().PARENTPATH)
+        self.logs_directory = PurePath(config.LogFilePath)
         self.client_package = config.ClientPackages
         self.createFolder()
 
