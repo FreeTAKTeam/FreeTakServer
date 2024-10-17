@@ -136,4 +136,3 @@ We'd like to thank the following individuals and organizations for providing cru
 - [Bootstrap4](https://getbootstrap.com/)
 - [pyopenssl](https://pypi.org/project/pyOpenSSL/)
 - [Flask Dashboard Black by AppSeed](https://github.com/app-generator/flask-black-dashboard)
-
