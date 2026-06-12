@@ -2,7 +2,7 @@ import uuid
 import re
 from typing import Dict, Any
 from digitalpy.core.persistence.impl.default_persistent_object import DefaultPersistentObject
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as Configuration
 from digitalpy.core.domain.object_id import ObjectId
 from digitalpy.core.persistence.persistent_object import PersistentObject
 from digitalpy.core.persistence.persistent_object_proxy import PersistentObjectProxy

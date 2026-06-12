@@ -1,7 +1,7 @@
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 from FreeTAKServer.components.core.domain.domain._role import role
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as Configuration
 
 class MissionInvitation(CoTNode):
     def __init__(self, configuration: Configuration, model, oid=None):

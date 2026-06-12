@@ -1,10 +1,10 @@
 from types import ModuleType
 from typing import Any, List, Optional, Type
 from digitalpy.core.zmanager.action_mapper import ActionMapper
-from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.digipy_configuration.domain.model.configuration import Configuration
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as Configuration
 from digitalpy.core.domain.node import Node
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.main.object_factory import ObjectFactory

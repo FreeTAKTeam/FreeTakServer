@@ -1,17 +1,19 @@
 from unittest.mock import Mock, patch, MagicMock
 import uuid
+from unittest.mock import MagicMock
 import pickle
 from typing import Dict
 from digitalpy.core.zmanager.impl.default_request import DefaultRequest
 from digitalpy.core.zmanager.impl.default_response import DefaultResponse
 from digitalpy.core.main.controller import Controller
 from digitalpy.core.main.object_factory import ObjectFactory
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as Configuration
 
 from FreeTAKServer.core.cot_management.cot_management_facade import CotManagement
 
 def setup():
-    pass
+    from digitalpy.core.main.impl.default_factory import DefaultFactory
+    ObjectFactory.configure(DefaultFactory())
 
 def mock_controller_execute_sub_action(sub_response = Mock()):
     Controller.execute_sub_action = Mock(return_value=sub_response)
@@ -38,12 +40,16 @@ def get_mock_connection(node = get_mock_node(), service_id = "test-service", pro
     return mock_connection
 
 def instantiate_request_response(action):
+    if not ObjectFactory.is_configured():
+        fake_factory = MagicMock()
+        fake_persistence = MagicMock()
+        fake_persistence.is_known_type.return_value = False
+        fake_factory.get_instance.return_value = fake_persistence
+        ObjectFactory.configure(fake_factory)
     request = DefaultRequest()
     response = DefaultResponse()
-
     request.set_action(action)
     response.set_action(action)
-
     return request, response
 
 def assert_response_val(value_name, value_type, value_content, response):

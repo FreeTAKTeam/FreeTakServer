@@ -2,18 +2,13 @@ import json
 TEST_GET_ALL_SUBSCRIPTIONS_SCHEMA = json.dumps(
 {
     "request": {
-        {
-        "action": "GetAllSubscriptions"
-        },
+        "action": "GetAllSubscriptions",
+        "values": {}
     },
     "response": {
         "action": "GetAllSubscriptions",
         "values": {
-            "message": [
-                {
-                    "is_node": True
-                }
-            ]
+            "mission_subscriptions": "{}"
         }
     }
 })

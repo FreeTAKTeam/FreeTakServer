@@ -1,5 +1,5 @@
 from digitalpy.core.main.object_factory import ObjectFactory
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from FreeTAKServer.components.extended.mission.mission_facade import Mission
 import FreeTAKServer
@@ -20,23 +20,33 @@ def test_add_contents_to_mission(update_mission_mock):
     facade.initialize(setup.request, setup.response)
 
     mission = create_test_mission()
-
     enterprise_sync_data = create_enterprise_sync_metadata()
-
-    def simple_function_call_side_effect(self, *args, **kwargs):
-        self.response.set_value('objectmetadata', [enterprise_sync_data])
 
     setup.request.set_value('mission_id', "test_mission")
     setup.request.set_value('hashes', [enterprise_sync_data.hash])
 
-    with patch.object(FreeTAKServer.core.enterprise_sync.controllers.enterprise_sync_general_controller.EnterpriseSyncGeneralController, 'get_multiple_enterprise_sync_metadata', side_effect=simple_function_call_side_effect, autospec=True) as get_enterprise_sync_metadata_mock, \
-            patch.object(FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller.MissionPersistenceController, 'get_mission', return_value = mission) as get_mission_mock, \
+    def sub_action_side_effect(action_name):
+        response = MagicMock()
+        if action_name == "GetMultipleEnterpriseSyncMetaData":
+            response.get_value.return_value = [enterprise_sync_data]
+        elif action_name == "GetMultipleEnterpriseSyncData":
+            response.get_value.return_value = [b'<xml>test</xml>']
+        elif action_name == "serialize":
+            response.get_value.return_value = ['{}']
+        else:
+            response.get_value.return_value = None
+        return response
+
+    mock_mission_obj = MagicMock()
+
+    with patch.object(facade.general_controller, 'execute_sub_action', side_effect=sub_action_side_effect), \
+            patch.object(facade.general_controller.mission_director, 'construct', return_value=mock_mission_obj), \
+            patch.object(FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller.MissionPersistenceController, 'get_mission', return_value=mission) as get_mission_mock, \
             patch.object(FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller.MissionPersistenceController, 'create_mission_change') as create_mission_change, \
             patch.object(FreeTAKServer.components.extended.mission.controllers.mission_persistence_controller.MissionPersistenceController, 'create_mission_content') as create_mission_content:
-        get_enterprise_sync_metadata_mock.return_value = None
 
         facade.add_mission_contents(**setup.request.get_values())
-    
+
     assert update_mission_mock.call_count == 1
 
     assert update_mission_mock.call_args[0][0] == mission.PrimaryKey

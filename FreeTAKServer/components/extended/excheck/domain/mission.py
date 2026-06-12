@@ -1,5 +1,5 @@
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as Configuration
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 
 class mission(CoTNode):

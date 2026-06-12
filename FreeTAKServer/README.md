@@ -68,7 +68,7 @@ under /docs, you can find various documents including an UML model of the Domain
 
 ## Requirements
 
-- Python 3.6 (or better)
+- Python 3.13 (or better)
   following Python libraries are required and will be installed automatically by Pip: flask, lxml, pathlib, tabulate, sqlalchemy, setuptools, Flask-SQLAlchemy
 
 ## Installing and using FreeTakServer

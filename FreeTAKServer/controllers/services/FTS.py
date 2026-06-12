@@ -10,7 +10,7 @@ import sys
 import threading
 
 from digitalpy.core.digipy_configuration.impl.inifile_configuration import InifileConfiguration
-from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.digipy_configuration.domain.model.configuration import Configuration
 from digitalpy.core.main.impl.default_factory import DefaultFactory
 from digitalpy.core.main.object_factory import ObjectFactory
 from digitalpy.core.component_management.impl.component_registration_handler import ComponentRegistrationHandler
@@ -878,7 +878,7 @@ class FTS(DigitalPy):
 
     def register_components(self, FTSServiceStartupConfigObject: FTSObj):
         """this method is responsible for registering all FTS components"""
-        super().register_components()
+        super().register_core_components()
 
         # define routing configuration
         self.configuration.add_configuration(
@@ -1535,7 +1535,7 @@ class FTS(DigitalPy):
                 StartupObject.SSLCoTService.SSLCoTServicePort = SSLCoTPort
                 self.configure(StartupObject)
                 self.register_components(StartupObject)
-                self.start_services()
+                self.start_core_services()
                 self.start_rest_api_service(StartupObject)
                 self.start_all(StartupObject)
 

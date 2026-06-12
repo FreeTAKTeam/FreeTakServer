@@ -3,19 +3,19 @@ from digitalpy.core.telemetry.tracer import Tracer
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.action_mapper import ActionMapper
-from digitalpy.core.digipy_configuration.configuration import Configuration
-from digitalpy.core.parsing.load_configuration import Configuration as LoadConf
+from digitalpy.core.digipy_configuration.domain.model.configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as LoadConf
 from digitalpy.core.domain.node import Node
 from .domain import Domain
 from lxml import etree
 
 class DictToNodeController(Controller):
     def __init__(
-        self,
-        request: Request,
-        response: Response,
-        sync_action_mapper: ActionMapper,
-        configuration: Configuration,
+            self,
+            request: Request,
+            response: Response,
+            sync_action_mapper: ActionMapper,
+            configuration: Configuration,
     ) -> None:
         super().__init__(request, response, sync_action_mapper, configuration)
         self.domain_controller = Domain(request, response, sync_action_mapper, configuration)
@@ -28,12 +28,12 @@ class DictToNodeController(Controller):
         return getattr(self, method)(**self.request.get_values())
 
     def convert_dict_to_node(
-        self,
-        dictionary: dict,
-        model_object: Node,
-        tracer: Tracer,
-        object_class_name,
-        **kwargs
+            self,
+            dictionary: dict,
+            model_object: Node,
+            tracer: Tracer,
+            object_class_name,
+            **kwargs
     ):
         """fill the node object with the values from the dictionary
 
@@ -61,6 +61,7 @@ class DictToNodeController(Controller):
             return node
         except Exception as ex:
             print(ex)
+
     def add_value_to_node(self, key, value, node):
         """add a value to a node object"""
         if key == "#text":
@@ -77,7 +78,7 @@ class DictToNodeController(Controller):
         elif isinstance(value, list) and isinstance(getattr(node, key, None), list):
             self.serialize(value[0], getattr(node, key)[0])
 
-            for i in range(1,len(value)):
+            for i in range(1, len(value)):
                 new_node = self.domain_controller.create_node(LoadConf(), key)
                 self.serialize(value[i], new_node)
 
@@ -109,6 +110,6 @@ class DictToNodeController(Controller):
                 response = self.execute_sub_action("DictToXML")
                 elem = etree.fromstring(response.get_value("xml").encode())
                 node.xml.append(elem)
-                
+
         elif value is not None:
             node.xml.attrib[key] = value

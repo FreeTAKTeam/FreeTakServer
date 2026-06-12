@@ -16,7 +16,7 @@ def create_test_mission():
     mission.PrimaryKey = "test_mission"
 
     mission.tool = "test_tool"
-    
+
     mission.creatorUid = "test_creator_uid"
 
     mission.createTime = get_current_datetime()
@@ -63,9 +63,9 @@ def add_test_mission_content(mission: MissionDBObj):
 
     mission.contents.append(mission_content)
 
-    mission_change = MissionChange()
+    mission_change = MagicMock(MissionChange)
 
-    mission_content.change.append(mission_change)
+    mission_content.change = [mission_change]
 
     mission.changes.append(mission_change)
 
@@ -85,8 +85,12 @@ def add_test_mission_content(mission: MissionDBObj):
 
     mission_change.timestamp = get_current_datetime()
 
+    mission_change.external_data = None
+
 def create_log():
-    log = Log(id = "test_mission_log_id")
+    log = MagicMock(Log)
+
+    log.id = "test_mission_log_id"
 
     log.entryUid = "test_mission_log_entry_uid"
 
@@ -103,6 +107,8 @@ def create_log():
     log.contentHashes = "test_content_hashes"
 
     log.keywords = "test_keywords"
+
+    log.missions = []
 
     return log
 
@@ -128,15 +134,11 @@ def create_mission_cot():
 
     cot.lon = 1.0
 
-    cot.uid = "test_cot_uid"
+    cot.uid = "test_uid"
 
-    cot.type = "test_cot_type"
-
-    cot.xml_content = "<event></event>"
-
-    cot.create_time = get_current_datetime()
+    cot.xml_content = "<event>test data</event>"
 
     return cot
 
 def create_event_db():
-    
+    pass

@@ -1,4 +1,4 @@
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as Configuration
 from .model_constants import EventVariables as vars
 import uuid
 from typing import TYPE_CHECKING

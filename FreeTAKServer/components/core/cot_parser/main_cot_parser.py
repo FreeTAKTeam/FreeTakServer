@@ -6,7 +6,7 @@ from FreeTAKServer.model.FTSModel.fts_protocol_object import FTSProtocolObject
 from .xml_element import ExtendedElement
 from lxml import etree
 from digitalpy.core.zmanager.action_mapper import ActionMapper
-from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.digipy_configuration.domain.model.configuration import Configuration
 
 
 class TargetXMLToModel_object:

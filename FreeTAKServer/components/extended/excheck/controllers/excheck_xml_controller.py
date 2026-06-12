@@ -7,7 +7,7 @@ from digitalpy.core.main.controller import Controller
 from digitalpy.core.zmanager.request import Request
 from digitalpy.core.zmanager.response import Response
 from digitalpy.core.zmanager.action_mapper import ActionMapper
-from digitalpy.core.digipy_configuration.configuration import Configuration
+from digitalpy.core.digipy_configuration.domain.model.configuration import Configuration
 from bitarray import bitarray
 
 from defusedxml import ElementTree

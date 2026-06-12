@@ -1,4 +1,4 @@
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 class MissionBase:
     __allow_unmapped__ = True

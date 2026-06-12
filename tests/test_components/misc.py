@@ -56,7 +56,7 @@ class ComponentTest(DigitalPy):
             section="ActionMapper",
         )
 
-        super().register_components()
+        super().register_core_components()
         
         # register the internal components
         internal_components = ComponentRegistrationHandler.discover_components(

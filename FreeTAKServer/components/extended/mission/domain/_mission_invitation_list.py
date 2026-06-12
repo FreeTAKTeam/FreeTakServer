@@ -2,7 +2,7 @@ from typing import List
 from FreeTAKServer.components.core.abstract_component.cot_node import CoTNode
 from FreeTAKServer.components.core.abstract_component.cot_property import CoTProperty
 from ._mission_invitation import MissionInvitation
-from digitalpy.core.parsing.load_configuration import Configuration
+from digitalpy.core.parsing.load_configuration import ModelConfiguration as Configuration
 
 class MissionInvitationList(CoTNode):
     def __init__(self, configuration: Configuration, model, oid=None):
